@@ -419,10 +419,19 @@
                 <div class="form-group">
                     <label class="form-label" for="signup-password">ตั้งรหัสผ่าน</label>
                     <div style="position: relative; display: flex; align-items: center;">
-                        <input class="form-input" type="password" id="signup-password" placeholder="" required minlength="4" style="padding-right: 36px;">
-                        <button type="button" onclick="togglePasswordVisibility('signup-password', this)" style="position: absolute; right: 10px; border: none; background: none; cursor: pointer; color: var(--text-muted); display: flex; align-items: center; padding: 2px;">
+                        <input class="form-input" type="password" id="signup-password" placeholder="อย่างน้อย 7 ตัวอักษร (A-Z, a-z)" required oninput="onSignUpPasswordInput()" style="padding-right: 36px;">
+                        <button type="button" onclick="togglePasswordVisibility('signup-password', this)" style="position: absolute; right: 10px; border: none; background: none; cursor: pointer; color: var(--text-muted); display: flex; align-items: center; padding: 2px;" title="กดเพื่อดูรหัสผ่าน">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                         </button>
+                    </div>
+
+                    <!-- รายการแสดงผลตรวจสอบกฎการตั้งรหัสผ่านแบบ Real-time -->
+                    <div id="signup-pass-rules-box" style="margin-top: 6px; padding: 8px 10px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 11px; display: flex; flex-direction: column; gap: 3px;">
+                        <div style="font-weight: 700; color: #475569; margin-bottom: 2px;">กฎเงื่อนไขการตั้งรหัสผ่าน:</div>
+                        <div id="signup-rule-len" style="color: #dc2626;">❌ 1. ต้องมีอย่างน้อย 7 ตัวอักษร</div>
+                        <div id="signup-rule-lang" style="color: #dc2626;">❌ 2. ต้องใช้ตัวอักษรภาษาอังกฤษเท่านั้น</div>
+                        <div id="signup-rule-case" style="color: #dc2626;">❌ 3. ต้องมีตัวอักษรภาษาอังกฤษพิมพ์เล็กและพิมพ์ใหญ่</div>
+                        <div id="signup-rule-spec" style="color: #dc2626;">❌ 4. ห้ามใช้อักขระพิเศษ</div>
                     </div>
                 </div>
 
@@ -431,7 +440,7 @@
 
         </div>
 
-                <!-- Modal เปลี่ยนรหัสผ่านสำหรับการเข้าสู่ระบบครั้งแรก (First Login Password Reset Modal) -->
+        <!-- Modal เปลี่ยนรหัสผ่านสำหรับการเข้าสู่ระบบครั้งแรก (First Login Password Reset Modal) -->
         <div id="modal-first-login-password" style="display: none; position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(3px); z-index: 1000; align-items: center; justify-content: center; padding: 16px;">
             <div style="background: #ffffff; border-radius: 16px; padding: 20px; width: 100%; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2); position: relative;">
                 
@@ -454,15 +463,34 @@
 
                 <div class="form-group" style="margin-top: 4px;">
                     <label class="form-label" style="font-size: 11px;">รหัสผ่านใหม่</label>
-                    <input type="password" id="first-new-password" class="form-control" placeholder="อย่างน้อย 4 ตัวอักษร" style="padding: 10px; font-size: 12px;">
+                    <div style="position: relative; display: flex; align-items: center;">
+                        <input type="password" id="first-new-password" class="form-control" placeholder="อย่างน้อย 7 ตัวอักษร (A-Z, a-z)" oninput="onFirstPasswordInput()" style="padding: 10px 36px 10px 10px; font-size: 12px; width: 100%; border: 1px solid var(--border-color); border-radius: 8px;">
+                        <button type="button" onclick="togglePasswordVisibility('first-new-password', this)" style="position: absolute; right: 10px; border: none; background: none; cursor: pointer; color: var(--text-muted); display: flex; align-items: center; padding: 2px;" title="กดเพื่อดูรหัสผ่าน">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        </button>
+                    </div>
+
+                    <!-- รายการแสดงผลตรวจสอบกฎการตั้งรหัสผ่านแบบ Real-time -->
+                    <div id="first-pass-rules-box" style="margin-top: 6px; padding: 8px 10px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 10.5px; display: flex; flex-direction: column; gap: 3px;">
+                        <div style="font-weight: 700; color: #475569; margin-bottom: 2px;">กฎเงื่อนไขการตั้งรหัสผ่าน:</div>
+                        <div id="first-rule-len" style="color: #dc2626;">❌ 1. ต้องมีอย่างน้อย 7 ตัวอักษร</div>
+                        <div id="first-rule-lang" style="color: #dc2626;">❌ 2. ต้องใช้ตัวอักษรภาษาอังกฤษเท่านั้น</div>
+                        <div id="first-rule-case" style="color: #dc2626;">❌ 3. ต้องมีตัวอักษรภาษาอังกฤษพิมพ์เล็กและพิมพ์ใหญ่</div>
+                        <div id="first-rule-spec" style="color: #dc2626;">❌ 4. ห้ามใช้อักขระพิเศษ</div>
+                    </div>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label" style="font-size: 11px;">ยืนยันรหัสผ่านใหม่</label>
-                    <input type="password" id="first-confirm-password" class="form-control" placeholder="กรอกรหัสผ่านใหม่อีกครั้ง" style="padding: 10px; font-size: 12px;">
+                    <div style="position: relative; display: flex; align-items: center;">
+                        <input type="password" id="first-confirm-password" class="form-control" placeholder="กรอกรหัสผ่านใหม่อีกครั้ง" style="padding: 10px 36px 10px 10px; font-size: 12px; width: 100%; border: 1px solid var(--border-color); border-radius: 8px;">
+                        <button type="button" onclick="togglePasswordVisibility('first-confirm-password', this)" style="position: absolute; right: 10px; border: none; background: none; cursor: pointer; color: var(--text-muted); display: flex; align-items: center; padding: 2px;" title="กดเพื่อดูรหัสผ่าน">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        </button>
+                    </div>
                 </div>
 
-                <div id="first-pass-error" style="display: none; font-size: 11px; color: var(--error-color); text-align: center;"></div>
+                <div id="first-pass-error" style="display: none; font-size: 11px; color: var(--error-color); text-align: center; font-weight: 600;"></div>
 
                 <div style="display: flex; gap: 8px; margin-top: 4px;">
                     <button type="button" class="btn-submit" style="background-color: #f1f5f9; color: #475569; width: 35%; padding: 12px; font-size: 12px; border: 1px solid #cbd5e1;" onclick="closeFirstLoginPasswordModal()">
@@ -504,13 +532,66 @@
     </div>
 
     <script>
-                let pendingFirstLoginUser = null;
+        let pendingFirstLoginUser = null;
+
+        function validatePasswordRules(pass) {
+            pass = pass || '';
+            const isLenValid = pass.length >= 7;
+            // 2. English letters and numbers allowed. No Thai script or other non-ASCII characters.
+            const isLangValid = pass.length > 0 && /^[a-zA-Z0-9]+$/.test(pass) && !/[\u0E00-\u0E7F]/.test(pass);
+            // 3. Must contain both uppercase (A-Z) and lowercase (a-z) English letters
+            const isCaseValid = /[A-Z]/.test(pass) && /[a-z]/.test(pass);
+            // 4. No special characters allowed (only A-Z, a-z, 0-9)
+            const isSpecValid = pass.length > 0 && !/[^a-zA-Z0-9]/.test(pass);
+
+            return {
+                isLenValid,
+                isLangValid,
+                isCaseValid,
+                isSpecValid,
+                isValid: isLenValid && isLangValid && isCaseValid && isSpecValid
+            };
+        }
+
+        function updateRuleUI(elId, isValid, text) {
+            const el = document.getElementById(elId);
+            if (!el) return;
+            if (isValid) {
+                el.style.color = '#15803d';
+                el.style.fontWeight = '600';
+                el.innerHTML = `✅ ${text}`;
+            } else {
+                el.style.color = '#dc2626';
+                el.style.fontWeight = '400';
+                el.innerHTML = `❌ ${text}`;
+            }
+        }
+
+        function checkPasswordRulesRealtime(pass, prefix) {
+            const res = validatePasswordRules(pass);
+            updateRuleUI(`${prefix}-rule-len`, res.isLenValid, "1. ต้องมีอย่างน้อย 7 ตัวอักษร");
+            updateRuleUI(`${prefix}-rule-lang`, res.isLangValid, "2. ต้องใช้ตัวอักษรภาษาอังกฤษเท่านั้น");
+            updateRuleUI(`${prefix}-rule-case`, res.isCaseValid, "3. ต้องมีตัวอักษรภาษาอังกฤษพิมพ์เล็กและพิมพ์ใหญ่");
+            updateRuleUI(`${prefix}-rule-spec`, res.isSpecValid, "4. ห้ามใช้อักขระพิเศษ");
+            return res;
+        }
+
+        function onFirstPasswordInput() {
+            const pass = document.getElementById('first-new-password').value;
+            checkPasswordRulesRealtime(pass, 'first');
+        }
+
+        function onSignUpPasswordInput() {
+            const pass = document.getElementById('signup-password').value;
+            checkPasswordRulesRealtime(pass, 'signup');
+        }
 
         function showFirstLoginPasswordResetModal(user) {
             pendingFirstLoginUser = user;
             document.getElementById('first-new-password').value = '';
             document.getElementById('first-confirm-password').value = '';
             document.getElementById('first-pass-error').style.display = 'none';
+            checkPasswordRulesRealtime('', 'first');
             document.getElementById('modal-first-login-password').style.display = 'flex';
         }
 
@@ -524,14 +605,21 @@
             const confirmPass = document.getElementById('first-confirm-password').value;
             const errBox = document.getElementById('first-pass-error');
 
-            if (!newPass || newPass.length < 4) {
-                errBox.textContent = 'กรุณากรอกรหัสผ่านใหม่ความยาวอย่างน้อย 4 ตัวอักษร';
+            const res = checkPasswordRulesRealtime(newPass, 'first');
+            if (!res.isValid) {
+                let failedRules = [];
+                if (!res.isLenValid) failedRules.push('ข้อ 1 (ต้องมีอย่างน้อย 7 ตัวอักษร)');
+                if (!res.isLangValid) failedRules.push('ข้อ 2 (ต้องใช้ตัวอักษรภาษาอังกฤษเท่านั้น)');
+                if (!res.isCaseValid) failedRules.push('ข้อ 3 (ต้องมีตัวอักษรพิมพ์เล็กและพิมพ์ใหญ่)');
+                if (!res.isSpecValid) failedRules.push('ข้อ 4 (ห้ามใช้อักขระพิเศษ)');
+
+                errBox.innerHTML = `⚠️ <strong>การตั้งรหัสผ่านไม่ผ่านเงื่อนไข!</strong><br>ผิดกฎ: ${failedRules.join(' | ')}`;
                 errBox.style.display = 'block';
                 return;
             }
 
             if (newPass !== confirmPass) {
-                errBox.textContent = 'รหัสผ่านใหม่และการยืนยันรหัสผ่านไม่ตรงกัน';
+                errBox.textContent = '⚠️ รหัสผ่านใหม่และการยืนยันรหัสผ่านไม่ตรงกัน';
                 errBox.style.display = 'block';
                 return;
             }
@@ -671,6 +759,18 @@
             const email = document.getElementById('signup-email').value.trim().toLowerCase();
             const password = document.getElementById('signup-password').value;
             const section = document.getElementById('signup-section-select').value;
+
+            const res = checkPasswordRulesRealtime(password, 'signup');
+            if (!res.isValid) {
+                let failedRules = [];
+                if (!res.isLenValid) failedRules.push('ข้อ 1 (ต้องมีอย่างน้อย 7 ตัวอักษร)');
+                if (!res.isLangValid) failedRules.push('ข้อ 2 (ต้องใช้ตัวอักษรภาษาอังกฤษเท่านั้น)');
+                if (!res.isCaseValid) failedRules.push('ข้อ 3 (ต้องมีตัวอักษรพิมพ์เล็กและพิมพ์ใหญ่)');
+                if (!res.isSpecValid) failedRules.push('ข้อ 4 (ห้ามใช้อักขระพิเศษ)');
+
+                showAlert(`การตั้งรหัสผ่านไม่ผ่านเงื่อนไข!\n\nผิดกฎ:\n- ${failedRules.join('\n- ')}`);
+                return;
+            }
 
             let memberId = '';
             if (currentSignUpRole === 'student') {
