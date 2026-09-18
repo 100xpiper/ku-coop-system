@@ -431,7 +431,7 @@
                         <div id="signup-rule-len" style="color: #dc2626;">❌ 1. ต้องมีอย่างน้อย 7 ตัวอักษร</div>
                         <div id="signup-rule-lang" style="color: #dc2626;">❌ 2. ต้องใช้ตัวอักษรภาษาอังกฤษเท่านั้น</div>
                         <div id="signup-rule-case" style="color: #dc2626;">❌ 3. ต้องมีตัวอักษรภาษาอังกฤษพิมพ์เล็กและพิมพ์ใหญ่</div>
-                        <div id="signup-rule-spec" style="color: #dc2626;">❌ 4. ห้ามใช้อักขระพิเศษ</div>
+                        <div id="signup-rule-spec" style="color: #dc2626;">❌ 4. ห้ามใช้อักขระพิเศษ (เช่น !@#$%^&*)</div>
                     </div>
                 </div>
 
@@ -476,7 +476,7 @@
                         <div id="first-rule-len" style="color: #dc2626;">❌ 1. ต้องมีอย่างน้อย 7 ตัวอักษร</div>
                         <div id="first-rule-lang" style="color: #dc2626;">❌ 2. ต้องใช้ตัวอักษรภาษาอังกฤษเท่านั้น</div>
                         <div id="first-rule-case" style="color: #dc2626;">❌ 3. ต้องมีตัวอักษรภาษาอังกฤษพิมพ์เล็กและพิมพ์ใหญ่</div>
-                        <div id="first-rule-spec" style="color: #dc2626;">❌ 4. ห้ามใช้อักขระพิเศษ</div>
+                        <div id="first-rule-spec" style="color: #dc2626;">❌ 4. ห้ามใช้อักขระพิเศษ (เช่น !@#$%^&*)</div>
                     </div>
                 </div>
 
@@ -572,7 +572,7 @@
             updateRuleUI(`${prefix}-rule-len`, res.isLenValid, "1. ต้องมีอย่างน้อย 7 ตัวอักษร");
             updateRuleUI(`${prefix}-rule-lang`, res.isLangValid, "2. ต้องใช้ตัวอักษรภาษาอังกฤษเท่านั้น");
             updateRuleUI(`${prefix}-rule-case`, res.isCaseValid, "3. ต้องมีตัวอักษรภาษาอังกฤษพิมพ์เล็กและพิมพ์ใหญ่");
-            updateRuleUI(`${prefix}-rule-spec`, res.isSpecValid, "4. ห้ามใช้อักขระพิเศษ");
+            updateRuleUI(`${prefix}-rule-spec`, res.isSpecValid, "4. ห้ามใช้อักขระพิเศษ (เช่น !@#$%^&*)");
             return res;
         }
 
@@ -608,10 +608,10 @@
             const res = checkPasswordRulesRealtime(newPass, 'first');
             if (!res.isValid) {
                 let failedRules = [];
-                if (!res.isLenValid) failedRules.push('ข้อ 1 (ต้องมีอย่างน้อย 7 ตัวอักษร)');
-                if (!res.isLangValid) failedRules.push('ข้อ 2 (ต้องใช้ตัวอักษรภาษาอังกฤษเท่านั้น)');
-                if (!res.isCaseValid) failedRules.push('ข้อ 3 (ต้องมีตัวอักษรพิมพ์เล็กและพิมพ์ใหญ่)');
-                if (!res.isSpecValid) failedRules.push('ข้อ 4 (ห้ามใช้อักขระพิเศษ)');
+                if (!res.isLenValid) failedRules.push('ข้อ 1 (อย่างน้อย 7 ตัวอักษร)');
+                if (!res.isLangValid) failedRules.push('ข้อ 2 (ตัวอักษรภาษาอังกฤษเท่านั้น)');
+                if (!res.isCaseValid) failedRules.push('ข้อ 3 (พิมพ์เล็กและพิมพ์ใหญ่)');
+                if (!res.isSpecValid) failedRules.push('ข้อ 4 (ห้ามใช้อักขระพิเศษ เช่น !@#$%^&*)');
 
                 errBox.innerHTML = `⚠️ <strong>การตั้งรหัสผ่านไม่ผ่านเงื่อนไข!</strong><br>ผิดกฎ: ${failedRules.join(' | ')}`;
                 errBox.style.display = 'block';
@@ -766,7 +766,7 @@
                 if (!res.isLenValid) failedRules.push('ข้อ 1 (ต้องมีอย่างน้อย 7 ตัวอักษร)');
                 if (!res.isLangValid) failedRules.push('ข้อ 2 (ต้องใช้ตัวอักษรภาษาอังกฤษเท่านั้น)');
                 if (!res.isCaseValid) failedRules.push('ข้อ 3 (ต้องมีตัวอักษรพิมพ์เล็กและพิมพ์ใหญ่)');
-                if (!res.isSpecValid) failedRules.push('ข้อ 4 (ห้ามใช้อักขระพิเศษ)');
+                if (!res.isSpecValid) failedRules.push('ข้อ 4 (ห้ามใช้อักขระพิเศษ เช่น !@#$%^&*)');
 
                 showAlert(`การตั้งรหัสผ่านไม่ผ่านเงื่อนไข!\n\nผิดกฎ:\n- ${failedRules.join('\n- ')}`);
                 return;
