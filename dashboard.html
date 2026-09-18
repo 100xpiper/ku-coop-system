@@ -1725,10 +1725,8 @@
             const customUsers = JSON.parse(localStorage.getItem('customUsers') || '{}');
             studentsData = { 'หมู่ 700': [], 'หมู่ 800': [] };
             
-            let studentCount = 0;
             Object.values(customUsers).forEach(u => {
                 if (u.role === 'student') {
-                    studentCount++;
                     const sec = u.section && u.section.includes('800') ? 'หมู่ 800' : 'หมู่ 700';
                     studentsData[sec].push({
                         id: u.id || u.student_id || '-',
@@ -1740,17 +1738,6 @@
                     });
                 }
             });
-
-            if (studentCount === 0) {
-                studentsData['หมู่ 700'] = [
-                    { id: '64010101', name: 'นายสมศักดิ์ รักดี', company: 'บริษัท เมต้า โซลูชั่นส์ จำกัด', docs: 'ครบถ้วน', status: 'นิเทศแล้ว', photo: '' },
-                    { id: '64010102', name: 'นางสาวพิมลวรรณ สวยงาม', company: 'บริษัท ไลน์ คอมพานี (ประเทศไทย) จำกัด', docs: 'ครบถ้วน', status: 'นิเทศแล้ว', photo: '' },
-                    { id: '64010103', name: 'นายทวีศักดิ์ ชัยชนะ', company: 'บริษัท เทคซอส มีเดีย จำกัด', docs: 'รอตรวจ', status: 'รอนิเทศ', photo: '' }
-                ];
-                studentsData['หมู่ 800'] = [
-                    { id: '64010104', name: 'นางสาวสมศรี ขยันเรียน', company: 'บริษัท อินโนเวชั่น แล็บ จำกัด', docs: 'ครบถ้วน', status: 'นิเทศแล้ว', photo: '' }
-                ];
-            }
         }
 
         function updateAdvisorStats() {
