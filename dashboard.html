@@ -739,6 +739,46 @@
             border: 1px solid var(--border-color);
         }
 
+        /* Apple iOS Style Back Button */
+        .ios-back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            padding: 4px 10px 4px 6px;
+            border-radius: 20px;
+            background-color: #f1f5f9;
+            color: var(--primary-color, #15803d);
+            border: 1px solid #cbd5e1;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+        }
+
+        .ios-back-btn:hover {
+            background-color: #e2e8f0;
+            color: var(--primary-color, #15803d);
+            border-color: #94a3b8;
+        }
+
+        .ios-back-btn:active {
+            transform: scale(0.95);
+            opacity: 0.8;
+        }
+
+        .ios-back-btn svg {
+            width: 15px;
+            height: 15px;
+            stroke-width: 2.8;
+            stroke: currentColor;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            fill: none;
+        }
+
         /* Calendar Grid */
         .calendar-grid {
             display: grid;
@@ -1049,7 +1089,10 @@
                         <section class="section-card">
                             <div class="section-header" style="display: flex; justify-content: space-between; align-items: center;">
                                 <div style="display: flex; align-items: center; gap: 8px;">
-                                    <button class="btn-primary" style="padding: 4px 8px; font-size: 11px; background-color: #64748b;" onclick="backToClassroomList()">⬅️ ย้อนกลับ</button>
+                                    <button type="button" class="ios-back-btn" onclick="backToClassroomList()">
+                                        <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+                                        <span>ย้อนกลับ</span>
+                                    </button>
                                     <div class="section-title" id="class-detail-title">จัดการหมู่เรียน 700</div>
                                 </div>
                                 <button class="btn-primary" style="padding: 4px 8px; font-size: 10px;" onclick="renderStudentList()">รีเฟรช</button>
