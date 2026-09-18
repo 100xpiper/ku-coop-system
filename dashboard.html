@@ -1241,8 +1241,8 @@
                     </section>
                 </div>
 
-                <!-- หน้า 1.4: สแกน QR Code & GPS (ปิดใช้งานชั่วคราว) -->
-                <div id="sec-advisor-qr" class="page-content" style="display: none !important;">
+                <!-- หน้า 1.4: สแกน QR Code & GPS -->
+                <div id="sec-advisor-qr" class="page-content">
                     <section class="section-card">
                         <div class="section-header">
                             <div class="section-title">กล้องสแกน QR Code เช็คอินพิกัด GPS</div>
@@ -1388,8 +1388,8 @@
                     </section>
                 </div>
 
-                <!-- หน้า 2.4: แสดง Static QR Code ประจำตัวนิสิต (ปิดใช้งานชั่วคราว) -->
-                <div id="sec-student-qrcode" class="page-content" style="display: none !important;">
+                <!-- หน้า 2.4: แสดง Static QR Code ประจำตัวนิสิต -->
+                <div id="sec-student-qrcode" class="page-content">
                     <section class="section-card" style="text-align: center;">
                         <div class="section-header" style="justify-content: center;">
                             <div class="section-title">QR Code ประจำตัวนิสิต</div>
@@ -1877,7 +1877,9 @@
 
         function renderTabBar() {
             const container = document.getElementById('tab-bar-container');
+            if (!container) return;
             if (currentRole === 'advisor') {
+                container.style.gridTemplateColumns = 'repeat(4, 1fr)';
                 container.innerHTML = `
                     <div class="tab-item active" id="tab-adv-dash" onclick="navTab('sec-advisor-dash', 'tab-adv-dash')">
                         <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
@@ -1897,6 +1899,7 @@
                     </div>
                 `;
             } else if (currentRole === 'student') {
+                container.style.gridTemplateColumns = 'repeat(4, 1fr)';
                 container.innerHTML = `
                     <div class="tab-item active" id="tab-std-dash" onclick="navTab('sec-student-dash', 'tab-std-dash')">
                         <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
@@ -1916,6 +1919,7 @@
                     </div>
                 `;
             } else {
+                container.style.gridTemplateColumns = '1fr';
                 container.innerHTML = `
                     <div class="tab-item active" style="grid-column: span 4;">
                         <span>โหมดผู้ดูแลระบบ Web Dashboard (ภาพรวมทั้งคณะ)</span>
