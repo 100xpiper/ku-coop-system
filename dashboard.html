@@ -1643,19 +1643,32 @@
             const customUsers = JSON.parse(localStorage.getItem('customUsers') || '{}');
             studentsData = { 'หมู่ 700': [], 'หมู่ 800': [] };
             
+            let studentCount = 0;
             Object.values(customUsers).forEach(u => {
                 if (u.role === 'student') {
+                    studentCount++;
                     const sec = u.section && u.section.includes('800') ? 'หมู่ 800' : 'หมู่ 700';
                     studentsData[sec].push({
                         id: u.id || u.student_id || '-',
                         name: u.name || 'นิสิต',
-                        company: u.company_name || '-',
+                        company: u.company_name || u.company || '-',
                         docs: 'รอนิเทศ',
-                        status: 'รอนิเทศ',
-                        photo: ''
+                        status: u.status || 'รอนิเทศ',
+                        photo: u.photo || ''
                     });
                 }
             });
+
+            if (studentCount === 0) {
+                studentsData['หมู่ 700'] = [
+                    { id: '64010101', name: 'นายสมศักดิ์ รักดี', company: 'บริษัท เมต้า โซลูชั่นส์ จำกัด', docs: 'ครบถ้วน', status: 'นิเทศแล้ว', photo: '' },
+                    { id: '64010102', name: 'นางสาวพิมลวรรณ สวยงาม', company: 'บริษัท ไลน์ คอมพานี (ประเทศไทย) จำกัด', docs: 'ครบถ้วน', status: 'นิเทศแล้ว', photo: '' },
+                    { id: '64010103', name: 'นายทวีศักดิ์ ชัยชนะ', company: 'บริษัท เทคซอส มีเดีย จำกัด', docs: 'รอตรวจ', status: 'รอนิเทศ', photo: '' }
+                ];
+                studentsData['หมู่ 800'] = [
+                    { id: '64010104', name: 'นางสาวสมศรี ขยันเรียน', company: 'บริษัท อินโนเวชั่น แล็บ จำกัด', docs: 'ครบถ้วน', status: 'นิเทศแล้ว', photo: '' }
+                ];
+            }
         }
 
         function updateAdvisorStats() {
@@ -1663,8 +1676,10 @@
             const list700 = studentsData['หมู่ 700'] || [];
             const list800 = studentsData['หมู่ 800'] || [];
             const total = list700.length + list800.length;
-            const evalCount = 0;
-            const pendingCount = total;
+            const eval700 = list700.filter(s => s.status === 'นิเทศแล้ว').length;
+            const eval800 = list800.filter(s => s.status === 'นิเทศแล้ว').length;
+            const evalCount = eval700 + eval800;
+            const pendingCount = total - evalCount;
 
             const statTotal = document.getElementById('stat-total-count');
             if (statTotal) statTotal.textContent = `${total} คน`;
@@ -1680,11 +1695,17 @@
             const adminPending = document.getElementById('admin-pending-std');
             if (adminPending) adminPending.textContent = `${pendingCount} คน`;
 
+            const sec700Text = `จำนวนนิสิต: ${list700.length} คน | นิเทศแล้ว: ${eval700} คน`;
             const sec700 = document.getElementById('sec-700-desc');
-            if (sec700) sec700.textContent = `จำนวนนิสิต: ${list700.length} คน | นิเทศแล้ว: 0 คน`;
+            if (sec700) sec700.textContent = sec700Text;
+            const sec700Tab = document.getElementById('sec-700-desc-tab');
+            if (sec700Tab) sec700Tab.textContent = sec700Text;
 
+            const sec800Text = `จำนวนนิสิต: ${list800.length} คน | นิเทศแล้ว: ${eval800} คน`;
             const sec800 = document.getElementById('sec-800-desc');
-            if (sec800) sec800.textContent = `จำนวนนิสิต: ${list800.length} คน | นิเทศแล้ว: 0 คน`;
+            if (sec800) sec800.textContent = sec800Text;
+            const sec800Tab = document.getElementById('sec-800-desc-tab');
+            if (sec800Tab) sec800Tab.textContent = sec800Text;
 
             // Populate student dropdown in appointment form
             const calSelect = document.getElementById('cal-student-select');
@@ -1884,6 +1905,7 @@
             if (activeEl) activeEl.classList.add('active');
 
             if (pageId === 'sec-advisor-classroom') {
+                updateAdvisorStats();
                 backToClassroomList();
             } else if (pageId === 'sec-student-docs' || pageId === 'sec-student-dash') {
                 renderStudentDocsList();
