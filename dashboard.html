@@ -1,0 +1,2583 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบจัดการการตรวจนิเทศงานสหกิจศึกษา</title>
+    <!-- Google Fonts: Prompt & Inter (Modern, Clean Thai Typography) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- SheetJS & jsPDF & HTML5 QR Scanner Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
+    <!-- Supabase JS Client SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-client.js"></script>
+
+    <script>
+        let selectedStudentExcelFile = null;
+        let selectedAdvisorExcelFile = null;
+
+        function handleStudentExcelSelected(event) {
+            const file = event.target.files[0];
+            if (file) {
+                selectedStudentExcelFile = file;
+                const label = document.getElementById('excel-student-file-name-label');
+                if (label) {
+                    label.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg> เลือกไฟล์รายชื่อนิสิตแล้ว: ` + file.name;
+                }
+            }
+        }
+
+        function handleAdvisorExcelSelected(event) {
+            const file = event.target.files[0];
+            if (file) {
+                selectedAdvisorExcelFile = file;
+                const label = document.getElementById('excel-advisor-file-name-label');
+                if (label) {
+                    label.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg> เลือกไฟล์รายชื่ออาจารย์แล้ว: ` + file.name;
+                }
+            }
+        }
+
+        function findRowValue(row, possibleKeys) {
+            if (!row) return '';
+            const rowKeys = Object.keys(row);
+            for (const key of possibleKeys) {
+                if (row[key] !== undefined && row[key] !== null && row[key] !== '') {
+                    return row[key].toString().trim();
+                }
+                const normKey = key.toLowerCase().replace(/[\s\-_]/g, '');
+                const matchedKey = rowKeys.find(k => k.toLowerCase().replace(/[\s\-_]/g, '') === normKey);
+                if (matchedKey && row[matchedKey] !== undefined && row[matchedKey] !== null && row[matchedKey] !== '') {
+                    return row[matchedKey].toString().trim();
+                }
+            }
+            return '';
+        }
+
+        function importStudentExcelFile() {
+            if (!selectedStudentExcelFile) {
+                alert('กรุณาคลิกเลือกไฟล์ Excel รายชื่อนิสิต (.xlsx) ก่อนกดนำเข้าข้อมูล');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+                    const jsonRows = XLSX.utils.sheet_to_json(worksheet);
+
+                    if (!jsonRows || jsonRows.length === 0) {
+                        alert('ไม่พบข้อมูลรายชื่อในไฟล์ Excel ที่เลือก');
+                        return;
+                    }
+
+                    let importedCount = 0;
+                    const customUsers = JSON.parse(localStorage.getItem('customUsers') || '{}');
+
+                    for (const row of jsonRows) {
+                        const email = findRowValue(row, ['อีเมลมหาวิทยาลัย', 'อีเมล', 'Email', 'email']).toLowerCase();
+                        if (!email) continue;
+
+                        const name = findRowValue(row, ['ชื่อ - นามสกุล', 'ชื่อ-นามสกุล', 'ชื่อนามสกุล', 'ชื่อ', 'Name', 'fullname']);
+                        const title = findRowValue(row, ['คำนำหน้านาม', 'คำนำหน้า', 'Prefix', 'title']);
+                        const fullName = title ? `${title} ${name}`.trim() : name;
+                        const studentId = findRowValue(row, ['รหัสนิสิต', 'รหัสประจำตัว', 'รหัสนักศึกษา', 'รหัส', 'ID', 'Student ID', 'StudentID', 'student_id']);
+                        const sectionVal = findRowValue(row, ['หมู่เรียน', 'หมู่เรียนที่รับผิดชอบ', 'หมู่', 'Section', 'section']);
+                        const section = sectionVal ? (sectionVal.includes('หมู่') ? sectionVal : `หมู่ ${sectionVal}`) : 'หมู่ 700';
+                        const company = findRowValue(row, ['ชื่อสถานประกอบการ', 'สถานประกอบการ', 'Company', 'company']);
+                        const pass = findRowValue(row, ['รหัสผ่านชั่วคราว', 'รหัสผ่าน', 'Password', 'pass']);
+
+                        const userObj = {
+                            id: studentId,
+                            student_id: studentId,
+                            name: fullName,
+                            email: email,
+                            password: pass,
+                            password_hash: pass,
+                            role: 'student',
+                            section: section,
+                            company_name: company,
+                            status: 'approved',
+                            first_login: true
+                        };
+
+                        customUsers[email] = userObj;
+
+                        if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+                            try {
+                                await supabaseClient.from('users').upsert([{
+                                    email: email,
+                                    password_hash: pass,
+                                    full_name: fullName,
+                                    role: 'student',
+                                    status: 'approved'
+                                }], { onConflict: 'email' });
+
+                                if (studentId) {
+                                    await supabaseClient.from('students').upsert([{
+                                        student_id: studentId,
+                                        email: email,
+                                        full_name: fullName,
+                                        section: section,
+                                        company_name: company,
+                                        doc_status: 'รอตรวจ',
+                                        supervision_status: 'รอนิเทศ'
+                                    }], { onConflict: 'student_id' });
+                                }
+                            } catch (err) {
+                                console.warn("Supabase upsert notice:", err.message);
+                            }
+                        }
+                        importedCount++;
+                    }
+
+                    localStorage.setItem('customUsers', JSON.stringify(customUsers));
+                    alert(`นำเข้าข้อมูลนิสิตสหกิจศึกษาเข้าสู่ระบบเรียบร้อยแล้วจำนวน ${importedCount} รายการ!\n\nบัญชีนิสิตพร้อมให้นำอีเมลมหาวิทยาลัยและรหัสผ่านชั่วคราวไปล็อกอินเข้าใช้งานได้ทันที`);
+                    const label = document.getElementById('excel-student-file-name-label');
+                    if (label) {
+                        label.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg> คลิกเพื่อเลือกไฟล์ Excel รายชื่อนิสิต (.xlsx)`;
+                    }
+                    selectedStudentExcelFile = null;
+
+                } catch (err) {
+                    console.error("Student Excel import error:", err);
+                    alert('เกิดข้อผิดพลาดในการอ่านไฟล์ Excel รายชื่อนิสิต กรุณาตรวจสอบรูปแบบไฟล์แล้วลองใหม่อีกครั้ง');
+                }
+            };
+            reader.readAsArrayBuffer(selectedStudentExcelFile);
+        }
+
+        function importAdvisorExcelFile() {
+            if (!selectedAdvisorExcelFile) {
+                alert('กรุณาคลิกเลือกไฟล์ Excel รายชื่ออาจารย์ (.xlsx) ก่อนกดนำเข้าข้อมูล');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+                    const jsonRows = XLSX.utils.sheet_to_json(worksheet);
+
+                    if (!jsonRows || jsonRows.length === 0) {
+                        alert('ไม่พบข้อมูลรายชื่อในไฟล์ Excel ที่เลือก');
+                        return;
+                    }
+
+                    let importedCount = 0;
+                    const customUsers = JSON.parse(localStorage.getItem('customUsers') || '{}');
+
+                    for (const row of jsonRows) {
+                        const email = findRowValue(row, ['อีเมลมหาวิทยาลัย', 'อีเมล', 'Email', 'email']).toLowerCase();
+                        if (!email) continue;
+
+                        const name = findRowValue(row, ['ชื่อ - นามสกุล', 'ชื่อ-นามสกุล', 'ชื่อนามสกุล', 'ชื่อ', 'Name', 'fullname']);
+                        const title = findRowValue(row, ['คำนำหน้านาม', 'คำนำหน้า', 'Prefix', 'title']);
+                        const fullName = title ? `${title} ${name}`.trim() : name;
+                        const advisorId = findRowValue(row, ['รหัสประจำตัว', 'รหัสอาจารย์', 'รหัส', 'ID', 'Advisor ID', 'advisor_id']);
+                        const section = findRowValue(row, ['หมู่เรียนที่รับผิดชอบ', 'หมู่เรียน', 'หมู่', 'Section', 'section']);
+                        const pass = findRowValue(row, ['รหัสผ่านชั่วคราว', 'รหัสผ่าน', 'Password', 'pass']);
+
+                        const userObj = {
+                            id: advisorId,
+                            advisor_id: advisorId,
+                            name: fullName,
+                            email: email,
+                            password: pass,
+                            password_hash: pass,
+                            role: 'advisor',
+                            section: section || 'หมู่ 700, หมู่ 800',
+                            status: 'approved',
+                            first_login: true
+                        };
+
+                        customUsers[email] = userObj;
+
+                        if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+                            try {
+                                await supabaseClient.from('users').upsert([{
+                                    email: email,
+                                    password_hash: pass,
+                                    full_name: fullName,
+                                    role: 'advisor',
+                                    status: 'approved'
+                                }], { onConflict: 'email' });
+
+                                if (advisorId) {
+                                    await supabaseClient.from('advisors').upsert([{
+                                        advisor_id: advisorId,
+                                        email: email,
+                                        full_name: fullName,
+                                        section: section
+                                    }], { onConflict: 'advisor_id' });
+                                }
+                            } catch (err) {
+                                console.warn("Supabase upsert notice:", err.message);
+                            }
+                        }
+                        importedCount++;
+                    }
+
+                    localStorage.setItem('customUsers', JSON.stringify(customUsers));
+                    alert(`นำเข้าข้อมูลอาจารย์นิเทศเข้าสู่ระบบเรียบร้อยแล้วจำนวน ${importedCount} รายการ!\n\nบัญชีอาจารย์พร้อมให้นำอีเมลมหาวิทยาลัยและรหัสผ่านชั่วคราวไปล็อกอินเข้าใช้งานได้ทันที`);
+                    const label = document.getElementById('excel-advisor-file-name-label');
+                    if (label) {
+                        label.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg> คลิกเพื่อเลือกไฟล์ Excel รายชื่ออาจารย์ (.xlsx)`;
+                    }
+                    selectedAdvisorExcelFile = null;
+
+                } catch (err) {
+                    console.error("Advisor Excel import error:", err);
+                    alert('เกิดข้อผิดพลาดในการอ่านไฟล์ Excel รายชื่ออาจารย์ กรุณาตรวจสอบรูปแบบไฟล์แล้วลองใหม่อีกครั้ง');
+                }
+            };
+            reader.readAsArrayBuffer(selectedAdvisorExcelFile);
+        }
+
+        function downloadStudentExcelTemplate() {
+            const studentSample = [
+                {
+                    "รหัสนิสิต": "6521655442",
+                    "คำนำหน้านาม": "นาย",
+                    "ชื่อ - นามสกุล": "วงศพัทธ์ อุเทน",
+                    "ชั้นปี": "4",
+                    "ภาควิชา": "วิทยาการคอมพิวเตอร์",
+                    "หลักสูตร": "ภาคพิเศษ",
+                    "หมู่เรียน": "800",
+                    "อีเมลมหาวิทยาลัย": "wongsapat.u@ku.th",
+                    "เบอร์โทรศัพท์": "0948783020",
+                    "ชื่อสถานประกอบการ": "สำนักงานพัฒนาวิทยาศาสตร์และเทคโนโลยีแห่งชาติ (สวทช.)",
+                    "รหัสผ่านชั่วคราว": "156748"
+                }
+            ];
+            const wb = XLSX.utils.book_new();
+            const wsStudent = XLSX.utils.json_to_sheet(studentSample);
+            XLSX.utils.book_append_sheet(wb, wsStudent, "รายชื่อนิสิต");
+            XLSX.writeFile(wb, "Student_Import_Template.xlsx");
+        }
+
+        function downloadAdvisorExcelTemplate() {
+            const advisorSample = [
+                {
+                    "รหัสประจำตัว": "Q1171",
+                    "คำนำหน้านาม": "อาจารย์",
+                    "ชื่อ - นามสกุล": "ปรวี วงศ์สวัสดิ์สุริยะ",
+                    "หมู่เรียนที่รับผิดชอบ": "700, 800",
+                    "อีเมลมหาวิทยาลัย": "poravee.w@ku.th",
+                    "เบอร์โทรศัพท์": "034-300481 ถึง 4 ต่อ 7320",
+                    "รหัสผ่านชั่วคราว": "564879"
+                }
+            ];
+            const wb = XLSX.utils.book_new();
+            const wsAdvisor = XLSX.utils.json_to_sheet(advisorSample);
+            XLSX.utils.book_append_sheet(wb, wsAdvisor, "รายชื่ออาจารย์");
+            XLSX.writeFile(wb, "Advisor_Import_Template.xlsx");
+        }
+
+        function clearImportedUsersByRole(roleTarget) {
+            const roleTitle = roleTarget === 'student' ? 'นิสิตสหกิจศึกษา' : 'อาจารย์นิเทศ';
+            if (confirm(`คุณต้องการลบ/รีเซ็ตรายชื่อ "${roleTitle}" ทั้งหมดออกจากระบบใช่หรือไม่?\n\n(บัญชีในประเภทอื่นๆ จะไม่ได้รับผลกระทบ)`)) {
+                const customUsers = JSON.parse(localStorage.getItem('customUsers') || '{}');
+                const updatedUsers = {};
+                Object.keys(customUsers).forEach(email => {
+                    const u = customUsers[email];
+                    if (u.role !== roleTarget) {
+                        updatedUsers[email] = u;
+                    }
+                });
+                localStorage.setItem('customUsers', JSON.stringify(updatedUsers));
+                alert(`ลบ/รีเซ็ตรายชื่อ "${roleTitle}" ทั้งหมดเรียบร้อยแล้ว!`);
+                location.reload();
+            }
+        }
+
+        function clearAllImportedSystemUsers() {
+            if (confirm('คุณต้องการลบ/รีเซ็ตรายชื่อผู้ใช้งานทั้งหมด (นิสิตและอาจารย์) ที่เคยอัปโหลดค้างไว้ออกจากระบบใช่หรือไม่?\n\n(บัญชีแอดมินยังคงอยู่ปกติ และจะไม่มีนิสิต/อาจารย์คนใดเข้าใช้ได้จนกว่าจะอัปโหลดไฟล์ Excel ใหม่)')) {
+                localStorage.removeItem('customUsers');
+                alert('ล้างข้อมูลรายชื่อผู้ใช้งานในระบบเรียบร้อยแล้ว!\n\nปัจจุบันในระบบจะเหลือเฉพาะบัญชีผู้ดูแลระบบ (Admin) เท่านั้น');
+                location.reload();
+            }
+        }
+    </script>
+
+    <style>
+        :root {
+            /* โทนสีเขียวสะอาดตา พรีเมียม (KU Clean Forest Green) */
+            --primary-color: #15803d; /* Clean Forest Green */
+            --primary-light: #16a34a;
+            --primary-dark: #14532d;
+            --accent-color: #059669; /* Emerald Green */
+            --bg-body: #f8fafc;      /* Clean White Outer Background */
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --success-color: #16a34a;
+            --warning-color: #d97706;
+            --info-color: #0284c7;
+            --danger-color: #dc2626;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Prompt', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        /* จำลองกรอบโทรศัพท์มือถือ (Mobile Device Frame - Space Black) */
+        .mobile-device {
+            width: 375px;
+            height: 812px;
+            background-color: #ffffff;
+            border-radius: 40px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 
+                        0 0 0 12px #0f172a,
+                        0 0 0 13px #1e293b;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+        }
+
+        /* Notch */
+        .mobile-notch {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 26px;
+            background-color: #0f172a;
+            border-bottom-left-radius: 18px;
+            border-bottom-right-radius: 18px;
+            z-index: 999;
+        }
+
+        .mobile-notch::before {
+            content: "";
+            position: absolute;
+            top: 6px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 4px;
+            background-color: #1e293b;
+            border-radius: 2px;
+        }
+
+        .mobile-notch::after {
+            content: "";
+            position: absolute;
+            top: 4px;
+            right: 35px;
+            width: 8px;
+            height: 8px;
+            background-color: #101827;
+            border-radius: 50%;
+        }
+
+        /* Status Bar */
+        .status-bar {
+            height: 44px;
+            padding: 14px 24px 0 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: #ffffff;
+            background-color: var(--primary-color);
+            z-index: 10;
+            transition: background-color 0.2s ease;
+        }
+
+        .status-bar-icons {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .status-bar-icon {
+            width: 14px;
+            height: 14px;
+            fill: currentColor;
+        }
+
+        /* Header Navigation */
+        header {
+            background-color: var(--primary-color);
+            color: #ffffff;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+            z-index: 9;
+            transition: background-color 0.2s ease;
+        }
+
+        .system-title {
+            font-size: 13px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Notification Bell with Badge */
+        .btn-notify {
+            position: relative;
+            background: transparent;
+            border: none;
+            color: #ffffff;
+            cursor: pointer;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .notify-badge {
+            position: absolute;
+            top: 1px;
+            right: 1px;
+            width: 8px;
+            height: 8px;
+            background-color: #ef4444;
+            border-radius: 50%;
+            border: 1px solid var(--primary-color);
+            display: none;
+        }
+
+        .btn-logout {
+            background-color: rgba(255, 255, 255, 0.15);
+            border: none;
+            color: #ffffff;
+            padding: 4px 8px;
+            font-size: 11px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-logout:hover {
+            background-color: rgba(255, 255, 255, 0.25);
+        }
+
+        /* App Container & Scroll Body */
+        .app-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background-color: #f8fafc;
+            position: relative;
+        }
+
+        .app-body {
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        /* Page Content Views */
+        .page-content {
+            display: none;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .page-content.active {
+            display: flex;
+        }
+
+        /* Cards */
+        .welcome-banner {
+            background-color: var(--primary-color);
+            color: #ffffff;
+            padding: 14px 16px;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: background-color 0.2s ease;
+        }
+
+        .welcome-text h2 {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+
+        .welcome-text p {
+            font-size: 11px;
+            opacity: 0.9;
+        }
+
+        .role-badge {
+            padding: 3px 8px;
+            font-size: 10px;
+            font-weight: 600;
+            border-radius: 20px;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+        }
+
+        /* Role Switcher Bar */
+        .role-test-bar {
+            background-color: #ffffff;
+            padding: 6px 10px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+        }
+
+        .role-test-btns {
+            display: flex;
+            gap: 4px;
+            background-color: #f1f5f9;
+            padding: 2px;
+            border-radius: 6px;
+        }
+
+        .role-test-btn {
+            padding: 3px 8px;
+            border: none;
+            background-color: transparent;
+            color: var(--text-muted);
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .role-test-btn.active {
+            background-color: #ffffff;
+            color: var(--primary-color);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .stat-card {
+            background-color: var(--card-bg);
+            padding: 10px 8px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            font-size: 10px;
+            color: var(--text-muted);
+            margin-bottom: 2px;
+            font-weight: 500;
+        }
+
+        .stat-value {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        /* Section Card */
+        .section-card {
+            background-color: var(--card-bg);
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .section-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .classroom-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .classroom-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            background-color: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .classroom-item:hover {
+            border-color: var(--primary-color);
+            background-color: #ffffff;
+        }
+
+        .student-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 9px 10px;
+            background-color: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 11px;
+        }
+
+        .status-badge {
+            padding: 2px 7px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background-color: #dcfce7;
+            color: var(--success-color);
+        }
+
+        .badge-warning {
+            background-color: #fef3c7;
+            color: var(--warning-color);
+        }
+
+        .badge-info {
+            background-color: #dbeafe;
+            color: var(--info-color);
+        }
+
+        /* Buttons */
+        .btn-primary {
+            padding: 7px 10px;
+            background-color: var(--primary-color);
+            color: #ffffff;
+            border: none;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            transition: all 0.15s ease;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: #ffffff;
+        }
+
+        .btn-secondary {
+            background-color: #f1f5f9;
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+        }
+
+        /* Calendar Grid */
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+            text-align: center;
+            font-size: 11px;
+            margin-top: 6px;
+        }
+
+        .calendar-day-header {
+            font-weight: 700;
+            color: var(--text-muted);
+            padding: 3px;
+        }
+
+        .calendar-cell {
+            padding: 6px 2px;
+            background-color: #f8fafc;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .calendar-cell.selected-day {
+            background-color: #dcfce7 !important;
+            border-color: #16a34a !important;
+            color: #15803d !important;
+            font-weight: 700;
+        }
+
+        .calendar-cell.has-event {
+            background-color: #fef3c7;
+            border-color: #f59e0b;
+            font-weight: 700;
+            color: #b45309;
+        }
+
+        .event-dot {
+            width: 4px;
+            height: 4px;
+            background-color: #b45309;
+            border-radius: 50%;
+        }
+
+        /* QR Scanner Camera Simulation */
+        .scanner-frame {
+            width: 100%;
+            height: 180px;
+            background-color: #0f172a;
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #334155;
+        }
+
+        .scanner-laser {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: #22c55e;
+            box-shadow: 0 0 10px #22c55e;
+            animation: laserScan 2s infinite linear;
+        }
+
+        @keyframes laserScan {
+            0% { top: 10%; }
+            50% { top: 90%; }
+            100% { top: 10%; }
+        }
+
+        /* Photo Evidence Frame */
+        .photo-container-16-9 {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background-color: #f1f5f9;
+            border: 2px dashed #cbd5e1;
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .photo-container-16-9 img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Modals */
+        .modal-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(2px);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        .modal-card {
+            background-color: #ffffff;
+            width: 100%;
+            max-height: 90%;
+            overflow-y: auto;
+            border-radius: 16px;
+            padding: 14px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* Tab Bar Fixed */
+        .tab-bar {
+            background-color: var(--primary-color);
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 10;
+            transition: background-color 0.2s ease;
+        }
+
+        .tab-item {
+            padding: 8px 4px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+            color: rgba(255, 255, 255, 0.7);
+            cursor: pointer;
+            font-size: 10px;
+            transition: all 0.15s ease;
+        }
+
+        .tab-item.active {
+            color: #ffffff;
+            font-weight: 700;
+            background-color: rgba(255, 255, 255, 0.12);
+        }
+
+        .tab-icon {
+            width: 18px;
+            height: 18px;
+        }
+
+        .home-indicator {
+            height: 20px;
+            background-color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding-bottom: 4px;
+            transition: background-color 0.2s ease;
+        }
+
+        .home-indicator-bar {
+            width: 134px;
+            height: 4px;
+            background-color: rgba(255, 255, 255, 0.4);
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- จำลองกรอบโทรศัพท์มือถือ (Mobile Device Frame 375x812) -->
+    <div class="mobile-device" id="mobile-device-frame">
+        <div class="mobile-notch"></div>
+        
+        <!-- แถบสถานะ (Status Bar) -->
+        <div class="status-bar">
+            <div id="live-time">09:41</div>
+            <div class="status-bar-icons">
+                <svg class="status-bar-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M2 22h20V2z"/></svg>
+                <svg class="status-bar-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M12 21l-12-14c4.667-4.667 19.333-4.667 24 0z"/></svg>
+                <svg class="status-bar-icon" viewBox="0 0 24 24" style="transform: rotate(90deg);"><path fill="currentColor" d="M17 5H3a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2z"/></svg>
+            </div>
+        </div>
+
+        <!-- Header Bar -->
+        <header>
+            <div class="system-title">
+                <span id="header-role-title">ระบบนิเทศสหกิจศึกษา</span>
+            </div>
+            <div class="header-actions">
+                <!-- กระดิ่งแจ้งเตือน -->
+                <button class="btn-notify" onclick="openNotifyModal()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                    <div id="notify-badge" class="notify-badge"></div>
+                </button>
+                <button class="btn-logout" onclick="logout()">ออก</button>
+            </div>
+        </header>
+
+        <!-- พื้นที่เนื้อหาแอปหลัก -->
+        <div class="app-container">
+            <div class="app-body">
+
+                <!-- ============================================== -->
+                <!-- VIEW 1: ฝั่งอาจารย์นิเทศ (ADVISOR VIEWS) -->
+                <!-- ============================================== -->
+
+                <!-- หน้า 1.1: แดชบอร์ดภาพรวมอาจารย์ -->
+                <div id="sec-advisor-dash" class="page-content">
+                    <section class="welcome-banner">
+                        <div class="welcome-text">
+                            <h2 id="adv-welcome-name">สวัสดีครับ, อาจารย์วงศพัทธ์</h2>
+                            <p>รหัสประจำตัว: <span id="adv-welcome-id">1234</span></p>
+                        </div>
+                        <span class="role-badge">อาจารย์นิเทศ</span>
+                    </section>
+
+                    <section class="stats-grid">
+                        <div class="stat-card">
+                            <h3>นิสิตทั้งหมด</h3>
+                            <span class="stat-value" id="stat-total-count">0 คน</span>
+                        </div>
+                        <div class="stat-card">
+                            <h3>นิเทศแล้ว</h3>
+                            <span class="stat-value" id="stat-evaluated-count" style="color: var(--success-color);">0 คน</span>
+                        </div>
+                        <div class="stat-card">
+                            <h3>รอนิเทศ</h3>
+                            <span class="stat-value" id="stat-pending-count" style="color: var(--warning-color);">0 คน</span>
+                        </div>
+                    </section>
+
+                    <section class="section-card">
+                        <div class="section-header">
+                            <div class="section-title">หมู่เรียนในความดูแล</div>
+                            <span style="font-size: 11px; color: var(--text-muted);">2 หมู่เรียน</span>
+                        </div>
+                        <div class="classroom-list">
+                            <div class="classroom-item" onclick="openClassroomDetail('หมู่ 700')">
+                                <div>
+                                    <div style="font-size: 13px; font-weight: 700; color: var(--primary-color);">หมู่เรียน 700 (ภาคปกติ)</div>
+                                    <div style="font-size: 11px; color: var(--text-muted);" id="sec-700-desc">จำนวนนิสิต: 0 คน | นิเทศแล้ว: 0 คน</div>
+                                </div>
+                                <span class="status-badge badge-success">จัดการ ></span>
+                            </div>
+                            <div class="classroom-item" onclick="openClassroomDetail('หมู่ 800')">
+                                <div>
+                                    <div style="font-size: 13px; font-weight: 700; color: var(--primary-color);">หมู่เรียน 800 (ภาคพิเศษ)</div>
+                                    <div style="font-size: 11px; color: var(--text-muted);" id="sec-800-desc">จำนวนนิสิต: 0 คน | นิเทศแล้ว: 0 คน</div>
+                                </div>
+                                <span class="status-badge badge-success">จัดการ ></span>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- หน้า 1.2: จัดการหมู่เรียน & เอกสาร & ภาพหลักฐาน -->
+                <div id="sec-advisor-classroom" class="page-content">
+                    <!-- 1. เลือกหมู่เรียน (Classroom Overview View) -->
+                    <div id="advisor-classroom-select-view">
+                        <section class="section-card">
+                            <div class="section-header">
+                                <div class="section-title">หมู่เรียนในความดูแล (เลือกหมู่เรียนเพื่อเข้าจัดการ)</div>
+                                <span style="font-size: 11px; color: var(--text-muted);">2 หมู่เรียน</span>
+                            </div>
+                            <div class="classroom-list">
+                                <div class="classroom-item" onclick="openClassroomDetail('หมู่ 700')" style="cursor: pointer;">
+                                    <div>
+                                        <div style="font-size: 13px; font-weight: 700; color: var(--primary-color);">หมู่เรียน 700 (ภาคปกติ)</div>
+                                        <div style="font-size: 11px; color: var(--text-muted);" id="sec-700-desc-tab">จำนวนนิสิต: 0 คน | นิเทศแล้ว: 0 คน</div>
+                                    </div>
+                                    <span class="status-badge badge-success">เข้าจัดการ ></span>
+                                </div>
+                                <div class="classroom-item" onclick="openClassroomDetail('หมู่ 800')" style="cursor: pointer;">
+                                    <div>
+                                        <div style="font-size: 13px; font-weight: 700; color: var(--primary-color);">หมู่เรียน 800 (ภาคพิเศษ)</div>
+                                        <div style="font-size: 11px; color: var(--text-muted);" id="sec-800-desc-tab">จำนวนนิสิต: 0 คน | นิเทศแล้ว: 0 คน</div>
+                                    </div>
+                                    <span class="status-badge badge-success">เข้าจัดการ ></span>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+
+                    <!-- 2. หน้ารายชื่อนิสิตประจำหมู่เรียน (Classroom Detail View) -->
+                    <div id="advisor-classroom-detail-view" style="display: none;">
+                        <section class="section-card">
+                            <div class="section-header" style="display: flex; justify-content: space-between; align-items: center;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <button class="btn-primary" style="padding: 4px 8px; font-size: 11px; background-color: #64748b;" onclick="backToClassroomList()">⬅️ ย้อนกลับ</button>
+                                    <div class="section-title" id="class-detail-title">จัดการหมู่เรียน 700</div>
+                                </div>
+                                <button class="btn-primary" style="padding: 4px 8px; font-size: 10px;" onclick="renderStudentList()">รีเฟรช</button>
+                            </div>
+                            <div style="font-size: 11px; color: var(--text-muted); margin-top: 6px; margin-bottom: 10px;">
+                                คลิกเลือกนิสิตเพื่อตรวจเอกสารการฝึกงาน หรือ จัดการรูปถ่ายหลักฐาน
+                            </div>
+                            <div class="classroom-list" id="class-students-container">
+                                <!-- เรนเดอร์รายชื่อนิสิตผ่าน JS -->
+                            </div>
+                        </section>
+                    </div>
+                </div>
+
+                <!-- หน้า 1.3: ปฏิทินนัดหมาย -->
+                <div id="sec-advisor-calendar" class="page-content">
+                    <section class="section-card">
+                        <div class="section-header">
+                            <div class="section-title">ปฏิทินนัดหมายนิเทศ (กรกฎาคม 2569)</div>
+                        </div>
+                        <div class="calendar-grid">
+                            <div class="calendar-day-header">อา</div>
+                            <div class="calendar-day-header">จ</div>
+                            <div class="calendar-day-header">อ</div>
+                            <div class="calendar-day-header">พ</div>
+                            <div class="calendar-day-header">พฤ</div>
+                            <div class="calendar-day-header">ศ</div>
+                            <div class="calendar-day-header">ส</div>
+
+                            <!-- Blank start cells -->
+                            <div class="calendar-cell" style="opacity: 0.3;">28</div>
+                            <div class="calendar-cell" style="opacity: 0.3;">29</div>
+                            <div class="calendar-cell" style="opacity: 0.3;">30</div>
+
+                            <!-- 1 to 31 July -->
+                            <div class="calendar-cell" id="cal-cell-1" onclick="selectCalDate(1, this)">1</div>
+                            <div class="calendar-cell" id="cal-cell-2" onclick="selectCalDate(2, this)">2</div>
+                            <div class="calendar-cell" id="cal-cell-3" onclick="selectCalDate(3, this)">3</div>
+                            <div class="calendar-cell" id="cal-cell-4" onclick="selectCalDate(4, this)">4</div>
+                            <div class="calendar-cell" id="cal-cell-5" onclick="selectCalDate(5, this)">5</div>
+                            <div class="calendar-cell" id="cal-cell-6" onclick="selectCalDate(6, this)">6</div>
+                            <div class="calendar-cell" id="cal-cell-7" onclick="selectCalDate(7, this)">7</div>
+                            <div class="calendar-cell" id="cal-cell-8" onclick="selectCalDate(8, this)">8</div>
+                            <div class="calendar-cell" id="cal-cell-9" onclick="selectCalDate(9, this)">9</div>
+                            <div class="calendar-cell" id="cal-cell-10" onclick="selectCalDate(10, this)">10</div>
+                            <div class="calendar-cell" id="cal-cell-11" onclick="selectCalDate(11, this)">11</div>
+                            <div class="calendar-cell" id="cal-cell-12" onclick="selectCalDate(12, this)">12</div>
+                            <div class="calendar-cell" id="cal-cell-13" onclick="selectCalDate(13, this)">13</div>
+                            <div class="calendar-cell" id="cal-cell-14" onclick="selectCalDate(14, this)">14</div>
+                            <div class="calendar-cell" id="cal-cell-15" onclick="selectCalDate(15, this)">15</div>
+                            <div class="calendar-cell" id="cal-cell-16" onclick="selectCalDate(16, this)">16</div>
+                            <div class="calendar-cell" id="cal-cell-17" onclick="selectCalDate(17, this)">17</div>
+                            <div class="calendar-cell" id="cal-cell-18" onclick="selectCalDate(18, this)">18</div>
+                            <div class="calendar-cell" id="cal-cell-19" onclick="selectCalDate(19, this)">19</div>
+                            <div class="calendar-cell" id="cal-cell-20" onclick="selectCalDate(20, this)">20</div>
+                            <div class="calendar-cell" id="cal-cell-21" onclick="selectCalDate(21, this)">21</div>
+                            <div class="calendar-cell" id="cal-cell-22" onclick="selectCalDate(22, this)">22</div>
+                            <div class="calendar-cell" id="cal-cell-23" onclick="selectCalDate(23, this)">23</div>
+                            <div class="calendar-cell" id="cal-cell-24" onclick="selectCalDate(24, this)">24</div>
+                            <div class="calendar-cell" id="cal-cell-25" onclick="selectCalDate(25, this)">25</div>
+                            <div class="calendar-cell" id="cal-cell-26" onclick="selectCalDate(26, this)">26</div>
+                            <div class="calendar-cell" id="cal-cell-27" onclick="selectCalDate(27, this)">27</div>
+                            <div class="calendar-cell" id="cal-cell-28" onclick="selectCalDate(28, this)">28</div>
+                            <div class="calendar-cell" id="cal-cell-29" onclick="selectCalDate(29, this)">29</div>
+                            <div class="calendar-cell" id="cal-cell-30" onclick="selectCalDate(30, this)">30</div>
+                            <div class="calendar-cell" id="cal-cell-31" onclick="selectCalDate(31, this)">31</div>
+                        </div>
+
+                        <!-- ฟอร์มเพิ่มนัดหมาย -->
+                        <div style="margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border-color);">
+                            <div style="font-size: 12px; font-weight: 700; color: var(--primary-color); margin-bottom: 8px;">บันทึกเพิ่มนัดหมายล่วงหน้า</div>
+                            
+                            <div style="display: flex; flex-direction: column; gap: 8px;">
+                                <div>
+                                    <label style="font-size: 11px; font-weight: 600; color: var(--text-muted);">เลือกนิสิต</label>
+                                    <select id="cal-student-select" style="width: 100%; padding: 6px; font-size: 12px; border-radius: 6px; border: 1px solid var(--border-color);">
+                                        <option value="">ยังไม่มีข้อมูลนิสิต (รอแอดมินนำเข้าข้อมูล)</option>
+                                    </select>
+                                </div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                                    <div>
+                                        <label style="font-size: 11px; font-weight: 600; color: var(--text-muted);">วันที่</label>
+                                        <input type="text" id="cal-date-input" placeholder="เลือกวันที่จากปฏิทินด้านบน" style="width: 100%; padding: 6px; font-size: 12px; border-radius: 6px; border: 1px solid var(--border-color);">
+                                    </div>
+                                    <div>
+                                        <label style="font-size: 11px; font-weight: 600; color: var(--text-muted);">ช่วงเวลา (Dropdown)</label>
+                                        <select id="cal-time-select" style="width: 100%; padding: 6px; font-size: 12px; border-radius: 6px; border: 1px solid var(--border-color);">
+                                            <option value="09:00 น.">09:00 น.</option>
+                                            <option value="09:30 น.">09:30 น.</option>
+                                            <option value="10:00 น.">10:00 น.</option>
+                                            <option value="10:30 น.">10:30 น.</option>
+                                            <option value="11:00 น.">11:00 น.</option>
+                                            <option value="13:00 น." selected>13:00 น.</option>
+                                            <option value="13:30 น.">13:30 น.</option>
+                                            <option value="14:00 น.">14:00 น.</option>
+                                            <option value="15:00 น.">15:00 น.</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div style="display: flex; gap: 8px; margin-top: 4px;">
+                                    <button class="btn-primary" style="flex: 1;" onclick="addAppointment()">ยืนยันเพิ่มนัดหมาย</button>
+                                    <button class="btn-primary btn-secondary" onclick="clearCalForm()">ยกเลิก / ล้างค่า</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- รายการนัดหมายทั้งหมด -->
+                        <div style="margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border-color);">
+                            <div style="font-size: 12px; font-weight: 700; color: var(--primary-color); margin-bottom: 8px;">รายการนัดหมายนิเทศทั้งหมด</div>
+                            <div id="adv-appointments-list">
+                                <!-- Rendered dynamically -->
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- หน้า 1.4: สแกน QR Code & GPS -->
+                <div id="sec-advisor-qr" class="page-content">
+                    <section class="section-card">
+                        <div class="section-header">
+                            <div class="section-title">กล้องสแกน QR Code เช็คอินพิกัด GPS</div>
+                        </div>
+                        <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px;">
+                            เปิดกล้องสแกน QR Code บนหน้าจอนิสิต ณ สถานประกอบการจริงเพื่อบันทึกพิกัด GPS
+                        </div>
+
+                        <!-- กรอบกล้องสแกนจริง -->
+                        <div id="qr-reader" style="width: 100%; border-radius: 12px; overflow: hidden; background: #0f172a; min-height: 200px; display: flex; align-items: center; justify-content: center; position: relative;">
+                            <div id="qr-reader-placeholder" style="text-align: center; color: #94a3b8; font-size: 12px; padding: 20px;">
+                                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" style="margin-bottom: 8px;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                                <div>กดปุ่มด้านล่างเพื่อเปิดใช้งานกล้องถ่ายรูป</div>
+                                <div style="font-size: 10px; color: #22c55e; margin-top: 4px;">[ระบบพร้อมตรวจจับพิกัด GPS]</div>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 10px; display: flex; gap: 8px;">
+                            <button class="btn-primary" style="flex: 1; padding: 10px; background-color: var(--primary-color);" onclick="startRealCameraScanner()">
+                                📷 เปิดใช้งานกล้องสแกน QR Code
+                            </button>
+                            <button class="btn-primary btn-secondary" style="padding: 10px; font-size: 11px;" onclick="stopRealCameraScanner()">
+                                ⏹️ ปิดกล้อง
+                            </button>
+                        </div>
+
+                        <!-- เลือกนิสิตเพื่อเช็คอินพิกัด -->
+                        <div style="margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 8px;">
+                            <label style="font-size: 11px; font-weight: 600; color: var(--primary-color);">หรือเลือกรหัสนิสิตเพื่อเช็คอิน ณ สถานประกอบการ:</label>
+                            <select id="qr-scan-student-select" style="padding: 8px; font-size: 12px; border-radius: 6px; border: 1px solid var(--border-color);">
+                                <option value="">ยังไม่มีข้อมูลนิสิต (รอแอดมินนำเข้าข้อมูล)</option>
+                            </select>
+
+                            <button class="btn-primary" style="padding: 10px; background-color: #2563eb;" onclick="processCheckinAndEval()">
+                                📍 ยืนยันเช็คอินพิกัด GPS & ประเมินผลนิเทศงาน
+                            </button>
+                        </div>
+                    </section>
+                </div>
+
+
+                <!-- ============================================== -->
+                <!-- VIEW 2: ฝั่งนิสิตสหกิจศึกษา (STUDENT VIEWS) -->
+                <!-- ============================================== -->
+
+                <div id="sec-student-dash" class="page-content">
+                    <section class="welcome-banner">
+                        <div class="welcome-text">
+                            <h2 id="std-welcome-name">สวัสดีครับ, นิสิต</h2>
+                            <p id="std-welcome-sub">รหัสนิสิต: - | หมู่เรียน -</p>
+                        </div>
+                        <span class="role-badge">นิสิตสหกิจ</span>
+                    </section>
+
+                    <section class="section-card">
+                        <div class="section-header">
+                            <div class="section-title">สถานประกอบการที่ฝึกงาน</div>
+                            <span id="std-supervision-badge" class="status-badge badge-info">รอนิเทศงาน</span>
+                        </div>
+                        <div style="font-size: 13px; font-weight: 700; color: var(--primary-color);" id="std-company-name">ยังไม่ระบุสถานประกอบการ</div>
+                        <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;" id="std-advisor-name">อาจารย์นิเทศ: ยังไม่ได้ระบุ</div>
+                    </section>
+
+                    <!-- ผลการประเมินคะแนนนิเทศ (แสดงสถานะเริ่มต้นรอการประเมิน) -->
+                    <section class="section-card">
+                        <div class="section-header">
+                            <div class="section-title">สรุปผลการประเมินนิเทศงาน</div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; text-align: center;">
+                            <div style="background-color: #f8fafc; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color);">
+                                <div style="font-size: 11px; color: var(--text-muted);">คะแนนนิเทศรวม</div>
+                                <div style="font-size: 16px; font-weight: 700; color: #64748b;" id="std-score-val">รอการประเมิน</div>
+                            </div>
+                            <div style="background-color: #f8fafc; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color);">
+                                <div style="font-size: 11px; color: var(--text-muted);">สถานะเอกสาร</div>
+                                <div style="font-size: 13px; font-weight: 700; color: #d97706;" id="std-doc-status">รอนิเทศงาน</div>
+                            </div>
+                        </div>
+                        <div style="font-size: 11px; color: var(--text-muted); margin-top: 8px; padding: 8px; background-color: #f8fafc; border-radius: 6px;">
+                            <strong>ข้อคิดเห็นจากอาจารย์:</strong> <span id="std-feedback-val" style="color: #94a3b8; font-style: italic;">ยังไม่มีข้อคิดเห็น (รออาจารย์นิเทศออกตรวจนิเทศงาน)</span>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- หน้า 2.2: เอกสารของฉัน (Student Docs) -->
+                <div id="sec-student-docs" class="page-content">
+                    <!-- ฟอร์มอัปโหลดเอกสาร -->
+                    <section class="section-card">
+                        <div class="section-header">
+                            <div class="section-title">อัปโหลดเอกสารสหกิจศึกษาใหม่</div>
+                        </div>
+                        <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 10px;">
+                            แนบไฟล์เอกสาร (PDF / Word / Image) เพื่อส่งให้อาจารย์ที่ปรึกษาตรวจรับ
+                        </div>
+
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <div>
+                                <label style="font-size: 11px; font-weight: 600; color: var(--primary-color);">ประเภทเอกสาร:</label>
+                                <select id="std-doc-type-select" style="width: 100%; padding: 7px; font-size: 12px; border-radius: 6px; border: 1px solid var(--border-color); background-color: #f8fafc;">
+                                    <option value="Form 02 - ใบสมัครงานสหกิจศึกษา & รายละเอียดสถานประกอบการ">Form 02 - ใบสมัครงานสหกิจศึกษา & รายละเอียดสถานประกอบการ</option>
+                                    <option value="Form 04 - แผนปฏิบัติงานสหกิจศึกษา (Work Plan)">Form 04 - แผนปฏิบัติงานสหกิจศึกษา (Work Plan)</option>
+                                    <option value="Form 05 - โครงร่างรายงานสหกิจศึกษา (Report Outline)">Form 05 - โครงร่างรายงานสหกิจศึกษา (Report Outline)</option>
+                                    <option value="Form 06 - รายงานการปฏิบัติงานประจำสัปดาห์ (Weekly Report)">Form 06 - รายงานการปฏิบัติงานประจำสัปดาห์ (Weekly Report)</option>
+                                    <option value="Form 07 - แบบบันทึกการนิเทศงานสหกิจศึกษา (Supervision Record)">Form 07 - แบบบันทึกการนิเทศงานสหกิจศึกษา (Supervision Record)</option>
+                                    <option value="Form 10 - แบบประเมินผลการปฏิบัติงานของนิสิต (Student Evaluation)">Form 10 - แบบประเมินผลการปฏิบัติงานของนิสิต (Student Evaluation)</option>
+                                    <option value="Form 11 - รายงานสรุปผลการปฏิบัติงานสหกิจศึกษา (Final Report)">Form 11 - รายงานสรุปผลการปฏิบัติงานสหกิจศึกษา (Final Report)</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label style="font-size: 11px; font-weight: 600; color: var(--primary-color);">เลือกไฟล์เอกสาร:</label>
+                                <input type="file" id="std-doc-file-input" accept=".pdf,.doc,.docx,.png,.jpg" style="width: 100%; padding: 6px; font-size: 11px; border: 1px solid var(--border-color); border-radius: 6px; background-color: #ffffff;">
+                            </div>
+
+                            <button class="btn-primary" style="margin-top: 4px; padding: 10px; background-color: var(--primary-color);" onclick="handleStudentDocUpload()">
+                                อัปโหลดส่งเอกสารให้อาจารย์
+                            </button>
+                        </div>
+                    </section>
+
+                    <!-- รายการเอกสารทั้งหมด -->
+                    <section class="section-card">
+                        <div class="section-header">
+                            <div class="section-title">ประวัติเอกสารสหกิจศึกษาของฉัน</div>
+                        </div>
+                        <div id="std-doc-list-container" style="display: flex; flex-direction: column; gap: 8px;">
+                            <div style="font-size: 11px; color: var(--text-muted); text-align: center; padding: 16px; background: #f8fafc; border-radius: 8px;">
+                                ยังไม่มีประวัติการส่งเอกสารในระบบ
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- หน้า 2.3: ปฏิทินนัดหมายฝั่งนิสิต -->
+                <div id="sec-student-schedule" class="page-content">
+                    <section class="section-card">
+                        <div class="section-header">
+                            <div class="section-title">ตารางนัดหมายของฉัน</div>
+                        </div>
+                        <div style="font-size: 11px; color: var(--text-muted); text-align: center; padding: 16px; background: #f8fafc; border-radius: 8px;" id="std-schedule-container">
+                            ยังไม่มีรายการนัดหมายตรวจนิเทศงาน
+                        </div>
+                    </section>
+                </div>
+
+                <!-- หน้า 2.4: แสดง Static QR Code ประจำตัวนิสิต -->
+                <div id="sec-student-qrcode" class="page-content">
+                    <section class="section-card" style="text-align: center;">
+                        <div class="section-header" style="justify-content: center;">
+                            <div class="section-title">QR Code ประจำตัวนิสิต</div>
+                        </div>
+                        <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 12px;">
+                            ยื่นหน้าจอนี้ให้อาจารย์สแกนเพื่อเช็คอินยืนยันพิกัด ณ สถานประกอบการ
+                        </div>
+
+                        <!-- Static QR Code Card -->
+                        <div style="background-color: #ffffff; border: 2px solid var(--primary-color); padding: 16px; border-radius: 16px; display: inline-block; box-shadow: 0 4px 12px rgba(0,0,0,0.06);">
+                            <!-- Mock QR Code SVG -->
+                            <svg width="160" height="160" viewBox="0 0 100 100" fill="none">
+                                <rect width="100" height="100" fill="white"/>
+                                <path d="M0 0h30v30H0zM10 10h10v10H10zM70 0h30v30H70zM80 10h10v10H80zM0 70h30v30H0zM10 80h10v10H10z" fill="#0f172a"/>
+                                <path d="M40 10h20v10H40zM10 40h20v20H10zM40 40h20v20H40zM70 40h20v10H70zM40 70h10v20H40zM60 70h30v10H60zM70 80h20v20H70z" fill="#0f172a"/>
+                            </svg>
+                            <div style="font-size: 13px; font-weight: 700; color: var(--primary-color); margin-top: 8px;" id="std-qr-id">รหัสนิสิต: -</div>
+                            <div style="font-size: 11px; color: var(--text-muted);" id="std-qr-name">นิสิต</div>
+                        </div>
+                    </section>
+                </div>
+
+
+                <!-- ============================================== -->
+                <!-- VIEW 3: ฝั่งผู้ดูแลระบบ (ADMIN WEB DASHBOARD) -->
+                <!-- ============================================== -->
+
+                <div id="sec-admin-dash" class="page-content">
+                    <section class="welcome-banner">
+                        <div class="welcome-text">
+                            <h2>แผงควบคุมระบบหลังบ้าน (Admin Web Dashboard)</h2>
+                            <p>ผู้ดูแลระบบ: งานทะเบียนและบริหารนิเทศสหกิจศึกษา</p>
+                        </div>
+                        <span class="role-badge">ผู้ดูแลระบบ</span>
+                    </section>
+
+                    <section class="section-card">
+                        <div class="section-header">
+                            <div class="section-title">ภาพรวมนิเทศสหกิจทั้งคณะ (ทุกหมู่เรียน)</div>
+                        </div>
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <h3>นิสิตสหกิจรวม</h3>
+                                <span class="stat-value" id="admin-total-std">0 คน</span>
+                            </div>
+                            <div class="stat-card">
+                                <h3>นิเทศเรียบร้อย</h3>
+                                <span class="stat-value" style="color: var(--success-color);" id="admin-done-std">0 คน</span>
+                            </div>
+                            <div class="stat-card">
+                                <h3>รอนิเทศ</h3>
+                                <span class="stat-value" style="color: var(--warning-color);" id="admin-pending-std">0 คน</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- นำเข้าข้อมูลนิสิตสหกิจศึกษา (Student Import Card) -->
+                    <section class="section-card" style="border: 1px solid #16a34a; background-color: #f0fdf4; border-radius: 12px; padding: 14px;">
+                        <div class="section-header" style="margin-bottom: 8px;">
+                            <div class="section-title" style="color: #15803d; display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 13px;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg>
+                                นำเข้าข้อมูลนิสิตสหกิจศึกษา (.xlsx)
+                            </div>
+                            <span class="status-badge badge-success">บัญชีนิสิต</span>
+                        </div>
+                        <div style="font-size: 11px; color: #166534; margin-bottom: 10px; line-height: 1.4;">
+                            อัปโหลดไฟล์สเปรดชีตรายชื่อนิสิตเพื่อสร้างบัญชี จัดกลุ่มหมู่เรียน และเพิ่มเข้าฐานข้อมูล Supabase
+                        </div>
+
+                        <div style="background: #ffffff; border: 1.5px dashed #86efac; border-radius: 8px; padding: 12px; text-align: center; margin-bottom: 10px;">
+                            <input type="file" id="admin-student-excel-file-input" accept=".xlsx, .xls" style="display: none;" onchange="handleStudentExcelSelected(event)">
+                            <label for="admin-student-excel-file-input" style="cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px;">
+                                <div style="font-size: 12px; font-weight: 700; color: #15803d; display: flex; align-items: center; gap: 6px;" id="excel-student-file-name-label">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                                    คลิกเพื่อเลือกไฟล์ Excel รายชื่อนิสิต (.xlsx)
+                                </div>
+                                <div style="font-size: 10px; color: var(--text-muted);">
+                                    คอลัมน์มาตรฐาน: รหัสนิสิต, ชื่อ-นามสกุล, หมู่เรียน, อีเมลมหาวิทยาลัย, สถานประกอบการ
+                                </div>
+                            </label>
+                        </div>
+
+                        <div style="display: flex; gap: 6px;">
+                            <button type="button" class="btn-primary" style="flex: 1; background-color: #16a34a; padding: 10px; font-size: 11px; font-weight: 700;" onclick="importStudentExcelFile()">
+                                นำเข้ารายชื่อนิสิตเข้าสู่ระบบ
+                            </button>
+                            <button type="button" class="btn-primary" style="background-color: #ffffff; color: #166534; border: 1px solid #bbf7d0; padding: 10px; font-size: 11px;" onclick="downloadStudentExcelTemplate()">
+                                แม่แบบไฟล์นิสิต
+                            </button>
+                        </div>
+                    </section>
+
+                    <!-- นำเข้าข้อมูลอาจารย์นิเทศ (Advisor Import Card) -->
+                    <section class="section-card" style="border: 1px solid #2563eb; background-color: #eff6ff; border-radius: 12px; padding: 14px; margin-top: 10px;">
+                        <div class="section-header" style="margin-bottom: 8px;">
+                            <div class="section-title" style="color: #1e40af; display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 13px;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                นำเข้าข้อมูลอาจารย์นิเทศ (.xlsx)
+                            </div>
+                            <span class="badge" style="background-color: #dbeafe; color: #1e40af; font-weight: 700;">บัญชีอาจารย์</span>
+                        </div>
+                        <div style="font-size: 11px; color: #1e40af; margin-bottom: 10px; line-height: 1.4;">
+                            อัปโหลดไฟล์สเปรดชีตรายชื่ออาจารย์ประจำภาควิชาเพื่อกำหนดสิทธิ์ออกตรวจและนิเทศงาน
+                        </div>
+
+                        <div style="background: #ffffff; border: 1.5px dashed #93c5fd; border-radius: 8px; padding: 12px; text-align: center; margin-bottom: 10px;">
+                            <input type="file" id="admin-advisor-excel-file-input" accept=".xlsx, .xls" style="display: none;" onchange="handleAdvisorExcelSelected(event)">
+                            <label for="admin-advisor-excel-file-input" style="cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px;">
+                                <div style="font-size: 12px; font-weight: 700; color: #1d4ed8; display: flex; align-items: center; gap: 6px;" id="excel-advisor-file-name-label">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                                    คลิกเพื่อเลือกไฟล์ Excel รายชื่ออาจารย์ (.xlsx)
+                                </div>
+                                <div style="font-size: 10px; color: var(--text-muted);">
+                                    คอลัมน์มาตรฐาน: รหัสประจำตัว, ชื่อ-นามสกุล, หมู่เรียนที่รับผิดชอบ, อีเมลมหาวิทยาลัย
+                                </div>
+                            </label>
+                        </div>
+
+                        <div style="display: flex; gap: 6px;">
+                            <button type="button" class="btn-primary" style="flex: 1; background-color: #2563eb; padding: 10px; font-size: 11px; font-weight: 700;" onclick="importAdvisorExcelFile()">
+                                นำเข้ารายชื่ออาจารย์เข้าสู่ระบบ
+                            </button>
+                            <button type="button" class="btn-primary" style="background-color: #ffffff; color: #1e40af; border: 1px solid #bfdbfe; padding: 10px; font-size: 11px;" onclick="downloadAdvisorExcelTemplate()">
+                                แม่แบบไฟล์อาจารย์
+                            </button>
+                        </div>
+                    </section>
+
+                    <!-- การลบ/รีเซ็ตข้อมูลผู้ใช้งานแยกประเภท -->
+                    <section class="section-card" style="border: 1px solid #fca5a5; background-color: #fff5f5; border-radius: 12px; padding: 12px; margin-top: 10px; margin-bottom: 12px;">
+                        <div class="section-header" style="margin-bottom: 8px;">
+                            <div class="section-title" style="color: #dc2626; font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 6px;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                จัดการลบ / รีเซ็ตข้อมูลรายชื่อผู้ใช้งาน
+                            </div>
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <button type="button" style="width: 100%; background-color: #ffffff; color: #166534; border: 1px solid #86efac; padding: 9px; font-size: 11px; font-weight: 700; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;" onclick="clearImportedUsersByRole('student')">
+                                🟢 ลบ / รีเซ็ตรายชื่อ "นิสิต" ทั้งหมด
+                            </button>
+                            <button type="button" style="width: 100%; background-color: #ffffff; color: #1e40af; border: 1px solid #93c5fd; padding: 9px; font-size: 11px; font-weight: 700; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;" onclick="clearImportedUsersByRole('advisor')">
+                                🔵 ลบ / รีเซ็ตรายชื่อ "อาจารย์" ทั้งหมด
+                            </button>
+                            <button type="button" style="width: 100%; background-color: #dc2626; color: #ffffff; border: none; padding: 9px; font-size: 11px; font-weight: 700; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;" onclick="clearAllImportedSystemUsers()">
+                                ⚠️ ลบ / รีเซ็ตผู้ใช้งาน "ทั้งหมด" ในระบบ
+                            </button>
+                        </div>
+                    </section>
+
+
+
+                    <!-- การตั้งค่าพิกัด GPS สถานประกอบการ -->
+                    <section class="section-card">
+                        <div class="section-header">
+                            <div class="section-title">ตั้งค่าพิกัดบริษัทปลายทาง</div>
+                        </div>
+                        <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px;">
+                            บันทึกพิกัด GPS ของสถานประกอบการล่วงหน้าเพื่อใช้อ้างอิงระยะทางออกตรวจนิเทศ
+                        </div>
+                        <button class="btn-primary" style="width: 100%;" onclick="alert('อัปเดตพิกัด GPS ของสถานประกอบการเข้า Supabase เรียบร้อย')">ตั้งค่าพิกัด GPS สถานประกอบการ</button>
+                    </section>
+
+                    <!-- ส่งออกรายงาน Excel และ PDF -->
+                    <section class="section-card">
+                        <div class="section-header">
+                            <div class="section-title">ส่งออกรายงานผลนิเทศ (Export Reports)</div>
+                        </div>
+                        <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 10px;">
+                            สร้างเอกสารตารางสรุปผลนิเทศและคะแนนประเมินเพื่อส่งต่องานทะเบียน
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                            <button class="btn-primary" style="background-color: #15803d; padding: 10px;" onclick="exportToExcel()">
+                                ส่งออกรายงาน Excel (.xlsx)
+                            </button>
+                            <button class="btn-primary" style="background-color: #dc2626; padding: 10px;" onclick="exportToPDF()">
+                                ส่งออกรายงาน PDF (.pdf)
+                            </button>
+                        </div>
+                    </section>
+                </div>
+
+            </div>
+
+            <!-- แถบเมนูด้านล่าง (Tab Bar) -->
+            <div class="tab-bar" id="tab-bar-container">
+                <!-- เรนเดอร์ Dynamic ตาม Role ผ่าน JS -->
+            </div>
+
+            <!-- ============================================== -->
+            <!-- MODALS SECTION (INSIDE MOBILE DEVICE FRAME) -->
+            <!-- ============================================== -->
+
+            <!-- Modal 1: แจ้งเตือนกระดิ่ง (Notification Modal) -->
+            <div id="modal-notify" class="modal-overlay">
+                <div class="modal-card">
+                    <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+                        <div style="font-size: 14px; font-weight: 700; color: var(--primary-color);">การแจ้งเตือนข่าวสาร</div>
+                        <button style="border:none; background:none; font-size: 16px; cursor:pointer;" onclick="closeModal('modal-notify')">✕</button>
+                    </div>
+                    <div id="notify-list-container" style="display: flex; flex-direction: column; gap: 8px; font-size: 11px;">
+                        <!-- เรนเดอร์รายการแจ้งเตือนผ่าน JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal 2: แบบฟอร์มประเมินผลดิจิทัลหลังสแกน QR ผ่าน -->
+            <div id="modal-eval-form" class="modal-overlay">
+                <div class="modal-card">
+                    <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+                        <div style="font-size: 14px; font-weight: 700; color: var(--primary-color);">แบบฟอร์มประเมินผลนิเทศงานดิจิทัล</div>
+                        <button style="border:none; background:none; font-size: 16px; cursor:pointer;" onclick="closeModal('modal-eval-form')">✕</button>
+                    </div>
+
+                    <div style="font-size: 11px; color: var(--text-muted);">
+                        ประเมินนิสิต: <strong id="eval-student-name" style="color: var(--primary-color);">นายทวีศักดิ์ ชัยชนะ</strong> (64010103)
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 4px;">
+                        <div>
+                            <label style="font-size: 11px; font-weight: 600; color: var(--primary-color);">1. คะแนนความรับผิดชอบและการตรงต่อเวลา (max 40)</label>
+                            <input type="number" id="eval-score-1" value="38" max="40" min="0" style="width: 100%; padding: 6px; font-size: 12px; border-radius: 6px; border: 1px solid var(--border-color);">
+                        </div>
+
+                        <div>
+                            <label style="font-size: 11px; font-weight: 600; color: var(--primary-color);">2. คะแนนทักษะวิชาการและการปฏิบัติงาน (max 40)</label>
+                            <input type="number" id="eval-score-2" value="37" max="40" min="0" style="width: 100%; padding: 6px; font-size: 12px; border-radius: 6px; border: 1px solid var(--border-color);">
+                        </div>
+
+                        <div>
+                            <label style="font-size: 11px; font-weight: 600; color: var(--primary-color);">3. คะแนนมนุษยสัมพันธ์และการปรับตัว (max 20)</label>
+                            <input type="number" id="eval-score-3" value="19" max="20" min="0" style="width: 100%; padding: 6px; font-size: 12px; border-radius: 6px; border: 1px solid var(--border-color);">
+                        </div>
+
+                        <div>
+                            <label style="font-size: 11px; font-weight: 600; color: var(--primary-color);">ข้อคิดเห็นและข้อเสนอแนะ:</label>
+                            <textarea id="eval-feedback" style="width: 100%; height: 60px; padding: 6px; font-size: 11px; border-radius: 6px; border: 1px solid var(--border-color);">นิสิตมีความตั้งใจทำงานดีเยี่ยม เรียนรู้ระบบงานได้เร็ว</textarea>
+                        </div>
+
+                        <button class="btn-primary" style="padding: 10px; background-color: var(--primary-color);" onclick="saveEvaluationForm()">
+                            บันทึกผลประเมิน & ส่งแจ้งเตือนให้นิสิต
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal 3: จัดการรูปถ่ายหลักฐาน -->
+            <div id="modal-photo-mgmt" class="modal-overlay">
+                <div class="modal-card">
+                    <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+                        <div style="font-size: 14px; font-weight: 700; color: var(--primary-color);">ภาพถ่ายหลักฐานการลงตรวจนิเทศ</div>
+                        <button style="border:none; background:none; font-size: 16px; cursor:pointer;" onclick="closeModal('modal-photo-mgmt')">✕</button>
+                    </div>
+
+                    <div style="font-size: 11px; color: var(--text-muted);">
+                        นิสิต: <strong id="photo-student-name" style="color: var(--primary-color);">นายสมศักดิ์ รักดี</strong>
+                    </div>
+
+                    <!-- แสดงรูปถ่ายหลักฐาน -->
+                    <div class="photo-container-16-9">
+                        <img id="photo-preview-img" src="" alt="ภาพหลักฐานการออกตรวจ" style="display: none;">
+                        <div id="photo-empty-text" style="font-size: 11px; color: var(--text-muted); text-align: center;">
+                            ยังไม่มีรูปถ่ายหลักฐานการลงตรวจ
+                        </div>
+                    </div>
+
+                    <input type="file" id="photo-file-input" accept="image/*" style="display: none;" onchange="handlePhotoUpload(event)">
+
+                    <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 4px;">
+                        <button class="btn-primary" onclick="document.getElementById('photo-file-input').click()">
+                            อัปโหลด / เปลี่ยนรูปภาพหลักฐาน
+                        </button>
+                        <button id="btn-delete-photo" class="btn-primary btn-danger" onclick="deletePhotoEvidence()" style="display: none;">
+                            ลบรูปภาพหลักฐาน
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal 4: ตรวจรับ / ตีกลับ เอกสารสหกิจ -->
+            <div id="modal-doc-mgmt" class="modal-overlay">
+                <div class="modal-card">
+                    <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+                        <div style="font-size: 14px; font-weight: 700; color: var(--primary-color);">ตรวจรับเอกสารสหกิจศึกษา</div>
+                        <button style="border:none; background:none; font-size: 16px; cursor:pointer;" onclick="closeModal('modal-doc-mgmt')">✕</button>
+                    </div>
+
+                    <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px;">
+                        นิสิต: <strong id="doc-student-name" style="color: var(--primary-color);">-</strong>
+                    </div>
+
+                    <div id="doc-modal-body" style="display: flex; flex-direction: column; gap: 8px; font-size: 11px;">
+                        <div style="color: var(--text-muted); text-align: center; padding: 12px; background: #f8fafc; border-radius: 6px;">
+                            ยังไม่มีรายการเอกสารที่นิสิตส่งเข้ามา
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 8px; margin-top: 12px;">
+                        <button class="btn-primary" style="flex: 1; background-color: var(--success-color);" onclick="updateDocStatus('ครบถ้วน')">ตรวจรับเอกสารครบถ้วน</button>
+                        <button class="btn-primary btn-danger" onclick="updateDocStatus('ต้องแก้ไข')">ตีกลับให้แก้ไข</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="home-indicator">
+                <div class="home-indicator-bar"></div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        function updateClock() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('live-time').textContent = `${hours}:${minutes}`;
+        }
+        updateClock();
+        setInterval(updateClock, 1000);
+
+        let currentRole = 'advisor'; // default: advisor, student, admin
+        let currentSelectedClassroom = 'หมู่ 700';
+        let currentSelectedStudentId = null;
+
+        let studentsData = {
+            'หมู่ 700': [],
+            'หมู่ 800': []
+        };
+
+        let notifications = [];
+
+        function loadDynamicStudentsData() {
+            const customUsers = JSON.parse(localStorage.getItem('customUsers') || '{}');
+            studentsData = { 'หมู่ 700': [], 'หมู่ 800': [] };
+            
+            Object.values(customUsers).forEach(u => {
+                if (u.role === 'student') {
+                    const sec = u.section && u.section.includes('800') ? 'หมู่ 800' : 'หมู่ 700';
+                    studentsData[sec].push({
+                        id: u.id || u.student_id || '-',
+                        name: u.name || 'นิสิต',
+                        company: u.company_name || '-',
+                        docs: 'รอนิเทศ',
+                        status: 'รอนิเทศ',
+                        photo: ''
+                    });
+                }
+            });
+        }
+
+        function updateAdvisorStats() {
+            loadDynamicStudentsData();
+            const list700 = studentsData['หมู่ 700'] || [];
+            const list800 = studentsData['หมู่ 800'] || [];
+            const total = list700.length + list800.length;
+            const evalCount = 0;
+            const pendingCount = total;
+
+            const statTotal = document.getElementById('stat-total-count');
+            if (statTotal) statTotal.textContent = `${total} คน`;
+            const statEval = document.getElementById('stat-evaluated-count');
+            if (statEval) statEval.textContent = `${evalCount} คน`;
+            const statPending = document.getElementById('stat-pending-count');
+            if (statPending) statPending.textContent = `${pendingCount} คน`;
+
+            const adminTotal = document.getElementById('admin-total-std');
+            if (adminTotal) adminTotal.textContent = `${total} คน`;
+            const adminDone = document.getElementById('admin-done-std');
+            if (adminDone) adminDone.textContent = `${evalCount} คน`;
+            const adminPending = document.getElementById('admin-pending-std');
+            if (adminPending) adminPending.textContent = `${pendingCount} คน`;
+
+            const sec700 = document.getElementById('sec-700-desc');
+            if (sec700) sec700.textContent = `จำนวนนิสิต: ${list700.length} คน | นิเทศแล้ว: 0 คน`;
+
+            const sec800 = document.getElementById('sec-800-desc');
+            if (sec800) sec800.textContent = `จำนวนนิสิต: ${list800.length} คน | นิเทศแล้ว: 0 คน`;
+
+            // Populate student dropdown in appointment form
+            const calSelect = document.getElementById('cal-student-select');
+            if (calSelect) {
+                calSelect.innerHTML = '';
+                const allStds = [...list700, ...list800];
+                if (allStds.length === 0) {
+                    calSelect.innerHTML = '<option value="">ยังไม่มีข้อมูลนิสิต (รอแอดมินนำเข้าข้อมูล)</option>';
+                } else {
+                    allStds.forEach(s => {
+                        const opt = document.createElement('option');
+                        opt.value = s.id;
+                        opt.textContent = `${s.id} ${s.name} (${s.company})`;
+                        calSelect.appendChild(opt);
+                    });
+                }
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedSession = localStorage.getItem('currentUser');
+            if (!savedSession) {
+                alert('กรุณาลงชื่อเข้าสู่ระบบก่อนเข้าใช้งาน');
+                window.location.href = 'index.html';
+                return;
+            }
+            try {
+                const user = JSON.parse(savedSession);
+                initUserDashboard(user);
+            } catch (e) {
+                console.error("Invalid user session:", e);
+                window.location.href = 'index.html';
+            }
+        });
+
+        function initUserDashboard(user) {
+            currentRole = user.role || 'advisor';
+
+            const root = document.documentElement;
+            if (currentRole === 'advisor') {
+                root.style.setProperty('--primary-color', '#15803d');
+                root.style.setProperty('--bg-body', '#f8fafc');
+                document.getElementById('header-role-title').textContent = 'ระบบนิเทศสหกิจศึกษา (อาจารย์)';
+                
+                const advName = document.getElementById('adv-welcome-name');
+                if (advName) advName.textContent = `สวัสดีครับ, ${user.name || 'อาจารย์'}`;
+                const advId = document.getElementById('adv-welcome-id');
+                if (advId) advId.textContent = user.id || '1234';
+
+                showPage('sec-advisor-dash');
+                updateAdvisorStats();
+                renderStudentList();
+            } else if (currentRole === 'student') {
+                root.style.setProperty('--primary-color', '#0f766e');
+                root.style.setProperty('--bg-body', '#f8fafc');
+                document.getElementById('header-role-title').textContent = 'ระบบนิเทศสหกิจศึกษา (นิสิต)';
+
+                const stdName = document.getElementById('std-welcome-name');
+                if (stdName) stdName.textContent = `สวัสดีครับ, ${user.name || 'นิสิต'}`;
+
+                const stdSub = document.getElementById('std-welcome-sub');
+                const stdIdVal = user.id || user.student_id || '-';
+                const stdSecVal = user.section || '800';
+                const formattedSection = stdSecVal.includes('หมู่') ? stdSecVal : `หมู่ ${stdSecVal}`;
+                if (stdSub) stdSub.textContent = `รหัสนิสิต: ${stdIdVal} | ${formattedSection}`;
+
+                const stdCompany = document.getElementById('std-company-name');
+                if (stdCompany) stdCompany.textContent = user.company_name || user.company || 'ยังไม่ระบุสถานประกอบการ';
+
+                const stdAdvisor = document.getElementById('std-advisor-name');
+                if (stdAdvisor) stdAdvisor.textContent = `อาจารย์นิเทศ: ${user.advisor || user.advisor_name || 'ยังไม่ได้ระบุ'}`;
+
+                const stdBadge = document.getElementById('std-supervision-badge');
+                if (stdBadge) {
+                    const isInspected = (user.status === 'นิเทศแล้ว');
+                    stdBadge.className = `status-badge ${isInspected ? 'badge-success' : 'badge-info'}`;
+                    stdBadge.textContent = isInspected ? 'นิเทศแล้ว' : 'รอนิเทศงาน';
+                }
+
+                const qrId = document.getElementById('std-qr-id');
+                if (qrId) qrId.textContent = `${stdIdVal}`;
+                const qrName = document.getElementById('std-qr-name');
+                if (qrName) qrName.textContent = `${user.name || 'นิสิต'}`;
+
+                showPage('sec-student-dash');
+                renderStudentDocsList();
+            } else if (currentRole === 'admin') {
+                root.style.setProperty('--primary-color', '#1e293b');
+                root.style.setProperty('--bg-body', '#f8fafc');
+                document.getElementById('header-role-title').textContent = 'ระบบบริหารจัดการสำหรับแอดมิน (Admin)';
+
+                showPage('sec-admin-dash');
+                loadPendingUsersList();
+            }
+
+            renderCalendarEvents();
+            renderTabBar();
+            updateNotifyBadge();
+        }
+
+        function renderTabBar() {
+            const container = document.getElementById('tab-bar-container');
+            if (currentRole === 'advisor') {
+                container.innerHTML = `
+                    <div class="tab-item active" id="tab-adv-dash" onclick="navTab('sec-advisor-dash', 'tab-adv-dash')">
+                        <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                        <span>ภาพรวม</span>
+                    </div>
+                    <div class="tab-item" id="tab-adv-class" onclick="navTab('sec-advisor-classroom', 'tab-adv-class')">
+                        <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                        <span>หมู่เรียน</span>
+                    </div>
+                    <div class="tab-item" id="tab-adv-cal" onclick="navTab('sec-advisor-calendar', 'tab-adv-cal')">
+                        <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                        <span>นัดหมาย</span>
+                    </div>
+                    <div class="tab-item" id="tab-adv-qr" onclick="navTab('sec-advisor-qr', 'tab-adv-qr')">
+                        <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/></svg>
+                        <span>สแกน QR</span>
+                    </div>
+                `;
+            } else if (currentRole === 'student') {
+                container.innerHTML = `
+                    <div class="tab-item active" id="tab-std-dash" onclick="navTab('sec-student-dash', 'tab-std-dash')">
+                        <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                        <span>หน้าหลัก</span>
+                    </div>
+                    <div class="tab-item" id="tab-std-docs" onclick="navTab('sec-student-docs', 'tab-std-docs')">
+                        <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                        <span>เอกสารของฉัน</span>
+                    </div>
+                    <div class="tab-item" id="tab-std-sch" onclick="navTab('sec-student-schedule', 'tab-std-sch')">
+                        <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                        <span>ตารางนัดหมาย</span>
+                    </div>
+                    <div class="tab-item" id="tab-std-qr" onclick="navTab('sec-student-qrcode', 'tab-std-qr')">
+                        <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><rect x="7" y="7" width="3" height="3"/><rect x="14" y="7" width="3" height="3"/><rect x="7" y="14" width="3" height="3"/></svg>
+                        <span>คิวอาร์ประจำตัว</span>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = `
+                    <div class="tab-item active" style="grid-column: span 4;">
+                        <span>โหมดผู้ดูแลระบบ Web Dashboard (ภาพรวมทั้งคณะ)</span>
+                    </div>
+                `;
+            }
+        }
+
+        function getSubmittedDocs() {
+            return JSON.parse(localStorage.getItem('submittedDocs') || '[]');
+        }
+
+        function saveSubmittedDocs(docs) {
+            localStorage.setItem('submittedDocs', JSON.stringify(docs));
+        }
+
+        function renderStudentDocsList() {
+            const savedSession = localStorage.getItem('currentUser');
+            if (!savedSession) return;
+            const user = JSON.parse(savedSession);
+            const stdId = String(user.id || user.student_id || '');
+
+            const allDocs = getSubmittedDocs();
+            const myDocs = allDocs.filter(d => String(d.studentId) === stdId || (user.email && d.email === user.email));
+
+            const container = document.getElementById('std-doc-list-container');
+            if (!container) return;
+
+            if (myDocs.length === 0) {
+                container.innerHTML = `
+                    <div style="font-size: 11px; color: var(--text-muted); text-align: center; padding: 16px; background: #f8fafc; border-radius: 8px;">
+                        ยังไม่มีประวัติการส่งเอกสารในระบบ
+                    </div>`;
+                return;
+            }
+
+            let html = '';
+            myDocs.forEach(d => {
+                const badgeClass = d.status === 'ตรวจรับแล้ว' || d.status === 'ครบถ้วน' ? 'badge-success' : (d.status === 'ต้องแก้ไข' ? 'badge-danger' : 'badge-warning');
+                html += `
+                    <div class="student-item">
+                        <div>
+                            <div style="font-weight: 700;">${d.docType}</div>
+                            <div style="color: var(--text-muted); font-size: 10px;">ไฟล์: ${d.fileName} | อัปโหลด: ${d.uploadDate}</div>
+                        </div>
+                        <span class="status-badge ${badgeClass}">${d.status}</span>
+                    </div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function navTab(pageId, tabId) {
+            showPage(pageId);
+            document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active'));
+            const activeEl = document.getElementById(tabId);
+            if (activeEl) activeEl.classList.add('active');
+
+            if (pageId === 'sec-advisor-classroom') {
+                backToClassroomList();
+            } else if (pageId === 'sec-student-docs' || pageId === 'sec-student-dash') {
+                renderStudentDocsList();
+            }
+        }
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page-content').forEach(el => el.classList.remove('active'));
+            const target = document.getElementById(pageId);
+            if (target) target.classList.add('active');
+        }
+
+        function backToClassroomList() {
+            const selectView = document.getElementById('advisor-classroom-select-view');
+            const detailView = document.getElementById('advisor-classroom-detail-view');
+            if (selectView) selectView.style.display = 'block';
+            if (detailView) detailView.style.display = 'none';
+        }
+
+        function openClassroomDetail(sectionName) {
+            currentSelectedClassroom = sectionName;
+            document.getElementById('class-detail-title').textContent = `จัดการ${sectionName}`;
+            renderStudentList();
+
+            const selectView = document.getElementById('advisor-classroom-select-view');
+            const detailView = document.getElementById('advisor-classroom-detail-view');
+            if (selectView) selectView.style.display = 'none';
+            if (detailView) detailView.style.display = 'block';
+
+            showPage('sec-advisor-classroom');
+            document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active'));
+            const activeEl = document.getElementById('tab-adv-class');
+            if (activeEl) activeEl.classList.add('active');
+        }
+
+        function renderStudentList() {
+            const list = studentsData[currentSelectedClassroom] || [];
+            const container = document.getElementById('class-students-container');
+            container.innerHTML = '';
+
+            const allDocs = getSubmittedDocs();
+
+            if (list.length === 0) {
+                container.innerHTML = `
+                    <div style="font-size: 11px; color: var(--text-muted); text-align: center; padding: 16px; background: #f8fafc; border-radius: 8px;">
+                        ยังไม่มีรายชื่อนิสิตในหมู่เรียนนี้ (รอแอดมินนำเข้าข้อมูล)
+                    </div>`;
+                return;
+            }
+
+            list.forEach(std => {
+                const stdDocs = allDocs.filter(d => String(d.studentId) === String(std.id));
+                let docBadgeText = std.docs;
+                if (stdDocs.length > 0) {
+                    docBadgeText = stdDocs[0].status;
+                }
+
+                const div = document.createElement('div');
+                div.className = 'student-item';
+                div.innerHTML = `
+                    <div>
+                        <div style="font-weight: 700; color: var(--primary-color);">${std.id} - ${std.name}</div>
+                        <div style="color: var(--text-muted); font-size: 10px;">${std.company}</div>
+                        <div style="margin-top: 4px; display: flex; gap: 4px;">
+                            <span class="status-badge ${docBadgeText === 'ครบถ้วน' || docBadgeText === 'ตรวจรับแล้ว' ? 'badge-success' : 'badge-warning'}">เอกสาร: ${docBadgeText}</span>
+                            <span class="status-badge ${std.status === 'นิเทศแล้ว' ? 'badge-success' : 'badge-info'}">${std.status}</span>
+                        </div>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 4px; align-items: flex-end;">
+                        <button class="btn-primary" style="padding: 4px 6px; font-size: 10px;" onclick="openDocModal('${std.id}', '${std.name}')">ตรวจเอกสาร (${stdDocs.length})</button>
+                        <button class="btn-primary btn-secondary" style="padding: 4px 6px; font-size: 10px;" onclick="openPhotoModal('${std.id}', '${std.name}')">รูปหลักฐาน</button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function downloadDocFile(docId) {
+            const allDocs = getSubmittedDocs();
+            const doc = allDocs.find(d => String(d.id) === String(docId));
+            if (!doc) return;
+
+            if (doc.fileDataUrl) {
+                const a = document.createElement('a');
+                a.href = doc.fileDataUrl;
+                a.download = doc.fileName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            } else {
+                const blob = new Blob([`เอกสารสหกิจศึกษา: ${doc.docType}\nชื่อไฟล์: ${doc.fileName}\nผู้อัปโหลด: ${doc.studentName} (${doc.studentId})`], { type: 'text/plain;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = doc.fileName.includes('.') ? doc.fileName : `${doc.fileName}.txt`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            }
+        }
+
+        function openDocModal(id, name) {
+            currentSelectedStudentId = String(id);
+            document.getElementById('doc-student-name').textContent = `${name} (${id})`;
+
+            const allDocs = getSubmittedDocs();
+            const studentDocs = allDocs.filter(d => String(d.studentId) === String(id));
+
+            const modalBody = document.getElementById('doc-modal-body');
+            if (modalBody) {
+                if (studentDocs.length === 0) {
+                    modalBody.innerHTML = `
+                        <div style="color: var(--text-muted); text-align: center; padding: 12px; background: #f8fafc; border-radius: 6px;">
+                            ยังไม่มีรายการเอกสารที่นิสิตคนนี้ส่งเข้ามา
+                        </div>`;
+                } else {
+                    let html = '';
+                    studentDocs.forEach(d => {
+                        const badgeClass = d.status === 'ตรวจรับแล้ว' || d.status === 'ครบถ้วน' ? 'badge-success' : (d.status === 'ต้องแก้ไข' ? 'badge-danger' : 'badge-warning');
+                        html += `
+                            <div class="student-item" style="margin-bottom: 6px;">
+                                <div>
+                                    <div style="font-weight: 700; color: var(--primary-color);">${d.docType}</div>
+                                    <div style="color: var(--text-muted); font-size: 10px;">ไฟล์: ${d.fileName} | ส่งเมื่อ: ${d.uploadDate}</div>
+                                    <div style="margin-top: 2px;"><span class="status-badge ${badgeClass}">${d.status}</span></div>
+                                </div>
+                                <button class="btn-primary" style="padding: 4px 8px; font-size: 10px; background-color: #2563eb;" onclick="downloadDocFile('${d.id}')">ดาวน์โหลด/ดูไฟล์</button>
+                            </div>`;
+                    });
+                    modalBody.innerHTML = html;
+                }
+            }
+
+            document.getElementById('modal-doc-mgmt').style.display = 'flex';
+        }
+
+        function updateDocStatus(newStatus) {
+            const allDocs = getSubmittedDocs();
+            let updated = false;
+            allDocs.forEach(d => {
+                if (String(d.studentId) === String(currentSelectedStudentId)) {
+                    d.status = newStatus;
+                    updated = true;
+                }
+            });
+            if (updated) {
+                saveSubmittedDocs(allDocs);
+            }
+
+            const list = studentsData[currentSelectedClassroom] || [];
+            const std = list.find(s => String(s.id) === String(currentSelectedStudentId));
+            if (std) {
+                std.docs = newStatus;
+            }
+            alert(`อัปเดตสถานะเอกสารเป็น "${newStatus}" เรียบร้อยแล้ว`);
+            closeModal('modal-doc-mgmt');
+            renderStudentList();
+
+            const stdDocStatusEl = document.getElementById('std-doc-status');
+            if (stdDocStatusEl) stdDocStatusEl.textContent = newStatus;
+            addNotification(`อาจารย์เปลี่ยนสถานะการตรวจเอกสารเป็น "${newStatus}"`);
+        }
+
+        async function handleStudentDocUpload() {
+            const typeSelect = document.getElementById('std-doc-type-select');
+            const fileInput = document.getElementById('std-doc-file-input');
+
+            if (!fileInput.files || fileInput.files.length === 0) {
+                alert('โปรดเลือกไฟล์เอกสารก่อนกดอัปโหลด');
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+
+            reader.onload = async function(e) {
+                const fileDataUrl = e.target.result;
+                const savedSession = localStorage.getItem('currentUser');
+                const user = savedSession ? JSON.parse(savedSession) : {};
+                const stdId = String(user.id || user.student_id || '6521655442');
+                const stdName = user.name || 'นิสิต';
+
+                const docType = typeSelect.value;
+                const fileName = file.name;
+                const nowStr = new Date().toLocaleDateString('th-TH') + ' ' + new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }) + ' น.';
+
+                const allDocs = getSubmittedDocs();
+                const newDoc = {
+                    id: Date.now(),
+                    studentId: stdId,
+                    studentName: stdName,
+                    email: user.email || '',
+                    docType: docType,
+                    fileName: fileName,
+                    fileDataUrl: fileDataUrl,
+                    uploadDate: nowStr,
+                    status: 'รอตรวจ'
+                };
+                allDocs.unshift(newDoc);
+                saveSubmittedDocs(allDocs);
+
+                await dbUploadDocument(stdId, docType, fileName, fileDataUrl);
+
+                renderStudentDocsList();
+
+                const stdDocStatusEl = document.getElementById('std-doc-status');
+                if (stdDocStatusEl) stdDocStatusEl.textContent = 'รอตรวจ';
+
+                addNotification(`อัปโหลดเอกสาร "${docType}" เรียบร้อย ส่งให้อาจารย์ตรวจรับแล้ว`);
+                alert(`อัปโหลดเอกสาร "${docType}" เรียบร้อยแล้ว! ส่งถึงอาจารย์ผู้สอนแล้ว`);
+                fileInput.value = '';
+            };
+
+            reader.readAsDataURL(file);
+        }
+
+        function openPhotoModal(id, name) {
+            currentSelectedStudentId = id;
+            document.getElementById('photo-student-name').textContent = `${name} (${id})`;
+            
+            const list = studentsData[currentSelectedClassroom] || [];
+            const std = list.find(s => s.id === id);
+            
+            const img = document.getElementById('photo-preview-img');
+            const emptyText = document.getElementById('photo-empty-text');
+            const delBtn = document.getElementById('btn-delete-photo');
+
+            if (std && std.photo) {
+                img.src = std.photo;
+                img.style.display = 'block';
+                emptyText.style.display = 'none';
+                delBtn.style.display = 'block';
+            } else {
+                img.src = '';
+                img.style.display = 'none';
+                emptyText.style.display = 'block';
+                delBtn.style.display = 'none';
+            }
+
+            document.getElementById('modal-photo-mgmt').style.display = 'flex';
+        }
+
+        async function handlePhotoUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const photoDataUrl = e.target.result;
+                const list = studentsData[currentSelectedClassroom] || [];
+                const std = list.find(s => s.id === currentSelectedStudentId);
+                if (std) {
+                    std.photo = photoDataUrl;
+                    // Save to Supabase DB
+                    await dbUploadPhoto(std.id, photoDataUrl);
+                    alert(`บันทึกรูปถ่ายหลักฐานของ ${std.name} ลง Database (Supabase) เรียบร้อยแล้ว`);
+                    openPhotoModal(std.id, std.name);
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function deletePhotoEvidence() {
+            if (!confirm('คุณต้องการลบรูปภาพหลักฐานการออกตรวจนี้หรือไม่?')) return;
+            const list = studentsData[currentSelectedClassroom] || [];
+            const std = list.find(s => s.id === currentSelectedStudentId);
+            if (std) {
+                std.photo = '';
+                alert('ลบรูปภาพหลักฐานเรียบร้อยแล้ว');
+                openPhotoModal(std.id, std.name);
+            }
+        }
+
+        let html5QrCodeInstance = null;
+
+        function startRealCameraScanner() {
+            const placeholder = document.getElementById('qr-reader-placeholder');
+            if (placeholder) placeholder.style.display = 'none';
+
+            if (typeof Html5Qrcode === 'undefined') {
+                alert('กำลังโหลดระบบกล้อง... กรุณาลองใหม่อีกครั้ง');
+                return;
+            }
+
+            if (!html5QrCodeInstance) {
+                html5QrCodeInstance = new Html5Qrcode("qr-reader");
+            }
+
+            const qrCodeSuccessCallback = (decodedText, decodedResult) => {
+                stopRealCameraScanner();
+
+                const studentSelect = document.getElementById('qr-scan-student-select');
+                if (studentSelect) {
+                    for (let opt of studentSelect.options) {
+                        if (opt.value && decodedText.includes(opt.value)) {
+                            studentSelect.value = opt.value;
+                            break;
+                        }
+                    }
+                }
+
+                alert(`สแกน QR Code สำเร็จ! รหัสที่ตรวจพบ: ${decodedText}`);
+                processCheckinAndEval();
+            };
+
+            const config = { fps: 10, qrbox: { width: 200, height: 200 } };
+            html5QrCodeInstance.start({ facingMode: "environment" }, config, qrCodeSuccessCallback)
+                .catch(err => {
+                    html5QrCodeInstance.start({ facingMode: "user" }, config, qrCodeSuccessCallback)
+                        .catch(err2 => {
+                            alert('ไม่สามารถเข้าถึงกล้องถ่ายรูปได้ (กรุณาอนุญาตสิทธิ์กล้องในเบราว์เซอร์)\n\nสามารถเลือกรหัสนิสิตเพื่อเช็คอินพิกัด GPS ด้านล่างได้เช่นกัน');
+                            if (placeholder) placeholder.style.display = 'block';
+                        });
+                });
+        }
+
+        function stopRealCameraScanner() {
+            if (html5QrCodeInstance) {
+                html5QrCodeInstance.stop().then(() => {
+                    html5QrCodeInstance.clear();
+                    html5QrCodeInstance = null;
+                    const placeholder = document.getElementById('qr-reader-placeholder');
+                    if (placeholder) placeholder.style.display = 'block';
+                }).catch(err => {
+                    html5QrCodeInstance = null;
+                });
+            }
+        }
+
+        function processCheckinAndEval() {
+            const studentSelect = document.getElementById('qr-scan-student-select');
+            if (!studentSelect || !studentSelect.value) {
+                alert('กรุณาเลือกรหัสนิสิตที่ต้องการเช็คอิน');
+                return;
+            }
+
+            const studentId = studentSelect.value;
+            currentSelectedStudentId = studentId;
+
+            let stdName = 'นิสิต';
+            const allStds = [...(studentsData['หมู่ 700'] || []), ...(studentsData['หมู่ 800'] || [])];
+            const stdObj = allStds.find(s => String(s.id) === String(studentId));
+            if (stdObj) stdName = stdObj.name;
+
+            document.getElementById('eval-student-name').textContent = `${stdName} (${studentId})`;
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => {
+                        const lat = pos.coords.latitude.toFixed(6);
+                        const lng = pos.coords.longitude.toFixed(6);
+                        addNotification(`เช็คอินพิกัด GPS สำเร็จ: Lat ${lat}, Lng ${lng} (${stdName})`);
+                    },
+                    (err) => {
+                        console.warn("Geolocation notice:", err.message);
+                    }
+                );
+            }
+
+            document.getElementById('modal-eval-form').style.display = 'flex';
+        }
+
+        async function saveEvaluationForm() {
+            const s1 = parseInt(document.getElementById('eval-score-1').value) || 0;
+            const s2 = parseInt(document.getElementById('eval-score-2').value) || 0;
+            const s3 = parseInt(document.getElementById('eval-score-3').value) || 0;
+            const total = s1 + s2 + s3;
+            const feedback = document.getElementById('eval-feedback').value;
+
+            const list = studentsData['หมู่ 700'];
+            const std = list.find(s => s.id === currentSelectedStudentId);
+            if (std) {
+                std.status = 'นิเทศแล้ว';
+                renderStudentList();
+            }
+
+            // Save Evaluation to Supabase DB
+            await dbSaveEvaluation(currentSelectedStudentId, total, feedback);
+
+            document.getElementById('std-score-val').textContent = `${total} / 100`;
+            document.getElementById('std-feedback-val').textContent = feedback;
+
+            addNotification(`การประเมินนิเทศงานเสร็จสิ้น คะแนนรวม: ${total}/100`);
+            alert(`บันทึกผลการประเมินดิจิทัลลง Database (Supabase) เรียบร้อย คะแนนรวม ${total}/100`);
+            closeModal('modal-eval-form');
+
+            document.getElementById('stat-evaluated-count').textContent = '15 คน';
+            document.getElementById('stat-pending-count').textContent = '5 คน';
+        }
+
+        function getSystemAppointments() {
+            try {
+                const stored = localStorage.getItem('systemAppointments');
+                return stored ? JSON.parse(stored) : [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function saveSystemAppointments(apps) {
+            localStorage.setItem('systemAppointments', JSON.stringify(apps));
+        }
+
+        function selectCalDate(day, el) {
+            document.querySelectorAll('.calendar-cell').forEach(cell => cell.classList.remove('selected-day'));
+            if (el) {
+                el.classList.add('selected-day');
+            } else {
+                const cell = document.getElementById(`cal-cell-${day}`);
+                if (cell) cell.classList.add('selected-day');
+            }
+            document.getElementById('cal-date-input').value = `${day} กรกฎาคม 2569`;
+        }
+
+        function renderCalendarEvents() {
+            const apps = getSystemAppointments();
+            
+            // Clear previous event indicators
+            for (let i = 1; i <= 31; i++) {
+                const cell = document.getElementById(`cal-cell-${i}`);
+                if (cell) {
+                    cell.classList.remove('has-event');
+                    const dot = cell.querySelector('.event-dot');
+                    if (dot) dot.remove();
+                }
+            }
+            
+            // Highlight cells with events
+            apps.forEach(app => {
+                const match = app.dateStr ? app.dateStr.match(/^(\d+)/) : null;
+                if (match) {
+                    const dayNum = parseInt(match[1]);
+                    const cell = document.getElementById(`cal-cell-${dayNum}`);
+                    if (cell) {
+                        cell.classList.add('has-event');
+                        if (!cell.querySelector('.event-dot')) {
+                            const dot = document.createElement('div');
+                            dot.className = 'event-dot';
+                            cell.appendChild(dot);
+                        }
+                    }
+                }
+            });
+
+            renderAdvisorAppointmentsList();
+            renderStudentScheduleList();
+        }
+
+        async function addAppointment() {
+            const studentSelect = document.getElementById('cal-student-select');
+            const studentId = studentSelect ? studentSelect.value : '';
+            const studentText = studentSelect && studentSelect.options[studentSelect.selectedIndex] ? studentSelect.options[studentSelect.selectedIndex].text : 'นิสิตทั่วไป';
+            const dateStr = document.getElementById('cal-date-input').value;
+            const timeStr = document.getElementById('cal-time-select').value;
+
+            if (!dateStr) {
+                alert('กรุณาเลือกวันที่จากปฏิทินก่อน');
+                return;
+            }
+
+            const apps = getSystemAppointments();
+            const newApp = {
+                id: 'app_' + Date.now(),
+                studentId: studentId,
+                studentName: studentText,
+                dateStr: dateStr,
+                timeStr: timeStr,
+                createdAt: new Date().toISOString()
+            };
+            apps.push(newApp);
+            saveSystemAppointments(apps);
+
+            if (typeof dbAddAppointment === 'function') {
+                await dbAddAppointment('1234', studentId, dateStr, timeStr);
+            }
+
+            renderCalendarEvents();
+            addNotification(`เพิ่มนัดหมายนิเทศ (${dateStr} เวลา ${timeStr}) เรียบร้อยแล้ว`);
+            alert(`บันทึกการนัดหมายวันที่ ${dateStr} เวลา ${timeStr} สำเร็จ! ปฏิทินแสดงไฮไลท์เรียบร้อยแล้ว`);
+        }
+
+        function clearCalForm() {
+            document.getElementById('cal-date-input').value = '';
+            document.querySelectorAll('.calendar-cell').forEach(cell => cell.classList.remove('selected-day'));
+        }
+
+        function deleteAppointment(id) {
+            if (!confirm('คุณต้องการยกเลิกนัดหมายนี้ใช่หรือไม่?')) return;
+            let apps = getSystemAppointments();
+            apps = apps.filter(a => a.id !== id);
+            saveSystemAppointments(apps);
+            renderCalendarEvents();
+            addNotification('ยกเลิกนัดหมายนิเทศเรียบร้อยแล้ว');
+        }
+
+        function renderAdvisorAppointmentsList() {
+            const container = document.getElementById('adv-appointments-list');
+            if (!container) return;
+            const apps = getSystemAppointments();
+            if (apps.length === 0) {
+                container.innerHTML = `<div style="text-align: center; color: var(--text-muted); font-size: 12px; padding: 12px; background: #f8fafc; border-radius: 8px;">ยังไม่มีนัดหมายนิเทศในระบบ</div>`;
+                return;
+            }
+            container.innerHTML = apps.map(a => `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f8fafc; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 8px;">
+                    <div>
+                        <div style="font-weight: 700; font-size: 13px; color: var(--text-color);">${a.studentName}</div>
+                        <div style="font-size: 11px; color: var(--text-muted);">📅 วันที่ ${a.dateStr} ⏰ เวลา ${a.timeStr}</div>
+                    </div>
+                    <button class="btn-primary" style="background-color: #ef4444; padding: 4px 10px; font-size: 11px;" onclick="deleteAppointment('${a.id}')">ยกเลิก</button>
+                </div>
+            `).join('');
+        }
+
+        function renderStudentScheduleList() {
+            const container = document.getElementById('std-schedule-container');
+            if (!container) return;
+            const apps = getSystemAppointments();
+            if (apps.length === 0) {
+                container.innerHTML = `<div style="text-align: center; color: var(--text-muted); font-size: 12px; padding: 16px; background: #f8fafc; border-radius: 8px;">ยังไม่มีรายการนัดหมายตรวจนิเทศงาน</div>`;
+                return;
+            }
+            container.innerHTML = apps.map(a => `
+                <div style="padding: 12px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; margin-bottom: 8px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="font-weight: 700; font-size: 13px; color: #166534;">📌 กำหนดการนัดหมายนิเทศงาน</div>
+                        <span style="font-size: 10px; background: #dcfce7; color: #15803d; padding: 2px 6px; border-radius: 4px; font-weight: 600;">นัดหมายแล้ว</span>
+                    </div>
+                    <div style="font-size: 12px; color: #374151; margin-top: 4px;">📅 วันที่: <strong>${a.dateStr}</strong> | ⏰ เวลา: <strong>${a.timeStr}</strong></div>
+                    <div style="font-size: 11px; color: #6b7280; margin-top: 2px;">ผู้นัดหมาย: ${a.studentName}</div>
+                </div>
+            `).join('');
+        }
+
+        function exportToExcel() {
+            const data = [
+                ["รหัสนิสิต", "ชื่อ-นามสกุล", "สถานประกอบการ", "สถานะเอกสาร", "สถานะการนิเทศ", "คะแนนประเมิน"],
+                ["64010101", "นายสมศักดิ์ รักดี", "บริษัท เมต้า โซลูชั่นส์ จำกัด", "ครบถ้วน", "นิเทศแล้ว", "95"],
+                ["64010102", "นางสาวพิมลวรรณ สวยงาม", "บริษัท ไลน์ คอมพานี จำกัด", "ครบถ้วน", "นิเทศแล้ว", "92"],
+                ["64010103", "นายทวีศักดิ์ ชัยชนะ", "บริษัท เทคซอส มีเดีย จำกัด", "รอตรวจ", "รอนิเทศ", "-"],
+                ["64010104", "นางสาวกนกวรรณ จิตต์ดี", "บริษัท KBTG", "ครบถ้วน", "นิเทศแล้ว", "90"]
+            ];
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "รายงานผลการนิเทศ");
+            XLSX.writeFile(wb, "Coop_Supervision_Report_2026.xlsx");
+        }
+
+        function exportToPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            doc.text("Cooperative Education Supervision Report 2026", 14, 15);
+            
+            const columns = ["ID", "Name", "Company", "Doc Status", "Supervision Status", "Score"];
+            const rows = [
+                ["64010101", "Somsak Rakdee", "Meta Solutions Co., Ltd.", "Completed", "Evaluated", "95"],
+                ["64010102", "Pimonwan Suayngam", "LINE Company Thailand", "Completed", "Evaluated", "92"],
+                ["64010103", "Taweesak Chaichana", "Techsauce Media Co., Ltd.", "Pending", "Pending", "-"],
+                ["64010104", "Kanokwan Jitdee", "KBTG Group", "Completed", "Evaluated", "90"]
+            ];
+
+            doc.autoTable({
+                head: [columns],
+                body: rows,
+                startY: 25
+            });
+            doc.save("Coop_Supervision_Report_2026.pdf");
+        }
+
+        function openNotifyModal() {
+            renderNotifications();
+            document.getElementById('modal-notify').style.display = 'flex';
+            notifications.forEach(n => n.unread = false);
+            updateNotifyBadge();
+        }
+
+        function addNotification(text) {
+            notifications.unshift({
+                id: Date.now(),
+                text: text,
+                time: 'เมื่อครู่นี้',
+                unread: true
+            });
+            updateNotifyBadge();
+        }
+
+        function updateNotifyBadge() {
+            const hasUnread = notifications.some(n => n.unread);
+            const badge = document.getElementById('notify-badge');
+            if (badge) {
+                badge.style.display = hasUnread ? 'block' : 'none';
+            }
+        }
+
+        function renderNotifications() {
+            const container = document.getElementById('notify-list-container');
+            container.innerHTML = '';
+
+            if (notifications.length === 0) {
+                container.innerHTML = '<div style="color: var(--text-muted); text-align: center; padding: 12px;">ไม่มีการแจ้งเตือนใหม่</div>';
+                return;
+            }
+
+            notifications.forEach(n => {
+                const div = document.createElement('div');
+                div.className = 'student-item';
+                div.style.backgroundColor = n.unread ? '#f0fdf4' : '#ffffff';
+                div.innerHTML = `
+                    <div>
+                        <div style="font-weight: 600; color: var(--text-main);">${n.text}</div>
+                        <div style="color: var(--text-muted); font-size: 9px; margin-top: 2px;">${n.time}</div>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        async function loadPendingUsersList() {
+            const listContainer = document.getElementById('pending-users-list');
+            const badgeContainer = document.getElementById('pending-count-badge');
+            if (!listContainer) return;
+
+            const pendingUsers = await dbGetPendingUsers();
+            if (badgeContainer) {
+                badgeContainer.textContent = `${pendingUsers.length} รายการ`;
+            }
+
+            if (!pendingUsers || pendingUsers.length === 0) {
+                listContainer.innerHTML = `
+                    <div style="font-size: 11px; color: var(--text-muted); text-align: center; padding: 12px; background: #f8fafc; border-radius: 8px;">
+                        ไม่มีคำขออนุมัติสิทธิ์ค้างอยู่
+                    </div>`;
+                return;
+            }
+
+            let html = '';
+            pendingUsers.forEach(u => {
+                const roleBadge = u.role === 'student' 
+                    ? '<span style="background-color: #dbeafe; color: #1e40af; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 20px;">นิสิตสหกิจศึกษา</span>'
+                    : '<span style="background-color: #dcfce7; color: #15803d; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 20px;">อาจารย์นิเทศ</span>';
+                
+                const memberId = u.id || u.student_id || u.advisor_id || 'ไม่ระบุ';
+                const sectionStr = u.section || 'หมู่ 700';
+                const dateStr = u.created_at ? new Date(u.created_at).toLocaleString('th-TH') : new Date().toLocaleDateString('th-TH');
+
+                html += `
+                    <div style="background: #ffffff; border-radius: 12px; padding: 14px; border: 1px solid var(--border-color); box-shadow: 0 2px 4px rgba(0,0,0,0.03); display: flex; flex-direction: column; gap: 8px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div style="font-size: 13px; font-weight: 700; color: var(--text-main);">
+                                ${u.full_name || u.name || 'ไม่ระบุชื่อ'}
+                            </div>
+                            ${roleBadge}
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 11px; background: #f8fafc; padding: 10px; border-radius: 8px; border: 1px solid #f1f5f9;">
+                            <div><strong>รหัสประจำตัว:</strong> ${memberId}</div>
+                            <div><strong>หมู่เรียน:</strong> ${sectionStr}</div>
+                            <div style="grid-column: span 2;"><strong>อีเมล:</strong> <span style="color: var(--primary-color); font-weight: 600;">${u.email}</span></div>
+                            <div style="grid-column: span 2;"><strong>วันเวลาที่สมัคร:</strong> ${dateStr}</div>
+                        </div>
+
+                        <div style="display: flex; gap: 8px; margin-top: 4px;">
+                            <button type="button" style="flex: 1; background: #16a34a; color: white; border: none; padding: 9px; border-radius: 8px; font-size: 11px; cursor: pointer; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 4px;" onclick="approveUserAction('${u.email}')">
+                                อนุมัติสิทธิ์เข้าใช้งาน
+                            </button>
+                            <button type="button" style="background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; padding: 9px 14px; border-radius: 8px; font-size: 11px; cursor: pointer; font-weight: 600;" onclick="rejectUserAction('${u.email}')">
+                                ปฏิเสธ
+                            </button>
+                        </div>
+                    </div>`;
+            });
+            listContainer.innerHTML = html;
+        }
+
+        async function approveUserAction(email) {
+            const res = await dbApproveUser(email);
+            alert(res.message || 'อนุมัติสำเร็จ');
+            loadPendingUsersList();
+        }
+
+        async function rejectUserAction(email) {
+            const res = await dbRejectUser(email);
+            alert(res.message || 'ปฏิเสธเรียบร้อย');
+            loadPendingUsersList();
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>เข้าสู่ระบบ - ระบบนิเทศสหกิจศึกษา</title>
+    <!-- Google Fonts: Prompt & Inter (Modern, Clean Thai Typography) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Supabase JS Client SDK & EmailJS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script src="supabase-client.js"></script>
+    <style>
+        :root {
+            --primary-color: #15803d; /* Clean Forest Green */
+            --primary-hover: #166534;
+            --accent-color: #059669;  /* Emerald Green */
+            --bg-body: #f8fafc;       /* Clean White Outer Background */
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --error-color: #dc2626;
+            --success-color: #16a34a;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Prompt', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--bg-body);
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        /* จำลองกรอบโทรศัพท์มือถือ (Mobile Device Frame - Space Black) */
+        .mobile-device {
+            width: 375px;
+            height: 812px;
+            background-color: #ffffff;
+            border-radius: 40px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 
+                        0 0 0 12px #0f172a,
+                        0 0 0 13px #1e293b;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Notch */
+        .mobile-notch {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 26px;
+            background-color: #0f172a;
+            border-bottom-left-radius: 18px;
+            border-bottom-right-radius: 18px;
+            z-index: 999;
+        }
+
+        .mobile-notch::before {
+            content: "";
+            position: absolute;
+            top: 6px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 4px;
+            background-color: #1e293b;
+            border-radius: 2px;
+        }
+
+        .mobile-notch::after {
+            content: "";
+            position: absolute;
+            top: 4px;
+            right: 35px;
+            width: 8px;
+            height: 8px;
+            background-color: #101827;
+            border-radius: 50%;
+        }
+
+        /* Status Bar */
+        .status-bar {
+            height: 44px;
+            padding: 14px 24px 0 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: #ffffff;
+            background-color: var(--primary-color);
+            z-index: 10;
+        }
+
+        .status-bar-icons {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .status-bar-icon {
+            width: 14px;
+            height: 14px;
+            fill: currentColor;
+        }
+
+        /* App Interior Body */
+        .app-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 24px 20px;
+            background-color: #ffffff;
+            position: relative;
+            overflow-y: auto;
+        }
+
+        /* Header Brand Interior */
+        .brand-header {
+            text-align: center;
+            margin-top: 10px;
+            margin-bottom: 24px;
+        }
+
+        .brand-logo-icon {
+            width: 52px;
+            height: 52px;
+            background-color: var(--primary-color);
+            color: #ffffff;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+        }
+
+        .brand-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-main);
+            letter-spacing: -0.2px;
+        }
+
+        .brand-subtitle {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        /* Auth Tabs inside App */
+        .auth-tab-bar {
+            display: flex;
+            background-color: #f1f5f9;
+            padding: 4px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 9px;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+            border-radius: 8px;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            transition: all 0.15s ease;
+        }
+
+        .auth-tab.active {
+            background-color: #ffffff;
+            color: var(--primary-color);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Form Controls */
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 14px;
+        }
+
+        .form-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 11px 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 13px;
+            color: var(--text-main);
+            background-color: #f8fafc;
+            transition: all 0.15s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            background-color: #ffffff;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(21, 128, 61, 0.12);
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--primary-color);
+            color: #ffffff;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            margin-top: 6px;
+        }
+
+        .btn-submit:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .alert-box {
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            display: none;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 14px;
+            background-color: #fef2f2;
+            border: 1px solid #fee2e2;
+            color: var(--error-color);
+        }
+
+        /* Demo Buttons Section */
+        .demo-box {
+            margin-top: auto;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .demo-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+        }
+
+        .btn-demo {
+            padding: 8px 4px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: #f8fafc;
+            color: var(--text-main);
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.15s ease;
+        }
+
+        .btn-demo:hover {
+            background-color: #ffffff;
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .home-indicator {
+            height: 20px;
+            background-color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding-bottom: 4px;
+        }
+
+        .home-indicator-bar {
+            width: 134px;
+            height: 4px;
+            background-color: #cbd5e1;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- จำลองกรอบโทรศัพท์มือถือ (Mobile Device Frame 375x812) -->
+    <div class="mobile-device">
+        <div class="mobile-notch"></div>
+        
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div id="live-time">09:41</div>
+            <div class="status-bar-icons">
+                <svg class="status-bar-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M2 22h20V2z"/></svg>
+                <svg class="status-bar-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M12 21l-12-14c4.667-4.667 19.333-4.667 24 0z"/></svg>
+                <svg class="status-bar-icon" viewBox="0 0 24 24" style="transform: rotate(90deg);"><path fill="currentColor" d="M17 5H3a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2z"/></svg>
+            </div>
+        </div>
+
+        <!-- ภายในแอปพลิเคชัน (Interior App Window UI) -->
+        <div class="app-content">
+            
+            <div class="brand-header">
+                <div class="brand-logo-icon">
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                </div>
+                <h1 class="brand-title">ระบบนิเทศสหกิจศึกษา</h1>
+                <p class="brand-subtitle">เข้าสู่ระบบสำหรับนิสิตและอาจารย์</p>
+            </div>
+
+            <!-- หัวข้อหน้าเข้าสู่ระบบ -->
+            <div style="font-size: 16px; font-weight: 700; color: var(--primary-color); text-align: center; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid #f1f5f9;">
+                เข้าสู่ระบบใช้งาน (Sign In)
+            </div>
+
+            <!-- กล่องแจ้งเตือน -->
+            <div id="alert-box" class="alert-box">
+                <span id="alert-text">ข้อผิดพลาด</span>
+            </div>
+
+            <!-- ฟอร์มเข้าสู่ระบบ -->
+            <form id="login-form" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label class="form-label" for="username">อีเมล (Email)</label>
+                    <input class="form-input" type="text" id="username" placeholder="" required autocomplete="username">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="password">รหัสผ่าน</label>
+                    <div style="position: relative; display: flex; align-items: center;">
+                        <input class="form-input" type="password" id="password" placeholder="" required autocomplete="current-password" style="padding-right: 36px;">
+                        <button type="button" onclick="togglePasswordVisibility('password', this)" style="position: absolute; right: 10px; border: none; background: none; cursor: pointer; color: var(--text-muted); display: flex; align-items: center; padding: 2px;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit">เข้าสู่ระบบ</button>
+            </form>
+
+            <!-- ฟอร์มสมัครสมาชิก -->
+            <form id="signup-form" onsubmit="handleSignUp(event)" style="display: none;">
+                <!-- สลับบทบาทการสมัคร -->
+                <div style="font-size: 11px; font-weight: 600; color: var(--text-muted); margin-bottom: 6px;">เลือกบทบาทผู้สมัคร:</div>
+                <div class="auth-tab-bar" style="margin-bottom: 12px; background-color: #f1f5f9;">
+                    <button type="button" class="auth-tab active" id="signup-role-student" onclick="setSignUpRole('student')">นิสิตสหกิจศึกษา</button>
+                    <button type="button" class="auth-tab" id="signup-role-advisor" onclick="setSignUpRole('advisor')">อาจารย์นิเทศ</button>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <div class="form-group">
+                        <label class="form-label" for="firstname">ชื่อ</label>
+                        <input class="form-input" type="text" id="firstname" placeholder="" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="lastname">นามสกุล</label>
+                        <input class="form-input" type="text" id="lastname" placeholder="" required>
+                    </div>
+                </div>
+
+                <!-- ช่องระบุรหัสประจำตัวตามบทบาท -->
+                <div class="form-group" id="group-student-id">
+                    <label class="form-label" for="student-id-val">รหัสนิสิต (10 หลัก)</label>
+                    <input class="form-input" type="text" id="student-id-val" placeholder="" maxlength="10">
+                </div>
+
+                <div class="form-group" id="group-advisor-id" style="display: none;">
+                    <label class="form-label" for="advisor-id-val">รหัสประจำตัวอาจารย์ (5 หลัก)</label>
+                    <input class="form-input" type="text" id="advisor-id-val" placeholder="" maxlength="5">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="signup-section-select">หมู่เรียน</label>
+                    <select class="form-input" id="signup-section-select" style="cursor: pointer;">
+                        <option value="หมู่ 700">หมู่ 700</option>
+                        <option value="หมู่ 800">หมู่ 800</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="signup-email">อีเมล (Email)</label>
+                    <input class="form-input" type="email" id="signup-email" placeholder="" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="signup-password">ตั้งรหัสผ่าน</label>
+                    <div style="position: relative; display: flex; align-items: center;">
+                        <input class="form-input" type="password" id="signup-password" placeholder="" required minlength="4" style="padding-right: 36px;">
+                        <button type="button" onclick="togglePasswordVisibility('signup-password', this)" style="position: absolute; right: 10px; border: none; background: none; cursor: pointer; color: var(--text-muted); display: flex; align-items: center; padding: 2px;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit" id="btn-signup-submit" style="background-color: var(--accent-color);">ลงทะเบียนนิสิตสหกิจศึกษา</button>
+            </form>
+
+        </div>
+
+                <!-- Modal เปลี่ยนรหัสผ่านสำหรับการเข้าสู่ระบบครั้งแรก (First Login Password Reset Modal) -->
+        <div id="modal-first-login-password" style="display: none; position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(3px); z-index: 1000; align-items: center; justify-content: center; padding: 16px;">
+            <div style="background: #ffffff; border-radius: 16px; padding: 20px; width: 100%; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2); position: relative;">
+                
+                <!-- ปุ่มปิด Modal (Close X) -->
+                <button type="button" onclick="closeFirstLoginPasswordModal()" style="position: absolute; top: 14px; right: 14px; background: #f1f5f9; border: none; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #64748b; transition: all 0.2s;" title="ปิดหน้าต่าง">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+
+                <div style="width: 48px; height: 48px; background-color: #dbeafe; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; color: #2563eb;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                </div>
+
+                <div style="font-size: 15px; font-weight: 700; color: var(--text-main); text-align: center;">
+                    ตั้งรหัสผ่านใหม่ (เข้าสู่ระบบครั้งแรก)
+                </div>
+
+                <div style="font-size: 11px; color: var(--text-muted); text-align: center; line-height: 1.4;">
+                    ระบบนำเข้าบัญชีโดย Admin สำเร็จ กรุณากำหนดรหัสผ่านใหม่สำหรับการใช้งานครั้งแรกครับ
+                </div>
+
+                <div class="form-group" style="margin-top: 4px;">
+                    <label class="form-label" style="font-size: 11px;">รหัสผ่านใหม่</label>
+                    <input type="password" id="first-new-password" class="form-control" placeholder="อย่างน้อย 4 ตัวอักษร" style="padding: 10px; font-size: 12px;">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" style="font-size: 11px;">ยืนยันรหัสผ่านใหม่</label>
+                    <input type="password" id="first-confirm-password" class="form-control" placeholder="กรอกรหัสผ่านใหม่อีกครั้ง" style="padding: 10px; font-size: 12px;">
+                </div>
+
+                <div id="first-pass-error" style="display: none; font-size: 11px; color: var(--error-color); text-align: center;"></div>
+
+                <div style="display: flex; gap: 8px; margin-top: 4px;">
+                    <button type="button" class="btn-submit" style="background-color: #f1f5f9; color: #475569; width: 35%; padding: 12px; font-size: 12px; border: 1px solid #cbd5e1;" onclick="closeFirstLoginPasswordModal()">
+                        ยกเลิก
+                    </button>
+                    <button type="button" class="btn-submit" style="background-color: var(--primary-color); width: 65%; padding: 12px; font-size: 12px;" onclick="saveFirstLoginPassword()">
+                        บันทึกรหัสผ่านใหม่ และเข้าสู่ระบบ
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal ป๊อปอัปแจ้งยืนยันผ่านลิงก์อีเมล (Email Confirmation Link Notice) -->
+        <div id="modal-email-confirm-notice" style="display: none; position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(3px); z-index: 1000; align-items: center; justify-content: center; padding: 16px;">
+            <div style="background: #ffffff; border-radius: 16px; padding: 20px; width: 100%; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2); text-align: center;">
+                <div style="width: 48px; height: 48px; background-color: #dcfce7; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; color: var(--primary-color);">
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                </div>
+
+                <div style="font-size: 15px; font-weight: 700; color: var(--primary-color);">
+                    ลงทะเบียนสำเร็จ! รอการอนุมัติสิทธิ์
+                </div>
+
+                <div style="font-size: 11px; color: var(--text-muted); line-height: 1.5; text-align: center; background-color: #f8fafc; padding: 14px; border-radius: 8px; border: 1px solid var(--border-color);">
+                    ระบบได้ส่งคำขอลงทะเบียนของคุณ (<strong id="confirm-sent-email" style="color: var(--text-main); font-size: 13px;">somsak.r@ku.th</strong>) เรียบร้อยแล้ว<br><br>
+                    <strong>สถานะปัจจุบัน:</strong> รอผู้ดูแลระบบ (Admin) อนุมัติสิทธิ์<br>
+                    เมื่อแอดมินกดอนุมัติแล้ว คุณจึงจะสามารถเข้าสู่ระบบเพื่อเริ่มใช้งานได้ครับ
+                </div>
+
+                <button type="button" class="btn-submit" style="background-color: var(--primary-color); width: 100%; padding: 12px;" onclick="closeConfirmEmailNotice()">
+                    รับทราบ / ไปหน้าเข้าสู่ระบบ
+                </button>
+            </div>
+        </div>
+
+        <div class="home-indicator">
+            <div class="home-indicator-bar"></div>
+        </div>
+    </div>
+
+    <script>
+                let pendingFirstLoginUser = null;
+
+        function showFirstLoginPasswordResetModal(user) {
+            pendingFirstLoginUser = user;
+            document.getElementById('first-new-password').value = '';
+            document.getElementById('first-confirm-password').value = '';
+            document.getElementById('first-pass-error').style.display = 'none';
+            document.getElementById('modal-first-login-password').style.display = 'flex';
+        }
+
+        function closeFirstLoginPasswordModal() {
+            document.getElementById('modal-first-login-password').style.display = 'none';
+            pendingFirstLoginUser = null;
+        }
+
+        async function saveFirstLoginPassword() {
+            const newPass = document.getElementById('first-new-password').value;
+            const confirmPass = document.getElementById('first-confirm-password').value;
+            const errBox = document.getElementById('first-pass-error');
+
+            if (!newPass || newPass.length < 4) {
+                errBox.textContent = 'กรุณากรอกรหัสผ่านใหม่ความยาวอย่างน้อย 4 ตัวอักษร';
+                errBox.style.display = 'block';
+                return;
+            }
+
+            if (newPass !== confirmPass) {
+                errBox.textContent = 'รหัสผ่านใหม่และการยืนยันรหัสผ่านไม่ตรงกัน';
+                errBox.style.display = 'block';
+                return;
+            }
+
+            if (pendingFirstLoginUser) {
+                pendingFirstLoginUser.password = newPass;
+                pendingFirstLoginUser.password_hash = newPass;
+                pendingFirstLoginUser.first_login = false;
+                
+                const customUsers = JSON.parse(localStorage.getItem('customUsers') || '{}');
+                if (pendingFirstLoginUser.email) {
+                    customUsers[pendingFirstLoginUser.email] = pendingFirstLoginUser;
+                    localStorage.setItem('customUsers', JSON.stringify(customUsers));
+                }
+
+                localStorage.setItem('currentUser', JSON.stringify(pendingFirstLoginUser));
+                document.getElementById('modal-first-login-password').style.display = 'none';
+                alert('ตั้งรหัสผ่านใหม่สำหรับการเข้าสู่ระบบครั้งแรกเรียบร้อยแล้ว!');
+                window.location.href = 'dashboard.html';
+            }
+        }
+
+        let pendingSignUpUser = null;
+
+        function updateClock() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('live-time').textContent = `${hours}:${minutes}`;
+        }
+        updateClock();
+        setInterval(updateClock, 1000);
+
+        const preRegisteredUsers = {
+            'wongsapat.u@ku.th': { name: 'นายวงศพัทธ์ อุเทน', role: 'advisor', id: '1234' },
+            'poravee.w@ku.th': { name: 'นายปรวี วงศ์สวัสดิ์สุริยะ', role: 'advisor', id: '1235' },
+            'somsak.r@ku.th': { name: 'นายสมศักดิ์ รักดี', role: 'student', id: '64010101', section: 'หมู่ 700' },
+            'pimonwan.s@ku.th': { name: 'นางสาวพิมลวรรณ สวยงาม', role: 'student', id: '64010102', section: 'หมู่ 700' },
+            'taweesak.c@ku.th': { name: 'นายทวีศักดิ์ ชัยชนะ', role: 'student', id: '64010103', section: 'หมู่ 700' }
+        };
+
+        function switchAuthTab(tab) {
+            const loginForm = document.getElementById('login-form');
+            const signupForm = document.getElementById('signup-form');
+            const tabLogin = document.getElementById('tab-login');
+            const tabSignup = document.getElementById('tab-signup');
+            const alertBox = document.getElementById('alert-box');
+
+            alertBox.style.display = 'none';
+
+            if (tab === 'login') {
+                loginForm.style.display = 'block';
+                signupForm.style.display = 'none';
+                tabLogin.classList.add('active');
+                tabSignup.classList.remove('active');
+            } else {
+                loginForm.style.display = 'none';
+                signupForm.style.display = 'block';
+                tabLogin.classList.remove('active');
+                tabSignup.classList.add('active');
+            }
+        }
+
+        function togglePasswordVisibility(inputId, btn) {
+            const input = document.getElementById(inputId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>`;
+            } else {
+                input.type = 'password';
+                btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>`;
+            }
+        }
+
+        function showAlert(msg) {
+            const alertBox = document.getElementById('alert-box');
+            document.getElementById('alert-text').textContent = msg;
+            alertBox.style.display = 'flex';
+            alert(msg);
+        }
+
+        async function handleLogin(event) {
+            event.preventDefault();
+            const username = document.getElementById('username').value.trim().toLowerCase();
+            const password = document.getElementById('password').value;
+
+            if (!username.endsWith('@ku.th') && username !== '1234' && username !== '64010101' && username !== 'admin' && username !== 'adminku') {
+                showAlert('ไม่พบอีเมลนี้ในระบบเซิร์ฟเวอร์มหาวิทยาลัย / กรุณาใช้อีเมลมหาวิทยาลัย (@ku.th) เท่านั้น');
+                return;
+            }
+
+            const result = await dbSignIn(username, password);
+
+            if (result.success && result.user) {
+                const isInitialPass = password === '1234' || password === '156748' || password === '564879' || password === '6521655442' || result.user.first_login;
+                if (isInitialPass) {
+                    showFirstLoginPasswordResetModal(result.user);
+                } else {
+                    localStorage.setItem('currentUser', JSON.stringify(result.user));
+                    window.location.href = 'dashboard.html';
+                }
+            } else {
+                showAlert(result.message || 'ไม่พบอีเมลนี้ในระบบ หรือ รหัสผ่านไม่ถูกต้อง');
+            }
+        }
+
+        let currentSignUpRole = 'student';
+
+        function setSignUpRole(role) {
+            currentSignUpRole = role;
+            const btnStudent = document.getElementById('signup-role-student');
+            const btnAdvisor = document.getElementById('signup-role-advisor');
+            const groupStudent = document.getElementById('group-student-id');
+            const groupAdvisor = document.getElementById('group-advisor-id');
+            const btnSubmit = document.getElementById('btn-signup-submit');
+
+            if (role === 'student') {
+                btnStudent.classList.add('active');
+                btnAdvisor.classList.remove('active');
+                groupStudent.style.display = 'block';
+                groupAdvisor.style.display = 'none';
+                btnSubmit.textContent = 'ลงทะเบียนนิสิตสหกิจศึกษา';
+            } else {
+                btnStudent.classList.remove('active');
+                btnAdvisor.classList.add('active');
+                groupStudent.style.display = 'none';
+                groupAdvisor.style.display = 'block';
+                btnSubmit.textContent = 'ลงทะเบียนอาจารย์นิเทศ';
+            }
+        }
+
+        async function handleSignUp(event) {
+            event.preventDefault();
+            const firstname = document.getElementById('firstname').value.trim();
+            const lastname = document.getElementById('lastname').value.trim();
+            const fullname = `${firstname} ${lastname}`.trim();
+            const email = document.getElementById('signup-email').value.trim().toLowerCase();
+            const password = document.getElementById('signup-password').value;
+            const section = document.getElementById('signup-section-select').value;
+
+            let memberId = '';
+            if (currentSignUpRole === 'student') {
+                memberId = document.getElementById('student-id-val').value.trim();
+                if (!memberId || memberId.length < 8) {
+                    showAlert('กรุณากรอกรหัสนิสิตให้ถูกต้อง (8-10 หลัก)');
+                    return;
+                }
+            } else if (currentSignUpRole === 'advisor') {
+                memberId = document.getElementById('advisor-id-val').value.trim();
+                if (!/^\d{5}$/.test(memberId)) {
+                    showAlert('กรุณากรอกรหัสประจำตัวอาจารย์ให้ถูกต้องเป็นตัวเลข 5 หลัก (เช่น 12345)');
+                    return;
+                }
+            }
+
+            const newUser = {
+                id: memberId,
+                name: fullname,
+                email: email,
+                password: password,
+                role: currentSignUpRole,
+                section: section
+            };
+
+            pendingSignUpUser = newUser;
+
+            const result = await dbSignUp(newUser);
+
+            if (result.success) {
+                document.getElementById('confirm-sent-email').textContent = email;
+                document.getElementById('modal-email-confirm-notice').style.display = 'flex';
+            } else {
+                showAlert(result.message || 'เกิดข้อผิดพลาดในการลงทะเบียน');
+            }
+        }
+
+        function closeConfirmEmailNotice() {
+            document.getElementById('modal-email-confirm-notice').style.display = 'none';
+            switchAuthTab('login');
+        }
+
+        function confirmEmailLinkDirectly() {
+            document.getElementById('modal-email-confirm-notice').style.display = 'none';
+            if (pendingSignUpUser && pendingSignUpUser.email) {
+                document.getElementById('username').value = pendingSignUpUser.email;
+            }
+            alert('ยืนยันตัวตนสำเร็จเรียบร้อย! สามารถกรอกรหัสผ่านเพื่อเข้าสู่ระบบได้ทันที');
+            switchAuthTab('login');
+        }
+
+        // Detect when user clicks Email Confirmation Link from their inbox
+        window.addEventListener('DOMContentLoaded', () => {
+            if (window.location.hash.includes('verify_email=')) {
+                const targetEmail = decodeURIComponent(window.location.hash.split('verify_email=')[1] || '');
+                if (targetEmail) {
+                    document.getElementById('username').value = targetEmail;
+                }
+                alert('ยืนยันตัวตนสำเร็จเรียบร้อย! บัญชีของคุณพร้อมใช้งานแล้ว กรุณากรอกรหัสผ่านเพื่อเข้าสู่ระบบ');
+                switchAuthTab('login');
+            } else if (window.location.hash.includes('access_token') || window.location.search.includes('type=signup') || window.location.hash.includes('type=recovery')) {
+                showAlert('ยืนยันตัวตนสำเร็จเรียบร้อย! สามารถสลับเข้าสู่ระบบเพื่อเริ่มใช้งานได้ทันที');
+                switchAuthTab('login');
+            }
+        });
+    </script>
+</body>
+</html>
