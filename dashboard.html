@@ -450,6 +450,44 @@
             gap: 6px;
         }
 
+        /* Header iOS Back Icon Button */
+        .header-back-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            border: none;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            padding: 0;
+            margin-right: 2px;
+            flex-shrink: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .header-back-btn:hover {
+            background-color: rgba(255, 255, 255, 0.35);
+        }
+
+        .header-back-btn:active {
+            transform: scale(0.9);
+            opacity: 0.8;
+        }
+
+        .header-back-btn svg {
+            width: 18px;
+            height: 18px;
+            stroke-width: 2.8;
+            stroke: currentColor;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            fill: none;
+        }
+
         .header-actions {
             display: flex;
             align-items: center;
@@ -987,6 +1025,11 @@
         <!-- Header Bar -->
         <header>
             <div class="system-title">
+                <button type="button" id="header-back-btn" class="header-back-btn" onclick="handleHeaderBack()" title="ย้อนกลับ">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M15 18l-6-6 6-6"/>
+                    </svg>
+                </button>
                 <span id="header-role-title">ระบบนิเทศสหกิจศึกษา</span>
             </div>
             <div class="header-actions">
@@ -1964,6 +2007,22 @@
             const detailView = document.getElementById('advisor-classroom-detail-view');
             if (selectView) selectView.style.display = 'block';
             if (detailView) detailView.style.display = 'none';
+        }
+
+        function handleHeaderBack() {
+            const detailView = document.getElementById('advisor-classroom-detail-view');
+            if (detailView && detailView.style.display !== 'none') {
+                backToClassroomList();
+                return;
+            }
+
+            if (currentRole === 'advisor') {
+                navTab('sec-advisor-dash', 'tab-adv-dash');
+            } else if (currentRole === 'student') {
+                navTab('sec-student-dash', 'tab-std-dash');
+            } else if (currentRole === 'admin') {
+                showPage('sec-admin-dash');
+            }
         }
 
         function openClassroomDetail(sectionName) {
