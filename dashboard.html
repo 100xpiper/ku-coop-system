@@ -775,6 +775,13 @@
             font-weight: 700;
         }
 
+        .calendar-cell.is-today {
+            border: 2px solid #16a34a !important;
+            background-color: #f0fdf4;
+            font-weight: 700;
+            color: #15803d;
+        }
+
         .calendar-cell.has-event {
             background-color: #fef3c7;
             border-color: #f59e0b;
@@ -1060,55 +1067,44 @@
                 <!-- หน้า 1.3: ปฏิทินนัดหมาย -->
                 <div id="sec-advisor-calendar" class="page-content">
                     <section class="section-card">
-                        <div class="section-header">
-                            <div class="section-title">ปฏิทินนัดหมายนิเทศ (กรกฎาคม 2569)</div>
+                        <div class="section-header" style="display: flex; flex-direction: column; gap: 8px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                                <div class="section-title" id="cal-header-title">ปฏิทินนัดหมายนิเทศ</div>
+                                <button type="button" class="btn-primary btn-secondary" style="padding: 3px 8px; font-size: 10px;" onclick="jumpToCurrentDate()">ไปวันปัจจุบัน</button>
+                            </div>
+                            
+                            <!-- แถบควบคุมเลือกเดือนและปี -->
+                            <div style="display: flex; align-items: center; justify-content: space-between; background: #f8fafc; padding: 6px 10px; border-radius: 8px; border: 1px solid var(--border-color); gap: 6px;">
+                                <button type="button" class="btn-primary" style="padding: 4px 10px; font-size: 12px; background: #e2e8f0; color: #1e293b;" onclick="changeCalendarMonth(-1)" title="เดือนก่อนหน้า">❮</button>
+                                
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <select id="cal-month-select" onchange="onCalendarSelectChange()" style="padding: 4px 6px; font-size: 11px; font-weight: 600; border-radius: 6px; border: 1px solid var(--border-color); background: white;">
+                                        <option value="0">มกราคม</option>
+                                        <option value="1">กุมภาพันธ์</option>
+                                        <option value="2">มีนาคม</option>
+                                        <option value="3">เมษายน</option>
+                                        <option value="4">พฤษภาคม</option>
+                                        <option value="5">มิถุนายน</option>
+                                        <option value="6">กรกฎาคม</option>
+                                        <option value="7">สิงหาคม</option>
+                                        <option value="8">กันยายน</option>
+                                        <option value="9">ตุลาคม</option>
+                                        <option value="10">พฤศจิกายน</option>
+                                        <option value="11">ธันวาคม</option>
+                                    </select>
+                                    
+                                    <select id="cal-year-select" onchange="onCalendarSelectChange()" style="padding: 4px 6px; font-size: 11px; font-weight: 600; border-radius: 6px; border: 1px solid var(--border-color); background: white;">
+                                        <!-- JS Populates Years -->
+                                    </select>
+                                </div>
+                                
+                                <button type="button" class="btn-primary" style="padding: 4px 10px; font-size: 12px; background: #e2e8f0; color: #1e293b;" onclick="changeCalendarMonth(1)" title="เดือนถัดไป">❯</button>
+                            </div>
                         </div>
-                        <div class="calendar-grid">
-                            <div class="calendar-day-header">อา</div>
-                            <div class="calendar-day-header">จ</div>
-                            <div class="calendar-day-header">อ</div>
-                            <div class="calendar-day-header">พ</div>
-                            <div class="calendar-day-header">พฤ</div>
-                            <div class="calendar-day-header">ศ</div>
-                            <div class="calendar-day-header">ส</div>
 
-                            <!-- Blank start cells -->
-                            <div class="calendar-cell" style="opacity: 0.3;">28</div>
-                            <div class="calendar-cell" style="opacity: 0.3;">29</div>
-                            <div class="calendar-cell" style="opacity: 0.3;">30</div>
-
-                            <!-- 1 to 31 July -->
-                            <div class="calendar-cell" id="cal-cell-1" onclick="selectCalDate(1, this)">1</div>
-                            <div class="calendar-cell" id="cal-cell-2" onclick="selectCalDate(2, this)">2</div>
-                            <div class="calendar-cell" id="cal-cell-3" onclick="selectCalDate(3, this)">3</div>
-                            <div class="calendar-cell" id="cal-cell-4" onclick="selectCalDate(4, this)">4</div>
-                            <div class="calendar-cell" id="cal-cell-5" onclick="selectCalDate(5, this)">5</div>
-                            <div class="calendar-cell" id="cal-cell-6" onclick="selectCalDate(6, this)">6</div>
-                            <div class="calendar-cell" id="cal-cell-7" onclick="selectCalDate(7, this)">7</div>
-                            <div class="calendar-cell" id="cal-cell-8" onclick="selectCalDate(8, this)">8</div>
-                            <div class="calendar-cell" id="cal-cell-9" onclick="selectCalDate(9, this)">9</div>
-                            <div class="calendar-cell" id="cal-cell-10" onclick="selectCalDate(10, this)">10</div>
-                            <div class="calendar-cell" id="cal-cell-11" onclick="selectCalDate(11, this)">11</div>
-                            <div class="calendar-cell" id="cal-cell-12" onclick="selectCalDate(12, this)">12</div>
-                            <div class="calendar-cell" id="cal-cell-13" onclick="selectCalDate(13, this)">13</div>
-                            <div class="calendar-cell" id="cal-cell-14" onclick="selectCalDate(14, this)">14</div>
-                            <div class="calendar-cell" id="cal-cell-15" onclick="selectCalDate(15, this)">15</div>
-                            <div class="calendar-cell" id="cal-cell-16" onclick="selectCalDate(16, this)">16</div>
-                            <div class="calendar-cell" id="cal-cell-17" onclick="selectCalDate(17, this)">17</div>
-                            <div class="calendar-cell" id="cal-cell-18" onclick="selectCalDate(18, this)">18</div>
-                            <div class="calendar-cell" id="cal-cell-19" onclick="selectCalDate(19, this)">19</div>
-                            <div class="calendar-cell" id="cal-cell-20" onclick="selectCalDate(20, this)">20</div>
-                            <div class="calendar-cell" id="cal-cell-21" onclick="selectCalDate(21, this)">21</div>
-                            <div class="calendar-cell" id="cal-cell-22" onclick="selectCalDate(22, this)">22</div>
-                            <div class="calendar-cell" id="cal-cell-23" onclick="selectCalDate(23, this)">23</div>
-                            <div class="calendar-cell" id="cal-cell-24" onclick="selectCalDate(24, this)">24</div>
-                            <div class="calendar-cell" id="cal-cell-25" onclick="selectCalDate(25, this)">25</div>
-                            <div class="calendar-cell" id="cal-cell-26" onclick="selectCalDate(26, this)">26</div>
-                            <div class="calendar-cell" id="cal-cell-27" onclick="selectCalDate(27, this)">27</div>
-                            <div class="calendar-cell" id="cal-cell-28" onclick="selectCalDate(28, this)">28</div>
-                            <div class="calendar-cell" id="cal-cell-29" onclick="selectCalDate(29, this)">29</div>
-                            <div class="calendar-cell" id="cal-cell-30" onclick="selectCalDate(30, this)">30</div>
-                            <div class="calendar-cell" id="cal-cell-31" onclick="selectCalDate(31, this)">31</div>
+                        <!-- ตารางปฏิทินเรนเดอร์แบบ Dynamic อิงตามปฏิทินจริง -->
+                        <div class="calendar-grid" id="dynamic-calendar-grid">
+                            <!-- เรนเดอร์ช่องวันปฏิทินผ่าน JS -->
                         </div>
 
                         <!-- ฟอร์มเพิ่มนัดหมาย -->
@@ -1907,6 +1903,8 @@
             if (pageId === 'sec-advisor-classroom') {
                 updateAdvisorStats();
                 backToClassroomList();
+            } else if (pageId === 'sec-advisor-calendar' || pageId === 'sec-student-schedule') {
+                renderCalendarEvents();
             } else if (pageId === 'sec-student-docs' || pageId === 'sec-student-dash') {
                 renderStudentDocsList();
             }
@@ -2309,46 +2307,170 @@
             localStorage.setItem('systemAppointments', JSON.stringify(apps));
         }
 
-        function selectCalDate(day, el) {
-            document.querySelectorAll('.calendar-cell').forEach(cell => cell.classList.remove('selected-day'));
-            if (el) {
-                el.classList.add('selected-day');
-            } else {
-                const cell = document.getElementById(`cal-cell-${day}`);
-                if (cell) cell.classList.add('selected-day');
+        const THAI_MONTHS = [
+            'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน',
+            'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม',
+            'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
+        ];
+
+        let currentCalYear = new Date().getFullYear(); // e.g. 2026
+        let currentCalMonth = new Date().getMonth();   // 0-11
+        let selectedCalDateStr = '';
+
+        function initCalendarControls() {
+            const yearSelect = document.getElementById('cal-year-select');
+            if (yearSelect && yearSelect.options.length === 0) {
+                const startYear = 2024;
+                const endYear = 2032;
+                for (let y = startYear; y <= endYear; y++) {
+                    const opt = document.createElement('option');
+                    opt.value = y;
+                    opt.textContent = `${y + 543} (${y})`;
+                    if (y === currentCalYear) opt.selected = true;
+                    yearSelect.appendChild(opt);
+                }
             }
-            document.getElementById('cal-date-input').value = `${day} กรกฎาคม 2569`;
+        }
+
+        function changeCalendarMonth(delta) {
+            currentCalMonth += delta;
+            if (currentCalMonth < 0) {
+                currentCalMonth = 11;
+                currentCalYear--;
+            } else if (currentCalMonth > 11) {
+                currentCalMonth = 0;
+                currentCalYear++;
+            }
+            syncCalendarDropdowns();
+            renderCalendarEvents();
+        }
+
+        function onCalendarSelectChange() {
+            const monthEl = document.getElementById('cal-month-select');
+            const yearEl = document.getElementById('cal-year-select');
+            if (monthEl && yearEl) {
+                currentCalMonth = parseInt(monthEl.value);
+                currentCalYear = parseInt(yearEl.value);
+                renderCalendarEvents();
+            }
+        }
+
+        function jumpToCurrentDate() {
+            const now = new Date();
+            currentCalYear = now.getFullYear();
+            currentCalMonth = now.getMonth();
+            syncCalendarDropdowns();
+            
+            const todayDateStr = `${now.getDate()} ${THAI_MONTHS[currentCalMonth]} ${currentCalYear + 543}`;
+            selectCalDate(now.getDate(), todayDateStr);
+            renderCalendarEvents();
+        }
+
+        function syncCalendarDropdowns() {
+            const monthEl = document.getElementById('cal-month-select');
+            const yearEl = document.getElementById('cal-year-select');
+            if (monthEl) monthEl.value = currentCalMonth;
+            if (yearEl) yearEl.value = currentCalYear;
+        }
+
+        function selectCalDate(day, dateStr) {
+            if (!dateStr || typeof dateStr !== 'string') {
+                const beYear = currentCalYear + 543;
+                dateStr = `${day} ${THAI_MONTHS[currentCalMonth]} ${beYear}`;
+            }
+            selectedCalDateStr = dateStr;
+
+            const inputEl = document.getElementById('cal-date-input');
+            if (inputEl) inputEl.value = dateStr;
+
+            document.querySelectorAll('.calendar-cell').forEach(cell => cell.classList.remove('selected-day'));
+            const targetCell = document.getElementById(`cal-cell-${day}`);
+            if (targetCell && !targetCell.classList.contains('other-month')) {
+                targetCell.classList.add('selected-day');
+            }
         }
 
         function renderCalendarEvents() {
-            const apps = getSystemAppointments();
-            
-            // Clear previous event indicators
-            for (let i = 1; i <= 31; i++) {
-                const cell = document.getElementById(`cal-cell-${i}`);
-                if (cell) {
-                    cell.classList.remove('has-event');
-                    const dot = cell.querySelector('.event-dot');
-                    if (dot) dot.remove();
-                }
+            const container = document.getElementById('dynamic-calendar-grid');
+            if (!container) return;
+
+            initCalendarControls();
+            syncCalendarDropdowns();
+
+            const beYear = currentCalYear + 543;
+            const monthName = THAI_MONTHS[currentCalMonth];
+            const headerTitle = document.getElementById('cal-header-title');
+            if (headerTitle) {
+                headerTitle.textContent = `ปฏิทินนัดหมายนิเทศ (${monthName} ${beYear})`;
             }
-            
-            // Highlight cells with events
-            apps.forEach(app => {
-                const match = app.dateStr ? app.dateStr.match(/^(\d+)/) : null;
-                if (match) {
-                    const dayNum = parseInt(match[1]);
-                    const cell = document.getElementById(`cal-cell-${dayNum}`);
-                    if (cell) {
-                        cell.classList.add('has-event');
-                        if (!cell.querySelector('.event-dot')) {
-                            const dot = document.createElement('div');
-                            dot.className = 'event-dot';
-                            cell.appendChild(dot);
-                        }
-                    }
-                }
-            });
+
+            const apps = getSystemAppointments();
+            const now = new Date();
+            const isCurrentRealMonth = (now.getFullYear() === currentCalYear && now.getMonth() === currentCalMonth);
+            const realTodayDate = now.getDate();
+
+            // First day of month (0 = Sun, 1 = Mon, ..., 6 = Sat)
+            const firstDayIndex = new Date(currentCalYear, currentCalMonth, 1).getDay();
+            // Days in current month
+            const daysInMonth = new Date(currentCalYear, currentCalMonth + 1, 0).getDate();
+            // Days in previous month
+            const prevMonthDays = new Date(currentCalYear, currentCalMonth, 0).getDate();
+
+            let html = `
+                <div class="calendar-day-header">อา</div>
+                <div class="calendar-day-header">จ</div>
+                <div class="calendar-day-header">อ</div>
+                <div class="calendar-day-header">พ</div>
+                <div class="calendar-day-header">พฤ</div>
+                <div class="calendar-day-header">ศ</div>
+                <div class="calendar-day-header">ส</div>
+            `;
+
+            // 1. Padding cells from previous month
+            for (let i = firstDayIndex; i > 0; i--) {
+                const prevDay = prevMonthDays - i + 1;
+                html += `<div class="calendar-cell other-month" style="opacity: 0.35; cursor: default; background-color: #f1f5f9;">${prevDay}</div>`;
+            }
+
+            // 2. Actual month days
+            for (let day = 1; day <= daysInMonth; day++) {
+                const fullDateStr = `${day} ${monthName} ${beYear}`;
+                
+                const hasEvent = apps.some(a => {
+                    if (!a.dateStr) return false;
+                    if (a.dateStr.includes(fullDateStr)) return true;
+                    const m = a.dateStr.match(/^(\d+)\s+([^\s]+)/);
+                    if (m && parseInt(m[1]) === day && m[2] === monthName) return true;
+                    return false;
+                });
+
+                const isToday = isCurrentRealMonth && (day === realTodayDate);
+                const isSelected = (selectedCalDateStr === fullDateStr);
+
+                let cellClasses = ['calendar-cell'];
+                if (isToday) cellClasses.push('is-today');
+                if (isSelected) cellClasses.push('selected-day');
+                if (hasEvent) cellClasses.push('has-event');
+
+                const dotHtml = hasEvent ? '<div class="event-dot"></div>' : '';
+                const todayBadge = isToday ? '<div style="font-size: 8px; color: #15803d; margin-top: -2px; font-weight: 700;">วันนี้</div>' : '';
+
+                html += `
+                    <div class="${cellClasses.join(' ')}" id="cal-cell-${day}" onclick="selectCalDate(${day}, '${fullDateStr}')">
+                        <div>${day}</div>
+                        ${todayBadge}
+                        ${dotHtml}
+                    </div>`;
+            }
+
+            // 3. Padding cells for next month
+            const totalCells = firstDayIndex + daysInMonth;
+            const remainingCells = (totalCells % 7 === 0) ? 0 : (7 - (totalCells % 7));
+            for (let i = 1; i <= remainingCells; i++) {
+                html += `<div class="calendar-cell other-month" style="opacity: 0.35; cursor: default; background-color: #f1f5f9;">${i}</div>`;
+            }
+
+            container.innerHTML = html;
 
             renderAdvisorAppointmentsList();
             renderStudentScheduleList();
