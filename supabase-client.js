@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Supabase Client & Database Service Layer
  * Application: KU Cooperative Education Supervision System
  */
@@ -109,12 +109,21 @@ async function dbSignIn(email, password) {
         }
     }
 
-    // Local Storage / Static Seed Fallback
+    // Local Storage / customUsers Fallback
     if (!existingUser) {
         const customUsers = JSON.parse(localStorage.getItem('customUsers') || '{}');
-        if (customUsers[email]) {
-            existingUser = customUsers[email];
-        } else if (email === 'adminku@ku.th' || email === 'adminku' || email === 'admin@ku.th' || email === 'admin') {
+        const cleanId = String(email || '').trim().toLowerCase();
+        if (customUsers[cleanId]) {
+            existingUser = customUsers[cleanId];
+        } else {
+            existingUser = Object.values(customUsers).find(u => 
+                (u.email && u.email.toLowerCase() === cleanId) ||
+                (u.id && String(u.id).toLowerCase() === cleanId) ||
+                (u.student_id && String(u.student_id).toLowerCase() === cleanId) ||
+                (u.advisor_id && String(u.advisor_id).toLowerCase() === cleanId)
+            );
+        }
+        if (!existingUser && (cleanId === 'adminku@ku.th' || cleanId === 'adminku' || cleanId === 'admin@ku.th' || cleanId === 'admin')) {
             existingUser = { role: 'admin', name: 'ผู้ดูแลระบบ (Admin)', id: 'adminku', email: 'adminku@ku.th', password_hash: 'admin123', password: 'admin123', status: 'approved' };
         }
     }
