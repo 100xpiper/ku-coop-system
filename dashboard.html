@@ -1524,9 +1524,9 @@
                                 <option value="">ยังไม่มีข้อมูลนิสิต (รอแอดมินนำเข้าข้อมูล)</option>
                             </select>
 
-                            <button class="btn-primary" style="width: 100%; padding: 12px; font-size: 13px; font-weight: 700; background-color: var(--primary-color); border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.08); cursor: pointer;" onclick="processCheckinAndEval()">
+                            <button id="btn-process-checkin" class="btn-primary" style="width: 100%; padding: 12px; font-size: 13px; font-weight: 700; background-color: var(--primary-color); border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.08); cursor: pointer;" onclick="processCheckinAndEval()">
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-                                สแกน QR Code และเช็คอิน GPS
+                                <span id="btn-process-checkin-text">สแกน QR Code และเช็คอิน GPS</span>
                             </button>
                         </div>
 
@@ -3044,17 +3044,24 @@
             const qrCodeSuccessCallback = (decodedText, decodedResult) => {
                 stopRealCameraScanner();
 
+                let foundMatch = false;
                 const studentSelect = document.getElementById('qr-scan-student-select');
                 if (studentSelect) {
                     for (let opt of studentSelect.options) {
                         if (opt.value && decodedText.includes(opt.value)) {
                             studentSelect.value = opt.value;
+                            foundMatch = true;
                             break;
                         }
                     }
                 }
 
-                alert(`สแกน QR Code สำเร็จ! รหัสที่ตรวจพบ: ${decodedText}`);
+                if (!foundMatch) {
+                    alert(`❌ สแกนล้มเหลว: ไม่พบนิสิตรหัส "${decodedText}" ในความดูแลของคุณ`);
+                    return;
+                }
+
+                alert(`✅ สแกน QR Code สำเร็จ! รหัสที่ตรวจพบ: ${decodedText}`);
                 processCheckinAndEval();
             };
 
@@ -3145,20 +3152,30 @@
                 renderStudentList();
             };
 
+            const checkinBtnText = document.getElementById('btn-process-checkin-text');
+            if (checkinBtnText) checkinBtnText.textContent = "กำลังดึงพิกัด GPS...";
+
+            const restoreBtnText = () => {
+                if (checkinBtnText) checkinBtnText.textContent = "สแกน QR Code และเช็คอิน GPS";
+            };
+
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     (pos) => {
                         latStr = pos.coords.latitude.toFixed(6);
                         lngStr = pos.coords.longitude.toFixed(6);
+                        restoreBtnText();
                         displayResult(latStr, lngStr);
                     },
                     (err) => {
                         console.warn("Geolocation fallback:", err.message);
+                        restoreBtnText();
                         displayResult(latStr, lngStr);
                     },
                     { timeout: 4000 }
                 );
             } else {
+                restoreBtnText();
                 displayResult(latStr, lngStr);
             }
         }
