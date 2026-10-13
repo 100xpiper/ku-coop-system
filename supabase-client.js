@@ -122,9 +122,27 @@ async function dbSignIn(email, password) {
                 (u.advisor_id && String(u.advisor_id).toLowerCase() === cleanId)
             );
         }
-        if (!existingUser && (cleanId === 'adminku@ku.th' || cleanId === 'adminku' || cleanId === 'admin@ku.th' || cleanId === 'admin')) {
-            const adminPass = (password === 'adminku123' || password === 'admin123') ? password : 'adminku123';
-            existingUser = { role: 'admin', name: 'ผู้ดูแลระบบ (Admin)', id: 'adminku', email: 'adminku@ku.th', password_hash: adminPass, password: adminPass, status: 'approved' };
+        if (!existingUser) {
+            const defaultAccounts = {
+                'adminku@ku.th': { role: 'admin', name: 'ผู้ดูแลระบบ (Admin)', id: 'adminku', email: 'adminku@ku.th', password: 'adminku123', status: 'approved' },
+                'admin@ku.th': { role: 'admin', name: 'ผู้ดูแลระบบ (Admin)', id: 'adminku', email: 'adminku@ku.th', password: 'adminku123', status: 'approved' },
+                'admin': { role: 'admin', name: 'ผู้ดูแลระบบ (Admin)', id: 'adminku', email: 'adminku@ku.th', password: 'adminku123', status: 'approved' },
+                'adminku': { role: 'admin', name: 'ผู้ดูแลระบบ (Admin)', id: 'adminku', email: 'adminku@ku.th', password: 'adminku123', status: 'approved' },
+                'wongsapat.u@ku.th': { role: 'advisor', name: 'นายวงศพัทธ์ อุเทน', id: '1234', advisor_id: '1234', email: 'wongsapat.u@ku.th', section: 'หมู่ 700', password: '1234', status: 'approved' },
+                '1234': { role: 'advisor', name: 'นายวงศพัทธ์ อุเทน', id: '1234', advisor_id: '1234', email: 'wongsapat.u@ku.th', section: 'หมู่ 700', password: '1234', status: 'approved' },
+                'poravee.w@ku.th': { role: 'advisor', name: 'นายปรวี วงศ์สวัสดิ์สุริยะ', id: '1235', advisor_id: '1235', email: 'poravee.w@ku.th', section: 'หมู่ 800', password: '1234', status: 'approved' },
+                '1235': { role: 'advisor', name: 'นายปรวี วงศ์สวัสดิ์สุริยะ', id: '1235', advisor_id: '1235', email: 'poravee.w@ku.th', section: 'หมู่ 800', password: '1234', status: 'approved' },
+                'somsak.r@ku.th': { role: 'student', name: 'นายสมศักดิ์ รักดี', id: '64010101', student_id: '64010101', email: 'somsak.r@ku.th', section: 'หมู่ 700', company_name: 'บริษัท เมต้า โซลูชั่นส์ จำกัด', docs: 'ครบถ้วน', status: 'นิเทศแล้ว', password: '1234', status: 'approved' },
+                '64010101': { role: 'student', name: 'นายสมศักดิ์ รักดี', id: '64010101', student_id: '64010101', email: 'somsak.r@ku.th', section: 'หมู่ 700', company_name: 'บริษัท เมต้า โซลูชั่นส์ จำกัด', docs: 'ครบถ้วน', status: 'นิเทศแล้ว', password: '1234', status: 'approved' },
+                'taweesak.c@ku.th': { role: 'student', name: 'นายทวีศักดิ์ ชัยชนะ', id: '64010103', student_id: '64010103', email: 'taweesak.c@ku.th', section: 'หมู่ 700', company_name: 'บริษัท เทคซอส มีเดีย จำกัด', docs: 'รอตรวจ', status: 'รอนิเทศ', password: '1234', status: 'approved' },
+                '64010103': { role: 'student', name: 'นายทวีศักดิ์ ชัยชนะ', id: '64010103', student_id: '64010103', email: 'taweesak.c@ku.th', section: 'หมู่ 700', company_name: 'บริษัท เทคซอส มีเดีย จำกัด', docs: 'รอตรวจ', status: 'รอนิเทศ', password: '1234', status: 'approved' }
+            };
+            if (defaultAccounts[cleanId]) {
+                existingUser = { ...defaultAccounts[cleanId] };
+                if (existingUser.role === 'admin' && (password === 'adminku123' || password === 'admin123')) {
+                    existingUser.password = password;
+                }
+            }
         }
     }
 
