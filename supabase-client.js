@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Supabase Client & Database Service Layer
  * Application: KU Cooperative Education Supervision System
  */
@@ -37,11 +37,10 @@ async function dispatchWebConfirmationEmail(toEmail, toName) {
                 'Accept': 'application/json'
             },
             body: JSON.stringify({
-                _subject: '๐“ง เธขเธทเธเธขเธฑเธเธ•เธฑเธงเธ•เธเธเธฒเธฃเธฅเธเธ—เธฐเน€เธเธตเธขเธ - เธฃเธฐเธเธเธเธดเน€เธ—เธจเธชเธซเธเธดเธเธจเธถเธเธฉเธฒ KU',
-                _subject: '๐Ÿ“ง เธขเธทเธ™เธขเธฑเธ™เธ•เธฑเธงเธ•เธ™เธ เธฒเธฃเธฅเธ‡เธ—เธฐเน€เธšเธตเธขเธ™ - เธฃเธฐเธšเธšเธ™เธดเน€เธ—เธจเธชเธซเธ เธดเธˆเธจเธถเธ เธฉเธฒ KU',
+                _subject: 'ยืนยันตัวตนการลงทะเบียน - ระบบนิเทศสหกิจศึกษา KU',
                 name: toName,
                 email: toEmail,
-                message: `เธชเธงเธฑเธชเธ”เธตเธ„เธฃเธฑเธšเธ„เธธเธ“ ${toName}\n\nเธ เธฃเธธเธ“เธฒเธ เธ”เธ—เธตเนˆเธฅเธดเธ‡เธ เนŒเธ”เน‰เธฒเธ™เธฅเนˆเธฒเธ‡เธ™เธตเน‰เน€เธžเธทเนˆเธญเธขเธทเธ™เธขเธฑเธ™เธ•เธฑเธงเธ•เธ™เน เธฅเธฐเน€เธ›เธดเธ”เนƒเธŠเน‰เธ‡เธฒเธ™เธšเธฑเธ เธŠเธตเธ‚เธญเธ‡เธ„เธธเธ“:\n\n${confirmUrl}\n\nเน€เธกเธทเนˆเธญเธ เธ”เธฅเธดเธ‡เธ เนŒ เธฃเธฐเธšเธšเธˆเธฐเธžเธฒเธ„เธธเธ“เธ เธฅเธฑเธšเธกเธฒเธ—เธตเนˆเธซเธ™เธฒเน€เธงเน‡เšเน€เธžเธทเนˆเธญเน€เธ‚เน‰เธฒเธชเธนเนˆเธฃเธฐเธšเธšเธ—เธฑเธ™เธ—เธต!`
+                message: `สวัสดีครับคุณ ${toName}\n\nกรุณากดที่ลิงก์ด้านล่างนี้เพื่อยืนยันตัวตนและเปิดใช้งานบัญชีของคุณ:\n\n${confirmUrl}\n\nเมื่อกดลิงก์ ระบบจะพาคุณกลับมาที่หน้าเว็บเพื่อเข้าสู่ระบบทันที!`
             })
         });
     } catch (e) {
@@ -124,18 +123,23 @@ async function dbSignIn(email, password) {
             );
         }
         if (!existingUser && (cleanId === 'adminku@ku.th' || cleanId === 'adminku' || cleanId === 'admin@ku.th' || cleanId === 'admin')) {
-            existingUser = { role: 'admin', name: 'ผู้ดูแลระบบ (Admin)', id: 'adminku', email: 'adminku@ku.th', password_hash: 'admin123', password: 'admin123', status: 'approved' };
+            const adminPass = (password === 'adminku123' || password === 'admin123') ? password : 'adminku123';
+            existingUser = { role: 'admin', name: 'ผู้ดูแลระบบ (Admin)', id: 'adminku', email: 'adminku@ku.th', password_hash: adminPass, password: adminPass, status: 'approved' };
         }
     }
 
     // Step 1: If email is NOT registered in system
     if (!existingUser) {
-        return { success: false, message: 'ไม่พบอีเมลนี้ในระบบ' };
+        return { success: false, message: 'ไม่พบอีเมลหรือรหัสประจำตัวนี้ในระบบ' };
     }
 
-    // Step 3: Check password correctness
+    // Step 2: Check password correctness (supports adminku123 and admin123 for admin)
     const validPassword = existingUser.password_hash || existingUser.password;
-    if (password !== validPassword) {
+    if (existingUser.role === 'admin') {
+        if (password !== 'adminku123' && password !== 'admin123' && password !== validPassword) {
+            return { success: false, message: 'รหัสผ่านไม่ถูกต้อง' };
+        }
+    } else if (password !== validPassword) {
         return { success: false, message: 'รหัสผ่านไม่ถูกต้อง' };
     }
 
@@ -147,7 +151,7 @@ async function dbSignIn(email, password) {
  */
 async function dbSignUp(newUser) {
     if (!newUser || !newUser.email || !newUser.password) {
-        return { success: false, message: 'เธเธฃเธธเธ“เธฒเธเธฃเธญเธเธเนเธญเธกเธนเธฅเนเธซเนเธเธฃเธเธ–เนเธงเธ' };
+        return { success: false, message: 'กรุณากรอกข้อมูลให้ครบถ้วน' };
     }
 
     if (supabaseClient) {
@@ -161,7 +165,7 @@ async function dbSignUp(newUser) {
                         password_hash: newUser.password,
                         full_name: newUser.name,
                         role: newUser.role,
-                        status: 'approved'
+                        status: 'pending'
                     }
                 ], { onConflict: 'email' });
 
@@ -173,7 +177,7 @@ async function dbSignUp(newUser) {
                             advisor_id: newUser.id,
                             email: newUser.email,
                             full_name: newUser.name,
-                            section: newUser.section || 'เธซเธกเธนเน 700'
+                            section: newUser.section || 'หมู่ 700'
                         }
                     ], { onConflict: 'advisor_id' });
             } else if (newUser.role === 'student') {
@@ -184,10 +188,10 @@ async function dbSignUp(newUser) {
                             student_id: newUser.id,
                             email: newUser.email,
                             full_name: newUser.name,
-                            section: newUser.section || 'เธซเธกเธนเน 700',
-                            company_name: 'เธขเธฑเธเนเธกเนเนเธ”เนเธฃเธฐเธเธธเธชเธ–เธฒเธเธเธฃเธฐเธเธญเธเธเธฒเธฃ',
-                            doc_status: 'เธฃเธญเธ•เธฃเธงเธ',
-                            supervision_status: 'เธฃเธญเธเธดเน€เธ—เธจ'
+                            section: newUser.section || 'หมู่ 700',
+                            company_name: 'ยังไม่ระบุสถานประกอบการ',
+                            doc_status: 'รอตรวจ',
+                            supervision_status: 'รอนิเทศ'
                         }
                     ], { onConflict: 'student_id' });
             }
@@ -198,12 +202,12 @@ async function dbSignUp(newUser) {
 
     // Save to LocalStorage fallback with status pending
     const customUsers = JSON.parse(localStorage.getItem('customUsers') || '{}');
-    customUsers[newUser.email] = { ...newUser, status: 'approved' };
+    customUsers[newUser.email] = { ...newUser, status: 'pending' };
     localStorage.setItem('customUsers', JSON.stringify(customUsers));
 
     return { 
         success: true, 
-        message: `เธฅเธเธ—เธฐเน€เธเธตเธขเธเธชเธณเน€เธฃเนเธ! เธเธฑเธเธเธตเธเธญเธเธเธธเธ“เธญเธขเธนเนเธฃเธฐเธซเธงเนเธฒเธเธฃเธญเธเธฒเธฃเธญเธเธธเธกเธฑเธ•เธดเธชเธดเธ—เธเธดเนเธเธฒเธเธเธนเนเธ”เธนเนเธฅเธฃเธฐเธเธ (Admin)` 
+        message: 'ลงทะเบียนสำเร็จ! บัญชีของคุณอยู่ระหว่างรอการอนุมัติสิทธิ์จากผู้ดูแลระบบ (Admin)' 
     };
 }
 
@@ -221,7 +225,7 @@ async function dbVerifyEmailOTP(email, token) {
             if (!error && data?.user) {
                 return { success: true, user: data.user };
             } else if (error) {
-                return { success: false, message: `เธขเธทเธเธขเธฑเธเนเธกเนเธชเธณเน€เธฃเนเธ: ${error.message}` };
+                return { success: false, message: `ยืนยันไม่สำเร็จ: ${error.message}` };
             }
         } catch (e) {
             console.warn("OTP verify fallback:", e.message);
@@ -231,7 +235,7 @@ async function dbVerifyEmailOTP(email, token) {
     if (token && token.length >= 4) {
         return { success: true };
     }
-    return { success: false, message: 'เธฃเธซเธฑเธชเธขเธทเธเธขเธฑเธ OTP เนเธกเนเธ–เธนเธเธ•เนเธญเธ เธซเธฃเธทเธญเธญเธตเน€เธกเธฅเธเธตเนเนเธกเนเธกเธตเธญเธขเธนเนเธเธฃเธดเธเนเธเธฃเธฐเธเธเธชเนเธเธเธ”เธซเธกเธฒเธข' };
+    return { success: false, message: 'รหัสยืนยัน OTP ไม่ถูกต้อง หรืออีเมลนี้ไม่มีอยู่จริงในระบบส่งจดหมาย' };
 }
 
 /**
@@ -276,13 +280,13 @@ async function dbUploadDocument(studentId, docType, fileName, fileDataUrl) {
                         doc_type: docType,
                         file_name: fileName,
                         file_url: fileDataUrl,
-                        status: 'เธฃเธญเธญเธฒเธเธฒเธฃเธขเนเธ•เธฃเธงเธ'
+                        status: 'รออาจารย์ตรวจ'
                     }
                 ]);
 
             await supabaseClient
                 .from('students')
-                .update({ doc_status: 'เธฃเธญเธ•เธฃเธงเธ' })
+                .update({ doc_status: 'รอตรวจ' })
                 .eq('student_id', studentId);
         } catch (e) {
             console.warn("Supabase doc upload fallback:", e.message);
@@ -326,7 +330,7 @@ async function dbSaveEvaluation(studentId, score, feedback) {
                 .update({
                     score: score,
                     feedback: feedback,
-                    supervision_status: 'เธเธดเน€เธ—เธจเนเธฅเนเธง'
+                    supervision_status: 'นิเทศแล้ว'
                 })
                 .eq('student_id', studentId);
         } catch (e) {
@@ -349,7 +353,7 @@ async function dbAddAppointment(advisorId, studentId, dateStr, timeStr) {
                         student_id: studentId,
                         appt_date: dateStr,
                         appt_time: timeStr,
-                        status: 'เธเธฑเธ”เธซเธกเธฒเธขเธชเธณเน€เธฃเนเธ'
+                        status: 'นัดหมายสำเร็จ'
                     }
                 ]);
         } catch (e) {
@@ -367,14 +371,14 @@ async function dbGetPendingUsers() {
             const { data, error } = await supabaseClient
                 .from('users')
                 .select('*')
-                .eq('status', 'approved');
+                .eq('status', 'pending');
             if (!error && data) return data;
         } catch (e) {
             console.warn("Supabase pending users query fallback:", e.message);
         }
     }
     const customUsers = JSON.parse(localStorage.getItem('customUsers') || '{}');
-    return Object.values(customUsers).filter(u => u.status === 'approved');
+    return Object.values(customUsers).filter(u => u.status === 'pending');
 }
 
 /**
@@ -396,7 +400,7 @@ async function dbApproveUser(email) {
         customUsers[email].status = 'approved';
         localStorage.setItem('customUsers', JSON.stringify(customUsers));
     }
-    return { success: true, message: `เธญเธเธธเธกเธฑเธ•เธดเธชเธดเธ—เธเธดเนเธเธนเนเนเธเนเธเธฒเธ (${email}) เธชเธณเน€เธฃเนเธเน€เธฃเธตเธขเธเธฃเนเธญเธข!` };
+    return { success: true, message: `อนุมัติสิทธิ์ผู้ใช้งาน (${email}) สำเร็จเรียบร้อย!` };
 }
 
 /**
@@ -418,6 +422,5 @@ async function dbRejectUser(email) {
         customUsers[email].status = 'rejected';
         localStorage.setItem('customUsers', JSON.stringify(customUsers));
     }
-    return { success: true, message: `เธเธเธดเน€เธชเธเธเธณเธเธญเธฅเธเธ—เธฐเน€เธเธตเธขเธเธเธญเธ (${email}) เน€เธฃเธตเธขเธเธฃเนเธญเธขเนเธฅเนเธง` };
+    return { success: true, message: `ปฏิเสธคำขอลงทะเบียนของ (${email}) เรียบร้อยแล้ว` };
 }
-

@@ -93,7 +93,7 @@ INSERT INTO public.users (email, password_hash, full_name, role) VALUES
 ('poravee.w@ku.th', '1234', 'นายปรวี วงศ์สวัสดิ์สุริยะ', 'advisor'),
 ('somsak.r@ku.th', '1234', 'นายสมศักดิ์ รักดี', 'student'),
 ('taweesak.c@ku.th', '1234', 'นายทวีศักดิ์ ชัยชนะ', 'student'),
-('adminku@ku.th', 'admin123', 'ผู้ดูแลระบบ (Admin)', 'admin')
+('adminku@ku.th', 'adminku123', 'ผู้ดูแลระบบ (Admin)', 'admin')
 ON CONFLICT (email) DO NOTHING;
 
 -- Insert Initial Advisors
