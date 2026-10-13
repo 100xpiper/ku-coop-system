@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="th">
 <head>
     <meta charset="UTF-8">
@@ -609,10 +609,7 @@
             checkPasswordRulesRealtime(pass, 'first');
         }
 
-        function onSignUpPasswordInput() {
-            const pass = document.getElementById('signup-password').value;
-            checkPasswordRulesRealtime(pass, 'signup');
-        }
+
 
         function showFirstLoginPasswordResetModal(user) {
             pendingFirstLoginUser = user;
@@ -666,8 +663,6 @@
                 window.location.href = 'dashboard.html';
             }
         }
-
-        let pendingSignUpUser = null;
 
         function togglePasswordVisibility(inputId, btn) {
             const input = document.getElementById(inputId);
