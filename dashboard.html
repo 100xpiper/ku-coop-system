@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="th">
 <head>
     <meta charset="UTF-8">
@@ -1635,7 +1635,7 @@
                 <!-- หน้า 2.2: เอกสารของฉัน (Student Docs) -->
                 <div id="sec-student-docs" class="page-content">
                     <!-- คลังแบบฟอร์มเปล่าสหกิจศึกษา (ดาวน์โหลดเพื่อกรอกและส่ง) -->
-                    <section class="section-card" style="border: 1.5px solid #10b981; background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%); margin-bottom: 16px;">
+                    <section class="section-card" style="border: 1.5px solid #10b981; background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%); margin-bottom: 16px; display: none;">
                         <div class="section-header" style="margin-bottom: 6px;">
                             <div class="section-title" style="color: #065f46; display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 13.5px;">
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>
@@ -1666,6 +1666,7 @@
                             <div>
                                 <label style="font-size: 11px; font-weight: 600; color: var(--primary-color);">ประเภทเอกสาร:</label>
                                 <select id="std-doc-type-select" style="width: 100%; padding: 7px; font-size: 12px; border-radius: 6px; border: 1px solid var(--border-color); background-color: #f8fafc;">
+                                    <option value="แบบฟอร์มยืนยันสัดส่วนการทำงานร่วมกัน (Contribution Distribution)">แบบฟอร์มยืนยันสัดส่วนการทำงานร่วมกัน (Contribution Distribution)</option>
                                     <option value="Form 02 - แบบแจ้งยืนยันการนิเทศงานนิสิตสหกิจศึกษา">Form 02 - แบบแจ้งยืนยันการนิเทศงานนิสิตสหกิจศึกษา</option>
                                     <option value="Form 04 - แบบแจ้งรายละเอียดที่พักระหว่างการปฏิบัติงานสหกิจศึกษา">Form 04 - แบบแจ้งรายละเอียดที่พักระหว่างการปฏิบัติงานสหกิจศึกษา</option>
                                     <option value="Form 05 - แบบแจ้งรายละเอียดงาน ตำแหน่งงาน พนักงานที่ปรึกษา">Form 05 - แบบแจ้งรายละเอียดงาน ตำแหน่งงาน พนักงานที่ปรึกษา</option>
@@ -3995,6 +3996,117 @@
 
         const coopBlankForms = [
             {
+                id: 'form-contribution',
+                code: 'หลักสูตร วท.บ.',
+                title: 'แบบฟอร์มยืนยันสัดส่วนการทำงานร่วมกัน',
+                subtitle: 'Contribution Distribution (สัดส่วนภาระงานรวม 100%)',
+                target: 'สำหรับ: นิสิตที่จัดทำโครงงานร่วมกันเป็นกลุ่ม & หัวหน้างาน/พี่เลี้ยง',
+                pages: '1 หน้า (A4)',
+                badge: 'วท.บ.วิทยาการคอมพิวเตอร์',
+                badgeColor: '#059669',
+                renderHtml: function() {
+                    return `
+                    <div class="page">
+                        <div style="text-align: center; font-weight: bold; font-size: 16pt; margin-bottom: 14px;">
+                            แบบฟอร์มยืนยันสัดส่วนการทำงานร่วมกัน
+                        </div>
+                        
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 13.5pt;">
+                            <div>หลักสูตรวิทยาการคอมพิวเตอร์ มหาวิทยาลัยเกษตรศาสตร์ วิทยาเขตกำแพงแสน</div>
+                            <div>วันที่จัดทำ: ..............................</div>
+                        </div>
+                        
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 13.5pt;">
+                            <div>รหัสวิชา: 01418490</div>
+                            <div>ชื่อวิชา: สหกิจศึกษา</div>
+                        </div>
+                        
+                        <div style="margin-bottom: 6px; font-size: 13.5pt;">
+                            ชื่อโครงงาน/โปรเจค: …………………………………………………………………………………………………………………………………………..
+                        </div>
+                        
+                        <div style="margin-bottom: 4px; font-size: 13.5pt;">
+                            ขอบเขตงานแบบสรุป: ………………………………………………………………………………………………...............................................
+                        </div>
+                        <div style="margin-bottom: 4px; font-size: 13.5pt;">
+                            ……………………………………………………………………………………………………………………………………………………………………………
+                        </div>
+                        <div style="margin-bottom: 8px; font-size: 13.5pt;">
+                            ……………………………………………………………………………………………………………………………………………………………………………
+                        </div>
+                        
+                        <div style="margin-bottom: 14px; font-size: 13.5pt;">
+                            เป็นส่วนหนึ่งของการฝึกสหกิจศึกษา ณ ..............................................................................................................................
+                        </div>
+                        
+                        <div style="margin-bottom: 10px; font-size: 13.5pt; text-indent: 20px;">
+                            <strong>รายละเอียดการจัดสรรภาระงาน (Contribution Distribution)</strong> ให้สมาชิกทุกคนร่วมกันพิจารณาและกรอกสัดส่วนการทำงาน โดยผลรวมในช่องสุดท้ายต้องเท่ากับ 100%
+                        </div>
+                        
+                        <table style="width: 100%; border-collapse: collapse; margin-bottom: 16px;">
+                            <thead>
+                                <tr style="background: #f2f2f2;">
+                                    <th style="width: 8%; text-align: center; padding: 6px; border: 1px solid #000;">ลำดับ</th>
+                                    <th style="width: 24%; text-align: center; padding: 6px; border: 1px solid #000;">ชื่อ-นามสกุล</th>
+                                    <th style="width: 38%; text-align: center; padding: 6px; border: 1px solid #000;">ขอบเขตงาน/หน้าที่ความรับผิดชอบ</th>
+                                    <th style="width: 15%; text-align: center; padding: 6px; border: 1px solid #000;">สัดส่วนงาน (%)</th>
+                                    <th style="width: 15%; text-align: center; padding: 6px; border: 1px solid #000;">ลายมือชื่อ</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="text-align: center; height: 50px; vertical-align: top; padding-top: 6px; border: 1px solid #000;">1.</td>
+                                    <td style="border: 1px solid #000;"></td>
+                                    <td style="border: 1px solid #000;"></td>
+                                    <td style="border: 1px solid #000;"></td>
+                                    <td style="border: 1px solid #000;"></td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align: center; height: 50px; vertical-align: top; padding-top: 6px; border: 1px solid #000;">2.</td>
+                                    <td style="border: 1px solid #000;"></td>
+                                    <td style="border: 1px solid #000;"></td>
+                                    <td style="border: 1px solid #000;"></td>
+                                    <td style="border: 1px solid #000;"></td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align: center; height: 50px; vertical-align: top; padding-top: 6px; border: 1px solid #000;">3.</td>
+                                    <td style="border: 1px solid #000;"></td>
+                                    <td style="border: 1px solid #000;"></td>
+                                    <td style="border: 1px solid #000;"></td>
+                                    <td style="border: 1px solid #000;"></td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align: center; height: 50px; vertical-align: top; padding-top: 6px; border: 1px solid #000;">4.</td>
+                                    <td style="border: 1px solid #000;"></td>
+                                    <td style="border: 1px solid #000;"></td>
+                                    <td style="border: 1px solid #000;"></td>
+                                    <td style="border: 1px solid #000;"></td>
+                                </tr>
+                                <tr style="font-weight: bold;">
+                                    <td colspan="3" style="text-align: center; padding: 6px; border: 1px solid #000;">รวมทั้งสิ้น</td>
+                                    <td style="text-align: center; padding: 6px; border: 1px solid #000;">100%</td>
+                                    <td style="border: 1px solid #000;"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <div style="font-weight: bold; font-size: 13.5pt; margin-bottom: 6px;">
+                            ส่วนการรับรองและตรวจสอบ (Approval & Validation)
+                        </div>
+                        <div style="font-size: 13.5pt; margin-bottom: 12px; text-indent: 20px;">
+                            ข้าพเจ้าในฐานะหัวหน้างาน/พี่เลี้ยง ขอรับรองว่าข้อมูลสัดส่วนงานข้างต้นเป็นความจริงตามที่ได้ตกลงร่วมกัน และสมาชิกทุกคนได้รับทราบผลการประเมินนี้แล้ว
+                        </div>
+                        
+                        <div style="margin-top: 15px; margin-left: 55%; font-size: 13.5pt; line-height: 1.7;">
+                            (ลงชื่อ)............................................................<br>
+                            (&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)<br>
+                            <div style="padding-left: 20px;">หัวหน้างาน/พี่เลี้ยง</div>
+                            วันที่: ........ / ........ / ........
+                        </div>
+                    </div>`;
+                }
+            },
+            {
                 id: 'form-02',
                 code: 'หมายเลขเอกสาร 02',
                 title: 'แบบแจ้งยืนยันการนิเทศงานนิสิตสหกิจศึกษา',
@@ -4608,13 +4720,32 @@
         }
 
         function openMapForStudent(stdId) {
+            // ค้นหาจาก studentsData ก่อน
             const allStds = [...(studentsData['หมู่ 700'] || []), ...(studentsData['หมู่ 800'] || [])];
-            const std = allStds.find(s => String(s.id) === String(stdId));
+            let std = allStds.find(s => String(s.id) === String(stdId) || String(s.student_id) === String(stdId));
+
+            // Fallback: ค้นหาจาก customUsers (localStorage) ซึ่งนำเข้าจาก Excel
+            if (!std || (!std.company_lat && !std.company_lng)) {
+                const customUsers = JSON.parse(localStorage.getItem('customUsers') || '{}');
+                const userEntry = Object.values(customUsers).find(u =>
+                    String(u.student_id || u.id) === String(stdId)
+                );
+                if (userEntry) std = userEntry;
+            }
+
             if (std && std.company_lat && std.company_lng) {
-                const url = `https://www.google.com/maps/search/?api=1&query=${std.company_lat},${std.company_lng}`;
+                const lat = std.company_lat;
+                const lng = std.company_lng;
+                const name = encodeURIComponent(std.company_name || std.company || 'สถานประกอบการ');
+                const url = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}&query_place_id=${name}`;
+                window.open(url, '_blank');
+            } else if (std && std.company_name) {
+                // ถ้าไม่มีพิกัดแต่มีชื่อสถานประกอบการ ให้ค้นหาด้วยชื่อแทน
+                const name = encodeURIComponent(std.company_name || std.company);
+                const url = `https://www.google.com/maps/search/?api=1&query=${name}`;
                 window.open(url, '_blank');
             } else {
-                alert('ไม่พบข้อมูลพิกัดละติจูด/ลองจิจูด สำหรับสถานประกอบการของนิสิตคนนี้ (Admin ต้องไปตั้งค่าพิกัดก่อน)');
+                alert('ไม่พบพิกัดสถานประกอบการ กรุณาตรวจสอบว่าไฟล์ Excel มีคอลัมน์ "พิกัด" รูปแบบ "14.076, 100.601" หรือไม่');
             }
         }
 
