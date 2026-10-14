@@ -1,19 +1,44 @@
-$port = 8080
-$listener = New-Object System.Net.HttpListener
-$listener.Prefixes.Add("http://localhost:$port/")
-$listener.Prefixes.Add("http://127.0.0.1:$port/")
+$preferredPorts = @(8080, 8081, 8082, 3000)
+$listener = $null
+$port = $null
 
-try {
-    $listener.Start()
-    Write-Host "=========================================================="
-    Write-Host " KU Coop Web Server started successfully!" -ForegroundColor Green
-    Write-Host " Access URL: http://localhost:$port" -ForegroundColor Cyan
-    Write-Host " Press Ctrl+C to stop the server" -ForegroundColor Yellow
-    Write-Host "=========================================================="
-} catch {
-    Write-Host "Failed to start listener on port $port : $_" -ForegroundColor Red
+foreach ($p in $preferredPorts) {
+    try {
+        $l = New-Object System.Net.HttpListener
+        $l.Prefixes.Add("http://localhost:$p/")
+        $l.Prefixes.Add("http://127.0.0.1:$p/")
+        $l.Start()
+        $listener = $l
+        $port = $p
+        break
+    } catch {
+        # Port in use or not available, try next
+    }
+}
+
+if (-not $listener) {
+    try {
+        $test = Invoke-WebRequest -Uri "http://localhost:8080/index.html" -UseBasicParsing -TimeoutSec 2 -ErrorAction Stop
+        if ($test.StatusCode -eq 200) {
+            Write-Host "==========================================================" -ForegroundColor Green
+            Write-Host " KU Coop Web Server is already running on http://localhost:8080" -ForegroundColor Green
+            Write-Host " Opening web browser..." -ForegroundColor Cyan
+            Write-Host "==========================================================" -ForegroundColor Green
+            Start-Process "http://localhost:8080"
+            exit 0
+        }
+    } catch {}
+
+    Write-Host "Failed to start listener on ports: $($preferredPorts -join ', ')" -ForegroundColor Red
     exit 1
 }
+
+Write-Host "==========================================================" -ForegroundColor Green
+Write-Host " KU Coop Web Server started successfully!" -ForegroundColor Green
+Write-Host " Access URL: http://localhost:$port" -ForegroundColor Cyan
+Write-Host " Press Ctrl+C to stop the server" -ForegroundColor Yellow
+Write-Host "==========================================================" -ForegroundColor Green
+Start-Process "http://localhost:$port"
 
 $baseDir = $PSScriptRoot
 
@@ -67,7 +92,6 @@ try {
             }
             $response.Close()
         } catch {
-            # Catch client errors (e.g. abort/reset) and keep server alive
             try { $context.Response.Close() } catch {}
         }
     }
