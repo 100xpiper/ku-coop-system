@@ -697,8 +697,12 @@
                 const result = await dbSignIn(username, password);
 
                 if (result.success && result.user) {
-                    localStorage.setItem('currentUser', JSON.stringify(result.user));
-                    window.location.href = 'dashboard.html';
+                    if (result.user.first_login) {
+                        showFirstLoginPasswordResetModal(result.user);
+                    } else {
+                        localStorage.setItem('currentUser', JSON.stringify(result.user));
+                        window.location.href = 'dashboard.html';
+                    }
                 } else {
                     showAlert(result.message || 'อีเมล/รหัสประจำตัว หรือ รหัสผ่านไม่ถูกต้อง');
                 }
