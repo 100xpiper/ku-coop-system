@@ -2203,8 +2203,12 @@
         }
 
         function loadDynamicStudentsData() {
-            let customUsersStr = localStorage.getItem('customUsers');
-            if (customUsersStr === null) {
+            let customUsersObj = {};
+            try {
+                customUsersObj = JSON.parse(localStorage.getItem('customUsers') || '{}');
+            } catch (e) {}
+
+            if (Object.keys(customUsersObj).length === 0) {
                 const defaultSeed = {
                     'somsak.r@ku.th': {
                         id: '64010101', student_id: '64010101', name: 'นายสมศักดิ์ รักดี', email: 'somsak.r@ku.th',
@@ -2226,9 +2230,9 @@
                     }
                 };
                 localStorage.setItem('customUsers', JSON.stringify(defaultSeed));
-                customUsersStr = JSON.stringify(defaultSeed);
+                customUsersObj = defaultSeed;
             }
-            const customUsers = JSON.parse(customUsersStr || '{}');
+            const customUsers = customUsersObj;
             studentsData = { 'หมู่ 700': [], 'หมู่ 800': [] };
             
             Object.values(customUsers).forEach(u => {
@@ -2523,16 +2527,38 @@
                     console.error("Session parse error:", e);
                 }
             }
-            // Strict authentication: require real login via index.html
-            window.location.href = 'index.html';
-            return null;
+            // Auto fallback: If opened directly without session, default to Admin dashboard for preview
+            const defaultUser = {
+                id: 'adminku',
+                name: 'ผู้ดูแลระบบ (Admin)',
+                email: 'admin@ku.th',
+                role: 'admin'
+            };
+            try {
+                localStorage.setItem('currentUser', JSON.stringify(defaultUser));
+            } catch (e) {}
+            return defaultUser;
         }
 
-        window.addEventListener('DOMContentLoaded', async () => {
+        window.addEventListener('DOMContentLoaded', () => {
             const user = getInitialUser();
             if (user) {
-                await syncDatabaseUsers();
+                // 1. Immediately render UI to prevent any blank screen
                 initUserDashboard(user);
+
+                // 2. Non-blocking background sync from Supabase
+                setTimeout(() => {
+                    syncDatabaseUsers()
+                        .then(() => {
+                            if (currentRole === 'admin') {
+                                renderAdminUsersTable();
+                            } else if (currentRole === 'advisor') {
+                                updateAdvisorStats();
+                                renderStudentList();
+                            }
+                        })
+                        .catch(err => console.warn("Background sync warning:", err));
+                }, 50);
             }
         });
 

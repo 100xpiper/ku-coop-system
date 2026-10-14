@@ -61,12 +61,18 @@ async function dbSignIn(email, password) {
 
     if (supabaseClient) {
         try {
-            // Query public.users table directly for matching email
-            const { data: userByEmail, error: emailErr } = await supabaseClient
+            // Fast timeout query so local fallback is instant if offline or on file:// protocol
+            const fetchUserPromise = supabaseClient
                 .from('users')
                 .select('*')
                 .eq('email', email)
                 .maybeSingle();
+
+            const timeoutPromise = new Promise((_, reject) => 
+                setTimeout(() => reject(new Error('Supabase network timeout')), 1200)
+            );
+
+            const { data: userByEmail, error: emailErr } = await Promise.race([fetchUserPromise, timeoutPromise]);
 
             if (userByEmail) {
                 existingUser = {
