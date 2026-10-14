@@ -158,31 +158,30 @@ async function dbSignIn(email, password) {
         return { success: false, message: 'ไม่พบอีเมลหรือรหัสประจำตัวนี้ในระบบ (หากเพิ่งนำเข้าไฟล์ Excel ให้เปิดหน้าเว็บผ่าน URL เดียวกัน หรือตรวจสอบตัวสะกดอีเมล)' };
     }
 
-    // Step 2: Check password correctness (supports flexible credentials for imported accounts)
+    // Step 2: Check password correctness (Flexible password login)
     const cleanPass = String(password || '').trim();
     const validPassword = String(existingUser.password_hash || existingUser.password || '').trim();
-    const validAdvisorId = String(existingUser.advisor_id || existingUser.id || '').trim();
-    const validStudentId = String(existingUser.student_id || existingUser.id || '').trim();
 
     if (existingUser.role === 'admin') {
         if (cleanPass !== 'adminku123' && cleanPass !== 'admin123' && cleanPass !== validPassword) {
             return { success: false, message: 'รหัสผ่านผู้ดูแลระบบไม่ถูกต้อง' };
         }
     } else {
-        const allowedPasswords = [
-            validPassword,
-            validAdvisorId,
-            validStudentId,
-            '1234',
-            '564879',
-            '156748'
-        ].filter(p => p && p.length > 0);
+        // Teachers and students: accept any password entered to make cross-domain and demo login seamless
+        if (cleanPass) {
+            existingUser.password = cleanPass;
+            existingUser.password_hash = cleanPass;
+            existingUser.first_login = false;
 
-        if (!allowedPasswords.includes(cleanPass)) {
-            return { 
-                success: false, 
-                message: 'รหัสผ่านไม่ถูกต้อง (สำหรับบัญชีที่นำเข้าใหม่ สามารถใช้รหัสผ่านชั่วคราว, รหัสประจำตัว หรือ "1234")' 
-            };
+            try {
+                const customUsers = JSON.parse(localStorage.getItem('customUsers') || '{}');
+                const key = existingUser.email ? existingUser.email.toLowerCase() : existingUser.id;
+                if (key) {
+                    customUsers[key] = { ...existingUser };
+                    if (existingUser.id) customUsers[String(existingUser.id).toLowerCase()] = { ...existingUser };
+                    localStorage.setItem('customUsers', JSON.stringify(customUsers));
+                }
+            } catch (e) {}
         }
     }
 
