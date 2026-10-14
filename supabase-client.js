@@ -158,7 +158,7 @@ async function dbSignIn(email, password) {
 
     if (existingUser.role === 'admin') {
         if (cleanPass !== 'adminku123' && cleanPass !== 'admin123' && cleanPass !== validPassword) {
-            return { success: false, message: 'รหัสผ่านผู้ดูแลระบบไม่ถูกต้อง' };
+            return { success: false, message: 'รหัสผ่านไม่ถูกต้อง' };
         }
     } else {
         // If the account has already set their personal password (first_login === false)
@@ -182,7 +182,7 @@ async function dbSignIn(email, password) {
             if (!allowedInitial.includes(cleanPass)) {
                 return { 
                     success: false, 
-                    message: 'รหัสผ่านไม่ถูกต้อง (สำหรับเข้าใช้งานครั้งแรก สามารถใช้ 1234, 123456 หรือรหัสประจำตัว)' 
+                    message: 'รหัสผ่านไม่ถูกต้อง' 
                 };
             }
             existingUser.first_login = true;
