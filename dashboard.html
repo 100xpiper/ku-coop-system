@@ -60,16 +60,32 @@
             if (!row) return '';
             const rowKeys = Object.keys(row);
             for (const key of possibleKeys) {
-                if (row[key] !== undefined && row[key] !== null && row[key] !== '') {
-                    return row[key].toString().trim();
+                if (row[key] !== undefined && row[key] !== null && String(row[key]).trim() !== '') {
+                    return String(row[key]).trim();
                 }
-                const normKey = key.toLowerCase().replace(/[\s\-_]/g, '');
-                const matchedKey = rowKeys.find(k => k.toLowerCase().replace(/[\s\-_]/g, '') === normKey);
-                if (matchedKey && row[matchedKey] !== undefined && row[matchedKey] !== null && row[matchedKey] !== '') {
-                    return row[matchedKey].toString().trim();
+                const normKey = key.toLowerCase().replace(/[\s\-_]/g, '').replace(/์/g, '');
+                const matchedKey = rowKeys.find(k => k.toLowerCase().replace(/[\s\-_]/g, '').replace(/์/g, '') === normKey);
+                if (matchedKey && row[matchedKey] !== undefined && row[matchedKey] !== null && String(row[matchedKey]).trim() !== '') {
+                    return String(row[matchedKey]).trim();
                 }
             }
             return '';
+        }
+
+        function findRowEmail(row, possibleKeys) {
+            const val = findRowValue(row, possibleKeys);
+            if (val && val.includes('@')) {
+                return val.trim();
+            }
+            if (row) {
+                for (const k of Object.keys(row)) {
+                    const cellVal = String(row[k] || '').trim();
+                    if (cellVal.includes('@') && cellVal.includes('.')) {
+                        return cellVal;
+                    }
+                }
+            }
+            return val || '';
         }
 
         function importStudentExcelFile() {
@@ -96,14 +112,14 @@
                     const customUsers = JSON.parse(localStorage.getItem('customUsers') || '{}');
 
                     for (const row of jsonRows) {
-                        const emailRaw = findRowValue(row, ['อีเมลมหาวิทยาลัย', 'อีเมล', 'Email', 'email']);
+                        const emailRaw = findRowEmail(row, ['อีเมลมหาวิทยาลัย', 'อีเมล', 'อีเมล์', 'อีเมล์มหาวิทยาลัย', 'Email', 'email', 'E-mail', 'KU-Mail', 'KU Mail', 'เมล', 'อีเมลนิสิต']);
                         if (!emailRaw) continue;
-                        const email = String(emailRaw).toLowerCase();
+                        const email = String(emailRaw).trim().toLowerCase();
                         if (!email) continue;
 
                         const name = findRowValue(row, ['ชื่อ - นามสกุล', 'ชื่อ-นามสกุล', 'ชื่อนามสกุล', 'ชื่อ', 'Name', 'fullname']);
                         const title = findRowValue(row, ['คำนำหน้านาม', 'คำนำหน้า', 'Prefix', 'title']);
-                        const fullName = title ? `${title} ${name}`.trim() : name;
+                        const fullName = title ? `${title} ${name}`.trim() : (name || 'นิสิตสหกิจศึกษา');
                         const studentId = findRowValue(row, ['รหัสนิสิต', 'รหัสประจำตัว', 'รหัสนักศึกษา', 'รหัส', 'ID', 'Student ID', 'StudentID', 'student_id']);
                         const sectionVal = findRowValue(row, ['หมู่เรียน', 'หมู่เรียนที่รับผิดชอบ', 'หมู่', 'Section', 'section']);
                         const section = sectionVal ? (sectionVal.includes('หมู่') ? sectionVal : `หมู่ ${sectionVal}`) : 'หมู่ 700';
@@ -121,11 +137,12 @@
                             }
                         }
 
-                        const pass = findRowValue(row, ['รหัสผ่านชั่วคราว', 'รหัสผ่าน', 'Password', 'pass']);
+                        const passRaw = findRowValue(row, ['รหัสผ่านชั่วคราว', 'รหัสผ่าน', 'Password', 'pass']);
+                        const pass = passRaw || studentId || '1234';
 
                         const userObj = {
-                            id: studentId,
-                            student_id: studentId,
+                            id: studentId || email.split('@')[0],
+                            student_id: studentId || email.split('@')[0],
                             name: fullName,
                             email: email,
                             password: pass,
@@ -136,10 +153,13 @@
                             company_lat: lat || null,
                             company_lng: lng || null,
                             status: 'approved',
-                            first_login: true
+                            first_login: false
                         };
 
                         customUsers[email] = userObj;
+                        if (studentId) {
+                            customUsers[String(studentId).trim().toLowerCase()] = userObj;
+                        }
 
                         if (typeof supabaseClient !== 'undefined' && supabaseClient) {
                             try {
@@ -177,7 +197,7 @@
                     localStorage.setItem('customUsers', JSON.stringify(customUsers));
                     renderAdminUsersTable();
                     updateAdvisorStats();
-                    alert(`นำเข้าข้อมูลนิสิตสหกิจศึกษาเข้าสู่ระบบเรียบร้อยแล้วจำนวน ${importedCount} รายการ!\n\nบัญชีนิสิตพร้อมให้นำอีเมลมหาวิทยาลัยและรหัสผ่านชั่วคราวไปล็อกอินเข้าใช้งานได้ทันที`);
+                    alert(`นำเข้าข้อมูลนิสิตสหกิจศึกษาเข้าสู่ระบบเรียบร้อยแล้วจำนวน ${importedCount} รายการ!\n\nบัญชีนิสิตพร้อมเข้าใช้งานได้ทันที:\n• ชื่อผู้ใช้งาน: อีเมลมหาวิทยาลัย (@ku.th) หรือ รหัสนิสิต\n• รหัสผ่านเริ่มต้น: รหัสผ่านในไฟล์ Excel / รหัสนิสิต หรือ "1234"`);
                     const label = document.getElementById('excel-student-file-name-label');
                     if (label) {
                         label.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg> คลิกเพื่อเลือกไฟล์ Excel รายชื่อนิสิต (.xlsx)`;
@@ -216,20 +236,22 @@
                     const customUsers = JSON.parse(localStorage.getItem('customUsers') || '{}');
 
                     for (const row of jsonRows) {
-                        const emailRaw = findRowValue(row, ['อีเมลมหาวิทยาลัย', 'อีเมล', 'Email', 'email']);
+                        const emailRaw = findRowEmail(row, ['อีเมลมหาวิทยาลัย', 'อีเมล', 'อีเมล์', 'อีเมล์มหาวิทยาลัย', 'Email', 'email', 'E-mail', 'KU-Mail', 'KU Mail', 'เมล', 'อีเมลอาจารย์']);
                         if (!emailRaw) continue;
-                        const email = String(emailRaw).toLowerCase();
+                        const email = String(emailRaw).trim().toLowerCase();
+                        if (!email) continue;
 
-                        const name = findRowValue(row, ['ชื่อ - นามสกุล', 'ชื่อ-นามสกุล', 'ชื่อนามสกุล', 'ชื่อ', 'Name', 'fullname']);
+                        const name = findRowValue(row, ['ชื่อ - นามสกุล', 'ชื่อ-นามสกุล', 'ชื่อนามสกุล', 'ชื่อ', 'Name', 'fullname', 'อาจารย์']);
                         const title = findRowValue(row, ['คำนำหน้านาม', 'คำนำหน้า', 'Prefix', 'title']);
-                        const fullName = title ? `${title} ${name}`.trim() : name;
-                        const advisorId = findRowValue(row, ['รหัสประจำตัว', 'รหัสอาจารย์', 'รหัส', 'ID', 'Advisor ID', 'advisor_id']);
+                        const fullName = title ? `${title} ${name}`.trim() : (name || 'อาจารย์นิเทศ');
+                        const advisorId = findRowValue(row, ['รหัสประจำตัว', 'รหัสอาจารย์', 'รหัสบุคลากร', 'รหัส', 'ID', 'Advisor ID', 'advisor_id', 'Code']);
                         const section = findRowValue(row, ['หมู่เรียนที่รับผิดชอบ', 'หมู่เรียน', 'หมู่', 'Section', 'section']);
-                        const pass = findRowValue(row, ['รหัสผ่านชั่วคราว', 'รหัสผ่าน', 'Password', 'pass']);
+                        const passRaw = findRowValue(row, ['รหัสผ่านชั่วคราว', 'รหัสผ่าน', 'Password', 'pass', 'Passwordชั่วคราว']);
+                        const pass = passRaw || advisorId || '1234';
 
                         const userObj = {
-                            id: advisorId,
-                            advisor_id: advisorId,
+                            id: advisorId || email.split('@')[0],
+                            advisor_id: advisorId || email.split('@')[0],
                             name: fullName,
                             email: email,
                             password: pass,
@@ -237,10 +259,13 @@
                             role: 'advisor',
                             section: section || 'หมู่ 700, หมู่ 800',
                             status: 'approved',
-                            first_login: true
+                            first_login: false
                         };
 
                         customUsers[email] = userObj;
+                        if (advisorId) {
+                            customUsers[String(advisorId).trim().toLowerCase()] = userObj;
+                        }
 
                         if (typeof supabaseClient !== 'undefined' && supabaseClient) {
                             try {
@@ -270,7 +295,7 @@
                     localStorage.setItem('customUsers', JSON.stringify(customUsers));
                     renderAdminUsersTable();
                     updateAdvisorStats();
-                    alert(`นำเข้าข้อมูลอาจารย์นิเทศเข้าสู่ระบบเรียบร้อยแล้วจำนวน ${importedCount} รายการ!\n\nบัญชีอาจารย์พร้อมให้นำอีเมลมหาวิทยาลัยและรหัสผ่านชั่วคราวไปล็อกอินเข้าใช้งานได้ทันที`);
+                    alert(`นำเข้าข้อมูลอาจารย์นิเทศเข้าสู่ระบบเรียบร้อยแล้วจำนวน ${importedCount} ท่าน!\n\nบัญชีอาจารย์พร้อมเข้าสู่ระบบได้ทันที:\n• ชื่อผู้ใช้งาน: อีเมลมหาวิทยาลัย (@ku.th) หรือ รหัสประจำตัวอาจารย์\n• รหัสผ่านเริ่มต้น: ${jsonRows.some(r => findRowValue(r, ['รหัสผ่านชั่วคราว', 'รหัสผ่าน', 'Password'])) ? 'รหัสผ่านในไฟล์ Excel' : 'รหัสประจำตัวอาจารย์ หรือ "1234"'}`);
                     const label = document.getElementById('excel-advisor-file-name-label');
                     if (label) {
                         label.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg> คลิกเพื่อเลือกไฟล์ Excel รายชื่ออาจารย์ (.xlsx)`;
