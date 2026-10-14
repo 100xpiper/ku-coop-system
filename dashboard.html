@@ -157,9 +157,6 @@
                         };
 
                         customUsers[email] = userObj;
-                        if (studentId) {
-                            customUsers[String(studentId).trim().toLowerCase()] = userObj;
-                        }
 
                         if (typeof supabaseClient !== 'undefined' && supabaseClient) {
                             try {
@@ -263,9 +260,6 @@
                         };
 
                         customUsers[email] = userObj;
-                        if (advisorId) {
-                            customUsers[String(advisorId).trim().toLowerCase()] = userObj;
-                        }
 
                         if (typeof supabaseClient !== 'undefined' && supabaseClient) {
                             try {
@@ -2288,26 +2282,52 @@
                         hasMock = true;
                     }
                 });
-                if (hasMock) {
-                    localStorage.setItem('customUsers', JSON.stringify(customUsersObj));
+
+                // Deduplicate customUsers: ensure each user is only keyed once by email
+                let cleanedCustomUsers = {};
+                let hasDupes = false;
+                Object.keys(customUsersObj).forEach(k => {
+                    const u = customUsersObj[k];
+                    if (u && u.email) {
+                        const emailKey = String(u.email).toLowerCase().trim();
+                        if (k !== emailKey) {
+                            hasDupes = true;
+                        }
+                        cleanedCustomUsers[emailKey] = u;
+                    } else if (u) {
+                        cleanedCustomUsers[k] = u;
+                    }
+                });
+
+                if (hasMock || hasDupes) {
+                    customUsersObj = cleanedCustomUsers;
+                    localStorage.setItem('customUsers', JSON.stringify(cleanedCustomUsers));
                 }
             } catch (e) {}
 
             const customUsers = customUsersObj;
             studentsData = { 'หมู่ 700': [], 'หมู่ 800': [] };
             
+            const uniqueStudents = new Map();
             Object.values(customUsers).forEach(u => {
-                if (u.role === 'student') {
-                    const sec = u.section && u.section.includes('800') ? 'หมู่ 800' : 'หมู่ 700';
-                    studentsData[sec].push({
-                        id: u.id || u.student_id || '-',
-                        name: u.name || 'นิสิต',
-                        company: u.company_name || u.company || '-',
-                        docs: u.docs || 'รอตรวจ',
-                        status: u.status || 'รอนิเทศ',
-                        photo: u.photo || ''
-                    });
+                if (u && u.role === 'student') {
+                    const key = (u.email || u.student_id || u.id || '').toLowerCase().trim();
+                    if (key && !uniqueStudents.has(key)) {
+                        uniqueStudents.set(key, u);
+                    }
                 }
+            });
+
+            uniqueStudents.forEach(u => {
+                const sec = u.section && u.section.includes('800') ? 'หมู่ 800' : 'หมู่ 700';
+                studentsData[sec].push({
+                    id: u.id || u.student_id || '-',
+                    name: u.name || 'นิสิต',
+                    company: u.company_name || u.company || '-',
+                    docs: u.docs || 'รอตรวจ',
+                    status: u.status || 'รอนิเทศ',
+                    photo: u.photo || ''
+                });
             });
         }
 
@@ -2447,7 +2467,16 @@
                 `;
             } else {
                 const customUsers = JSON.parse(localStorage.getItem('customUsers') || '{}');
-                const advisors = Object.values(customUsers).filter(u => u.role === 'advisor');
+                const uniqueAdvisors = new Map();
+                Object.values(customUsers).forEach(u => {
+                    if (u && u.role === 'advisor') {
+                        const key = (u.email || u.advisor_id || u.id || '').toLowerCase().trim();
+                        if (key && !uniqueAdvisors.has(key)) {
+                            uniqueAdvisors.set(key, u);
+                        }
+                    }
+                });
+                const advisors = Array.from(uniqueAdvisors.values());
                 const allStds = [...(studentsData['หมู่ 700'] || []), ...(studentsData['หมู่ 800'] || [])];
 
                 if (advisors.length === 0) {
