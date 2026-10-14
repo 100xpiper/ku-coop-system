@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="th">
 <head>
     <meta charset="UTF-8">
@@ -11,7 +11,7 @@
     <!-- Supabase JS Client SDK & EmailJS SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-    <script src="supabase-client.js"></script>
+    <script src="supabase-client.js?v=2.5"></script>
     <style>
         :root {
             --primary:        #15803d;
@@ -567,12 +567,12 @@
     <script>
         let pendingFirstLoginUser = null;
 
-        function validatePasswordRules(pass) {
+                        function validatePasswordRules(pass) {
             pass = pass || '';
             const isLenValid = pass.length >= 7;
-            const isLangValid = pass.length > 0 && /^[a-zA-Z0-9]+$/.test(pass) && !/[\u0E00-\u0E7F]/.test(pass);
+            const isLangValid = pass.length > 0 && !/[\u0E00-\u0E7F]/.test(pass);
             const isCaseValid = /[A-Z]/.test(pass) && /[a-z]/.test(pass);
-            const isSpecValid = pass.length > 0 && !/[^a-zA-Z0-9]/.test(pass);
+            const isSpecValid = /[!@#$%^&*()_+=\-[\]{}|;:,.<>?/~`]/.test(pass);
             return { isLenValid, isLangValid, isCaseValid, isSpecValid, isValid: isLenValid && isLangValid && isCaseValid && isSpecValid };
         }
 
@@ -647,6 +647,7 @@
                 pendingFirstLoginUser.password = newPass;
                 pendingFirstLoginUser.password_hash = newPass;
                 pendingFirstLoginUser.first_login = false;
+                pendingFirstLoginUser.password_changed = true;
                 const customUsers = JSON.parse(localStorage.getItem('customUsers') || '{}');
                 if (pendingFirstLoginUser.email) {
                     customUsers[pendingFirstLoginUser.email] = pendingFirstLoginUser;
@@ -697,13 +698,18 @@
                 const result = await dbSignIn(username, password);
 
                 if (result.success && result.user) {
-                    if (result.user.first_login) {
+                    // Non-admin users who haven't changed password MUST see first-login modal
+                    const needsPasswordChange = result.user.role !== 'admin' && (
+                        result.user.password_changed !== true || result.user.first_login === true
+                    );
+
+                    if (needsPasswordChange) {
                         showFirstLoginPasswordResetModal(result.user);
                     } else {
                         localStorage.setItem('currentUser', JSON.stringify(result.user));
                         window.location.href = 'dashboard.html';
                     }
-                } else {
+                }   else {
                     showAlert(result.message || 'อีเมล/รหัสประจำตัว หรือ รหัสผ่านไม่ถูกต้อง');
                 }
             } catch (err) {

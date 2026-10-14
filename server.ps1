@@ -1,4 +1,4 @@
-$preferredPorts = @(8080, 8081, 8082, 3000)
+﻿$preferredPorts = @(8080, 8081, 8082, 3000)
 $listener = $null
 $port = $null
 
@@ -77,6 +77,7 @@ try {
                     $contentType = $mimeTypes[$ext]
                 }
                 $response.ContentType = $contentType
+                $response.AddHeader("Cache-Control", "no-cache, no-store, must-revalidate")
                 $bytes = [System.IO.File]::ReadAllBytes($localPath)
                 $response.ContentLength64 = $bytes.Length
                 if ($request.HttpMethod -ne "HEAD") {
