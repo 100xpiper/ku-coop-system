@@ -1640,6 +1640,25 @@
 
                 <!-- หน้า 2.2: เอกสารของฉัน (Student Docs) -->
                 <div id="sec-student-docs" class="page-content">
+                    <!-- คลังแบบฟอร์มเปล่าสหกิจศึกษา (ดาวน์โหลดเพื่อกรอกและส่ง) -->
+                    <section class="section-card" style="border: 1.5px solid #10b981; background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%); margin-bottom: 16px;">
+                        <div class="section-header" style="margin-bottom: 6px;">
+                            <div class="section-title" style="color: #065f46; display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 13.5px;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>
+                                แบบฟอร์มเปล่าสำหรับดาวน์โหลดและพิมพ์
+                            </div>
+                            <span class="badge" style="background-color: #d1fae5; color: #047857; font-weight: 700;">4 แบบฟอร์มมาตรฐาน</span>
+                        </div>
+                        <div style="font-size: 11px; color: #047857; margin-bottom: 14px; line-height: 1.5;">
+                            นิสิตสามารถดาวน์โหลดหรือสั่งพิมพ์แบบฟอร์มเปล่า เพื่อนำไปกรอกข้อความ ลายมือชื่อ และนำมาสแกนอัปโหลดส่งอาจารย์ที่ปรึกษาในส่วนด้านล่าง
+                        </div>
+
+                        <!-- Card Grid for Blank Forms -->
+                        <div id="blank-forms-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px;">
+                            <!-- Populated dynamically by renderBlankFormsGrid() -->
+                        </div>
+                    </section>
+
                     <!-- ฟอร์มอัปโหลดเอกสาร -->
                     <section class="section-card">
                         <div class="section-header">
@@ -1653,9 +1672,10 @@
                             <div>
                                 <label style="font-size: 11px; font-weight: 600; color: var(--primary-color);">ประเภทเอกสาร:</label>
                                 <select id="std-doc-type-select" style="width: 100%; padding: 7px; font-size: 12px; border-radius: 6px; border: 1px solid var(--border-color); background-color: #f8fafc;">
-                                    <option value="Form 02 - ใบสมัครงานสหกิจศึกษา & รายละเอียดสถานประกอบการ">Form 02 - ใบสมัครงานสหกิจศึกษา & รายละเอียดสถานประกอบการ</option>
-                                    <option value="Form 04 - แผนปฏิบัติงานสหกิจศึกษา (Work Plan)">Form 04 - แผนปฏิบัติงานสหกิจศึกษา (Work Plan)</option>
-                                    <option value="Form 05 - โครงร่างรายงานสหกิจศึกษา (Report Outline)">Form 05 - โครงร่างรายงานสหกิจศึกษา (Report Outline)</option>
+                                    <option value="แบบฟอร์มยืนยันสัดส่วนการทำงานร่วมกัน (Contribution Distribution)">แบบฟอร์มยืนยันสัดส่วนการทำงานร่วมกัน (Contribution Distribution)</option>
+                                    <option value="Form 02 - แบบแจ้งยืนยันการนิเทศงานนิสิตสหกิจศึกษา">Form 02 - แบบแจ้งยืนยันการนิเทศงานนิสิตสหกิจศึกษา</option>
+                                    <option value="Form 04 - แบบแจ้งรายละเอียดที่พักระหว่างการปฏิบัติงานสหกิจศึกษา">Form 04 - แบบแจ้งรายละเอียดที่พักระหว่างการปฏิบัติงานสหกิจศึกษา</option>
+                                    <option value="Form 05 - แบบแจ้งรายละเอียดงาน ตำแหน่งงาน พนักงานที่ปรึกษา">Form 05 - แบบแจ้งรายละเอียดงาน ตำแหน่งงาน พนักงานที่ปรึกษา</option>
                                     <option value="Form 06 - รายงานการปฏิบัติงานประจำสัปดาห์ (Weekly Report)">Form 06 - รายงานการปฏิบัติงานประจำสัปดาห์ (Weekly Report)</option>
                                     <option value="Form 07 - แบบบันทึกการนิเทศงานสหกิจศึกษา (Supervision Record)">Form 07 - แบบบันทึกการนิเทศงานสหกิจศึกษา (Supervision Record)</option>
                                     <option value="Form 10 - แบบประเมินผลการปฏิบัติงานของนิสิต (Student Evaluation)">Form 10 - แบบประเมินผลการปฏิบัติงานของนิสิต (Student Evaluation)</option>
@@ -2136,6 +2156,41 @@
                     <div style="display: flex; gap: 8px; margin-top: 12px;">
                         <button class="btn-primary" style="flex: 1; background-color: var(--success-color);" onclick="updateDocStatus('ครบถ้วน')">ตรวจรับเอกสารครบถ้วน</button>
                         <button class="btn-primary btn-danger" onclick="updateDocStatus('ต้องแก้ไข')">ตีกลับให้แก้ไข</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MODAL: แสดงตัวอย่างแบบฟอร์มเปล่าสหกิจศึกษา (Blank Form Preview Modal) -->
+            <div id="modal-blank-form-preview" class="modal-overlay" style="display: none; z-index: 9999; align-items: flex-start; padding: 20px 10px; overflow-y: auto;">
+                <div class="modal-card" style="max-width: 860px; width: 100%; margin: 20px auto; background: #f8fafc; border-radius: 14px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); max-height: 92vh; display: flex; flex-direction: column;">
+                    <!-- Modal Header -->
+                    <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding: 12px 18px; background: white; border-radius: 14px 14px 0 0; flex-shrink: 0;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="width: 34px; height: 34px; border-radius: 8px; background: #ecfdf5; color: #059669; display: flex; align-items: center; justify-content: center;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                            </div>
+                            <div>
+                                <div id="modal-blank-form-title" style="font-size: 13.5px; font-weight: 700; color: #1e293b;">ตัวอย่างแบบฟอร์มเปล่า</div>
+                                <div id="modal-blank-form-subtitle" style="font-size: 11px; color: #64748b;">สามารถสั่งพิมพ์ หรือบันทึกเป็น PDF เพื่อนำไปกรอกข้อมูลได้ทันที</div>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <button type="button" class="btn-primary" style="padding: 7px 14px; font-size: 11.5px; background-color: #059669; display: inline-flex; align-items: center; gap: 6px;" onclick="printCurrentBlankForm()">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+                                พิมพ์ / บันทึก PDF
+                            </button>
+                            <button type="button" class="btn-primary" style="padding: 7px 12px; font-size: 11.5px; background-color: #2563eb; display: inline-flex; align-items: center; gap: 6px;" onclick="downloadCurrentBlankFormDoc()">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                                ดาวน์โหลด Word (.doc)
+                            </button>
+                            <button type="button" style="border: 1px solid #cbd5e1; background: white; border-radius: 8px; width: 32px; height: 32px; font-size: 16px; cursor: pointer; color: #64748b; display: flex; align-items: center; justify-content: center;" onclick="closeModal('modal-blank-form-preview')">✕</button>
+                        </div>
+                    </div>
+                    <!-- Modal Paper View Container -->
+                    <div style="padding: 20px; overflow-y: auto; flex: 1;">
+                        <div id="modal-blank-form-sheet" style="background: white; border: 1px solid #cbd5e1; border-radius: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.06); padding: 36px 40px; margin: 0 auto; max-width: 760px; font-family: 'Sarabun', 'Prompt', sans-serif; color: #000000; line-height: 1.6;">
+                            <!-- Form preview content goes here -->
+                        </div>
                     </div>
                 </div>
             </div>
@@ -2684,6 +2739,7 @@
 
                 showPage('sec-student-dash');
                 renderStudentDocsList();
+                renderBlankFormsGrid();
             } else if (currentRole === 'admin') {
                 root.style.setProperty('--primary-color', '#1e293b');
                 root.style.setProperty('--bg-body', '#f8fafc');
@@ -2813,6 +2869,7 @@
                 renderCalendarEvents();
             } else if (pageId === 'sec-student-docs' || pageId === 'sec-student-dash') {
                 renderStudentDocsList();
+                renderBlankFormsGrid();
             }
         }
 
@@ -3903,8 +3960,602 @@
             closeModal('modal-gps-setup');
         }
 
+        function openModal(modalId) {
+            const el = document.getElementById(modalId);
+            if (el) el.style.display = 'flex';
+        }
+
         function closeModal(modalId) {
-            document.getElementById(modalId).style.display = 'none';
+            const el = document.getElementById(modalId);
+            if (el) el.style.display = 'none';
+        }
+
+        // ==================== BLANK FORM TEMPLATES SYSTEM ====================
+        let currentPreviewBlankFormId = null;
+
+        const coopBlankForms = [
+            {
+                id: 'form-contribution',
+                code: 'หลักสูตร วท.บ.',
+                title: 'แบบฟอร์มยืนยันสัดส่วนการทำงานร่วมกัน',
+                subtitle: 'Contribution Distribution (สัดส่วนภาระงานรวม 100%)',
+                target: 'สำหรับ: นิสิตที่จัดทำโครงงานร่วมกันเป็นกลุ่ม & หัวหน้างาน/พี่เลี้ยง',
+                pages: '1 หน้า (A4)',
+                badge: 'วท.บ.วิทยาการคอมพิวเตอร์',
+                badgeColor: '#059669',
+                renderHtml: function() {
+                    return `
+                    <div class="page">
+                        <div style="text-align: center; font-weight: bold; font-size: 16pt; margin-bottom: 14px;">
+                            แบบฟอร์มยืนยันสัดส่วนการทำงานร่วมกัน
+                        </div>
+                        
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 13.5pt;">
+                            <div>หลักสูตรวิทยาการคอมพิวเตอร์ มหาวิทยาลัยเกษตรศาสตร์ วิทยาเขตกำแพงแสน</div>
+                            <div>วันที่จัดทำ: ..............................</div>
+                        </div>
+                        
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 13.5pt;">
+                            <div>รหัสวิชา: 01418490</div>
+                            <div>ชื่อวิชา: สหกิจศึกษา</div>
+                        </div>
+                        
+                        <div style="margin-bottom: 6px; font-size: 13.5pt;">
+                            ชื่อโครงงาน/โปรเจค: …………………………………………………………………………………………………………………………………………..
+                        </div>
+                        
+                        <div style="margin-bottom: 4px; font-size: 13.5pt;">
+                            ขอบเขตงานแบบสรุป: ………………………………………………………………………………………………...............................................
+                        </div>
+                        <div style="margin-bottom: 4px; font-size: 13.5pt;">
+                            ……………………………………………………………………………………………………………………………………………………………………………
+                        </div>
+                        <div style="margin-bottom: 8px; font-size: 13.5pt;">
+                            ……………………………………………………………………………………………………………………………………………………………………………
+                        </div>
+                        
+                        <div style="margin-bottom: 14px; font-size: 13.5pt;">
+                            เป็นส่วนหนึ่งของการฝึกสหกิจศึกษา ณ ..............................................................................................................................
+                        </div>
+                        
+                        <div style="margin-bottom: 10px; font-size: 13.5pt; text-indent: 20px;">
+                            <strong>รายละเอียดการจัดสรรภาระงาน (Contribution Distribution)</strong> ให้สมาชิกทุกคนร่วมกันพิจารณาและกรอกสัดส่วนการทำงาน โดยผลรวมในช่องสุดท้ายต้องเท่ากับ 100%
+                        </div>
+                        
+                        <table style="width: 100%; border-collapse: collapse; margin-bottom: 16px;">
+                            <thead>
+                                <tr style="background: #f2f2f2;">
+                                    <th style="width: 8%; text-align: center; padding: 6px; border: 1px solid #000;">ลำดับ</th>
+                                    <th style="width: 24%; text-align: center; padding: 6px; border: 1px solid #000;">ชื่อ-นามสกุล</th>
+                                    <th style="width: 38%; text-align: center; padding: 6px; border: 1px solid #000;">ขอบเขตงาน/หน้าที่ความรับผิดชอบ</th>
+                                    <th style="width: 15%; text-align: center; padding: 6px; border: 1px solid #000;">สัดส่วนงาน (%)</th>
+                                    <th style="width: 15%; text-align: center; padding: 6px; border: 1px solid #000;">ลายมือชื่อ</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="text-align: center; height: 50px; vertical-align: top; padding-top: 6px; border: 1px solid #000;">1.</td>
+                                    <td style="border: 1px solid #000;"></td>
+                                    <td style="border: 1px solid #000;"></td>
+                                    <td style="border: 1px solid #000;"></td>
+                                    <td style="border: 1px solid #000;"></td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align: center; height: 50px; vertical-align: top; padding-top: 6px; border: 1px solid #000;">2.</td>
+                                    <td style="border: 1px solid #000;"></td>
+                                    <td style="border: 1px solid #000;"></td>
+                                    <td style="border: 1px solid #000;"></td>
+                                    <td style="border: 1px solid #000;"></td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align: center; height: 50px; vertical-align: top; padding-top: 6px; border: 1px solid #000;">3.</td>
+                                    <td style="border: 1px solid #000;"></td>
+                                    <td style="border: 1px solid #000;"></td>
+                                    <td style="border: 1px solid #000;"></td>
+                                    <td style="border: 1px solid #000;"></td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align: center; height: 50px; vertical-align: top; padding-top: 6px; border: 1px solid #000;">4.</td>
+                                    <td style="border: 1px solid #000;"></td>
+                                    <td style="border: 1px solid #000;"></td>
+                                    <td style="border: 1px solid #000;"></td>
+                                    <td style="border: 1px solid #000;"></td>
+                                </tr>
+                                <tr style="font-weight: bold;">
+                                    <td colspan="3" style="text-align: center; padding: 6px; border: 1px solid #000;">รวมทั้งสิ้น</td>
+                                    <td style="text-align: center; padding: 6px; border: 1px solid #000;">100%</td>
+                                    <td style="border: 1px solid #000;"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <div style="font-weight: bold; font-size: 13.5pt; margin-bottom: 6px;">
+                            ส่วนการรับรองและตรวจสอบ (Approval & Validation)
+                        </div>
+                        <div style="font-size: 13.5pt; margin-bottom: 12px; text-indent: 20px;">
+                            ข้าพเจ้าในฐานะหัวหน้างาน/พี่เลี้ยง ขอรับรองว่าข้อมูลสัดส่วนงานข้างต้นเป็นความจริงตามที่ได้ตกลงร่วมกัน และสมาชิกทุกคนได้รับทราบผลการประเมินนี้แล้ว
+                        </div>
+                        
+                        <div style="margin-top: 15px; margin-left: 55%; font-size: 13.5pt; line-height: 1.7;">
+                            (ลงชื่อ)............................................................<br>
+                            (&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)<br>
+                            <div style="padding-left: 20px;">หัวหน้างาน/พี่เลี้ยง</div>
+                            วันที่: ........ / ........ / ........
+                        </div>
+                    </div>`;
+                }
+            },
+            {
+                id: 'form-02',
+                code: 'หมายเลขเอกสาร 02',
+                title: 'แบบแจ้งยืนยันการนิเทศงานนิสิตสหกิจศึกษา',
+                subtitle: 'การตอบรับและยืนยันกำหนดการนิเทศงานของคณาจารย์',
+                target: 'สำหรับ: สถานประกอบการ (ผู้จัดการ / Job Supervisor)',
+                pages: '1 หน้า (A4)',
+                badge: 'แบบฟอร์ม มก.',
+                badgeColor: '#2563eb',
+                renderHtml: function() {
+                    return `
+                    <div class="page">
+                        <div style="text-align: right; font-size: 12pt; margin-bottom: 10px;">
+                            หมายเลขเอกสาร 02
+                        </div>
+                        
+                        <div style="text-align: center; font-weight: bold; font-size: 16pt; margin-bottom: 4px;">
+                            แบบแจ้งยืนยันการนิเทศงานนิสิตสหกิจศึกษา
+                        </div>
+                        <div style="text-align: center; font-size: 13pt; margin-bottom: 16px;">
+                            โครงการสหกิจศึกษา และการศึกษาเชิงบูรณาการกับการทำงานของมหาวิทยาลัยเกษตรศาสตร์
+                        </div>
+                        
+                        <div style="font-size: 13pt; margin-bottom: 12px;">
+                            ชื่อสถานประกอบการ ................................................................................................................................................
+                        </div>
+                        
+                        <div style="font-weight: bold; font-size: 13pt; margin-bottom: 6px;">
+                            หัวข้อที่จะหารือในระหว่างการนิเทศ ได้แก่
+                        </div>
+                        <div style="font-size: 13pt; margin-left: 20px; margin-bottom: 12px; line-height: 1.6;">
+                            1. หน้าที่ที่มอบหมายให้นิสิตปฏิบัติ และแผนการปฏิบัติงานตลอดระยะเวลาปฏิบัติงาน<br>
+                            2. การพัฒนาตนเองของนิสิต<br>
+                            3. หัวข้อรายงานและโครงร่างรายงาน<br>
+                            4. รับฟังความคิดเห็นจากสถานประกอบการเรื่องรูปแบบและปรัชญาของสหกิจศึกษา<br>
+                            5. ปัญหาต่างๆ ที่เกิดขึ้นในช่วงระยะเวลาที่ปฏิบัติงานผ่านมา
+                        </div>
+                        
+                        <div style="font-weight: bold; font-size: 13pt; margin-bottom: 6px;">
+                            ขั้นตอนการนิเทศ
+                        </div>
+                        <div style="font-size: 13pt; margin-left: 20px; margin-bottom: 12px; line-height: 1.6;">
+                            1. ขอพบนิสิตก่อนโดยลำพัง &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; วันที่ ........................................ เวลา .................... น.<br>
+                            2. ขอพบ Job Supervisor โดยลำพัง &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; วันที่ ........................................ เวลา .................... น.<br>
+                            3. เยี่ยมชมสถานประกอบการ (แล้วแต่ความเหมาะสมและความสะดวกของสถานประกอบการ)
+                        </div>
+                        
+                        <div style="font-weight: bold; font-size: 13pt; margin-bottom: 6px;">
+                            คณะผู้นิเทศสหกิจศึกษา ของมหาวิทยาลัยฯ ประกอบด้วย
+                        </div>
+                        <div style="font-size: 13pt; margin-left: 20px; margin-bottom: 14px; line-height: 1.6;">
+                            1. .................................................................................... ตำแหน่ง ....................................................................<br>
+                            2. .................................................................................... ตำแหน่ง ....................................................................<br>
+                            3. .................................................................................... ตำแหน่ง ....................................................................<br>
+                            4. .................................................................................... ตำแหน่ง ....................................................................
+                        </div>
+                        
+                        <div style="font-size: 13pt; margin-bottom: 8px; line-height: 1.6;">
+                            สถานประกอบการได้รับทราบกำหนดการนิเทศงานนิสิตสหกิจศึกษา ในวันที่ ..................................................................... เวลา ................ น. ตลอดจนขั้นตอนรายละเอียดการนิเทศงานดังกล่าวข้างต้นโดยชัดเจนแล้ว และใคร่ขอแจ้งให้โครงการฯ ทราบว่า
+                        </div>
+                        
+                        <div style="font-size: 13pt; margin-left: 20px; margin-bottom: 12px; line-height: 1.6;">
+                            (&nbsp;&nbsp;&nbsp;&nbsp;) ไม่ขัดข้องและยินดีต้อนรับคณะนิเทศงานสหกิจศึกษาในวันและเวลาดังกล่าว<br>
+                            (&nbsp;&nbsp;&nbsp;&nbsp;) ไม่สะดวกที่จะต้อนรับในวันและเวลาดังกล่าว และขอแจ้งวันเวลาที่สะดวก ดังนี้<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;วันที่ ........................................ เวลา .................... หรือ<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;วันที่ ........................................ เวลา ....................
+                        </div>
+                        
+                        <div style="font-size: 13pt; margin-bottom: 4px;">
+                            จึงเรียนมาเพื่อโปรดทราบ
+                        </div>
+                        
+                        <div style="margin-left: 55%; font-size: 13pt; line-height: 1.7;">
+                            ลงชื่อ………………………………………………………<br>
+                            (……………………………………………………………)<br>
+                            ตำแหน่ง………………………………………………………….<br>
+                            วันที่……………………………………………………..
+                        </div>
+                        
+                        <div style="text-align: center; font-weight: bold; font-size: 13pt; margin-top: 14px;">
+                            ขอความกรุณาส่งแบบยืนยันการนิเทศงานฯ ฉบับนี้ ทางโทรสารด้วย จะขอบคุณยิ่ง
+                        </div>
+                    </div>`;
+                }
+            },
+            {
+                id: 'form-04',
+                code: 'หมายเลขเอกสาร 04',
+                title: 'แบบแจ้งรายละเอียดที่พักระหว่างการปฏิบัติงานสหกิจศึกษา',
+                subtitle: 'ข้อมูลที่พัก ผู้ติดต่อฉุกเฉิน และแผนที่ตำแหน่งที่พัก',
+                target: 'สำหรับ: นิสิตส่งให้อาจารย์นิเทศ',
+                pages: '1 หน้า (A4)',
+                badge: 'แบบฟอร์ม มก.',
+                badgeColor: '#d97706',
+                renderHtml: function() {
+                    return `
+                    <div class="page">
+                        <div style="text-align: right; font-size: 12pt; margin-bottom: 10px;">
+                            หมายเลขเอกสาร 04
+                        </div>
+                        
+                        <div style="text-align: center; font-weight: bold; font-size: 16pt; margin-bottom: 4px;">
+                            แบบแจ้งรายละเอียดที่พักระหว่างการปฏิบัติงานสหกิจศึกษา
+                        </div>
+                        <div style="text-align: center; font-size: 13pt; margin-bottom: 14px;">
+                            โครงการสหกิจศึกษา และการศึกษาเชิงบูรณาการกับการทำงานของมหาวิทยาลัยเกษตรศาสตร์
+                        </div>
+                        
+                        <div style="font-size: 13pt; margin-bottom: 10px;">
+                            <strong>(ผู้ให้ข้อมูล: นิสิต )</strong>
+                        </div>
+                        
+                        <div style="font-size: 13pt; margin-bottom: 12px;">
+                            <strong>เรียน</strong> หัวหน้าโครงการสหกิจศึกษา วิทยาลัย/สถาบัน/มหาวิทยาลัย...........................................................
+                        </div>
+                        
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13pt;">
+                            <div style="width: 58%;">ชื่อ-นามสกุล ....................................................................</div>
+                            <div style="width: 40%;">เลขรหัสประจำตัว ....................................</div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13pt;">
+                            <div style="width: 58%;">สาขาวิชา ........................................................................</div>
+                            <div style="width: 40%;">คณะ ....................................................</div>
+                        </div>
+                        <div style="margin-bottom: 12px; font-size: 13pt;">
+                            ชื่อสถานประกอบการ (ไทย หรือ อังกฤษ) .............................................................................................................
+                        </div>
+                        
+                        <div style="font-weight: bold; font-size: 13pt; margin-bottom: 6px;">
+                            ขอแจ้งรายละเอียดเกี่ยวกับที่พักระหว่างปฏิบัติงานสหกิจศึกษา ดังนี้
+                        </div>
+                        <div style="font-size: 13pt; margin-bottom: 6px; line-height: 1.7;">
+                            เลขที่ ................... ถนน ........................................... ซอย .............................. ตำบล ...................................<br>
+                            อำเภอ ................................... จังหวัด ................................................... รหัสไปรษณีย์ ....................................<br>
+                            โทรศัพท์ ............................................................ โทรสาร ..............................................................................
+                        </div>
+                        
+                        <div style="font-weight: bold; font-size: 13pt; margin-top: 10px; margin-bottom: 6px;">
+                            ชื่อที่อยู่ ผู้ที่สามารถติดต่อได้ในกรณีฉุกเฉิน .........................................................................................................
+                        </div>
+                        <div style="font-size: 13pt; margin-bottom: 10px; line-height: 1.7;">
+                            เลขที่ ................... ถนน ........................................... ซอย .............................. ตำบล ...................................<br>
+                            อำเภอ ................................... จังหวัด ................................................... รหัสไปรษณีย์ ....................................<br>
+                            โทรศัพท์ ............................................................ โทรสาร ..............................................................................
+                        </div>
+                        
+                        <div style="font-weight: bold; font-size: 13pt; margin-bottom: 2px;">
+                            แผนที่แสดงตำแหน่งที่พักอาศัย
+                        </div>
+                        <div style="font-size: 11.5pt; color: #333; margin-bottom: 6px;">
+                            เพื่อความสะดวกในการนิเทศงานของคณาจารย์ โปรดระบุชื่อถนนและสถานที่สำคัญใกล้เคียงที่สามารถเข้าใจโดยง่าย
+                        </div>
+                        
+                        <div style="border: 1.5px solid #000; width: 100%; height: 175px; margin-bottom: 14px; display: flex; align-items: center; justify-content: center; color: #888; font-size: 11pt;">
+                            (วาดหรือแนบรูปแผนที่แสดงตำแหน่งที่พักอาศัย)
+                        </div>
+                        
+                        <div style="margin-left: 55%; font-size: 13pt; line-height: 1.7;">
+                            (ลงชื่อ)......................................................<br>
+                            (&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)<br>
+                            <div style="padding-left: 15px;">นิสิตผู้ปฏิบัติงานสหกิจศึกษา</div>
+                            วันที่ ...................................................
+                        </div>
+                    </div>`;
+                }
+            },
+            {
+                id: 'form-05',
+                code: 'หมายเลขเอกสาร 05',
+                title: 'แบบแจ้งรายละเอียดงาน ตำแหน่งงาน พนักงานที่ปรึกษา',
+                subtitle: 'Job Position, Job Description และ Job Supervisor (ส่งสัปดาห์แรก)',
+                target: 'สำหรับ: ผู้จัดการฝ่ายบุคคล / พี่เลี้ยง (Job Supervisor)',
+                pages: '2 หน้า (A4)',
+                badge: 'แบบฟอร์ม มก.',
+                badgeColor: '#7c3aed',
+                renderHtml: function() {
+                    return `
+                    <div class="page">
+                        <div style="text-align: right; font-size: 12pt; margin-bottom: 6px;">
+                            หมายเลขเอกสาร 05
+                        </div>
+                        
+                        <div style="text-align: center; font-weight: bold; font-size: 16pt; margin-bottom: 4px;">
+                            แบบแจ้งรายละเอียดงาน ตำแหน่งงาน พนักงานที่ปรึกษา
+                        </div>
+                        <div style="text-align: center; font-size: 13pt; margin-bottom: 10px;">
+                            โครงการสหกิจศึกษา และการศึกษาเชิงบูรณาการกับการทำงานของมหาวิทยาลัยเกษตรศาสตร์
+                        </div>
+                        
+                        <div style="font-size: 12pt; margin-bottom: 6px;">
+                            <strong>(ผู้ให้ข้อมูล: ผู้จัดการฝ่ายบุคคลและหรือพนักงานที่ปรึกษา)</strong>
+                        </div>
+                        
+                        <div style="font-size: 11.5pt; margin-bottom: 8px; line-height: 1.5; text-indent: 20px; background: #fbfbfb; border: 1px solid #e0e0e0; padding: 6px 10px; border-radius: 4px;">
+                            <strong>คำชี้แจง:</strong> เพื่อให้การประสานงานระหว่างโครงการสหกิจศึกษาฯ และสถานประกอบการ เป็นไปโดยความเรียบร้อยและมีประสิทธิภาพ จึงใคร่ขอความกรุณาผู้จัดการฝ่ายบุคคลหรือผู้ที่รับผิดชอบดูแลการปฏิบัติงานของนิสิตสหกิจศึกษาได้โปรดประสานงานกับพนักงานที่ปรึกษา (Job Supervisor) เพื่อจัดทำข้อมูล ตำแหน่งงาน ลักษณะงานและพนักงานที่ปรึกษา (Job Position, Job Description and Job Supervisor) ตามแบบฟอร์มฉบับนี้ และ ขอได้โปรด ส่งกลับคืนให้โครงการสหกิจศึกษาฯ วิทยาลัย/สถาบัน/มหาวิทยาลัย....................................................................
+                        </div>
+                        
+                        <div style="font-size: 12.5pt; margin-bottom: 6px;">
+                            <strong>เรียน</strong> หัวหน้าโครงการสหกิจศึกษา<br>
+                            ขอแจ้งรายละเอียดเกี่ยวกับตำแหน่งงาน ลักษณะงานและพนักงานที่ปรึกษา ดังนี้
+                        </div>
+                        
+                        <!-- 1. ชื่อ ที่อยู่ของสถานประกอบการ -->
+                        <div style="border: 1px solid #000; padding: 8px 12px; margin-bottom: 8px;">
+                            <div style="font-weight: bold; font-size: 13pt; margin-bottom: 2px;">
+                                1. ชื่อ ที่อยู่ของสถานประกอบการ
+                            </div>
+                            <div style="font-size: 11pt; color: #333; margin-bottom: 4px;">
+                                โปรดให้ชื่อที่เป็นทางการเพื่อจะนำไประบุในใบรับรองภาษาอังกฤษให้แก่นิสิตได้อย่างถูกต้อง<br>
+                                ที่อยู่ (เพื่อประกอบการเดินทางไปนิเทศงานนิสิตที่ถูกต้อง โปรดระบุที่อยู่ตามสถานที่ที่นิสิตปฏิบัติงาน)
+                            </div>
+                            <div style="font-size: 12.5pt; line-height: 1.6;">
+                                สถานประกอบการ (ภาษาไทย) ....................................................................................................................................<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(ภาษาอังกฤษ) ....................................................................................................................................<br>
+                                เลขที่ ............... ถนน ........................................... ซอย .............................. ตำบล/แขวง ...................................<br>
+                                อำเภอ/เขต ................................... จังหวัด ................................................... รหัสไปรษณีย์ ....................................<br>
+                                โทรศัพท์ ............................................................ โทรสาร ..............................................................................
+                            </div>
+                        </div>
+                        
+                        <!-- 2. ผู้จัดการทั่วไป / ผู้จัดการโรงงาน -->
+                        <div style="border: 1px solid #000; padding: 8px 12px; margin-bottom: 8px;">
+                            <div style="font-weight: bold; font-size: 13pt; margin-bottom: 4px;">
+                                2. ผู้จัดการทั่วไป / ผู้จัดการโรงงาน และผู้ได้รับมอบหมายให้ประสานงาน
+                            </div>
+                            <div style="font-size: 12.5pt; line-height: 1.6;">
+                                ชื่อผู้จัดการสถานประกอบการ ....................................................................................................................................<br>
+                                ตำแหน่ง .....................................................................................................................................................................<br>
+                                โทรศัพท์ ........................................ โทรสาร ........................................ E-mail .......................................................<br>
+                                การติดต่อประสานงานกับมหาวิทยาลัย (การนิเทศงานนิสิต และอื่นๆ) ขอมอบให้<br>
+                                (&nbsp;&nbsp;&nbsp;&nbsp;) ติดต่อกับผู้จัดการโดยตรง<br>
+                                (&nbsp;&nbsp;&nbsp;&nbsp;) มอบหมายให้บุคคลต่อไปนี้ประสานงานแทน<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ชื่อ-นามสกุล .................................................................................................................................................<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ตำแหน่ง ................................................................. แผนก .........................................................................<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;โทรศัพท์ ........................................ โทรสาร ........................................ E-mail .......................................
+                            </div>
+                        </div>
+                        
+                        <!-- 3. พนักงานที่ปรึกษา (Job Supervisor) -->
+                        <div style="border: 1px solid #000; padding: 8px 12px;">
+                            <div style="font-weight: bold; font-size: 13pt; margin-bottom: 4px;">
+                                3. พนักงานที่ปรึกษา (Job Supervisor)
+                            </div>
+                            <div style="font-size: 12.5pt; line-height: 1.6;">
+                                ชื่อ-นามสกุล .................................................................................................................................................................<br>
+                                ตำแหน่ง ................................................................. แผนก .........................................................................................<br>
+                                โทรศัพท์ ........................................ โทรสาร ........................................ E-mail .......................................................
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- หน้าที่ 2 -->
+                    <div class="page page-break" style="margin-top: 20px;">
+                        <!-- 4. งานที่มอบหมายนิสิต -->
+                        <div style="border: 1px solid #000; padding: 12px 14px; margin-bottom: 24px;">
+                            <div style="font-weight: bold; font-size: 13.5pt; margin-bottom: 8px;">
+                                4. งานที่มอบหมายนิสิต
+                            </div>
+                            <div style="font-size: 13pt; line-height: 1.8;">
+                                ชื่อนิสิต ........................................................................................................................................................................<br>
+                                ตำแหน่งงานที่นิสิตปฏิบัติ (Job Position) .....................................................................................................................<br>
+                                ลักษณะงานที่นิสิตปฏิบัติ (Job Description)<br>
+                                ..................................................................................................................................................................................<br>
+                                ..................................................................................................................................................................................<br>
+                                ..................................................................................................................................................................................<br>
+                                ..................................................................................................................................................................................<br>
+                                ..................................................................................................................................................................................<br>
+                                ..................................................................................................................................................................................<br>
+                                ..................................................................................................................................................................................<br>
+                                ..................................................................................................................................................................................
+                            </div>
+                        </div>
+                        
+                        <div style="margin-left: 55%; font-size: 13pt; line-height: 1.7; margin-bottom: 30px;">
+                            (ลงชื่อ).................................................................... (ผู้ให้ข้อมูล)<br>
+                            (ตำแหน่ง .................................................................)<br>
+                            วันที่ ...................................................
+                        </div>
+                        
+                        <div style="text-align: center; font-weight: bold; font-size: 13pt;">
+                            โปรดส่งคืน โครงการสหกิจศึกษาฯ ภายในสัปดาห์แรกของการปฏิบัติงานของนิสิต ด้วยจักขอบคุณยิ่ง
+                        </div>
+                    </div>`;
+                }
+            }
+        ];
+
+        function renderBlankFormsGrid() {
+            const grid = document.getElementById('blank-forms-grid');
+            if (!grid) return;
+            grid.innerHTML = coopBlankForms.map(f => `
+                <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px; display: flex; flex-direction: column; justify-content: space-between; gap: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.03); transition: all 0.2s ease;">
+                    <div>
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                            <span style="font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 4px; background: ${f.badgeColor}15; color: ${f.badgeColor}; border: 1px solid ${f.badgeColor}30;">
+                                ${f.code || f.badge}
+                            </span>
+                            <span style="font-size: 10px; color: #64748b; font-weight: 600;">
+                                📄 ${f.pages}
+                            </span>
+                        </div>
+                        <div style="font-size: 13px; font-weight: 700; color: #1e293b; margin-bottom: 4px; line-height: 1.4;">
+                            ${f.title}
+                        </div>
+                        <div style="font-size: 11px; color: #64748b; margin-bottom: 4px; line-height: 1.4;">
+                            ${f.subtitle}
+                        </div>
+                        <div style="font-size: 10.5px; color: #0f766e; font-weight: 600;">
+                            ${f.target}
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 6px; padding-top: 8px; border-top: 1px dashed #e2e8f0;">
+                        <button type="button" class="btn-primary" style="flex: 1; padding: 8px 10px; font-size: 11px; font-weight: 700; background-color: #059669; display: flex; align-items: center; justify-content: center; gap: 5px;" onclick="printBlankForm('${f.id}')">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+                            พิมพ์ / PDF
+                        </button>
+                        <button type="button" style="padding: 8px 10px; font-size: 11px; font-weight: 600; background: #f8fafc; color: #334155; border: 1px solid #cbd5e1; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 4px;" onclick="previewBlankForm('${f.id}')">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                            ตัวอย่าง
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function previewBlankForm(formId) {
+            const form = coopBlankForms.find(f => f.id === formId);
+            if (!form) return;
+            currentPreviewBlankFormId = formId;
+            const titleEl = document.getElementById('modal-blank-form-title');
+            const subEl = document.getElementById('modal-blank-form-subtitle');
+            const sheetEl = document.getElementById('modal-blank-form-sheet');
+            if (titleEl) titleEl.textContent = (form.code ? form.code + ': ' : '') + form.title;
+            if (subEl) subEl.textContent = form.subtitle + ' (' + form.pages + ')';
+            if (sheetEl) sheetEl.innerHTML = form.renderHtml();
+            openModal('modal-blank-form-preview');
+        }
+
+        function printCurrentBlankForm() {
+            if (currentPreviewBlankFormId) {
+                printBlankForm(currentPreviewBlankFormId);
+            }
+        }
+
+        function downloadCurrentBlankFormDoc() {
+            if (currentPreviewBlankFormId) {
+                downloadBlankFormDoc(currentPreviewBlankFormId);
+            }
+        }
+
+        function printBlankForm(formId) {
+            const form = coopBlankForms.find(f => f.id === formId);
+            if (!form) return;
+            const printWin = window.open('', '_blank', 'width=900,height=900');
+            if (!printWin) {
+                alert('กรุณาอนุญาตให้เปิดหน้าต่างป๊อปอัปเพื่อสั่งพิมพ์หรือบันทึก PDF');
+                return;
+            }
+            const formContent = form.renderHtml();
+            printWin.document.open();
+            printWin.document.write(`
+                <!DOCTYPE html>
+                <html lang="th">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>${form.code ? form.code + ' - ' : ''}${form.title}</title>
+                    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+                    <style>
+                        @page {
+                            size: A4 portrait;
+                            margin: 15mm 18mm 15mm 18mm;
+                        }
+                        * {
+                            box-sizing: border-box;
+                            -webkit-print-color-adjust: exact !important;
+                            print-color-adjust: exact !important;
+                        }
+                        body {
+                            font-family: 'Sarabun', 'TH Sarabun New', sans-serif;
+                            font-size: 13.5pt;
+                            line-height: 1.5;
+                            color: #000;
+                            margin: 0;
+                            padding: 0;
+                            background: #fff;
+                        }
+                        .page {
+                            position: relative;
+                            width: 100%;
+                            min-height: 250mm;
+                        }
+                        .page-break {
+                            page-break-before: always;
+                            break-before: page;
+                        }
+                        table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin: 10px 0;
+                        }
+                        th, td {
+                            border: 1px solid #000;
+                            padding: 6px 8px;
+                            font-size: 13pt;
+                        }
+                        th {
+                            background-color: #f2f2f2 !important;
+                            font-weight: bold;
+                            text-align: center;
+                        }
+                        @media screen {
+                            body {
+                                background: #e2e8f0;
+                                padding: 20px;
+                            }
+                            .page {
+                                background: #fff;
+                                max-width: 210mm;
+                                margin: 0 auto 20px auto;
+                                padding: 18mm 20mm;
+                                box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+                            }
+                        }
+                    </style>
+                </head>
+                <body>
+                    ${formContent}
+                    <script>
+                        window.onload = function() {
+                            setTimeout(function() {
+                                window.focus();
+                                window.print();
+                            }, 350);
+                        };
+                    <\/script>
+                </body>
+                </html>
+            `);
+            printWin.document.close();
+        }
+
+        function downloadBlankFormDoc(formId) {
+            const form = coopBlankForms.find(f => f.id === formId);
+            if (!form) return;
+            const content = `
+                <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+                <head>
+                    <meta charset="utf-8">
+                    <title>${form.title}</title>
+                    <style>
+                        body { font-family: 'TH Sarabun New', 'Cordia New', sans-serif; font-size: 14pt; line-height: 1.5; color: #000; }
+                        table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+                        th, td { border: 1px solid #000; padding: 6px; font-size: 13pt; }
+                        th { background-color: #f2f2f2; text-align: center; }
+                    </style>
+                </head>
+                <body>
+                    ${form.renderHtml()}
+                </body>
+                </html>
+            `;
+            const blob = new Blob(['\ufeff' + content], { type: 'application/msword' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${form.code ? form.code.replace(/\s+/g, '_') + '_' : ''}${form.title.replace(/\s+/g, '_')}.doc`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
         }
 
         function logout() {
@@ -3995,6 +4646,7 @@
                 renderCalendarEvents();
             } else if (actualPageId === 'sec-student-docs') {
                 renderStudentDocsList();
+                renderBlankFormsGrid();
             } else if (actualPageId === 'sec-student-schedule') {
                 renderCalendarEvents();
             } else if (actualPageId === 'sec-admin-dash') {
