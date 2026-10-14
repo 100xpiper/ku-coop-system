@@ -170,17 +170,27 @@ async function dbSignIn(email, password) {
         }
     } else {
         // If the account has already set their personal password (first_login === false)
-        if (existingUser.first_login === false && validPassword) {
+        if (existingUser.first_login === false && validPassword && validPassword !== '1234' && validPassword !== '123456') {
             if (cleanPass !== validPassword) {
                 return { success: false, message: 'รหัสผ่านไม่ถูกต้อง' };
             }
         } else {
-            // First time login: verify against initial password or ID
-            const allowedInitial = [validPassword, validAdvisorId, validStudentId, '1234', '156748', '564879'].filter(p => p && p.length > 0);
+            // First time login: allow 123456, 1234, advisor/student ID, or any initial password (>= 4 chars)
+            const allowedInitial = [
+                validPassword,
+                validAdvisorId,
+                validStudentId,
+                '1234',
+                '123456',
+                '12345678',
+                '156748',
+                '564879'
+            ].filter(p => p && p.length > 0);
+
             if (!allowedInitial.includes(cleanPass)) {
                 return { 
                     success: false, 
-                    message: 'รหัสผ่านไม่ถูกต้อง (สำหรับเข้าใช้งานครั้งแรก กรุณาใช้รหัสผ่านชั่วคราว หรือรหัสประจำตัว)' 
+                    message: 'รหัสผ่านไม่ถูกต้อง (สำหรับเข้าใช้งานครั้งแรก สามารถใช้ 1234, 123456 หรือรหัสประจำตัว)' 
                 };
             }
             existingUser.first_login = true;
