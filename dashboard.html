@@ -1664,56 +1664,45 @@
                 </div>
 
                 <!-- หน้า 2.X: ติดตามงานฝั่งนิสิต -->
+                <!-- หน้า 2.2: บันทึกและติดตามงาน (ฝั่งนิสิต) -->
                 <div id="sec-student-tracking" class="page-content">
                     <section class="section-card" style="margin-bottom: 20px;">
                         <div class="section-header">
                             <div class="section-title">บันทึกและติดตามงาน</div>
                         </div>
                         <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 12px;">
-                            บันทึกหัวข้องานและความคืบหน้าของงานเพื่อให้อาจารย์ที่ปรึกษาทราบ (บันทึกรายสัปดาห์)
+                            บันทึกหัวข้องานและรายงานการปฏิบัติงานเพื่อให้อาจารย์ที่ปรึกษาทราบ (บันทึกรายสัปดาห์)
                         </div>
                         <div style="display: flex; flex-direction: column; gap: 12px;">
                             <div>
                                 <label style="font-size: 11px; font-weight: 700; color: #475569; margin-bottom: 4px; display: block;">หัวข้องาน / งานที่ได้รับมอบหมาย:</label>
                                 <input type="text" id="student-pt-name" placeholder="ระบุหัวข้องาน..." style="width: 100%; padding: 8px; font-size: 12px; border-radius: 6px; border: 1px solid #cbd5e1; box-sizing: border-box;">
                             </div>
-                            <div style="display: flex; gap: 12px;">
-                                <div style="flex: 1;">
-                                    <label style="font-size: 11px; font-weight: 700; color: #475569; margin-bottom: 4px; display: block;">สัปดาห์ที่:</label>
-                                    <select id="student-pt-week" style="width: 100%; padding: 8px; font-size: 12px; border-radius: 6px; border: 1px solid #cbd5e1; box-sizing: border-box;">
-                                        <option value="1">สัปดาห์ที่ 1</option><option value="2">สัปดาห์ที่ 2</option><option value="3">สัปดาห์ที่ 3</option><option value="4">สัปดาห์ที่ 4</option>
-                                        <option value="5">สัปดาห์ที่ 5</option><option value="6">สัปดาห์ที่ 6</option><option value="7">สัปดาห์ที่ 7</option><option value="8">สัปดาห์ที่ 8</option>
-                                        <option value="9">สัปดาห์ที่ 9</option><option value="10">สัปดาห์ที่ 10</option><option value="11">สัปดาห์ที่ 11</option><option value="12">สัปดาห์ที่ 12</option>
-                                        <option value="13">สัปดาห์ที่ 13</option><option value="14">สัปดาห์ที่ 14</option><option value="15">สัปดาห์ที่ 15</option><option value="16">สัปดาห์ที่ 16</option>
-                                    </select>
-                                </div>
-                                <div style="flex: 1;">
-                                    <label style="font-size: 11px; font-weight: 700; color: #475569; margin-bottom: 4px; display: block;">ความคืบหน้า (%):</label>
-                                    <select id="student-pt-progress" style="width: 100%; padding: 8px; font-size: 12px; border-radius: 6px; border: 1px solid #cbd5e1; box-sizing: border-box;">
-                                        <option value="0">0% (เพิ่งเริ่ม/รออนุมัติ)</option>
-                                        <option value="25">25% (กำลังดำเนินการส่วนต้น)</option>
-                                        <option value="50">50% (พัฒนาระบบ/ทำงาน 50%)</option>
-                                        <option value="75">75% (ใกล้เสร็จ/ทดสอบ)</option>
-                                        <option value="100">100% (เสร็จสมบูรณ์)</option>
-                                    </select>
-                                </div>
+                            <div>
+                                <label style="font-size: 11px; font-weight: 700; color: #475569; margin-bottom: 4px; display: block;">สัปดาห์ที่:</label>
+                                <select id="student-pt-week" style="width: 100%; padding: 8px; font-size: 12px; border-radius: 6px; border: 1px solid #cbd5e1; box-sizing: border-box;">
+                                    <option value="1">สัปดาห์ที่ 1</option><option value="2">สัปดาห์ที่ 2</option><option value="3">สัปดาห์ที่ 3</option><option value="4">สัปดาห์ที่ 4</option>
+                                    <option value="5">สัปดาห์ที่ 5</option><option value="6">สัปดาห์ที่ 6</option><option value="7">สัปดาห์ที่ 7</option><option value="8">สัปดาห์ที่ 8</option>
+                                    <option value="9">สัปดาห์ที่ 9</option><option value="10">สัปดาห์ที่ 10</option><option value="11">สัปดาห์ที่ 11</option><option value="12">สัปดาห์ที่ 12</option>
+                                    <option value="13">สัปดาห์ที่ 13</option><option value="14">สัปดาห์ที่ 14</option><option value="15">สัปดาห์ที่ 15</option><option value="16">สัปดาห์ที่ 16</option>
+                                </select>
                             </div>
                             <div>
                                 <label style="font-size: 11px; font-weight: 700; color: #475569; margin-bottom: 4px; display: block;">บันทึกประจำสัปดาห์ / ปัญหาอุปสรรค:</label>
                                 <textarea id="student-pt-issues" rows="3" placeholder="ระบุสิ่งที่ทำในสัปดาห์นี้ หรือปัญหาที่พบ..." style="width: 100%; padding: 8px; font-size: 12px; border-radius: 6px; border: 1px solid #cbd5e1; resize: none; box-sizing: border-box;"></textarea>
                             </div>
                             <button class="btn-primary" style="padding: 10px; font-weight: 700; background-color: #0f766e; border-color: #0f766e;" onclick="saveStudentProjectTracking()">
-                                บันทึกความคืบหน้าประจำสัปดาห์
+                                บันทึกข้อมูลประจำสัปดาห์
                             </button>
                         </div>
                     </section>
                     <section class="section-card">
                         <div class="section-header">
-                            <div class="section-title">ประวัติความคืบหน้า (16 สัปดาห์)</div>
+                            <div class="section-title">ประวัติการบันทึกงาน (16 สัปดาห์)</div>
                         </div>
                         <div id="std-tracking-history-container" style="display: flex; flex-direction: column; gap: 8px;">
                             <div style="font-size: 11px; color: var(--text-muted); text-align: center; padding: 16px; background: #f8fafc; border-radius: 8px;">
-                                ยังไม่มีการบันทึกความคืบหน้า
+                                ยังไม่มีประวัติการบันทึกงาน
                             </div>
                         </div>
                     </section>
@@ -2320,14 +2309,20 @@
                 }
 
                 let rowsHtml = filteredStds.map(s => {
-                    const isDone = s.status === 'นิเทศแล้ว';
                     const stdDocs = allDocs.filter(d => String(d.studentId) === String(s.id));
                     let currentDocStatus = s.docs || 'รอตรวจ';
                     if (stdDocs.length > 0) {
                         currentDocStatus = stdDocs[0].status;
                     }
-                    const docBadgeClass = (currentDocStatus === 'ครบถ้วน' || currentDocStatus === 'ตรวจรับแล้ว') ? 'badge-success' : (currentDocStatus === 'ต้องแก้ไข' ? 'badge-danger' : 'badge-warning');
+                    const isDocComplete = (currentDocStatus === 'ครบถ้วน' || currentDocStatus === 'ตรวจรับแล้ว' || currentDocStatus === 'เอกสารครบแล้ว');
+                    const docBadgeClass = isDocComplete ? 'badge-success' : 'badge-warning';
+                    const docDisplayText = isDocComplete ? 'เอกสารครบแล้ว' : 'ไม่ครบ';
+
+                    const rawSup = String(s.status || '').toLowerCase().trim();
+                    const isDone = (rawSup === 'approved' || rawSup === 'นิเทศแล้ว' || rawSup === 'done' || rawSup === 'completed');
                     const statusBadgeClass = isDone ? 'badge-success' : 'badge-info';
+                    const supDisplayText = isDone ? 'นิเทศแล้ว' : 'รอนิเทศ';
+
                     return `
                         <tr style="border-bottom: 1px solid var(--border-color); font-size: 11.5px;">
                             <td style="padding: 10px 12px; font-weight: 700; color: var(--primary-color); white-space: nowrap;">${s.id}</td>
@@ -2335,12 +2330,12 @@
                             <td style="padding: 10px 12px; color: #475569; white-space: nowrap;">${s.section}</td>
                             <td style="padding: 10px 12px; color: #1e293b;">${s.company}</td>
                             <td style="padding: 10px 12px; white-space: nowrap;">
-                                <span class="status-badge ${docBadgeClass}" style="margin-right: 6px;">${currentDocStatus}</span>
+                                <span class="status-badge ${docBadgeClass}" style="margin-right: 6px;">${docDisplayText}</span>
                                 <button type="button" class="btn-primary" style="padding: 4px 8px; font-size: 10.5px; background-color: #2563eb; display: inline-flex; align-items: center; gap: 4px;" onclick="openDocModal('${s.id}', '${s.name}')">
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg> ตรวจเอกสาร (${stdDocs.length})
                                 </button>
                             </td>
-                            <td style="padding: 10px 12px; white-space: nowrap;"><span class="status-badge ${statusBadgeClass}">${s.status}</span></td>
+                            <td style="padding: 10px 12px; white-space: nowrap;"><span class="status-badge ${statusBadgeClass}">${supDisplayText}</span></td>
                         </tr>
                     `;
                 }).join('');
@@ -2882,6 +2877,12 @@
                     docBadgeText = stdDocs[0].status;
                 }
 
+                const isDocComplete = (docBadgeText === 'ครบถ้วน' || docBadgeText === 'ตรวจรับแล้ว' || docBadgeText === 'เอกสารครบแล้ว');
+                const docDisplayText = isDocComplete ? 'เอกสารครบแล้ว' : 'ไม่ครบ';
+                const rawSup = String(std.status || '').toLowerCase().trim();
+                const isSupDone = (rawSup === 'approved' || rawSup === 'นิเทศแล้ว' || rawSup === 'done' || rawSup === 'completed');
+                const supDisplayText = isSupDone ? 'นิเทศแล้ว' : 'รอนิเทศ';
+
                 const div = document.createElement('div');
                 div.className = 'student-item';
                 div.style.display = 'block'; // Override flex
@@ -2892,8 +2893,8 @@
                                 <div style="font-weight: 700; color: var(--primary-color); font-size: 13px;">${std.id} - ${std.name}</div>
                                 <div style="color: var(--text-muted); font-size: 11px;">${std.company}</div>
                                 <div style="margin-top: 6px; display: flex; gap: 6px; flex-wrap: wrap;">
-                                    <span class="status-badge ${docBadgeText === 'ครบถ้วน' || docBadgeText === 'ตรวจรับแล้ว' ? 'badge-success' : 'badge-warning'}">เอกสาร: ${docBadgeText}</span>
-                                    <span class="status-badge ${std.status === 'นิเทศแล้ว' ? 'badge-success' : 'badge-info'}">${std.status}</span>
+                                    <span class="status-badge ${isDocComplete ? 'badge-success' : 'badge-warning'}">เอกสาร: ${docDisplayText}</span>
+                                    <span class="status-badge ${isSupDone ? 'badge-success' : 'badge-info'}">${supDisplayText}</span>
                                 </div>
                             </div>
                         </div>
@@ -3610,6 +3611,7 @@
         function exportToExcel() {
             loadDynamicStudentsData();
             const allStds = [...(studentsData['หมู่ 700'] || []), ...(studentsData['หมู่ 800'] || [])];
+            const allDocs = getSubmittedDocs();
             const data = [
                 ["รหัสนิสิต", "ชื่อ-นามสกุล", "สถานประกอบการ", "สถานะเอกสาร", "สถานะการนิเทศ", "คะแนนประเมิน"]
             ];
@@ -3617,12 +3619,24 @@
                 data.push(["-", "ไม่มีข้อมูลนิสิตในระบบ (รอแอดมินนำเข้าข้อมูล)", "-", "-", "-", "-"]);
             } else {
                 allStds.forEach(s => {
+                    const stdDocs = allDocs.filter(d => String(d.studentId) === String(s.id));
+                    let rawDoc = s.docs || 'รอตรวจ';
+                    if (stdDocs.length > 0) {
+                        rawDoc = stdDocs[0].status;
+                    }
+                    const isDocComplete = (rawDoc === 'ครบถ้วน' || rawDoc === 'ตรวจรับแล้ว' || rawDoc === 'เอกสารครบแล้ว');
+                    const docStatusText = isDocComplete ? 'เอกสารครบแล้ว' : 'ไม่ครบ';
+
+                    const rawSup = String(s.status || '').toLowerCase().trim();
+                    const isSupDone = (rawSup === 'approved' || rawSup === 'นิเทศแล้ว' || rawSup === 'done' || rawSup === 'completed');
+                    const supStatusText = isSupDone ? 'นิเทศแล้ว' : 'รอนิเทศ';
+
                     data.push([
                         s.id || '-',
                         s.name || '-',
                         s.company || '-',
-                        s.docs || 'รอตรวจ',
-                        s.status || 'รอนิเทศ',
+                        docStatusText,
+                        supStatusText,
                         (s.score !== undefined && s.score !== null) ? String(s.score) : '-'
                     ]);
                 });
@@ -3636,23 +3650,38 @@
         function exportToPDF() {
             loadDynamicStudentsData();
             const allStds = [...(studentsData['หมู่ 700'] || []), ...(studentsData['หมู่ 800'] || [])];
+            const allDocs = getSubmittedDocs();
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
-            doc.text("Cooperative Education Supervision Report", 14, 15);
+            doc.text("รายงานสรุปผลการนิเทศสหกิจศึกษา", 14, 15);
             
-            const columns = ["ID", "Name", "Company", "Doc Status", "Supervision Status", "Score"];
+            const columns = ["รหัสนิสิต", "ชื่อ-นามสกุล", "สถานประกอบการ", "สถานะเอกสาร", "สถานะการนิเทศ", "คะแนนประเมิน"];
             let rows = [];
             if (allStds.length === 0) {
-                rows.push(["-", "No student records found", "-", "-", "-", "-"]);
+                rows.push(["-", "ไม่มีข้อมูลนิสิตในระบบ", "-", "-", "-", "-"]);
             } else {
-                rows = allStds.map(s => [
-                    String(s.id || '-'),
-                    String(s.name || '-'),
-                    String(s.company || '-'),
-                    String(s.docs || 'Pending'),
-                    String(s.status || 'Pending'),
-                    String((s.score !== undefined && s.score !== null) ? s.score : '-')
-                ]);
+                rows = allStds.map(s => {
+                    const stdDocs = allDocs.filter(d => String(d.studentId) === String(s.id));
+                    let rawDoc = s.docs || 'รอตรวจ';
+                    if (stdDocs.length > 0) {
+                        rawDoc = stdDocs[0].status;
+                    }
+                    const isDocComplete = (rawDoc === 'ครบถ้วน' || rawDoc === 'ตรวจรับแล้ว' || rawDoc === 'เอกสารครบแล้ว');
+                    const docStatusText = isDocComplete ? 'เอกสารครบแล้ว' : 'ไม่ครบ';
+
+                    const rawSup = String(s.status || '').toLowerCase().trim();
+                    const isSupDone = (rawSup === 'approved' || rawSup === 'นิเทศแล้ว' || rawSup === 'done' || rawSup === 'completed');
+                    const supStatusText = isSupDone ? 'นิเทศแล้ว' : 'รอนิเทศ';
+
+                    return [
+                        String(s.id || '-'),
+                        String(s.name || '-'),
+                        String(s.company || '-'),
+                        docStatusText,
+                        supStatusText,
+                        String((s.score !== undefined && s.score !== null) ? s.score : '-')
+                    ];
+                });
             }
 
             doc.autoTable({
@@ -3966,17 +3995,17 @@
                 const histContainer = document.getElementById('advisor-pt-history');
                 if (histContainer) {
                     if (!data.weeklyReports || data.weeklyReports.length === 0) {
-                        histContainer.innerHTML = '<div style="font-size: 11px; color: var(--text-muted); text-align: center; padding: 16px; background: #f8fafc; border-radius: 8px;">ยังไม่มีการบันทึกความคืบหน้าจากนิสิต</div>';
+                        histContainer.innerHTML = '<div style="font-size: 11px; color: var(--text-muted); text-align: center; padding: 16px; background: #f8fafc; border-radius: 8px;">ยังไม่มีการบันทึกงานจากนิสิต</div>';
                     } else {
                         const sorted = [...data.weeklyReports].sort((a, b) => b.week - a.week);
                         histContainer.innerHTML = sorted.map(r => `
                             <div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px;">
                                 <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
                                     <span style="font-weight: 700; font-size: 13px; color: #0f766e;">สัปดาห์ที่ ${r.week}</span>
-                                    <span class="status-badge badge-success" style="font-size: 10px;">${r.progress}%</span>
+                                    <span class="status-badge badge-success" style="font-size: 10px;">บันทึกแล้ว</span>
                                 </div>
                                 <div style="font-size: 11px; color: #475569; margin-bottom: 4px;">
-                                    <strong>บันทึก/ปัญหา:</strong> ${r.issues || '-'}
+                                    <strong>บันทึกงาน / ปัญหา:</strong> ${r.issues || '-'}
                                 </div>
                                 <div style="font-size: 10px; color: #94a3b8; text-align: right;">อัปเดตเมื่อ: ${r.dateStr}</div>
                             </div>
@@ -4018,10 +4047,10 @@
                 <div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px;">
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
                         <span style="font-weight: 700; font-size: 13px; color: #0f766e;">สัปดาห์ที่ ${r.week}</span>
-                        <span class="status-badge badge-success" style="font-size: 10px;">${r.progress}%</span>
+                        <span class="status-badge badge-success" style="font-size: 10px;">บันทึกแล้ว</span>
                     </div>
                     <div style="font-size: 11px; color: #475569; margin-bottom: 4px;">
-                        <strong>บันทึก/ปัญหา:</strong> ${r.issues || '-'}
+                        <strong>บันทึกงาน / ปัญหา:</strong> ${r.issues || '-'}
                     </div>
                     <div style="font-size: 10px; color: #94a3b8; text-align: right;">อัปเดตเมื่อ: ${r.dateStr}</div>
                 </div>
@@ -4055,7 +4084,6 @@
             
             const pName = document.getElementById('student-pt-name').value;
             const weekStr = document.getElementById('student-pt-week').value;
-            const progStr = document.getElementById('student-pt-progress').value;
             const issuesText = document.getElementById('student-pt-issues').value;
             const nowStr = new Date().toLocaleString('th-TH');
 
@@ -4069,7 +4097,6 @@
             
             const newReport = {
                 week: wNum,
-                progress: progStr,
                 issues: issuesText,
                 dateStr: nowStr
             };
