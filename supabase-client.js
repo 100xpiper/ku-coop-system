@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Supabase Client & Database Service Layer
  * Application: KU Cooperative Education Supervision System
  */
@@ -324,13 +324,14 @@ async function dbSignIn(email, password) {
             }
         } catch (e) {}
     } else {
-        // If the account has already set their personal password (first_login === false)
-        if (existingUser.first_login === false && validPassword && validPassword !== '1234' && validPassword !== '123456') {
+        // Check if user has completed first login / set their personal password
+        const hasSetPersonalPassword = existingUser.first_login === false && existingUser.password_changed === true;
+        if (hasSetPersonalPassword) {
             if (cleanPass !== validPassword) {
                 return { success: false, message: 'รหัสผ่านไม่ถูกต้อง' };
             }
         } else {
-            // First time login: allow 123456, 1234, advisor/student ID, or any initial password (>= 4 chars)
+            // First time login: allow temporary password from Excel, studentId, advisorId, or defaults
             const allowedInitial = [
                 validPassword,
                 validAdvisorId,
@@ -351,7 +352,6 @@ async function dbSignIn(email, password) {
             existingUser.first_login = true;
         }
     }
-
     return { success: true, user: existingUser };
 }
 

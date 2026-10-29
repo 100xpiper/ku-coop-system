@@ -1,4 +1,4 @@
-$preferredPorts = @(8080, 8081, 8082, 3000)
+﻿$preferredPorts = @(8080, 8081, 8082, 3000)
 $listener = $null
 $port = $null
 

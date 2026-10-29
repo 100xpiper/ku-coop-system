@@ -462,7 +462,8 @@
                             semester: semester,
                             phone: phoneVal || '',
                             status: 'approved',
-                            first_login: false
+                            first_login: true,
+                            password_changed: false
                         };
 
                         customUsers[email] = userObj;
@@ -582,7 +583,8 @@
                             role: 'advisor',
                             section: section || 'หมู่ 700, หมู่ 800',
                             status: 'approved',
-                            first_login: false
+                            first_login: true,
+                            password_changed: false
                         };
 
                         customUsers[email] = userObj;
