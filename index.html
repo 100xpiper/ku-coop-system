@@ -767,7 +767,7 @@
             const isLenValid = pass.length >= 7;
             const isLangValid = pass.length > 0 && !/[\u0E00-\u0E7F]/.test(pass);
             const isCaseValid = /[A-Z]/.test(pass) && /[a-z]/.test(pass);
-            const isSpecValid = /[!@#$%^&*()_+=\-[\]{}|;:,.<>?/~`]/.test(pass);
+            const isSpecValid = pass.length > 0 && !/[!@#$%^&*()_+=\-[\]{}|;:,.<>?/~`\s]/.test(pass) && !/[^a-zA-Z0-9]/.test(pass);
             return { isLenValid, isLangValid, isCaseValid, isSpecValid, isValid: isLenValid && isLangValid && isCaseValid && isSpecValid };
         }
 
