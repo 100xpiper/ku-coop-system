@@ -5975,12 +5975,22 @@
                             </span>
                         </div>
 
-                        <!-- Breakdown by 2 Sections -->
-                        <div style="padding: 6px 10px; background: #f8fafc; border-radius: 6px; border: 1px solid #e2e8f0; font-size: 10.5px; color: #64748b; margin-bottom: 12px; display: flex; justify-content: space-between;">
-                            <span>${mySecNormal}: <strong style="color: #1e40af;">${normSubCount}/${normStds.length}</strong></span>
-                            <span style="color: #cbd5e1;">|</span>
-                            <span>${mySecSpecial}: <strong style="color: #0d9488;">${specSubCount}/${specStds.length}</strong></span>
-                        </div>
+                        <!-- Breakdown by Selected Section or Both -->
+                        ${currentAdvisorDocSectionFilter === 'normal' ? `
+                            <div style="padding: 6px 10px; background: #f8fafc; border-radius: 6px; border: 1px solid #e2e8f0; font-size: 10.5px; color: #64748b; margin-bottom: 12px; display: flex; justify-content: flex-start; align-items: center;">
+                                <span>${mySecNormal}: <strong style="color: #1e40af;">${normSubCount}/${normStds.length}</strong></span>
+                            </div>
+                        ` : (currentAdvisorDocSectionFilter === 'special' ? `
+                            <div style="padding: 6px 10px; background: #f8fafc; border-radius: 6px; border: 1px solid #e2e8f0; font-size: 10.5px; color: #64748b; margin-bottom: 12px; display: flex; justify-content: flex-start; align-items: center;">
+                                <span>${mySecSpecial}: <strong style="color: #0d9488;">${specSubCount}/${specStds.length}</strong></span>
+                            </div>
+                        ` : `
+                            <div style="padding: 6px 10px; background: #f8fafc; border-radius: 6px; border: 1px solid #e2e8f0; font-size: 10.5px; color: #64748b; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+                                <span>${mySecNormal}: <strong style="color: #1e40af;">${normSubCount}/${normStds.length}</strong></span>
+                                <span style="color: #cbd5e1;">|</span>
+                                <span>${mySecSpecial}: <strong style="color: #0d9488;">${specSubCount}/${specStds.length}</strong></span>
+                            </div>
+                        `)}
                     </div>
 
                     <!-- Action Button -->
@@ -6038,7 +6048,8 @@
 
             const footer = document.getElementById('adv-doc-matrix-footer');
             if (footer) {
-                footer.innerHTML = `<span>แสดงนิสิต: <strong>${stdList.length} คน</strong> จากทั้ง 2 หมู่เรียน</span>`;
+                const secDesc = currentAdvisorDocSectionFilter === 'normal' ? mySecNormal : (currentAdvisorDocSectionFilter === 'special' ? mySecSpecial : 'ทั้ง 2 หมู่เรียน');
+                footer.innerHTML = `<span>แสดงนิสิต: <strong>${stdList.length} คน</strong> จาก${secDesc}</span>`;
             }
 
             if (stdList.length === 0) {
