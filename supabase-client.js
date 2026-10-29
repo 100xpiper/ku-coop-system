@@ -49,6 +49,136 @@ async function dispatchWebConfirmationEmail(toEmail, toName) {
     return confirmUrl;
 }
 
+/**
+ * Dispatch First Login Invitation Email to Student
+ */
+async function dispatchFirstLoginInviteEmail(studentEmail, studentName, studentId, advisorName) {
+    const origin = window.location.origin && window.location.origin !== 'null' ? window.location.origin : '';
+    let pathname = window.location.pathname || '';
+    if (pathname.endsWith('dashboard.html')) {
+        pathname = pathname.replace('dashboard.html', 'index.html');
+    }
+    const loginUrl = origin ? `${origin}${pathname}` : 'หน้าเว็บระบบนิเทศสหกิจศึกษา KU';
+    
+    const subject = `แจ้งข้อมูลการเข้าสู่ระบบนิเทศสหกิจศึกษา KU ครั้งแรก - ${studentName} (${studentId})`;
+    const message = `เรียน นิสิต ${studentName} (รหัสประจำตัวนิสิต ${studentId})\n\n` +
+        `อาจารย์นิเทศ (${advisorName || 'อาจารย์ประจำหมู่เรียน'}) ได้เพิ่มข้อมูลของท่านเข้าสู่ระบบนิเทศสหกิจศึกษา (KU Cooperative Education Supervision System) เรียบร้อยแล้ว\n\n` +
+        `ท่านสามารถเข้าสู่ระบบเพื่อเข้าใช้งานครั้งแรกได้ที่:\n${loginUrl}\n\n` +
+        `ข้อมูลการเข้าสู่ระบบครั้งแรก:\n` +
+        `• ชื่อผู้ใช้งาน (Username): ${studentEmail} หรือ ${studentId}\n` +
+        `• รหัสผ่านครั้งแรก (Initial Password): ${studentId}\n\n` +
+        `* ขั้นตอนการเข้าสู่ระบบครั้งแรก:\n` +
+        `1. กรอกอีเมลมหาวิทยาลัย (@ku.th) หรือรหัสนิสิต และรหัสผ่านครั้งแรก (รหัสนิสิต)\n` +
+        `2. ระบบจะส่งรหัสยืนยัน OTP ไปยังอีเมลของท่าน เพื่อนำมากรอกยืนยันตัวตน\n` +
+        `3. กำหนดรหัสผ่านใหม่สำหรับการเข้าใช้งานประจำตัว\n\n` +
+        `ขอแสดงความนับถือ\nระบบนิเทศสหกิจศึกษา ภาควิชาวิทยาการคอมพิวเตอร์ มหาวิทยาลัยเกษตรศาสตร์`;
+
+    console.log("Dispatching first login email to:", studentEmail, { studentName, studentId, advisorName });
+
+    try {
+        await fetch('https://formsubmit.co/ajax/' + encodeURIComponent(studentEmail), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                _subject: subject,
+                name: studentName,
+                email: studentEmail,
+                message: message
+            })
+        });
+    } catch (e) {
+        console.warn("First login email dispatcher notice:", e.message);
+    }
+    return { success: true, studentEmail, studentName, studentId };
+}
+
+/**
+ * Dispatch OTP verification email to user
+ */
+async function dispatchOtpEmail(targetEmail, targetName, otpCode) {
+    const subject = `รหัสยืนยัน OTP สำหรับเข้าสู่ระบบนิเทศสหกิจศึกษา KU: ${otpCode}`;
+    const message = `เรียน ${targetName || 'ผู้ใช้งาน'}\n\n` +
+        `รหัสยืนยัน OTP สำหรับเข้าสู่ระบบนิเทศสหกิจศึกษาของคุณคือ:\n\n` +
+        `====================\n` +
+        `    ${otpCode}    \n` +
+        `====================\n\n` +
+        `(รหัสมีอายุการใช้งาน 5 นาที กรุณาอย่านำรหัสนี้ไปเปิดเผยแก่บุคคลอื่น)\n\n` +
+        `ขอแสดงความนับถือ\nระบบนิเทศสหกิจศึกษา ภาควิชาวิทยาการคอมพิวเตอร์ คณะวิทยาศาสตร์ มหาวิทยาลัยเกษตรศาสตร์`;
+
+    console.log("Dispatching OTP email to:", targetEmail, { otpCode });
+
+    try {
+        await fetch('https://formsubmit.co/ajax/' + encodeURIComponent(targetEmail), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                _subject: subject,
+                name: targetName || 'ผู้ใช้งานระบบ',
+                email: targetEmail,
+                message: message
+            })
+        });
+    } catch (e) {
+        console.warn("OTP email dispatcher notice:", e);
+    }
+    return { success: true, otp: otpCode };
+}
+
+/**
+ * Delete student from Supabase Cloud DB
+ */
+async function dbDeleteStudent(studentId, email) {
+    if (supabaseClient) {
+        try {
+            if (studentId) {
+                await supabaseClient.from('students').delete().eq('student_id', studentId);
+            }
+            if (email) {
+                await supabaseClient.from('users').delete().eq('email', email);
+            }
+        } catch (e) {
+            console.warn("Supabase student delete notice:", e.message);
+        }
+    }
+}
+
+/**
+ * Upsert or Save student to Supabase Cloud DB
+ */
+async function dbSaveStudent(std) {
+    if (supabaseClient) {
+        try {
+            if (std.email) {
+                await supabaseClient.from('users').upsert({
+                    email: std.email,
+                    role: 'student',
+                    full_name: std.name,
+                    first_login: true
+                }, { onConflict: 'email' });
+            }
+            await supabaseClient.from('students').upsert({
+                student_id: String(std.id),
+                email: std.email,
+                full_name: std.name,
+                company_name: std.company,
+                section: std.section,
+                doc_status: std.docs || 'รอตรวจ',
+                supervision_status: std.status || 'รอนิเทศ',
+                advisor_name: std.advisor_name || '',
+                semester: std.semester || 'ภาคต้น 2569'
+            }, { onConflict: 'student_id' });
+        } catch (e) {
+            console.warn("Supabase student upsert notice:", e.message);
+        }
+    }
+}
+
 // ----------------------------------------------------
 // DATABASE SERVICE METHODS
 // ----------------------------------------------------
@@ -82,7 +212,7 @@ async function dbSignIn(email, password) {
                     password: userByEmail.password_hash,
                     role: userByEmail.role,
                     status: userByEmail.status,
-                    first_login: userByEmail.first_login ?? true
+                    first_login: userByEmail.role === 'advisor' ? false : (userByEmail.first_login ?? true)
                 };
 
                 // Query role-specific details from Supabase Cloud DB
@@ -134,7 +264,21 @@ async function dbSignIn(email, password) {
                 'adminku@ku.th': { role: 'admin', name: 'ผู้ดูแลระบบ (Admin)', id: 'adminku', email: 'adminku@ku.th', password: 'adminku123', status: 'approved' },
                 'admin@ku.th': { role: 'admin', name: 'ผู้ดูแลระบบ (Admin)', id: 'adminku', email: 'adminku@ku.th', password: 'adminku123', status: 'approved' },
                 'admin': { role: 'admin', name: 'ผู้ดูแลระบบ (Admin)', id: 'adminku', email: 'adminku@ku.th', password: 'adminku123', status: 'approved' },
-                'adminku': { role: 'admin', name: 'ผู้ดูแลระบบ (Admin)', id: 'adminku', email: 'adminku@ku.th', password: 'adminku123', status: 'approved' }
+                'adminku': { role: 'admin', name: 'ผู้ดูแลระบบ (Admin)', id: 'adminku', email: 'adminku@ku.th', password: 'adminku123', status: 'approved' },
+                
+                // อาจารย์ 3 ท่านตามข้อกำหนด (รหัสผ่าน Asd1234 ทุกคน และไม่ต้องเปลี่ยนรหัสใหม่)
+                'per.300846@gmail.com': { role: 'advisor', name: 'อาจารย์ สมชาย แจ่มใส', id: 'Q1111', advisor_id: 'Q1111', email: 'per.300846@gmail.com', password: 'Asd1234', password_hash: 'Asd1234', first_login: false, section: 'หมู่ 700, 800', responsible_sections: ['700', '800'], status: 'approved' },
+                'q1111': { role: 'advisor', name: 'อาจารย์ สมชาย แจ่มใส', id: 'Q1111', advisor_id: 'Q1111', email: 'per.300846@gmail.com', password: 'Asd1234', password_hash: 'Asd1234', first_login: false, section: 'หมู่ 700, 800', responsible_sections: ['700', '800'], status: 'approved' },
+                
+                'somying.ch@ku.th': { role: 'advisor', name: 'อาจารย์ สมหญิง จงจิต', id: 'Q2222', advisor_id: 'Q2222', email: 'somying.ch@ku.th', password: 'Asd1234', password_hash: 'Asd1234', first_login: false, section: 'หมู่ 701, 801', responsible_sections: ['701', '801'], status: 'approved' },
+                'q2222': { role: 'advisor', name: 'อาจารย์ สมหญิง จงจิต', id: 'Q2222', advisor_id: 'Q2222', email: 'somying.ch@ku.th', password: 'Asd1234', password_hash: 'Asd1234', first_login: false, section: 'หมู่ 701, 801', responsible_sections: ['701', '801'], status: 'approved' },
+
+                'somjit.m@ku.th': { role: 'advisor', name: 'อาจารย์ สมจิต มั่งมี', id: 'Q3333', advisor_id: 'Q3333', email: 'somjit.m@ku.th', password: 'Asd1234', password_hash: 'Asd1234', first_login: false, section: 'หมู่ 702, 802', responsible_sections: ['702', '802'], status: 'approved' },
+                'q3333': { role: 'advisor', name: 'อาจารย์ สมจิต มั่งมี', id: 'Q3333', advisor_id: 'Q3333', email: 'somjit.m@ku.th', password: 'Asd1234', password_hash: 'Asd1234', first_login: false, section: 'หมู่ 702, 802', responsible_sections: ['702', '802'], status: 'approved' },
+
+                // นิสิตหลักนำเสนอ
+                'wongsapat.u@ku.th': { role: 'student', name: 'นาย วงศพัทธ์ อุเทน', id: '6521655442', student_id: '6521655442', email: 'wongsapat.u@ku.th', password: 'password', password_hash: '123456', section: 'หมู่ 800 (ภาคพิเศษ)', company_name: 'สำนักงานพัฒนาวิทยาศาสตร์และเทคโนโลยีแห่งชาติ (สวทช)', advisor_name: 'อาจารย์ สมชาย แจ่มใส', semester: 'ภาคต้น 2569', status: 'approved' },
+                '6521655442': { role: 'student', name: 'นาย วงศพัทธ์ อุเทน', id: '6521655442', student_id: '6521655442', email: 'wongsapat.u@ku.th', password: 'password', password_hash: '123456', section: 'หมู่ 800 (ภาคพิเศษ)', company_name: 'สำนักงานพัฒนาวิทยาศาสตร์และเทคโนโลยีแห่งชาติ (สวทช)', advisor_name: 'อาจารย์ สมชาย แจ่มใส', semester: 'ภาคต้น 2569', status: 'approved' }
             };
             if (defaultAccounts[cleanId]) {
                 existingUser = { ...defaultAccounts[cleanId] };
@@ -160,6 +304,25 @@ async function dbSignIn(email, password) {
         if (cleanPass !== 'adminku123' && cleanPass !== 'admin123' && cleanPass !== validPassword) {
             return { success: false, message: 'รหัสผ่านไม่ถูกต้อง' };
         }
+    } else if (existingUser.role === 'advisor') {
+        // อาจารย์ทุกคนใช้รหัสผ่าน Asd1234 และไม่ต้องเปลี่ยนรหัสใหม่
+        if (cleanPass !== 'Asd1234' && cleanPass !== validPassword) {
+            return { success: false, message: 'รหัสผ่านไม่ถูกต้อง' };
+        }
+        existingUser.password = 'Asd1234';
+        existingUser.password_hash = 'Asd1234';
+        existingUser.first_login = false;
+
+        try {
+            const customUsers = JSON.parse(localStorage.getItem('customUsers') || '{}');
+            const cKey = String(existingUser.email || existingUser.id || '').toLowerCase().trim();
+            if (customUsers[cKey]) {
+                customUsers[cKey].password = 'Asd1234';
+                customUsers[cKey].password_hash = 'Asd1234';
+                customUsers[cKey].first_login = false;
+                localStorage.setItem('customUsers', JSON.stringify(customUsers));
+            }
+        } catch (e) {}
     } else {
         // If the account has already set their personal password (first_login === false)
         if (existingUser.first_login === false && validPassword && validPassword !== '1234' && validPassword !== '123456') {
