@@ -897,13 +897,18 @@
                 const result = await dbSignIn(username, password);
 
                 if (result.success && result.user) {
-                    // หากเป็นผู้ดูแลระบบ (Admin) ให้เข้าสู่ระบบได้ทันที
-                    if (result.user.role === 'admin') {
+                    // ผู้ดูแลระบบ (Admin) และ อาจารย์นิเทศ (Advisor) เข้าสู่ระบบได้ทันที ไม่ต้องผ่าน OTP หรือตั้งรหัสใหม่
+                    if (result.user.role === 'admin' || result.user.role === 'advisor') {
                         localStorage.setItem('currentUser', JSON.stringify(result.user));
                         window.location.href = 'dashboard.html';
                     } else {
-                        // อาจารย์และนิสิตต้องผ่านการยืนยันรหัส OTP ทางอีเมล
-                        showOtpModal(result.user);
+                        // นิสิต: หากเข้าสู่ระบบครั้งแรก ให้แสดงหน้าต่างตั้งรหัสผ่านใหม่
+                        if (result.user.first_login === true || result.user.password_changed !== true) {
+                            showFirstLoginPasswordResetModal(result.user);
+                        } else {
+                            localStorage.setItem('currentUser', JSON.stringify(result.user));
+                            window.location.href = 'dashboard.html';
+                        }
                     }
                 }   else {
                     showAlert(result.message || 'อีเมล/รหัสประจำตัว หรือ รหัสผ่านไม่ถูกต้อง');

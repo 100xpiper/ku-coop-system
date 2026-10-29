@@ -268,6 +268,7 @@ async function dbSignIn(email, password) {
                 
                 // อาจารย์ 3 ท่านตามข้อกำหนด (รหัสผ่าน Asd1234 ทุกคน และไม่ต้องเปลี่ยนรหัสใหม่)
                 'per.300846@gmail.com': { role: 'advisor', name: 'อาจารย์ สมชาย แจ่มใส', id: 'Q1111', advisor_id: 'Q1111', email: 'per.300846@gmail.com', password: 'Asd1234', password_hash: 'Asd1234', first_login: false, section: 'หมู่ 700, 800', responsible_sections: ['700', '800'], status: 'approved' },
+                'somchai.j@ku.th': { role: 'advisor', name: 'อาจารย์ สมชาย แจ่มใส', id: 'Q1111', advisor_id: 'Q1111', email: 'somchai.j@ku.th', password: 'Asd1234', password_hash: 'Asd1234', first_login: false, section: 'หมู่ 700, 800', responsible_sections: ['700', '800'], status: 'approved' },
                 'q1111': { role: 'advisor', name: 'อาจารย์ สมชาย แจ่มใส', id: 'Q1111', advisor_id: 'Q1111', email: 'per.300846@gmail.com', password: 'Asd1234', password_hash: 'Asd1234', first_login: false, section: 'หมู่ 700, 800', responsible_sections: ['700', '800'], status: 'approved' },
                 
                 'somying.ch@ku.th': { role: 'advisor', name: 'อาจารย์ สมหญิง จงจิต', id: 'Q2222', advisor_id: 'Q2222', email: 'somying.ch@ku.th', password: 'Asd1234', password_hash: 'Asd1234', first_login: false, section: 'หมู่ 701, 801', responsible_sections: ['701', '801'], status: 'approved' },
