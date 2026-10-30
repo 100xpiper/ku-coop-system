@@ -350,7 +350,7 @@
                     <td style="padding: 6px 8px; color: #0284c7;">${email}</td>
                     <td style="padding: 6px 8px;"><span style="background: #ecfdf5; color: #047857; padding: 2px 6px; border-radius: 4px; font-weight: 700; font-size: 10px;">${sec}</span></td>
                     <td style="padding: 6px 8px; color: #475569; max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${company}</td>
-                    <td style="padding: 6px 8px; text-align: center;"><span style="background: #dcfce7; color: #15803d; padding: 2px 6px; border-radius: 10px; font-weight: 600; font-size: 9.5px;">✓ พร้อมใช้งาน</span></td>
+                    <td style="padding: 6px 8px; text-align: center;"><span style="background: #dcfce7; color: #15803d; padding: 2px 6px; border-radius: 10px; font-weight: 600; font-size: 9.5px;">พร้อมใช้งาน</span></td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -1762,10 +1762,10 @@
                             <!-- Switcher Tabs -->
                             <div style="display: flex; gap: 6px; background: #f1f5f9; padding: 3px; border-radius: 8px;">
                                 <button type="button" id="adv-doc-tab-summary-btn" onclick="switchAdvisorDocOverviewTab('summary')" style="border: none; background: #ffffff; color: var(--primary-color); font-weight: 700; font-size: 11px; padding: 6px 12px; border-radius: 6px; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: all 0.2s ease;">
-                                    📊 สรุปรายฉบับ
+                                    สรุปรายฉบับ
                                 </button>
                                 <button type="button" id="adv-doc-tab-matrix-btn" onclick="switchAdvisorDocOverviewTab('matrix')" style="border: none; background: transparent; color: #64748b; font-weight: 600; font-size: 11px; padding: 6px 12px; border-radius: 6px; cursor: pointer; transition: all 0.2s ease;">
-                                    📋 ตารางสถานะรายบุคคล
+                                    ตารางสถานะรายบุคคล
                                 </button>
                             </div>
                         </div>
@@ -1804,12 +1804,12 @@
                             <div style="margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;">
                                 <div style="position: relative; flex: 1; max-width: 320px;">
                                     <input type="text" id="adv-doc-matrix-search" placeholder="ค้นหาชื่อ, รหัสนิสิต, หรือบริษัท..." oninput="renderAdvisorDocMatrixTable()" style="width: 100%; padding: 6px 10px 6px 30px; font-size: 11.5px; border-radius: 6px; border: 1px solid var(--border-color); background: #ffffff;">
-                                    <span style="position: absolute; left: 9px; top: 7px; color: #94a3b8; font-size: 12px;">🔍</span>
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" style="position: absolute; left: 9px; top: 8px;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                                 </div>
                                 <div style="display: flex; align-items: center; gap: 8px; font-size: 11px; color: #64748b;">
                                     <span>สัญลักษณ์:</span>
-                                    <span style="display: inline-flex; align-items: center; gap: 3px;"><strong style="color: #15803d;">✔</strong> ตรวจรับแล้ว</span>
-                                    <span style="display: inline-flex; align-items: center; gap: 3px;"><strong style="color: #d97706;">⏳</strong> รอตรวจ</span>
+                                    <span style="display: inline-flex; align-items: center; gap: 4px;"><span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#16a34a;"></span> ตรวจรับแล้ว</span>
+                                    <span style="display: inline-flex; align-items: center; gap: 4px;"><span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#d97706;"></span> รอตรวจ</span>
                                     <span style="display: inline-flex; align-items: center; gap: 3px;"><strong style="color: #94a3b8;">—</strong> ยังไม่ส่ง</span>
                                 </div>
                             </div>
@@ -1921,7 +1921,7 @@
                                         </button>
                                         <button class="btn-primary" style="padding: 6px 11px; font-size: 11px; background-color: #0284c7; display: flex; align-items: center; gap: 4px; font-weight: 600;" onclick="openAdvisorAddStudentModal('file')" title="นำเข้าข้อมูลนิสิตด้วยไฟล์ Excel หรือ CSV">
                                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>
-                                            <span>📁 นำเข้าด้วยไฟล์ (.xlsx)</span>
+                                            <span>นำเข้าด้วยไฟล์ (.xlsx)</span>
                                         </button>
                                     </div>
                                     <button class="btn-primary btn-secondary" style="padding: 6px 10px; font-size: 11px;" onclick="renderStudentList(); renderAdvisorAssignments();">รีเฟรช</button>
@@ -2473,7 +2473,7 @@
                             <div id="admin-student-preview-container" style="display: none; background: #ffffff; border: 1px solid #bbf7d0; border-radius: 8px; padding: 10px; margin-bottom: 10px;">
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
                                     <div style="font-size: 11.5px; font-weight: 700; color: #166534; display: flex; align-items: center; gap: 6px;">
-                                        <span>📊 พรีวิวข้อมูลก่อนนำเข้า (ตรวจพบ):</span>
+                                        <span>พรีวิวข้อมูลก่อนนำเข้า (ตรวจพบ):</span>
                                         <span id="admin-student-preview-count-badge" style="background: #dcfce7; color: #15803d; font-size: 10px; padding: 2px 8px; border-radius: 12px; font-weight: 700;">0 รายการ</span>
                                     </div>
                                     <button type="button" onclick="clearAdminStudentFile()" style="border: none; background: none; color: #ef4444; font-size: 10.5px; cursor: pointer; text-decoration: underline;">
@@ -2786,7 +2786,7 @@
                             </div>
                             <div style="display: flex; gap: 8px;">
                                 <button type="button" class="btn-primary" style="flex: 1; background-color: #059669; font-weight: 700;" onclick="saveAdvisorNewStudentConfirmed()">
-                                    ✓ ยืนยันบันทึกเพิ่มนิสิตเข้าสู่ระบบ
+                                    ยืนยันบันทึกเพิ่มนิสิตเข้าสู่ระบบ
                                 </button>
                                 <button type="button" class="btn-primary btn-secondary" onclick="backToAdvisorManualInput()">
                                     ← กลับไปแก้ไข
@@ -2944,7 +2944,7 @@
 
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                         <div style="font-size: 12px; font-weight: 700; color: #1e293b; display: flex; align-items: center; gap: 6px;">
-                            <span>📋 รายชื่อนิสิตที่เพิ่งเพิ่มเข้าสู่ระบบ:</span>
+                            <span>รายชื่อนิสิตที่เพิ่งเพิ่มเข้าสู่ระบบ:</span>
                         </div>
                         <input type="text" id="post-add-search-input" placeholder="ค้นหารายชื่อ / รหัส..." oninput="filterPostAddPreviewTable(this.value)" style="padding: 4px 8px; font-size: 11px; border: 1px solid var(--border-color); border-radius: 6px; width: 180px;">
                     </div>
@@ -3756,7 +3756,7 @@
                     <div style="background: #ffffff; border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
                         <div style="padding: 8px 12px; background: #f8fafc; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
                             <div style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 240px; max-width: 360px;">
-                                <input type="text" placeholder="🔍 ค้นหาด้วยชื่อ, รหัส, หมู่เรียน (เช่น 801), อาจารย์..." value="${adminStudentSearchQuery}" oninput="onAdminStudentSearch(this.value)" style="width: 100%; padding: 6px 10px; font-size: 11.5px; border-radius: 6px; border: 1px solid var(--border-color); background: white;">
+                                <input type="text" placeholder="ค้นหาด้วยชื่อ, รหัส, หมู่เรียน (เช่น 801), อาจารย์..." value="${adminStudentSearchQuery}" oninput="onAdminStudentSearch(this.value)" style="width: 100%; padding: 6px 10px; font-size: 11.5px; border-radius: 6px; border: 1px solid var(--border-color); background: white;">
                             </div>
                             <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
                                 <div style="display: flex; align-items: center; gap: 6px;">
@@ -4708,7 +4708,7 @@
             const label = document.getElementById('adv-student-dropzone-label');
             if (label) {
                 const sizeKb = (file.size / 1024).toFixed(1);
-                label.innerHTML = `📄 <strong>${file.name}</strong> (${sizeKb} KB) <span style="color: #059669; font-size: 11px;">(คลิกเพื่อเปลี่ยนไฟล์)</span>`;
+                label.innerHTML = `<strong>${file.name}</strong> (${sizeKb} KB) <span style="color: #059669; font-size: 11px;">(คลิกเพื่อเปลี่ยนไฟล์)</span>`;
             }
 
             const reader = new FileReader();
@@ -5055,7 +5055,7 @@
 
             if (prevEmailStatus) {
                 if (sendEmail) {
-                    prevEmailStatus.innerHTML = '<span style="color: #16a34a; font-weight: 700;">✓ ส่งอีเมลแจ้งรหัสผ่านแรกเข้าทันที</span>';
+                    prevEmailStatus.innerHTML = '<span style="color: #16a34a; font-weight: 700;">ส่งอีเมลแจ้งรหัสผ่านแรกเข้าทันที</span>';
                 } else {
                     prevEmailStatus.innerHTML = '<span style="color: #64748b;">ไม่ส่งอีเมล (นิสิตใช้รหัสนิสิตเข้าสู่ระบบได้เอง)</span>';
                 }
@@ -5631,10 +5631,10 @@
                         </div>
                         <div style="display: flex; gap: 6px;">
                             <button type="button" class="btn-primary" style="padding: 5px 10px; font-size: 10.5px; background-color: #2563eb;" onclick="downloadDocFile('${doc.id}')">
-                                📥 ดาวน์โหลด/ดูไฟล์
+                                ดาวน์โหลด/ดูไฟล์
                             </button>
                             <button type="button" class="btn-primary" style="padding: 5px 10px; font-size: 10.5px; background-color: #059669;" onclick="quickApproveDoc('${doc.id}', '${std.id}')">
-                                ✔ ตรวจรับ
+                                ตรวจรับเอกสาร
                             </button>
                             <button type="button" class="btn-primary btn-danger" style="padding: 5px 8px; font-size: 10.5px;" onclick="quickRejectDoc('${doc.id}', '${std.id}')">
                                 ตีกลับ
@@ -5645,7 +5645,7 @@
                 });
             } else {
                 if (unsubmittedList.length === 0) {
-                    body.innerHTML = `<div style="text-align: center; color: #059669; font-size: 11.5px; font-weight: 700; padding: 20px;">🎉 ยอดเยี่ยม! นิสิตทุกคนส่งเอกสารครบถ้วนแล้ว</div>`;
+                    body.innerHTML = `<div style="text-align: center; color: #059669; font-size: 11.5px; font-weight: 700; padding: 20px;">นิสิตทุกคนส่งเอกสารครบถ้วนเรียบร้อยแล้ว</div>`;
                     return;
                 }
                 unsubmittedList.forEach(std => {
@@ -5965,13 +5965,13 @@
                         <!-- Pill Details -->
                         <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; font-size: 10.5px;">
                             <span style="background: #f0fdf4; color: #166534; padding: 2px 7px; border-radius: 4px; border: 1px solid #bbf7d0;">
-                                ✔ ตรวจรับ: <strong>${approvedCount}</strong>
+                                ตรวจรับแล้ว: <strong>${approvedCount}</strong>
                             </span>
                             <span style="background: #fffbeb; color: #92400e; padding: 2px 7px; border-radius: 4px; border: 1px solid #fde68a;">
-                                ⏳ รอตรวจ: <strong>${pendingCount}</strong>
+                                รอตรวจ: <strong>${pendingCount}</strong>
                             </span>
                             <span style="background: #fef2f2; color: #991b1b; padding: 2px 7px; border-radius: 4px; border: 1px solid #fecaca;">
-                                ✖ ยังไม่ส่ง: <strong>${unsubmittedCount}</strong>
+                                ยังไม่ส่ง: <strong>${unsubmittedCount}</strong>
                             </span>
                         </div>
 
@@ -6070,11 +6070,11 @@
                         const isApproved = doc.status === 'ครบถ้วน' || doc.status === 'ตรวจรับแล้ว';
                         if (isApproved) {
                             return `<td style="padding: 8px; text-align: center;">
-                                <span title="ตรวจรับแล้ว (${doc.docType})" onclick="openAssignmentSubmittersModal('${asg.id}', 'all_my_sections')" style="display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: #dcfce7; color: #15803d; font-size: 12px; font-weight: bold; cursor: pointer;">✔</span>
+                                <span title="ตรวจรับแล้ว (${doc.docType})" onclick="openAssignmentSubmittersModal('${asg.id}', 'all_my_sections')" style="display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: #dcfce7; color: #15803d; font-size: 12px; font-weight: bold; cursor: pointer;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
                             </td>`;
                         } else {
                             return `<td style="padding: 8px; text-align: center;">
-                                <span title="ส่งแล้ว - รอตรวจ (${doc.docType})" onclick="openAssignmentSubmittersModal('${asg.id}', 'all_my_sections')" style="display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: #fef3c7; color: #b45309; font-size: 11px; font-weight: bold; cursor: pointer;">⏳</span>
+                                <span title="ส่งแล้ว - รอตรวจ (${doc.docType})" onclick="openAssignmentSubmittersModal('${asg.id}', 'all_my_sections')" style="display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: #fef3c7; color: #b45309; font-size: 11px; font-weight: bold; cursor: pointer;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></span>
                             </td>`;
                         }
                     } else {
@@ -6142,7 +6142,7 @@
                 const file = fileInput.files[0];
                 const sizeMb = (file.size / (1024 * 1024)).toFixed(2);
                 if (nameDisplay) {
-                    nameDisplay.textContent = `📄 ${file.name} (${sizeMb} MB)`;
+                    nameDisplay.textContent = `${file.name} (${sizeMb} MB)`;
                     nameDisplay.style.color = '#0f766e';
                     nameDisplay.style.fontWeight = '600';
                     nameDisplay.style.fontStyle = 'normal';
@@ -6308,16 +6308,16 @@
                 if (submitted) {
                     const st = submitted.status || 'รอตรวจ';
                     if (st === 'ตรวจรับแล้ว' || st === 'ครบถ้วน') {
-                        statusBadge = `<span class="status-badge badge-success" style="font-size: 11px; padding: 4px 8px;">✔ ตรวจรับแล้ว</span>`;
+                        statusBadge = `<span class="status-badge badge-success" style="font-size: 11px; padding: 4px 8px;">ตรวจรับแล้ว</span>`;
                     } else if (st === 'ต้องแก้ไข') {
-                        statusBadge = `<span class="status-badge badge-danger" style="font-size: 11px; padding: 4px 8px;">⚠️ ส่งแล้ว (ต้องแก้ไข)</span>`;
+                        statusBadge = `<span class="status-badge badge-danger" style="font-size: 11px; padding: 4px 8px;">ส่งแล้ว (ต้องแก้ไข)</span>`;
                     } else {
-                        statusBadge = `<span class="status-badge badge-warning" style="background-color: #fef3c7; color: #b45309; font-size: 11px; padding: 4px 8px;">🕒 ส่งแล้ว (รออาจารย์ตรวจ)</span>`;
+                        statusBadge = `<span class="status-badge badge-warning" style="background-color: #fef3c7; color: #b45309; font-size: 11px; padding: 4px 8px;">ส่งแล้ว (รออาจารย์ตรวจ)</span>`;
                     }
                 } else if (isPastDue) {
-                    statusBadge = `<span class="status-badge badge-danger" style="font-size: 11px; padding: 4px 8px;">⚠️ ยังไม่ส่ง (เลยกำหนด)</span>`;
+                    statusBadge = `<span class="status-badge badge-danger" style="font-size: 11px; padding: 4px 8px;">ยังไม่ส่ง (เลยกำหนด)</span>`;
                 } else {
-                    statusBadge = `<span class="status-badge badge-warning" style="font-size: 11px; padding: 4px 8px;">⏳ ยังไม่ส่ง</span>`;
+                    statusBadge = `<span class="status-badge badge-warning" style="font-size: 11px; padding: 4px 8px;">ยังไม่ส่ง</span>`;
                 }
 
                 let uploadActionHtml = '';
@@ -6338,16 +6338,16 @@
                                 </div>
                                 <div style="display: flex; align-items: center; gap: 6px;">
                                     <button type="button" class="btn-secondary" style="padding: 5px 10px; font-size: 11px; background: #ffffff; border: 1px solid #86efac; color: #166534; border-radius: 6px;" onclick="downloadDocFile('${submitted.id}')">
-                                        📥 ดาวน์โหลดดูไฟล์
+                                        ดาวน์โหลดดูไฟล์
                                     </button>
                                     <button type="button" class="btn-primary" style="padding: 5px 12px; font-size: 11px; background-color: #0f766e; border-radius: 6px;" onclick="toggleAsgReupload('${asg.id}')">
-                                        🔄 แนบส่งไฟล์ใหม่/แก้ไข
+                                        แนบส่งไฟล์ใหม่/แก้ไข
                                     </button>
                                 </div>
                             </div>
                             ${submitted.feedback ? `
                                 <div style="margin-top: 8px; padding: 6px 10px; background: #ffffff; border-radius: 6px; border: 1px dashed #16a34a; font-size: 11px; color: #15803d;">
-                                    <strong>💬 ข้อคิดเห็นจากอาจารย์:</strong> ${submitted.feedback}
+                                    <strong>ข้อคิดเห็นจากอาจารย์:</strong> ${submitted.feedback}
                                 </div>
                             ` : ''}
                         </div>
@@ -6361,13 +6361,13 @@
                             <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
                                 <div style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 220px;">
                                     <label for="asg-file-${asg.id}" class="btn-secondary" style="cursor: pointer; padding: 6px 12px; font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; margin: 0; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; color: #334155;">
-                                        📁 เลือกไฟล์ใหม่...
+                                        เลือกไฟล์ใหม่...
                                     </label>
                                     <input type="file" id="asg-file-${asg.id}" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg" style="display: none;" onchange="onAsgFileSelected('${asg.id}')">
                                     <span id="asg-filename-display-${asg.id}" style="font-size: 11px; color: #64748b; font-style: italic; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 220px;">ยังไม่ได้เลือกไฟล์</span>
                                 </div>
                                 <button type="button" id="asg-submit-btn-${asg.id}" class="btn-primary" style="padding: 6px 14px; font-size: 11px; background: #94a3b8; pointer-events: none; border-radius: 6px; font-weight: 600; display: flex; align-items: center; gap: 5px;" onclick="submitAssignmentFileDirect('${asg.id}', '${docTypeParam}')">
-                                    📤 อัปโหลดส่งงาน
+                                    อัปโหลดส่งงาน
                                 </button>
                             </div>
                         </div>
@@ -6382,7 +6382,7 @@
                             <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
                                 <div style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 220px;">
                                     <label for="asg-file-${asg.id}" class="btn-secondary" style="cursor: pointer; padding: 7px 12px; font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; margin: 0; background: #ffffff; border: 1px solid #0f766e; border-radius: 6px; color: #0f766e;">
-                                        📁 เลือกไฟล์เอกสาร...
+                                        เลือกไฟล์เอกสาร...
                                     </label>
                                     <input type="file" id="asg-file-${asg.id}" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg" style="display: none;" onchange="onAsgFileSelected('${asg.id}')">
                                     <span id="asg-filename-display-${asg.id}" style="font-size: 11px; color: #64748b; font-style: italic; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 240px;">ยังไม่ได้เลือกไฟล์ (PDF, Word, รูปถ่าย)</span>
@@ -6803,11 +6803,11 @@
                 }
 
                 if (!foundMatch) {
-                    alert(`❌ สแกนล้มเหลว: ไม่พบนิสิตรหัส "${decodedText}" ในความดูแลของคุณ`);
+                    alert(`สแกนล้มเหลว: ไม่พบนิสิตรหัส "${decodedText}" ในความดูแลของคุณ`);
                     return;
                 }
 
-                alert(`✅ สแกน QR Code สำเร็จ! รหัสที่ตรวจพบ: ${decodedText}`);
+                alert(`สแกน QR Code สำเร็จ! รหัสที่ตรวจพบ: ${decodedText}`);
                 processCheckinAndEval();
             };
 
@@ -7939,7 +7939,7 @@
                                 ${f.code || f.badge}
                             </span>
                             <span style="font-size: 10px; color: #64748b; font-weight: 600;">
-                                📄 ${f.pages}
+                                ${f.pages}
                             </span>
                         </div>
                         <div style="font-size: 13px; font-weight: 700; color: #1e293b; margin-bottom: 4px; line-height: 1.4;">

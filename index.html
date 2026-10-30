@@ -573,10 +573,10 @@
                 </div>
                 <div class="pass-rules" id="first-pass-rules-box">
                     <div class="pass-rules-title">กฎเงื่อนไขการตั้งรหัสผ่าน</div>
-                    <div id="first-rule-len" style="color: #dc2626;">&#10060; 1. ต้องมีอย่างน้อย 7 ตัวอักษร</div>
-                    <div id="first-rule-lang" style="color: #dc2626;">&#10060; 2. ต้องใช้ตัวอักษรภาษาอังกฤษเท่านั้น</div>
-                    <div id="first-rule-case" style="color: #dc2626;">&#10060; 3. ต้องมีตัวอักษรพิมพ์เล็กและพิมพ์ใหญ่</div>
-                    <div id="first-rule-spec" style="color: #dc2626;">&#10060; 4. ห้ามใช้อักขระพิเศษ (เช่น !@#$%&amp;*)</div>
+                    <div id="first-rule-len" style="color: #dc2626;">• 1. ต้องมีอย่างน้อย 7 ตัวอักษร</div>
+                    <div id="first-rule-lang" style="color: #dc2626;">• 2. ต้องใช้ตัวอักษรภาษาอังกฤษเท่านั้น</div>
+                    <div id="first-rule-case" style="color: #dc2626;">• 3. ต้องมีตัวอักษรพิมพ์เล็กและพิมพ์ใหญ่</div>
+                    <div id="first-rule-spec" style="color: #dc2626;">• 4. ห้ามใช้อักขระพิเศษ (เช่น !@#$%&amp;*)</div>
                 </div>
             </div>
 
@@ -671,7 +671,7 @@
             const descEl = document.getElementById('otp-modal-desc');
 
             // แสดงสถานะ "กำลังส่ง..."
-            if (descEl) descEl.innerHTML = `⏳ กำลังส่งรหัส OTP ไปยัง <strong>${targetEmail}</strong>...`;
+            if (descEl) descEl.innerHTML = `กำลังส่งรหัส OTP ไปยัง <strong>${targetEmail}</strong>...`;
 
             setTimeout(() => {
                 const inp = document.getElementById('otp-input');
@@ -683,11 +683,11 @@
 
             if (supabaseOtpSent) {
                 if (descEl) {
-                    descEl.innerHTML = `✅ ส่งรหัส OTP ไปยัง <strong>${targetEmail}</strong> เรียบร้อยแล้ว กรุณาตรวจสอบกล่องจดหมาย (และโฟลเดอร์ Spam)`;
+                    descEl.innerHTML = `ส่งรหัส OTP ไปยัง <strong>${targetEmail}</strong> เรียบร้อยแล้ว กรุณาตรวจสอบกล่องจดหมาย (และโฟลเดอร์ Spam)`;
                 }
             } else {
                 if (descEl) {
-                    descEl.innerHTML = `📧 ไม่สามารถส่ง OTP ผ่านอีเมลได้ในขณะนี้ กรุณากด "ส่งรหัส OTP ใหม่อีกครั้ง"`;
+                    descEl.innerHTML = `ไม่สามารถส่ง OTP ผ่านอีเมลได้ในขณะนี้ กรุณากด "ส่งรหัส OTP ใหม่อีกครั้ง"`;
                 }
             }
         }
@@ -702,7 +702,7 @@
         async function resendOtp() {
             if (!pendingOtpUser) return;
             const descEl = document.getElementById('otp-modal-desc');
-            if (descEl) descEl.innerHTML = `<span style="color:#64748b;">⏳ กำลังส่งรหัส OTP ใหม่...</span>`;
+            if (descEl) descEl.innerHTML = `<span style="color:#64748b;">กำลังส่งรหัส OTP ใหม่...</span>`;
             await showOtpModal(pendingOtpUser);
         }
 
@@ -777,11 +777,11 @@
             if (isValid) {
                 el.style.color = '#15803d';
                 el.style.fontWeight = '600';
-                el.innerHTML = `&#10003; ${text}`;
+                el.innerHTML = `✓ ${text}`;
             } else {
                 el.style.color = '#dc2626';
                 el.style.fontWeight = '400';
-                el.innerHTML = `&#10060; ${text}`;
+                el.innerHTML = `• ${text}`;
             }
         }
 
@@ -831,13 +831,13 @@
                 if (!res.isLangValid) failedRules.push('ข้อ 2 (ตัวอักษรภาษาอังกฤษเท่านั้น)');
                 if (!res.isCaseValid) failedRules.push('ข้อ 3 (พิมพ์เล็กและพิมพ์ใหญ่)');
                 if (!res.isSpecValid) failedRules.push('ข้อ 4 (ห้ามใช้อักขระพิเศษ)');
-                errBox.innerHTML = `&#9888;&#65039; รหัสผ่านไม่ผ่านเงื่อนไข: ${failedRules.join(' | ')}`;
+                errBox.innerHTML = `รหัสผ่านไม่ผ่านเงื่อนไข: ${failedRules.join(' | ')}`;
                 errBox.style.display = 'block';
                 return;
             }
 
             if (newPass !== confirmPass) {
-                errBox.textContent = '&#9888;&#65039; รหัสผ่านใหม่และการยืนยันไม่ตรงกัน';
+                errBox.textContent = 'รหัสผ่านใหม่และการยืนยันไม่ตรงกัน';
                 errBox.style.display = 'block';
                 return;
             }
