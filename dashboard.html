@@ -1935,11 +1935,7 @@
                                     <span>รายชื่อนิสิตในหมู่เรียน</span>
                                     <span id="adv-badge-std-count" style="background: #ecfdf5; color: #047857; padding: 2px 7px; border-radius: 10px; font-size: 10px; font-weight: 700;">0</span>
                                 </button>
-                                <button type="button" id="adv-subtab-btn-assignments" onclick="switchAdvisorClassroomTab('assignments')" style="padding: 8px 16px; font-size: 12px; font-weight: 700; border: none; background: none; border-bottom: 3px solid transparent; color: #64748b; cursor: pointer; display: flex; align-items: center; gap: 6px;">
-                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-                                    <span>กำหนดส่งเอกสาร & สรุปภาพรวม</span>
-                                    <span id="adv-badge-asg-count" style="background: #eff6ff; color: #1d4ed8; padding: 2px 7px; border-radius: 10px; font-size: 10px; font-weight: 700;">6</span>
-                                </button>
+
                             </div>
 
                             <!-- Tab Content 1: รายชื่อนิสิตในหมู่เรียน -->
@@ -1955,39 +1951,81 @@
                                 </div>
                             </div>
 
-                            <!-- Tab Content 2: กำหนดส่งเอกสาร & สรุปภาพรวม (Assignments & Overview) -->
-                            <div id="adv-content-assignments" style="display: none;">
-                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
-                                    <div style="font-size: 11px; color: var(--text-muted);">
-                                        กำหนดการส่งเอกสารและสรุปภาพรวมความคืบหน้าของนิสิตในหมู่เรียน
-                                    </div>
-                                    <button class="btn-primary" style="padding: 6px 12px; font-size: 11px; background-color: #2563eb; display: flex; align-items: center; gap: 6px;" onclick="openNewAssignmentModal()">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                                        <span>+ มอบหมายงาน / กำหนดส่งเอกสารใหม่</span>
-                                    </button>
-                                </div>
-
-                                <!-- สรุปภาพรวมของหมู่เรียน (Section Submission Overview) -->
-                                <div id="adv-assignments-summary-banner" style="background: linear-gradient(135deg, #eff6ff 0%, #f0fdf4 100%); border: 1px solid #bfdbfe; border-radius: 10px; padding: 12px 16px; margin-bottom: 14px;">
-                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                                        <span style="font-size: 12.5px; font-weight: 700; color: #1e3a8a;">สรุปภาพรวมการส่งเอกสารสหกิจศึกษา</span>
-                                        <span id="adv-asg-overall-percent" style="font-size: 13px; font-weight: 800; color: #047857;">0%</span>
-                                    </div>
-                                    <div style="width: 100%; height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; margin-bottom: 6px;">
-                                        <div id="adv-asg-overall-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #3b82f6, #10b981); transition: width 0.4s ease;"></div>
-                                    </div>
-                                    <div id="adv-asg-overall-desc" style="font-size: 11px; color: #475569;">
-                                        กำลังคำนวณสถิติภาพรวม...
-                                    </div>
-                                </div>
-
-                                <!-- รายการการมอบหมายงานทั้งหมด -->
-                                <div id="adv-assignments-list-container" style="display: flex; flex-direction: column; gap: 10px;">
-                                    <!-- Rendered dynamically by renderAdvisorAssignments() -->
-                                </div>
-                            </div>
                         </section>
                     </div>
+                </div>
+
+                <!-- หน้า: กำหนดส่งเอกสาร (Advisor Assignments Page) -->
+                <div id="sec-advisor-assignments" class="page-content" style="display:none;">
+                    <section class="welcome-banner" style="margin-bottom: 14px;">
+                        <div class="welcome-text">
+                            <h2>กำหนดส่งเอกสาร</h2>
+                            <p id="adv-asg-page-subtitle">จัดการและติดตามการส่งเอกสารสหกิจศึกษาของนิสิตในความดูแล</p>
+                        </div>
+                        <span class="role-badge" style="background: rgba(255,255,255,0.22); color: #fff; font-weight: 700;">อาจารย์นิเทศ</span>
+                    </section>
+
+                    <section class="section-card">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+                            <div>
+                                <div class="section-title" style="margin-bottom: 4px;">รายการการมอบหมายงาน</div>
+                                <div style="font-size: 11px; color: var(--text-muted);">กำหนดการส่งเอกสารและสรุปภาพรวมความคืบหน้าของนิสิตในหมู่เรียน</div>
+                            </div>
+                            <button class="btn-primary" style="padding: 6px 12px; font-size: 11px; background-color: #2563eb; display: flex; align-items: center; gap: 6px;" onclick="openNewAssignmentModal()">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                                <span>+ มอบหมายงาน / กำหนดส่งเอกสารใหม่</span>
+                            </button>
+                        </div>
+
+                        <!-- สรุปภาพรวมของหมู่เรียน (Section Submission Overview) -->
+                        <div id="adv-assignments-summary-banner" style="background: linear-gradient(135deg, #eff6ff 0%, #f0fdf4 100%); border: 1px solid #bfdbfe; border-radius: 10px; padding: 12px 16px; margin-bottom: 14px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                <span style="font-size: 12.5px; font-weight: 700; color: #1e3a8a;">สรุปภาพรวมการส่งเอกสารสหกิจศึกษา</span>
+                                <span id="adv-asg-overall-percent" style="font-size: 13px; font-weight: 800; color: #047857;">0%</span>
+                            </div>
+                            <div style="width: 100%; height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; margin-bottom: 6px;">
+                                <div id="adv-asg-overall-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #3b82f6, #10b981); transition: width 0.4s ease;"></div>
+                            </div>
+                            <div id="adv-asg-overall-desc" style="font-size: 11px; color: #475569;">
+                                กำลังคำนวณสถิติภาพรวม...
+                            </div>
+                        </div>
+
+                        <!-- รายการการมอบหมายงานทั้งหมด -->
+                        <div id="adv-assignments-list-container" style="display: flex; flex-direction: column; gap: 10px;">
+                            <!-- Rendered dynamically by renderAdvisorAssignments() -->
+                        </div>
+                    </section>
+                </div>
+
+                <!-- หน้า: รูปหลักฐานการเข้าพบ (Advisor Photo Evidence Page) -->
+                <div id="sec-advisor-photos" class="page-content" style="display:none;">
+                    <section class="welcome-banner" style="margin-bottom: 14px; background: linear-gradient(135deg, #1e3a5f 0%, #1e40af 100%);">
+                        <div class="welcome-text">
+                            <h2>รูปหลักฐานการเข้าพบ</h2>
+                            <p>บันทึกและดูรูปถ่ายหลักฐานการออกตรวจนิเทศงานของนิสิตในความดูแล</p>
+                        </div>
+                        <span class="role-badge" style="background: rgba(255,255,255,0.22); color: #fff; font-weight: 700;">อาจารย์นิเทศ</span>
+                    </section>
+
+                    <section class="section-card">
+                        <div class="section-header" style="margin-bottom: 12px;">
+                            <div class="section-title">รูปหลักฐานการเข้าพบนิสิต</div>
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <select id="adv-photo-sec-select" onchange="renderAdvisorPhotosPage()" style="padding: 5px 10px; font-size: 11px; border-radius: 6px; border: 1px solid var(--border-color); background: #ffffff; font-weight: 600;">
+                                    <option value="all">ทุกหมู่เรียน</option>
+                                    <option value="หมู่ 700">หมู่ 700</option>
+                                    <option value="หมู่ 800">หมู่ 800</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 14px;">
+                            คลิกที่นิสิตเพื่อดูหรืออัปโหลดรูปภาพหลักฐานการออกตรวจนิเทศงาน
+                        </div>
+                        <div id="adv-photos-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px;">
+                            <!-- Rendered dynamically by renderAdvisorPhotosPage() -->
+                        </div>
+                    </section>
                 </div>
 
                 <!-- หน้า 1.3: ปฏิทินนัดหมาย -->
@@ -2248,40 +2286,6 @@
                         </div>
                     </section>
 
-                    <!-- ฟอร์มอัปโหลดเอกสาร -->
-                    <section class="section-card">
-                        <div class="section-header">
-                            <div class="section-title">อัปโหลดเอกสารสหกิจศึกษาใหม่</div>
-                        </div>
-                        <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 10px;">
-                            แนบไฟล์เอกสาร (PDF / Word / Image) เพื่อส่งให้อาจารย์ที่ปรึกษาตรวจรับ
-                        </div>
-
-                        <div style="display: flex; flex-direction: column; gap: 8px;">
-                            <div>
-                                <label style="font-size: 11px; font-weight: 600; color: var(--primary-color);">ประเภทเอกสาร:</label>
-                                <select id="std-doc-type-select" style="width: 100%; padding: 7px; font-size: 12px; border-radius: 6px; border: 1px solid var(--border-color); background-color: #f8fafc;">
-                                    <option value="แบบฟอร์มยืนยันสัดส่วนการทำงานร่วมกัน (Contribution Distribution)">แบบฟอร์มยืนยันสัดส่วนการทำงานร่วมกัน (Contribution Distribution)</option>
-                                    <option value="Form 02 - แบบแจ้งยืนยันการนิเทศงานนิสิตสหกิจศึกษา">Form 02 - แบบแจ้งยืนยันการนิเทศงานนิสิตสหกิจศึกษา</option>
-                                    <option value="Form 04 - แบบแจ้งรายละเอียดที่พักระหว่างการปฏิบัติงานสหกิจศึกษา">Form 04 - แบบแจ้งรายละเอียดที่พักระหว่างการปฏิบัติงานสหกิจศึกษา</option>
-                                    <option value="Form 05 - แบบแจ้งรายละเอียดงาน ตำแหน่งงาน พนักงานที่ปรึกษา">Form 05 - แบบแจ้งรายละเอียดงาน ตำแหน่งงาน พนักงานที่ปรึกษา</option>
-                                    <option value="Form 06 - รายงานการปฏิบัติงานประจำสัปดาห์ (Weekly Report)">Form 06 - รายงานการปฏิบัติงานประจำสัปดาห์ (Weekly Report)</option>
-                                    <option value="Form 07 - แบบบันทึกการนิเทศงานสหกิจศึกษา (Supervision Record)">Form 07 - แบบบันทึกการนิเทศงานสหกิจศึกษา (Supervision Record)</option>
-                                    <option value="Form 10 - แบบประเมินผลการปฏิบัติงานของนิสิต (Student Evaluation)">Form 10 - แบบประเมินผลการปฏิบัติงานของนิสิต (Student Evaluation)</option>
-                                    <option value="Form 11 - รายงานสรุปผลการปฏิบัติงานสหกิจศึกษา (Final Report)">Form 11 - รายงานสรุปผลการปฏิบัติงานสหกิจศึกษา (Final Report)</option>
-                                </select>
-                            </div>
-
-                            <div>
-                                <label style="font-size: 11px; font-weight: 600; color: var(--primary-color);">เลือกไฟล์เอกสาร:</label>
-                                <input type="file" id="std-doc-file-input" accept=".pdf,.doc,.docx,.png,.jpg" style="width: 100%; padding: 6px; font-size: 11px; border: 1px solid var(--border-color); border-radius: 6px; background-color: #ffffff;">
-                            </div>
-
-                            <button class="btn-primary" style="margin-top: 4px; padding: 10px; background-color: var(--primary-color);" onclick="handleStudentDocUpload()">
-                                อัปโหลดส่งเอกสารให้อาจารย์
-                            </button>
-                        </div>
-                    </section>
 
                     <!-- (ย้ายการติดตามโปรเจคไปหมวดใหม่แล้ว) -->
                     <!-- รายการเอกสารทั้งหมด -->
@@ -5355,7 +5359,7 @@
                 createdAt: new Date().toISOString()
             };
 
-            asgs.push(newAsg);
+            asgs.unshift(newAsg);
             saveCoopAssignments(asgs);
             closeModal('modal-advisor-new-assignment');
             renderAdvisorAssignments();
@@ -6789,6 +6793,62 @@
             }
         }
 
+        function renderAdvisorPhotosPage() {
+            const grid = document.getElementById('adv-photos-grid');
+            if (!grid) return;
+            grid.innerHTML = '';
+
+            loadDynamicStudentsData();
+            const secFilter = document.getElementById('adv-photo-sec-select') ? document.getElementById('adv-photo-sec-select').value : 'all';
+
+            const sections = secFilter === 'all' ? ['หมู่ 700', 'หมู่ 800'] : [secFilter];
+            let hasAny = false;
+
+            sections.forEach(sec => {
+                const list = studentsData[sec] || [];
+                list.forEach(std => {
+                    hasAny = true;
+                    const hasPhoto = std.photo && std.photo.length > 0;
+                    const card = document.createElement('div');
+                    card.style.cssText = 'border: 1px solid var(--border-color); border-radius: 10px; overflow: hidden; cursor: pointer; transition: box-shadow 0.2s;';
+                    card.onmouseover = () => { card.style.boxShadow = '0 4px 12px rgba(0,0,0,0.12)'; };
+                    card.onmouseout = () => { card.style.boxShadow = ''; };
+                    card.onclick = () => {
+                        currentSelectedClassroom = sec;
+                        openPhotoModal(std.id, std.name);
+                    };
+
+                    const imgArea = document.createElement('div');
+                    imgArea.style.cssText = 'width: 100%; height: 130px; background: #f1f5f9; display: flex; align-items: center; justify-content: center; overflow: hidden;';
+
+                    if (hasPhoto) {
+                        const img = document.createElement('img');
+                        img.src = std.photo;
+                        img.style.cssText = 'width: 100%; height: 100%; object-fit: cover;';
+                        imgArea.appendChild(img);
+                    } else {
+                        imgArea.innerHTML = '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>';
+                    }
+
+                    const info = document.createElement('div');
+                    info.style.cssText = 'padding: 8px 10px;';
+                    info.innerHTML = `<div style="font-size: 11px; font-weight: 700; color: var(--primary-color); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${std.name}</div>
+                        <div style="font-size: 10px; color: var(--text-muted);">${std.id} | ${sec}</div>
+                        <div style="font-size: 10px; margin-top: 4px; color: ${hasPhoto ? '#059669' : '#94a3b8'}; font-weight: 600;">${hasPhoto ? 'มีรูปหลักฐาน' : 'ยังไม่มีรูป'}</div>`;
+
+                    card.appendChild(imgArea);
+                    card.appendChild(info);
+                    grid.appendChild(card);
+                });
+            });
+
+            if (!hasAny) {
+                grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 24px; color: var(--text-muted); font-size: 12px;">ยังไม่มีข้อมูลนิสิตในระบบ</div>';
+            }
+        }
+
+
+
         let html5QrCodeInstance = null;
 
         function startRealCameraScanner() {
@@ -8161,6 +8221,12 @@
                         { id: 'sec-advisor-calendar', page: 'sec-advisor-calendar', text: 'ปฏิทินนัดหมาย', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>' },
                         { id: 'sec-advisor-qr', page: 'sec-advisor-qr', text: 'GPS Check-in / QR', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>' },
                     ]},
+                    { label: 'กำหนดส่งเอกสาร', items: [
+                        { id: 'sec-advisor-assignments', page: 'sec-advisor-assignments', text: 'กำหนดส่งเอกสาร', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>' },
+                    ]},
+                    { label: 'รูปหลักฐานการเข้าพบ', items: [
+                        { id: 'sec-advisor-photos', page: 'sec-advisor-photos', text: 'รูปหลักฐานการเข้าพบ', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>' },
+                    ]},
                 ],
                 student: [
                     { label: 'สหกิจศึกษา', items: [
@@ -8211,6 +8277,14 @@
             // Determine page to show
             const actualPageId = pageId || targetId;
             showPage(actualPageId, true);
+
+            // Trigger renders for dynamic pages
+            if (actualPageId === 'sec-advisor-assignments') {
+                setTimeout(() => { renderAdvisorAssignments(); }, 50);
+            }
+            if (actualPageId === 'sec-advisor-photos') {
+                setTimeout(() => { renderAdvisorPhotosPage(); }, 50);
+            }
 
             // If navigating within a page (e.g. admin cards), smoothly scroll to that element
             if (targetId && targetId !== actualPageId) {
