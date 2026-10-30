@@ -7121,9 +7121,19 @@
                 
                 const hasEvent = apps.some(a => {
                     if (!a.dateStr) return false;
-                    if (a.dateStr.includes(fullDateStr)) return true;
-                    const m = a.dateStr.match(/^(\d+)\s+([^\s]+)/);
-                    if (m && parseInt(m[1]) === day && m[2] === monthName) return true;
+                    const cleanAppDate = String(a.dateStr).trim();
+                    if (cleanAppDate === fullDateStr) return true;
+                    const m = cleanAppDate.match(/^(\d+)\s+([^\s]+)(?:\s+(\d+))?/);
+                    if (m) {
+                        const appDay = parseInt(m[1], 10);
+                        const appMonth = m[2];
+                        const appYear = m[3] ? parseInt(m[3], 10) : null;
+                        if (appDay === day && appMonth === monthName) {
+                            if (!appYear || appYear === beYear || appYear === currentCalYear) {
+                                return true;
+                            }
+                        }
+                    }
                     return false;
                 });
 
