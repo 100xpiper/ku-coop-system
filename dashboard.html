@@ -293,7 +293,7 @@
                     emailNotice.style.background = '#f0fdf4';
                     emailNotice.style.borderColor = '#bbf7d0';
                     emailNotice.style.color = '#15803d';
-                    if (emailNoticeText) emailNoticeText.textContent = 'ระบบได้ส่งอีเมลแจ้งข้อมูลเข้าสู่ระบบและรหัสผ่านแรกเข้า (รหัสนิสิต) ไปยังอีเมลเคยูของนิสิตเรียบร้อยแล้ว';
+                    if (emailNoticeText) emailNoticeText.textContent = 'ระบบได้ส่งอีเมลแจ้งแรกเข้าใช้งาน (รหัสนิสิต) ไปยังอีเมลเคยูของนิสิตเรียบร้อยแล้ว';
                 } else {
                     emailNotice.style.display = 'flex';
                     emailNotice.style.background = '#f8fafc';
@@ -1946,7 +1946,7 @@
                             <div id="adv-content-students">
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
                                     <div style="font-size: 11px; color: var(--text-muted);">
-                                        คลิกเลือกนิสิตเพื่อตรวจเอกสาร บันทึกผลนิเทศ หรือ ส่งอีเมลแจ้งรหัสผ่านแรกเข้า
+                                        คลิกเลือกนิสิตเพื่อตรวจเอกสาร บันทึกผลนิเทศ หรือ ส่งอีเมลแจ้งแรกเข้าใช้งาน
                                     </div>
                                     <input type="text" id="adv-student-search-input" oninput="filterAdvisorStudentsList(this.value)" placeholder="ค้นหาชื่อ, รหัสนิสิต หรือ บริษัท..." style="padding: 6px 10px; font-size: 11px; border: 1px solid var(--border-color); border-radius: 6px; width: 220px; background: #ffffff;">
                                 </div>
@@ -2730,7 +2730,7 @@
                                     <label style="display: flex; align-items: flex-start; gap: 8px; font-size: 11.5px; color: #166534; cursor: pointer;">
                                         <input type="checkbox" id="adv-add-std-send-email" checked style="margin-top: 2px;">
                                         <div>
-                                            <strong>ส่งอีเมลแจ้งข้อมูลเข้าสู่ระบบ & รหัสผ่านแรกเข้าทันที</strong>
+                                            <strong>ส่งอีเมลแจ้งแรกเข้าใช้งานทันที</strong>
                                             <div style="font-size: 10.5px; color: #15803d; margin-top: 2px;">ระบบจะส่งรหัสผ่านแรกเข้า (รหัสนิสิต) พร้อมขั้นตอนการยืนยัน OTP ไปยังอีเมลเคยูของนิสิต</div>
                                         </div>
                                     </label>
@@ -2780,7 +2780,7 @@
                                     </div>
                                     <div style="display: flex; justify-content: space-between; padding-top: 2px;">
                                         <span style="color: #64748b;">การแจ้งเตือน:</span>
-                                        <span id="adv-prev-email-status" style="color: #16a34a; font-weight: 600;">ส่งอีเมลแจ้งรหัสผ่านแรกเข้า</span>
+                                        <span id="adv-prev-email-status" style="color: #16a34a; font-weight: 600;">ส่งอีเมลแจ้งแรกเข้าใช้งาน</span>
                                     </div>
                                 </div>
                             </div>
@@ -2888,7 +2888,7 @@
                             <label style="display: flex; align-items: flex-start; gap: 8px; font-size: 11px; color: #166534; cursor: pointer;">
                                 <input type="checkbox" id="adv-import-send-email" checked style="margin-top: 2px;">
                                 <div>
-                                    <strong>ส่งอีเมลแจ้งข้อมูลเข้าสู่ระบบ & รหัสผ่านแรกเข้าทันทีแก่นิสิตทุกคน</strong>
+                                    <strong>ส่งอีเมลแจ้งแรกเข้าใช้งานทันทีแก่นิสิตทุกคน</strong>
                                     <div style="font-size: 10px; color: #15803d; margin-top: 1px;">ระบบจะส่งรหัสผ่านแรกเข้า (รหัสนิสิต) ไปยังอีเมลเคยูของนิสิตแต่ละคนตามไฟล์</div>
                                 </div>
                             </label>
@@ -2968,7 +2968,7 @@
 
                     <div id="post-add-email-notice" style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; padding: 8px 12px; margin-top: 10px; font-size: 10.5px; color: #15803d; display: flex; align-items: center; gap: 6px;">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                        <span id="post-add-email-notice-text">ระบบได้ส่งอีเมลแจ้งข้อมูลเข้าสู่ระบบและรหัสผ่านแรกเข้า (รหัสนิสิต) ไปยังอีเมลเคยูของนิสิตเรียบร้อยแล้ว</span>
+                        <span id="post-add-email-notice-text">ระบบได้ส่งอีเมลแจ้งแรกเข้าใช้งาน (รหัสนิสิต) ไปยังอีเมลเคยูของนิสิตเรียบร้อยแล้ว</span>
                     </div>
 
                     <div style="display: flex; gap: 8px; margin-top: 14px; justify-content: flex-end;">
@@ -5055,7 +5055,7 @@
 
             if (prevEmailStatus) {
                 if (sendEmail) {
-                    prevEmailStatus.innerHTML = '<span style="color: #16a34a; font-weight: 700;">ส่งอีเมลแจ้งรหัสผ่านแรกเข้าทันที</span>';
+                    prevEmailStatus.innerHTML = '<span style="color: #16a34a; font-weight: 700;">ส่งอีเมลแจ้งแรกเข้าใช้งานทันที</span>';
                 } else {
                     prevEmailStatus.innerHTML = '<span style="color: #64748b;">ไม่ส่งอีเมล (นิสิตใช้รหัสนิสิตเข้าสู่ระบบได้เอง)</span>';
                 }
@@ -5181,20 +5181,38 @@
             return saveAdvisorNewStudentConfirmed();
         }
 
-        async function sendFirstLoginInviteToStudent(stdId, stdName, stdEmail) {
+        async function sendFirstLoginInviteToStudent(stdId, stdName, stdEmail, btn) {
             if (!stdEmail || !stdEmail.includes('@')) {
                 alert(`นิสิต ${stdName} ยังไม่มีอีเมลเคยูในระบบ`);
                 return;
             }
             const currentAdv = getCurrentAdvisorName();
-            const conf = confirm(`ต้องการส่งอีเมลแจ้งรหัสผ่านแรกเข้า (รหัสเริ่มต้น: ${stdId}) ไปที่ ${stdEmail} ใช่หรือไม่?`);
+            const conf = confirm(`ต้องการส่งอีเมลแจ้งแรกเข้าใช้งาน (รหัสเริ่มต้น: ${stdId}) ไปที่ ${stdEmail} ใช่หรือไม่?`);
             if (!conf) return;
 
-            if (typeof dispatchFirstLoginInviteEmail === 'function') {
-                await dispatchFirstLoginInviteEmail(stdEmail, stdName, stdId, currentAdv);
-                alert(`ระบบได้ส่งอีเมลแจ้งข้อมูลเข้าสู่ระบบและรหัสผ่านแรกเข้าถึง ${stdName} (${stdEmail}) เรียบร้อยแล้ว!`);
-            } else {
-                alert(`ส่งอีเมลแจ้งรหัสผ่านแรกเข้าถึง ${stdEmail} สำเร็จ`);
+            let originalHtml = '';
+            if (btn) {
+                originalHtml = btn.innerHTML;
+                btn.disabled = true;
+                btn.innerHTML = '<span>กำลังส่งอีเมล...</span>';
+            }
+
+            try {
+                if (typeof dispatchFirstLoginInviteEmail === 'function') {
+                    const res = await dispatchFirstLoginInviteEmail(stdEmail, stdName, stdId, currentAdv);
+                    if (res && res.success === false && res.error) {
+                        alert(`ไม่สามารถส่งอีเมลได้: ${res.error}`);
+                        return;
+                    }
+                    alert(`ระบบได้ส่งอีเมลแจ้งแรกเข้าใช้งานถึง ${stdName} (${stdEmail}) เรียบร้อยแล้ว`);
+                } else {
+                    alert(`ส่งอีเมลแจ้งแรกเข้าใช้งานถึง ${stdEmail} สำเร็จ`);
+                }
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = originalHtml;
+                }
             }
         }
 
@@ -6533,7 +6551,7 @@
                         </div>
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
                             <button class="btn-primary" style="padding: 6px; font-size: 11px; font-weight: 600; background-color: #0f766e; border-color: #0f766e;" onclick="openProjectTrackingModal('${std.id}', '${std.name}')">
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px; margin-bottom: 2px;"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg> ติดตามงาน
+                                ติดตามงาน
                             </button>
                             <button class="btn-primary btn-secondary" style="padding: 6px; font-size: 11px; font-weight: 600; border-color: #93c5fd; color: #1d4ed8; background-color: #eff6ff;" onclick="openMapForStudent('${std.id}')">
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px; margin-bottom: 2px;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> ดูพิกัดแผนที่
@@ -6544,9 +6562,8 @@
                             <button class="btn-primary btn-secondary" style="padding: 6px; font-size: 11px;" onclick="openPhotoModal('${std.id}', '${std.name}')">
                                 รูปหลักฐาน
                             </button>
-                            <button class="btn-primary" style="padding: 6px; font-size: 11px; font-weight: 600; grid-column: span 2; background-color: #4f46e5; border-color: #4f46e5; display: flex; align-items: center; justify-content: center; gap: 5px;" onclick="sendFirstLoginInviteToStudent('${std.id}', '${std.name}', '${std.email}')">
-                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-                                <span>ส่งอีเมลแจ้งรหัสผ่านแรกเข้า (@ku.th)</span>
+                            <button class="btn-primary" style="padding: 6px; font-size: 11px; font-weight: 600; grid-column: span 2; background-color: #4f46e5; border-color: #4f46e5; display: flex; align-items: center; justify-content: center; gap: 5px;" onclick="sendFirstLoginInviteToStudent('${std.id}', '${std.name}', '${std.email}', this)">
+                                <span>ส่งอีเมลแจ้งแรกเข้าใช้งาน</span>
                             </button>
                         </div>
                     </div>

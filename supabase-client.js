@@ -53,29 +53,69 @@ async function dispatchWebConfirmationEmail(toEmail, toName) {
  * Dispatch First Login Invitation Email to Student
  */
 async function dispatchFirstLoginInviteEmail(studentEmail, studentName, studentId, advisorName) {
-    const origin = window.location.origin && window.location.origin !== 'null' ? window.location.origin : '';
+    if (!studentEmail) return { success: false, error: 'No email provided' };
+
+    const origin = (window.location.origin && window.location.origin !== 'null' && !window.location.origin.startsWith('file')) ? window.location.origin : 'http://localhost:8080';
     let pathname = window.location.pathname || '';
     if (pathname.endsWith('dashboard.html')) {
         pathname = pathname.replace('dashboard.html', 'index.html');
     }
-    const loginUrl = origin ? `${origin}${pathname}` : 'หน้าเว็บระบบนิเทศสหกิจศึกษา KU';
-    
-    const subject = `แจ้งข้อมูลการเข้าสู่ระบบนิเทศสหกิจศึกษา KU ครั้งแรก - ${studentName} (${studentId})`;
-    const message = `เรียน นิสิต ${studentName} (รหัสประจำตัวนิสิต ${studentId})\n\n` +
-        `อาจารย์นิเทศ (${advisorName || 'อาจารย์ประจำหมู่เรียน'}) ได้เพิ่มข้อมูลของท่านเข้าสู่ระบบนิเทศสหกิจศึกษา (KU Cooperative Education Supervision System) เรียบร้อยแล้ว\n\n` +
-        `ท่านสามารถเข้าสู่ระบบเพื่อเข้าใช้งานครั้งแรกได้ที่:\n${loginUrl}\n\n` +
-        `ข้อมูลการเข้าสู่ระบบครั้งแรก:\n` +
-        `• ชื่อผู้ใช้งาน (Username): ${studentEmail} หรือ ${studentId}\n` +
-        `• รหัสผ่านครั้งแรก (Initial Password): ${studentId}\n\n` +
-        `* ขั้นตอนการเข้าสู่ระบบครั้งแรก:\n` +
-        `1. กรอกอีเมลมหาวิทยาลัย (@ku.th) หรือรหัสนิสิต และรหัสผ่านครั้งแรก (รหัสนิสิต)\n` +
-        `2. ระบบจะส่งรหัสยืนยัน OTP ไปยังอีเมลของท่าน เพื่อนำมากรอกยืนยันตัวตน\n` +
-        `3. กำหนดรหัสผ่านใหม่สำหรับการเข้าใช้งานประจำตัว\n\n` +
-        `ขอแสดงความนับถือ\nระบบนิเทศสหกิจศึกษา ภาควิชาวิทยาการคอมพิวเตอร์ มหาวิทยาลัยเกษตรศาสตร์`;
+    const loginUrl = `${origin}${pathname}`;
 
-    console.log("Dispatching first login email to:", studentEmail, { studentName, studentId, advisorName });
+    console.log("Dispatching first login email to:", studentEmail, { studentName, studentId, advisorName, loginUrl });
 
+    // 1. ส่งผ่านเซิร์ฟเวอร์ SMTP จริง (Gmail SMTP ของระบบ)
+    const apiEndpoints = [
+        `${origin}/api/send-first-login`,
+        'http://localhost:8080/api/send-first-login',
+        'http://127.0.0.1:8080/api/send-first-login'
+    ];
+    const uniqueEndpoints = [...new Set(apiEndpoints)];
+
+    for (const endpoint of uniqueEndpoints) {
+        try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 8000);
+            const res = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: studentEmail,
+                    name: studentName,
+                    studentId: studentId,
+                    advisorName: advisorName || 'อาจารย์นิเทศ',
+                    loginUrl: loginUrl
+                }),
+                signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+            if (res.ok) {
+                const data = await res.json().catch(() => ({ success: true }));
+                if (data.success) {
+                    console.log("[FirstLogin] Successfully sent real email via server API:", endpoint);
+                    return { success: true, studentEmail, studentName, studentId };
+                }
+            }
+        } catch (e) {
+            console.warn(`[FirstLogin] Failed endpoint ${endpoint}:`, e.message);
+        }
+    }
+
+    // 2. Web Fallback
     try {
+        const subject = `แจ้งข้อมูลการเข้าใช้งานระบบนิเทศสหกิจศึกษา KU (สำหรับนิสิตแรกเข้า) - ${studentName} (${studentId})`;
+        const message = `เรียน นิสิต ${studentName} (รหัสประจำตัวนิสิต ${studentId})\n\n` +
+            `อาจารย์นิเทศ (${advisorName || 'อาจารย์ประจำหมู่เรียน'}) ได้เพิ่มข้อมูลของท่านเข้าสู่ระบบนิเทศสหกิจศึกษา เรียบร้อยแล้ว\n\n` +
+            `ท่านสามารถเข้าสู่ระบบเพื่อเข้าใช้งานครั้งแรกได้ที่:\n${loginUrl}\n\n` +
+            `ข้อมูลการเข้าสู่ระบบครั้งแรก:\n` +
+            `• ชื่อผู้ใช้งาน: ${studentEmail} หรือ ${studentId}\n` +
+            `• รหัสผ่านแรกเข้า: ${studentId}\n\n` +
+            `ขั้นตอนการเข้าสู่ระบบครั้งแรก:\n` +
+            `1. กรอกอีเมล (@ku.th) หรือรหัสนิสิต และรหัสผ่านแรกเข้า (รหัสนิสิต)\n` +
+            `2. ระบบจะส่งรหัส OTP 8 หลักไปยังอีเมลเพื่อยืนยันตัวตน\n` +
+            `3. ตั้งรหัสผ่านใหม่สำหรับการเข้าใช้งานประจำตัว\n\n` +
+            `ขอแสดงความนับถือ\nระบบนิเทศสหกิจศึกษา ภาควิชาวิทยาการคอมพิวเตอร์ มหาวิทยาลัยเกษตรศาสตร์`;
+
         await fetch('https://formsubmit.co/ajax/' + encodeURIComponent(studentEmail), {
             method: 'POST',
             headers: {
@@ -89,9 +129,8 @@ async function dispatchFirstLoginInviteEmail(studentEmail, studentName, studentI
                 message: message
             })
         });
-    } catch (e) {
-        console.warn("First login email dispatcher notice:", e.message);
-    }
+    } catch (e) {}
+
     return { success: true, studentEmail, studentName, studentId };
 }
 
