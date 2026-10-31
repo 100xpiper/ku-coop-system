@@ -1615,7 +1615,225 @@
         .stat-card { padding: 16px; }
         .stat-card h3 { font-size: 12px; }
         .stat-value { font-size: 22px; }
-    </style>
+    
+        /* ==========================================================================
+           DESKTOP COLLAPSED SIDEBAR & MOBILE RESPONSIVE STYLES
+           ========================================================================== */
+        
+        /* Smooth transitions for sidebar */
+        .desktop-sidebar {
+            transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1), min-width 0.25s cubic-bezier(0.4, 0, 0.2, 1), transform 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+
+        /* Desktop Collapsed Sidebar (width: 68px) */
+        .desktop-sidebar.collapsed {
+            width: 68px !important;
+            min-width: 68px !important;
+        }
+        .desktop-sidebar.collapsed .sidebar-brand {
+            justify-content: center !important;
+            padding: 16px 8px !important;
+        }
+        .desktop-sidebar.collapsed .sidebar-brand > div:last-child {
+            display: none !important;
+        }
+        .desktop-sidebar.collapsed .sidebar-user-box {
+            display: none !important;
+        }
+        .desktop-sidebar.collapsed .sidebar-nav-label {
+            display: none !important;
+        }
+        .desktop-sidebar.collapsed .sidebar-nav-item {
+            justify-content: center !important;
+            padding: 12px 0 !important;
+            gap: 0 !important;
+        }
+        .desktop-sidebar.collapsed .sidebar-nav-item span {
+            display: none !important;
+        }
+        .desktop-sidebar.collapsed .sidebar-footer {
+            padding: 12px 6px !important;
+        }
+        .desktop-sidebar.collapsed .sidebar-logout-btn {
+            justify-content: center !important;
+            padding: 10px 0 !important;
+            gap: 0 !important;
+            font-size: 0 !important;
+        }
+        .desktop-sidebar.collapsed .sidebar-logout-btn svg {
+            margin: 0 !important;
+        }
+
+        /* Sidebar backdrop for mobile drawer */
+        #sidebar-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.55);
+            z-index: 998;
+            backdrop-filter: blur(2px);
+            transition: opacity 0.25s ease;
+        }
+        #sidebar-backdrop.active {
+            display: block !important;
+        }
+
+        /* QR Camera Scanner Viewport & Laser Animation */
+        .scanner-viewport-box {
+            position: relative;
+            width: 100%;
+            max-width: 520px;
+            height: 320px;
+            background-color: #0f172a;
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 0 auto 14px auto;
+            border: 2px solid #334155;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .scanner-viewport-box video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+        .scanner-overlay-frame {
+            position: absolute;
+            width: 220px;
+            height: 220px;
+            border: 2px dashed rgba(255, 255, 255, 0.4);
+            border-radius: 16px;
+            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.45);
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .scanner-overlay-frame::before {
+            content: '';
+            position: absolute;
+            top: -2px; left: -2px; width: 24px; height: 24px;
+            border-top: 4px solid #22c55e;
+            border-left: 4px solid #22c55e;
+            border-top-left-radius: 12px;
+        }
+        .scanner-overlay-frame::after {
+            content: '';
+            position: absolute;
+            bottom: -2px; right: -2px; width: 24px; height: 24px;
+            border-bottom: 4px solid #22c55e;
+            border-right: 4px solid #22c55e;
+            border-bottom-right-radius: 12px;
+        }
+        .scanner-frame-corner-tr {
+            position: absolute;
+            top: -2px; right: -2px; width: 24px; height: 24px;
+            border-top: 4px solid #22c55e;
+            border-right: 4px solid #22c55e;
+            border-top-right-radius: 12px;
+        }
+        .scanner-frame-corner-bl {
+            position: absolute;
+            bottom: -2px; left: -2px; width: 24px; height: 24px;
+            border-bottom: 4px solid #22c55e;
+            border-left: 4px solid #22c55e;
+            border-bottom-left-radius: 12px;
+        }
+        .scanner-laser-line {
+            position: absolute;
+            left: 4px;
+            right: 4px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #22c55e, #86efac, #22c55e, transparent);
+            box-shadow: 0 0 12px #22c55e;
+            display: none;
+            animation: scanLaserAnim 2s ease-in-out infinite alternate;
+        }
+        @keyframes scanLaserAnim {
+            0% { top: 8px; }
+            100% { top: 208px; }
+        }
+
+        /* Mobile Responsiveness Rules (max-width: 768px) */
+        @media (max-width: 768px) {
+            .mobile-device {
+                flex-direction: column !important;
+                width: 100vw !important;
+                height: 100vh !important;
+                overflow: hidden !important;
+                position: relative !important;
+            }
+            .desktop-sidebar {
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                bottom: 0 !important;
+                width: 270px !important;
+                min-width: 270px !important;
+                height: 100vh !important;
+                z-index: 1000 !important;
+                transform: translateX(-100%);
+                box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3) !important;
+            }
+            .desktop-sidebar.mobile-open {
+                transform: translateX(0) !important;
+            }
+            .desktop-main {
+                width: 100vw !important;
+                max-width: 100vw !important;
+                height: 100vh !important;
+                flex: 1 1 auto !important;
+                overflow-y: auto !important;
+                -webkit-overflow-scrolling: touch !important;
+            }
+            header {
+                padding: 0 12px !important;
+                height: 54px !important;
+            }
+            main {
+                padding: 10px !important;
+                overflow-x: hidden !important;
+            }
+            .page-content {
+                max-width: 100% !important;
+                padding-bottom: 30px !important;
+            }
+            .section-card {
+                padding: 12px 10px !important;
+                margin-bottom: 12px !important;
+                border-radius: 8px !important;
+            }
+            table {
+                min-width: 580px;
+            }
+            div[style*="overflow-x: auto"] {
+                max-width: 100% !important;
+                -webkit-overflow-scrolling: touch;
+            }
+            .modal-card {
+                width: 94vw !important;
+                max-width: 95vw !important;
+                padding: 14px !important;
+                max-height: 90vh !important;
+                overflow-y: auto !important;
+            }
+            .scanner-viewport-box {
+                height: 250px !important;
+            }
+            .scanner-overlay-frame {
+                width: 180px !important;
+                height: 180px !important;
+            }
+            @keyframes scanLaserAnim {
+                0% { top: 8px; }
+                100% { top: 168px; }
+            }
+        }
+
+</style>
 </head>
 <body>
 
@@ -1655,12 +1873,17 @@
             </div>
         </aside>
 
+        <div id="sidebar-backdrop" onclick="toggleSidebar(false)"></div>
+
         <!-- MAIN CONTENT WRAPPER -->
         <div class="desktop-main">
 
         <!-- Desktop Top Header -->
         <header>
             <div class="system-title">
+                <button type="button" id="sidebar-toggle-btn" class="header-back-btn" onclick="toggleSidebar()" title="ย่อ / ขยายเมนูด้านซ้าย" style="display:inline-flex;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                </button>
                 <button type="button" id="header-back-btn" class="header-back-btn" onclick="handleHeaderBack()" title="ย้อนกลับ" style="display:none;">
                     <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
                 </button>
@@ -2184,30 +2407,80 @@
                 <!-- หน้า 1.4: สแกน QR Code & GPS เช็คอิน -->
                 <div id="sec-advisor-qr" class="page-content">
                     <section class="section-card">
-                        <div class="section-header">
-                            <div class="section-title" style="display: flex; align-items: center; gap: 8px;">
+                        <div class="section-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; flex-wrap: wrap; gap: 8px;">
+                            <div class="section-title" style="display: flex; align-items: center; gap: 8px; margin: 0; font-size: 15px;">
                                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--primary-color)" stroke-width="2"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><rect x="7" y="7" width="10" height="10" rx="1"/></svg>
-                                สแกน QR Code เช็คอินสถานประกอบการ
+                                <span>สแกน QR Code เช็คอินสถานประกอบการ</span>
+                            </div>
+                            <span id="qr-camera-status-badge" class="badge" style="background-color: #f1f5f9; color: #64748b; font-weight: 600; font-size: 11px; padding: 4px 10px; border-radius: 20px;">
+                                กล้องปิดอยู่ (Standby)
+                            </span>
+                        </div>
+
+                        <div style="font-size: 11.5px; color: var(--text-muted); margin-bottom: 14px; line-height: 1.5;">
+                            เปิดกล้องเพื่อสแกน QR Code ประจำตัวนิสิต ณ สถานประกอบการจริง ระบบจะตรวจจับและบันทึกพิกัด GPS เพื่อยืนยันการลงตรวจนิเทศโดยอัตโนมัติ
+                        </div>
+
+                        <!-- ช่องแสดงภาพจากกล้องสแกน QR Code จริง -->
+                        <div class="scanner-viewport-box" id="scanner-viewport-box">
+                            <video id="qr-camera-video" playsinline autoplay muted></video>
+
+                            <div class="scanner-overlay-frame" id="scanner-overlay-frame">
+                                <div class="scanner-frame-corner-tr"></div>
+                                <div class="scanner-frame-corner-bl"></div>
+                                <div class="scanner-laser-line" id="scanner-laser-line"></div>
+                            </div>
+
+                            <!-- กล่องสแตนด์บายเมื่อยังไม่เปิดกล้อง -->
+                            <div id="qr-camera-placeholder" style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: #94a3b8; padding: 20px; z-index: 2;">
+                                <div style="width: 56px; height: 56px; border-radius: 50%; background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.15);">
+                                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#e2e8f0" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                                </div>
+                                <div style="font-size: 13px; font-weight: 700; color: #f8fafc; margin-bottom: 4px;">กล้องอยู่ในสถานะพร้อมใช้งาน</div>
+                                <div style="font-size: 11px; color: #94a3b8; max-width: 320px; line-height: 1.4;">
+                                    กดปุ่ม <strong style="color: #4ade80;">"เปิดกล้องสแกนทันที"</strong> ด้านล่างเพื่อเริ่มการตรวจจับ QR Code สดผ่านกล้อง
+                                </div>
                             </div>
                         </div>
-                        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px; line-height: 1.5;">
-                            เลือกนิสิตและกดปุ่มสแกน QR Code เพื่อยืนยันการเช็คอินพิกัด GPS ณ สถานประกอบการจริง
-                        </div>
 
-                        <!-- เลือกนิสิตและปุ่มสแกน -->
+                        <!-- ซ่อน input ไฟล์สำหรับเลือกภาพ QR Code -->
+                        <input type="file" id="qr-file-input" accept="image/*" style="display: none;" onchange="handleQrImageUpload(event)">
+
+                        <!-- ปุ่มควบคุมกล้องและเลือกนิสิต -->
                         <div style="display: flex; flex-direction: column; gap: 10px; background: #f8fafc; padding: 14px; border-radius: 10px; border: 1px solid var(--border-color);">
-                            <label style="font-size: 12px; font-weight: 700; color: var(--primary-color); display: flex; align-items: center; gap: 6px;">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                                เลือกรหัสนิสิตเพื่อเช็คอิน ณ สถานประกอบการ:
-                            </label>
-                            <select id="qr-scan-student-select" style="padding: 10px; font-size: 13px; border-radius: 8px; border: 1px solid var(--border-color); background-color: #fff; width: 100%; font-weight: 500;">
-                                <option value="">ยังไม่มีข้อมูลนิสิต (รอแอดมินนำเข้าข้อมูล)</option>
-                            </select>
+                            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                <button type="button" id="btn-start-camera" class="btn-primary" style="flex: 1; min-width: 140px; padding: 10px; font-size: 12px; font-weight: 700; background-color: var(--primary-color); display: flex; align-items: center; justify-content: center; gap: 6px; border-radius: 8px; cursor: pointer;" onclick="startRealCameraScanner()">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                                    <span>เปิดกล้องสแกนทันที</span>
+                                </button>
 
-                            <button id="btn-process-checkin" class="btn-primary" style="width: 100%; padding: 12px; font-size: 13px; font-weight: 700; background-color: var(--primary-color); border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.08); cursor: pointer;" onclick="processCheckinAndEval()">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-                                <span id="btn-process-checkin-text">สแกน QR Code และเช็คอิน GPS</span>
-                            </button>
+                                <button type="button" id="btn-stop-camera" class="btn-primary" style="flex: 1; min-width: 140px; padding: 10px; font-size: 12px; font-weight: 700; background-color: #dc2626; display: none; align-items: center; justify-content: center; gap: 6px; border-radius: 8px; cursor: pointer;" onclick="stopRealCameraScanner()">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/></svg>
+                                    <span>ปิดกล้อง</span>
+                                </button>
+
+                                <button type="button" id="btn-upload-qr" class="btn-primary" style="flex: 1; min-width: 140px; padding: 10px; font-size: 12px; font-weight: 700; background-color: #0284c7; display: flex; align-items: center; justify-content: center; gap: 6px; border-radius: 8px; cursor: pointer;" onclick="document.getElementById('qr-file-input').click()">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                                    <span>แนบรูปภาพ QR Code</span>
+                                </button>
+                            </div>
+
+                            <div style="border-top: 1px dashed var(--border-color); padding-top: 10px; margin-top: 4px;">
+                                <label style="font-size: 11.5px; font-weight: 700; color: #334155; display: flex; align-items: center; gap: 6px; margin-bottom: 6px;">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                    เลือกนิสิตเป้าหมาย หรือยืนยันรหัสนิสิตที่ตรวจพบ:
+                                </label>
+                                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                    <select id="qr-scan-student-select" style="flex: 1; min-width: 200px; padding: 9px 12px; font-size: 12px; border-radius: 8px; border: 1px solid var(--border-color); background-color: #fff; font-weight: 500;">
+                                        <option value="">ยังไม่มีข้อมูลนิสิต (รอแอดมินนำเข้าข้อมูล)</option>
+                                    </select>
+
+                                    <button id="btn-process-checkin" class="btn-primary" style="padding: 9px 16px; font-size: 12px; font-weight: 700; background-color: #16a34a; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; white-space: nowrap;" onclick="processCheckinAndEval()">
+                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                        <span id="btn-process-checkin-text">สแกนและเช็คอินพิกัด GPS ทันที</span>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- การ์ดแสดงผลลัพธ์การเช็คอิน (เมื่อสแกนแล้วจะแสดงรายละเอียด) -->
@@ -2249,11 +2522,7 @@
                     </section>
                 </div>
 
-
-                <!-- ============================================== -->
-                <!-- VIEW 2: ฝั่งนิสิตสหกิจศึกษา (STUDENT VIEWS) -->
-                <!-- ============================================== -->
-
+                <!-- STUDENT DASHBOARD -->
                 <div id="sec-student-dash" class="page-content">
                     <section class="welcome-banner">
                         <div class="welcome-text">
@@ -7262,68 +7531,174 @@
 
 
 
-        let html5QrCodeInstance = null;
+        
+        /* ==========================================================================
+           SIDEBAR TOGGLE & REAL CAMERA QR SCANNER LOGIC
+           ========================================================================== */
 
-        function startRealCameraScanner() {
-            const placeholder = document.getElementById('qr-reader-placeholder');
-            if (placeholder) placeholder.style.display = 'none';
+        function toggleSidebar(forceState) {
+            const sidebar = document.getElementById('desktop-sidebar');
+            const backdrop = document.getElementById('sidebar-backdrop');
+            if (!sidebar) return;
 
-            if (typeof Html5Qrcode === 'undefined') {
-                alert('กำลังโหลดระบบกล้อง... กรุณาลองใหม่อีกครั้ง');
+            const isMobile = window.innerWidth <= 768;
+
+            if (isMobile) {
+                if (typeof forceState === 'boolean') {
+                    if (forceState) {
+                        sidebar.classList.add('mobile-open');
+                        if (backdrop) backdrop.classList.add('active');
+                    } else {
+                        sidebar.classList.remove('mobile-open');
+                        if (backdrop) backdrop.classList.remove('active');
+                    }
+                } else {
+                    const isOpen = sidebar.classList.toggle('mobile-open');
+                    if (backdrop) backdrop.classList.toggle('active', isOpen);
+                }
+            } else {
+                if (typeof forceState === 'boolean') {
+                    sidebar.classList.toggle('collapsed', !forceState);
+                } else {
+                    sidebar.classList.toggle('collapsed');
+                }
+            }
+        }
+
+        let activeCameraStream = null;
+        let cameraScanInterval = null;
+
+        async function startRealCameraScanner() {
+            const video = document.getElementById('qr-camera-video');
+            const placeholder = document.getElementById('qr-camera-placeholder');
+            const laser = document.getElementById('scanner-laser-line');
+            const statusBadge = document.getElementById('qr-camera-status-badge');
+            const btnStart = document.getElementById('btn-start-camera');
+            const btnStop = document.getElementById('btn-stop-camera');
+
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                alert('เบราว์เซอร์ของท่านไม่รองรับการเปิดกล้องโดยตรง หรือไม่ได้เปิดผ่านการเชื่อมต่อที่ปลอดภัย (HTTPS / localhost)');
                 return;
             }
 
-            if (!html5QrCodeInstance) {
-                html5QrCodeInstance = new Html5Qrcode("qr-reader");
-            }
-
-            const qrCodeSuccessCallback = (decodedText, decodedResult) => {
-                stopRealCameraScanner();
-
-                let foundMatch = false;
-                const studentSelect = document.getElementById('qr-scan-student-select');
-                if (studentSelect) {
-                    for (let opt of studentSelect.options) {
-                        if (opt.value && decodedText.includes(opt.value)) {
-                            studentSelect.value = opt.value;
-                            foundMatch = true;
-                            break;
-                        }
-                    }
-                }
-
-                if (!foundMatch) {
-                    alert(`สแกนล้มเหลว: ไม่พบนิสิตรหัส "${decodedText}" ในความดูแลของคุณ`);
-                    return;
-                }
-
-                alert(`สแกน QR Code สำเร็จ! รหัสที่ตรวจพบ: ${decodedText}`);
-                processCheckinAndEval();
-            };
-
-            const config = { fps: 10, qrbox: { width: 200, height: 200 } };
-            html5QrCodeInstance.start({ facingMode: "environment" }, config, qrCodeSuccessCallback)
-                .catch(err => {
-                    html5QrCodeInstance.start({ facingMode: "user" }, config, qrCodeSuccessCallback)
-                        .catch(err2 => {
-                            alert('ไม่สามารถเข้าถึงกล้องถ่ายรูปได้ (กรุณาอนุญาตสิทธิ์กล้องในเบราว์เซอร์)\n\nสามารถเลือกรหัสนิสิตเพื่อเช็คอินพิกัด GPS ด้านล่างได้เช่นกัน');
-                            if (placeholder) placeholder.style.display = 'block';
-                        });
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        facingMode: { ideal: "environment" },
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    },
+                    audio: false
                 });
+
+                activeCameraStream = stream;
+                if (video) {
+                    video.srcObject = stream;
+                    await video.play();
+                    video.style.display = 'block';
+                }
+
+                if (placeholder) placeholder.style.display = 'none';
+                if (laser) laser.style.display = 'block';
+                if (btnStart) btnStart.style.display = 'none';
+                if (btnStop) btnStop.style.display = 'inline-flex';
+                if (statusBadge) {
+                    statusBadge.textContent = 'กล้องสดกำลังทำงาน (Live Stream)';
+                    statusBadge.style.backgroundColor = '#dcfce7';
+                    statusBadge.style.color = '#15803d';
+                }
+
+                // Check BarcodeDetector API support
+                if ('BarcodeDetector' in window) {
+                    try {
+                        const barcodeDetector = new BarcodeDetector({ formats: ['qr_code'] });
+                        cameraScanInterval = setInterval(async () => {
+                            if (!activeCameraStream || !video || video.readyState < 2) return;
+                            try {
+                                const barcodes = await barcodeDetector.detect(video);
+                                if (barcodes && barcodes.length > 0) {
+                                    handleScannedQrPayload(barcodes[0].rawValue);
+                                }
+                            } catch (e) {}
+                        }, 500);
+                    } catch (e) {}
+                }
+            } catch (err) {
+                console.warn('Camera error:', err);
+                alert('ไม่สามารถเปิดกล้องได้: ' + (err.name === 'NotAllowedError' ? 'โปรดอนุญาตให้เบราว์เซอร์เข้าถึงกล้อง' : err.message) + '\n\nท่านสามารถใช้ปุ่ม "แนบรูปภาพ QR Code" หรือ "สแกนและเช็คอินพิกัด GPS ทันที" ได้ตามปกติ');
+            }
         }
 
         function stopRealCameraScanner() {
-            if (html5QrCodeInstance) {
-                html5QrCodeInstance.stop().then(() => {
-                    html5QrCodeInstance.clear();
-                    html5QrCodeInstance = null;
-                    const placeholder = document.getElementById('qr-reader-placeholder');
-                    if (placeholder) placeholder.style.display = 'block';
-                }).catch(err => {
-                    html5QrCodeInstance = null;
-                });
+            if (activeCameraStream) {
+                activeCameraStream.getTracks().forEach(track => track.stop());
+                activeCameraStream = null;
+            }
+            if (cameraScanInterval) {
+                clearInterval(cameraScanInterval);
+                cameraScanInterval = null;
+            }
+            const video = document.getElementById('qr-camera-video');
+            const placeholder = document.getElementById('qr-camera-placeholder');
+            const laser = document.getElementById('scanner-laser-line');
+            const statusBadge = document.getElementById('qr-camera-status-badge');
+            const btnStart = document.getElementById('btn-start-camera');
+            const btnStop = document.getElementById('btn-stop-camera');
+
+            if (video) {
+                video.pause();
+                video.srcObject = null;
+                video.style.display = 'none';
+            }
+            if (placeholder) placeholder.style.display = 'flex';
+            if (laser) laser.style.display = 'none';
+            if (btnStart) btnStart.style.display = 'inline-flex';
+            if (btnStop) btnStop.style.display = 'none';
+            if (statusBadge) {
+                statusBadge.textContent = 'กล้องปิดอยู่ (Standby)';
+                statusBadge.style.backgroundColor = '#f1f5f9';
+                statusBadge.style.color = '#64748b';
             }
         }
+
+        function handleQrImageUpload(event) {
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
+
+            if ('BarcodeDetector' in window) {
+                createImageBitmap(file).then(async bmp => {
+                    try {
+                        const barcodeDetector = new BarcodeDetector({ formats: ['qr_code'] });
+                        const barcodes = await barcodeDetector.detect(bmp);
+                        if (barcodes && barcodes.length > 0) {
+                            handleScannedQrPayload(barcodes[0].rawValue);
+                            return;
+                        }
+                    } catch (e) {}
+                    processCheckinAndEval();
+                }).catch(() => {
+                    processCheckinAndEval();
+                });
+            } else {
+                processCheckinAndEval();
+            }
+            event.target.value = '';
+        }
+
+        function handleScannedQrPayload(payload) {
+            stopRealCameraScanner();
+            const studentSelect = document.getElementById('qr-scan-student-select');
+            if (studentSelect) {
+                for (let opt of studentSelect.options) {
+                    if (opt.value && (payload.includes(opt.value) || (opt.text && opt.text.includes(payload)))) {
+                        studentSelect.value = opt.value;
+                        break;
+                    }
+                }
+            }
+            processCheckinAndEval();
+        }
+
 
         function processCheckinAndEval() {
             const studentSelect = document.getElementById('qr-scan-student-select');
@@ -8665,7 +9040,7 @@
             let html = '';
             groups.forEach(group => {
                 group.items.forEach(item => {
-                    html += `<button class="sidebar-nav-item" onclick="sidebarNavigate('${item.id}', '${item.page}', this)">${item.icon}<span>${item.text}</span></button>`;
+                    html += `<button class="sidebar-nav-item" title="${item.text}" onclick="sidebarNavigate('${item.id}', '${item.page}', this)">${item.icon}<span>${item.text}</span></button>`;
                 });
             });
             container.innerHTML = html;
@@ -8676,6 +9051,12 @@
         }
 
         function sidebarNavigate(targetId, pageId, btn) {
+            if (window.innerWidth <= 768) {
+                toggleSidebar(false);
+            }
+            if (targetId !== 'sec-advisor-qr' && pageId !== 'sec-advisor-qr') {
+                stopRealCameraScanner();
+            }
             // Update active state in sidebar
             document.querySelectorAll('.sidebar-nav-item').forEach(el => el.classList.remove('active'));
             if (btn) btn.classList.add('active');
