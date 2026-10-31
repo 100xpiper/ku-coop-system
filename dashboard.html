@@ -17,6 +17,7 @@
 
     <!-- Supabase JS Client SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="jsqr.min.js"></script>
     <script src="supabase-client.js?v=2.5"></script>
 
     <script>
@@ -7566,7 +7567,10 @@
         }
 
         let activeCameraStream = null;
+        let cameraScanAnimId = null;
         let cameraScanInterval = null;
+        const qrScanCanvas = document.createElement('canvas');
+        const qrScanCtx = qrScanCanvas.getContext('2d', { willReadFrequently: true });
 
         async function startRealCameraScanner() {
             const video = document.getElementById('qr-camera-video');
@@ -7594,6 +7598,7 @@
                 activeCameraStream = stream;
                 if (video) {
                     video.srcObject = stream;
+                    video.setAttribute('playsinline', 'true');
                     await video.play();
                     video.style.display = 'block';
                 }
@@ -7603,40 +7608,83 @@
                 if (btnStart) btnStart.style.display = 'none';
                 if (btnStop) btnStop.style.display = 'inline-flex';
                 if (statusBadge) {
-                    statusBadge.textContent = 'กล้องสดกำลังทำงาน (Live Stream)';
+                    statusBadge.textContent = 'กล้องกำลังสแกน QR Code (Active)';
                     statusBadge.style.backgroundColor = '#dcfce7';
                     statusBadge.style.color = '#15803d';
                 }
 
-                // Check BarcodeDetector API support
-                if ('BarcodeDetector' in window) {
-                    try {
-                        const barcodeDetector = new BarcodeDetector({ formats: ['qr_code'] });
-                        cameraScanInterval = setInterval(async () => {
-                            if (!activeCameraStream || !video || video.readyState < 2) return;
-                            try {
-                                const barcodes = await barcodeDetector.detect(video);
-                                if (barcodes && barcodes.length > 0) {
-                                    handleScannedQrPayload(barcodes[0].rawValue);
-                                }
-                            } catch (e) {}
-                        }, 500);
-                    } catch (e) {}
-                }
+                // Start continuous QR scanning loop
+                startQrScanningLoop();
+
             } catch (err) {
-                console.warn('Camera error:', err);
+                console.warn('Camera access issue:', err);
                 alert('ไม่สามารถเปิดกล้องได้: ' + (err.name === 'NotAllowedError' ? 'โปรดอนุญาตให้เบราว์เซอร์เข้าถึงกล้อง' : err.message) + '\n\nท่านสามารถใช้ปุ่ม "แนบรูปภาพ QR Code" หรือ "สแกนและเช็คอินพิกัด GPS ทันที" ได้ตามปกติ');
             }
         }
 
+        function startQrScanningLoop() {
+            const video = document.getElementById('qr-camera-video');
+            if (!video) return;
+
+            let lastScanTime = 0;
+
+            function scanStep(timestamp) {
+                if (!activeCameraStream) return;
+
+                if (timestamp - lastScanTime > 120) {
+                    lastScanTime = timestamp;
+
+                    if (video.readyState >= 2 && video.videoWidth > 0 && video.videoHeight > 0) {
+                        try {
+                            // High precision decoding via jsQR
+                            if (typeof jsQR !== 'undefined') {
+                                qrScanCanvas.width = video.videoWidth;
+                                qrScanCanvas.height = video.videoHeight;
+                                qrScanCtx.drawImage(video, 0, 0, qrScanCanvas.width, qrScanCanvas.height);
+                                const imageData = qrScanCtx.getImageData(0, 0, qrScanCanvas.width, qrScanCanvas.height);
+                                const code = jsQR(imageData.data, imageData.width, imageData.height, {
+                                    inversionAttempts: "dontInvert"
+                                });
+                                if (code && code.data) {
+                                    console.log("jsQR detected payload:", code.data);
+                                    handleScannedQrPayload(code.data);
+                                    return;
+                                }
+                            }
+
+                            // Native BarcodeDetector fallback
+                            if ('BarcodeDetector' in window) {
+                                const bd = new BarcodeDetector({ formats: ['qr_code'] });
+                                bd.detect(video).then(barcodes => {
+                                    if (barcodes && barcodes.length > 0 && barcodes[0].rawValue) {
+                                        console.log("BarcodeDetector detected payload:", barcodes[0].rawValue);
+                                        handleScannedQrPayload(barcodes[0].rawValue);
+                                        return;
+                                    }
+                                }).catch(() => {});
+                            }
+                        } catch (e) {}
+                    }
+                }
+
+                cameraScanAnimId = requestAnimationFrame(scanStep);
+            }
+
+            cameraScanAnimId = requestAnimationFrame(scanStep);
+        }
+
         function stopRealCameraScanner() {
-            if (activeCameraStream) {
-                activeCameraStream.getTracks().forEach(track => track.stop());
-                activeCameraStream = null;
+            if (cameraScanAnimId) {
+                cancelAnimationFrame(cameraScanAnimId);
+                cameraScanAnimId = null;
             }
             if (cameraScanInterval) {
                 clearInterval(cameraScanInterval);
                 cameraScanInterval = null;
+            }
+            if (activeCameraStream) {
+                activeCameraStream.getTracks().forEach(track => track.stop());
+                activeCameraStream = null;
             }
             const video = document.getElementById('qr-camera-video');
             const placeholder = document.getElementById('qr-camera-placeholder');
@@ -7665,41 +7713,112 @@
             const file = event.target.files && event.target.files[0];
             if (!file) return;
 
-            if ('BarcodeDetector' in window) {
-                createImageBitmap(file).then(async bmp => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
                     try {
-                        const barcodeDetector = new BarcodeDetector({ formats: ['qr_code'] });
-                        const barcodes = await barcodeDetector.detect(bmp);
-                        if (barcodes && barcodes.length > 0) {
-                            handleScannedQrPayload(barcodes[0].rawValue);
-                            return;
+                        if (typeof jsQR !== 'undefined') {
+                            qrScanCanvas.width = img.width;
+                            qrScanCanvas.height = img.height;
+                            qrScanCtx.drawImage(img, 0, 0);
+                            const imageData = qrScanCtx.getImageData(0, 0, qrScanCanvas.width, qrScanCanvas.height);
+                            const code = jsQR(imageData.data, imageData.width, imageData.height);
+                            if (code && code.data) {
+                                handleScannedQrPayload(code.data);
+                                return;
+                            }
                         }
-                    } catch (e) {}
-                    processCheckinAndEval();
-                }).catch(() => {
-                    processCheckinAndEval();
-                });
-            } else {
-                processCheckinAndEval();
-            }
+                    } catch (err) {}
+
+                    if ('BarcodeDetector' in window) {
+                        createImageBitmap(img).then(bmp => {
+                            const bd = new BarcodeDetector({ formats: ['qr_code'] });
+                            bd.detect(bmp).then(barcodes => {
+                                if (barcodes && barcodes.length > 0 && barcodes[0].rawValue) {
+                                    handleScannedQrPayload(barcodes[0].rawValue);
+                                } else {
+                                    processCheckinAndEval();
+                                }
+                            }).catch(() => processCheckinAndEval());
+                        }).catch(() => processCheckinAndEval());
+                    } else {
+                        processCheckinAndEval();
+                    }
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
             event.target.value = '';
         }
 
         function handleScannedQrPayload(payload) {
             stopRealCameraScanner();
+            if (!payload) {
+                processCheckinAndEval();
+                return;
+            }
+
+            const payloadStr = String(payload).trim();
             const studentSelect = document.getElementById('qr-scan-student-select');
+            let matchedId = null;
+
             if (studentSelect) {
+                // 1. Direct contains check
                 for (let opt of studentSelect.options) {
-                    if (opt.value && (payload.includes(opt.value) || (opt.text && opt.text.includes(payload)))) {
+                    if (opt.value && payloadStr.includes(opt.value)) {
+                        matchedId = opt.value;
                         studentSelect.value = opt.value;
                         break;
                     }
                 }
+
+                // 2. 10-digit ID pattern
+                if (!matchedId) {
+                    const idMatch = payloadStr.match(/\b\d{10}\b/);
+                    if (idMatch) {
+                        for (let opt of studentSelect.options) {
+                            if (opt.value === idMatch[0]) {
+                                matchedId = opt.value;
+                                studentSelect.value = opt.value;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                // 3. Name pattern
+                if (!matchedId) {
+                    for (let opt of studentSelect.options) {
+                        const namePart = opt.text.split(' - ')[1] || '';
+                        if (namePart && payloadStr.includes(namePart.trim())) {
+                            matchedId = opt.value;
+                            studentSelect.value = opt.value;
+                            break;
+                        }
+                    }
+                }
             }
-            processCheckinAndEval();
+
+            // Beep sound confirmation
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.frequency.value = 880;
+                gain.gain.value = 0.15;
+                osc.start();
+                setTimeout(() => {
+                    osc.stop();
+                    audioCtx.close();
+                }, 150);
+            } catch (e) {}
+
+            processCheckinAndEval(matchedId);
         }
-
-
+        
         function processCheckinAndEval() {
             const studentSelect = document.getElementById('qr-scan-student-select');
             if (!studentSelect || !studentSelect.value) {
