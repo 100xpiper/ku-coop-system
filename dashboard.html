@@ -2060,21 +2060,7 @@
                                         <option value="special">หมู่เรียนภาคพิเศษ</option>
                                     </select>
                                 </div>
-                                <div style="display: flex; align-items: center; gap: 5px;">
-                                    <span style="font-size: 11px; font-weight: 700; color: #475569;">ภาคการศึกษา:</span>
-                                    <select id="adv-photo-semester-select" onchange="onAdvisorSemesterChange(this.value)" style="padding: 5px 9px; font-size: 11px; border-radius: 6px; border: 1px solid var(--border-color); background: #ffffff; font-weight: 600; color: #1e293b;">
-                                    <option value="ภาคต้น 2569" selected>ภาคต้น 2569 (ปัจจุบัน)</option>
-                                    <option value="ภาคปลาย 2569">ภาคปลาย 2569</option>
-                                    <option value="ภาคฤดูร้อน 2569">ภาคฤดูร้อน 2569</option>
-                                    <option value="ภาคปลาย 2568">ภาคปลาย 2568</option>
-                                    <option value="ภาคต้น 2568">ภาคต้น 2568</option>
-                                    <option value="ภาคปลาย 2567">ภาคปลาย 2567</option>
-                                    <option value="ภาคต้น 2567">ภาคต้น 2567</option>
-                                    <option value="ภาคปลาย 2566">ภาคปลาย 2566</option>
-                                    <option value="ภาคต้น 2566">ภาคต้น 2566</option>
-                                    <option value="all">ทุกภาคการศึกษา</option>
-                                    </select>
-                                </div>
+
                                 <input type="text" id="adv-photo-search-input" oninput="renderAdvisorPhotosPage()" placeholder="ค้นหารหัส / ชื่อ / บริษัท..." style="padding: 5px 9px; font-size: 11px; border: 1px solid var(--border-color); border-radius: 6px; width: 170px; background: #ffffff;">
                             </div>
                         </div>
@@ -2749,10 +2735,15 @@
                         </div>
                     </div>
 
+                    <!-- ข้อความแนะนำเมื่อเลือกรูปแล้ว -->
+                    <div id="photo-pending-notice" style="display: none; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 6px; padding: 8px 12px; font-size: 11px; color: #047857; text-align: center; font-weight: 600; margin-top: 6px;">
+                        เลือกรูปภาพเรียบร้อยแล้ว กรุณากดปุ่ม "ยืนยันการอัปโหลดรูปภาพ" ด้านล่าง
+                    </div>
+
                     <!-- Input สำหรับเลือกไฟล์ภาพจากเครื่อง -->
-                    <input type="file" id="photo-file-input" accept="image/*" style="display: none;" onchange="handlePhotoUpload(event)">
+                    <input type="file" id="photo-file-input" accept="image/*" style="display: none;" onchange="handlePhotoSelected(event)">
                     <!-- Input สำหรับเปิดกล้องถ่ายรูปโดยตรง -->
-                    <input type="file" id="photo-camera-input" accept="image/*" capture="environment" style="display: none;" onchange="handlePhotoUpload(event)">
+                    <input type="file" id="photo-camera-input" accept="image/*" capture="environment" style="display: none;" onchange="handlePhotoSelected(event)">
 
                     <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px;">
                         <div style="display: flex; gap: 8px;">
@@ -2765,6 +2756,13 @@
                                 <span>ถ่ายรูปด้วยกล้อง</span>
                             </button>
                         </div>
+                        
+                        <!-- ปุ่มยืนยันการอัปโหลดรูปภาพ -->
+                        <button type="button" id="btn-confirm-upload-photo" class="btn-primary" style="display: none; padding: 9px; font-size: 12px; font-weight: 700; background-color: #16a34a; justify-content: center; align-items: center; gap: 6px;" onclick="confirmPhotoUpload()">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            <span>ยืนยันการอัปโหลดรูปภาพ</span>
+                        </button>
+
                         <button type="button" id="btn-delete-photo" class="btn-primary btn-danger" onclick="deletePhotoEvidence()" style="display: none; padding: 8px; font-size: 11.5px;">
                             ลบรูปภาพหลักฐาน
                         </button>
@@ -6956,11 +6954,19 @@
             reader.readAsDataURL(file);
         }
 
+        let pendingPhotoDataUrl = null;
+
         function openPhotoModal(id, name, sec) {
             currentSelectedStudentId = id;
             if (sec) currentSelectedClassroom = sec;
             document.getElementById('photo-student-name').textContent = `${name} (${id})`;
             
+            pendingPhotoDataUrl = null;
+            const confirmBtn = document.getElementById('btn-confirm-upload-photo');
+            if (confirmBtn) confirmBtn.style.display = 'none';
+            const noticeEl = document.getElementById('photo-pending-notice');
+            if (noticeEl) noticeEl.style.display = 'none';
+
             loadDynamicStudentsData();
             let std = null;
             if (currentSelectedClassroom && studentsData[currentSelectedClassroom]) {
@@ -6995,49 +7001,73 @@
             document.getElementById('modal-photo-mgmt').style.display = 'flex';
         }
 
-        async function handlePhotoUpload(event) {
+        function handlePhotoSelected(event) {
             const file = event.target.files[0];
             if (!file) return;
 
             const reader = new FileReader();
-            reader.onload = async function(e) {
-                const photoDataUrl = e.target.result;
-                loadDynamicStudentsData();
-                let std = null;
-                for (let sSec in studentsData) {
-                    std = (studentsData[sSec] || []).find(s => String(s.id) === String(currentSelectedStudentId));
-                    if (std) break;
-                }
-                if (std) {
-                    std.photo = photoDataUrl;
-                    // Persist to customUsers in localStorage
-                    try {
-                        let customUsers = JSON.parse(localStorage.getItem('customUsers') || '{}');
-                        const emailKey = String(std.email || '').toLowerCase().trim();
-                        if (emailKey && customUsers[emailKey]) {
-                            customUsers[emailKey].photo = photoDataUrl;
-                        }
-                        if (customUsers[std.id]) {
-                            customUsers[std.id].photo = photoDataUrl;
-                        }
-                        localStorage.setItem('customUsers', JSON.stringify(customUsers));
-                    } catch (err) {}
+            reader.onload = function(e) {
+                pendingPhotoDataUrl = e.target.result;
+                const img = document.getElementById('photo-preview-img');
+                const emptyText = document.getElementById('photo-empty-text');
+                const delBtn = document.getElementById('btn-delete-photo');
+                const confirmBtn = document.getElementById('btn-confirm-upload-photo');
+                const noticeEl = document.getElementById('photo-pending-notice');
 
-                    // Save to Supabase DB if available
-                    try {
-                        if (typeof dbUploadPhoto === 'function') {
-                            await dbUploadPhoto(std.id, photoDataUrl);
-                        }
-                    } catch (err) {}
-
-                    alert(`บันทึกรูปถ่ายหลักฐานของ ${std.name} เรียบร้อยแล้ว`);
-                    openPhotoModal(std.id, std.name);
-                    if (typeof renderAdvisorPhotosPage === 'function') renderAdvisorPhotosPage();
-                    if (typeof renderStudentList === 'function') renderStudentList();
+                if (img) {
+                    img.src = pendingPhotoDataUrl;
+                    img.style.display = 'block';
                 }
+                if (emptyText) emptyText.style.display = 'none';
+                if (delBtn) delBtn.style.display = 'none';
+                if (confirmBtn) confirmBtn.style.display = 'flex';
+                if (noticeEl) noticeEl.style.display = 'block';
             };
             reader.readAsDataURL(file);
             event.target.value = '';
+        }
+
+        async function confirmPhotoUpload() {
+            if (!pendingPhotoDataUrl) {
+                alert('โปรดเลือกรูปภาพหรือถ่ายรูปก่อนกดยืนยันการอัปโหลด');
+                return;
+            }
+
+            loadDynamicStudentsData();
+            let std = null;
+            for (let sSec in studentsData) {
+                std = (studentsData[sSec] || []).find(s => String(s.id) === String(currentSelectedStudentId));
+                if (std) break;
+            }
+
+            if (std) {
+                std.photo = pendingPhotoDataUrl;
+                // Persist to customUsers in localStorage
+                try {
+                    let customUsers = JSON.parse(localStorage.getItem('customUsers') || '{}');
+                    const emailKey = String(std.email || '').toLowerCase().trim();
+                    if (emailKey && customUsers[emailKey]) {
+                        customUsers[emailKey].photo = pendingPhotoDataUrl;
+                    }
+                    if (customUsers[std.id]) {
+                        customUsers[std.id].photo = pendingPhotoDataUrl;
+                    }
+                    localStorage.setItem('customUsers', JSON.stringify(customUsers));
+                } catch (err) {}
+
+                // Save to Supabase DB if available
+                try {
+                    if (typeof dbUploadPhoto === 'function') {
+                        await dbUploadPhoto(std.id, pendingPhotoDataUrl);
+                    }
+                } catch (err) {}
+
+                alert(`อัปโหลดและบันทึกรูปถ่ายหลักฐานของ ${std.name} เรียบร้อยแล้ว`);
+                pendingPhotoDataUrl = null;
+                openPhotoModal(std.id, std.name);
+                if (typeof renderAdvisorPhotosPage === 'function') renderAdvisorPhotosPage();
+                if (typeof renderStudentList === 'function') renderStudentList();
+            }
         }
 
         function deletePhotoEvidence() {
@@ -7050,6 +7080,7 @@
             }
             if (std) {
                 std.photo = '';
+                pendingPhotoDataUrl = null;
                 try {
                     let customUsers = JSON.parse(localStorage.getItem('customUsers') || '{}');
                     const emailKey = String(std.email || '').toLowerCase().trim();
@@ -7086,12 +7117,6 @@
                 if (optSpecial) optSpecial.textContent = `${mySecSpecial} (ภาคพิเศษ)`;
             }
 
-            // Sync semester select
-            const semSelect = document.getElementById('adv-photo-semester-select');
-            if (semSelect) {
-                semSelect.value = advisorSelectedSemester;
-            }
-
             const secChoice = secSelect ? secSelect.value : 'all';
             const searchVal = document.getElementById('adv-photo-search-input') ? document.getElementById('adv-photo-search-input').value.trim().toLowerCase() : '';
 
@@ -7111,11 +7136,6 @@
                     allList.push({ ...std, _assignedSection: sec });
                 });
             });
-
-            // Filter by semester
-            if (advisorSelectedSemester && advisorSelectedSemester !== 'all') {
-                allList = allList.filter(s => (s.semester || 'ภาคต้น 2569') === advisorSelectedSemester);
-            }
 
             // Filter by search
             if (searchVal) {
