@@ -1713,12 +1713,16 @@
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <span style="font-size: 12px; font-weight: 700; color: var(--primary-color);">ภาคการศึกษา:</span>
                             <select id="adv-semester-dash-select" onchange="onAdvisorSemesterChange(this.value)" style="padding: 5px 10px; font-size: 12px; border-radius: 6px; border: 1px solid var(--border-color); background: #f8fafc; font-weight: 600;">
-                                <option value="ภาคต้น 2569" selected>ภาคต้น 2569 (ปัจจุบัน)</option>
-                                <option value="ภาคปลาย 2569">ภาคปลาย 2569</option>
-                                <option value="ภาคฤดูร้อน 2569">ภาคฤดูร้อน 2569</option>
-                                <option value="ภาคปลาย 2568">ภาคปลาย 2568</option>
-                                <option value="ภาคต้น 2568">ภาคต้น 2568 (ย้อนหลัง)</option>
-                                <option value="all">ทุกภาคการศึกษา</option>
+                                    <option value="ภาคต้น 2569" selected>ภาคต้น 2569 (ปัจจุบัน)</option>
+                                    <option value="ภาคปลาย 2569">ภาคปลาย 2569</option>
+                                    <option value="ภาคฤดูร้อน 2569">ภาคฤดูร้อน 2569</option>
+                                    <option value="ภาคปลาย 2568">ภาคปลาย 2568</option>
+                                    <option value="ภาคต้น 2568">ภาคต้น 2568</option>
+                                    <option value="ภาคปลาย 2567">ภาคปลาย 2567</option>
+                                    <option value="ภาคต้น 2567">ภาคต้น 2567</option>
+                                    <option value="ภาคปลาย 2566">ภาคปลาย 2566</option>
+                                    <option value="ภาคต้น 2566">ภาคต้น 2566</option>
+                                    <option value="all">ทุกภาคการศึกษา</option>
                             </select>
                         </div>
                         <span style="font-size: 11px; color: var(--text-muted);" id="adv-semester-stat-label">แสดงเฉพาะ: ภาคต้น 2569 (ปัจจุบัน)</span>
@@ -1856,7 +1860,11 @@
                                     <option value="ภาคปลาย 2569">ภาคปลาย 2569</option>
                                     <option value="ภาคฤดูร้อน 2569">ภาคฤดูร้อน 2569</option>
                                     <option value="ภาคปลาย 2568">ภาคปลาย 2568</option>
-                                    <option value="ภาคต้น 2568">ภาคต้น 2568 (ย้อนหลัง)</option>
+                                    <option value="ภาคต้น 2568">ภาคต้น 2568</option>
+                                    <option value="ภาคปลาย 2567">ภาคปลาย 2567</option>
+                                    <option value="ภาคต้น 2567">ภาคต้น 2567</option>
+                                    <option value="ภาคปลาย 2566">ภาคปลาย 2566</option>
+                                    <option value="ภาคต้น 2566">ภาคต้น 2566</option>
                                     <option value="all">ทุกภาคการศึกษา</option>
                                 </select>
                             </div>
@@ -1969,11 +1977,43 @@
                         <span class="role-badge" style="background: rgba(255,255,255,0.22); color: #fff; font-weight: 700;">อาจารย์นิเทศ</span>
                     </section>
 
+                    <!-- Control Filter Bar for Assignments -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; background: #ffffff; padding: 10px 14px; border-radius: 10px; border: 1px solid var(--border-color); flex-wrap: wrap; gap: 10px;">
+                        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                            <!-- เลือกหมู่เรียน -->
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <span style="font-size: 12px; font-weight: 700; color: var(--primary-color);">หมู่เรียน:</span>
+                                <select id="adv-asg-section-select" onchange="onAdvisorAssignmentSectionChange(this.value)" style="padding: 5px 10px; font-size: 11.5px; border-radius: 6px; border: 1px solid var(--border-color); background: #f8fafc; font-weight: 600; color: #1e293b;">
+                                    <option value="all">ทุกหมู่เรียนในความดูแล</option>
+                                    <option value="normal">หมู่เรียนภาคปกติ</option>
+                                    <option value="special">หมู่เรียนภาคพิเศษ</option>
+                                </select>
+                            </div>
+                            <!-- เลือกภาคการศึกษา -->
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <span style="font-size: 12px; font-weight: 700; color: var(--primary-color);">ภาคการศึกษา:</span>
+                                <select id="adv-asg-semester-select" onchange="onAdvisorSemesterChange(this.value)" style="padding: 5px 10px; font-size: 11.5px; border-radius: 6px; border: 1px solid var(--border-color); background: #f8fafc; font-weight: 600; color: #1e293b;">
+                                    <option value="ภาคต้น 2569" selected>ภาคต้น 2569 (ปัจจุบัน)</option>
+                                    <option value="ภาคปลาย 2569">ภาคปลาย 2569</option>
+                                    <option value="ภาคฤดูร้อน 2569">ภาคฤดูร้อน 2569</option>
+                                    <option value="ภาคปลาย 2568">ภาคปลาย 2568</option>
+                                    <option value="ภาคต้น 2568">ภาคต้น 2568</option>
+                                    <option value="ภาคปลาย 2567">ภาคปลาย 2567</option>
+                                    <option value="ภาคต้น 2567">ภาคต้น 2567</option>
+                                    <option value="ภาคปลาย 2566">ภาคปลาย 2566</option>
+                                    <option value="ภาคต้น 2566">ภาคต้น 2566</option>
+                                    <option value="all">ทุกภาคการศึกษา</option>
+                                </select>
+                            </div>
+                        </div>
+                        <span style="font-size: 11px; color: var(--text-muted);" id="adv-asg-stat-label">กำลังโหลดข้อมูล...</span>
+                    </div>
+
                     <section class="section-card">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
                             <div>
                                 <div class="section-title" style="margin-bottom: 4px;">รายการการมอบหมายงาน</div>
-                                <div style="font-size: 11px; color: var(--text-muted);">กำหนดการส่งเอกสารและสรุปภาพรวมความคืบหน้าของนิสิตในหมู่เรียน</div>
+                                <div style="font-size: 11px; color: var(--text-muted);">กำหนดการส่งเอกสารและสรุปภาพรวมความคืบหน้าของนิสิต</div>
                             </div>
                             <button class="btn-primary" style="padding: 6px 12px; font-size: 11px; background-color: #2563eb; display: flex; align-items: center; gap: 6px;" onclick="openNewAssignmentModal()">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
@@ -2004,30 +2044,62 @@
 
                 <!-- หน้า: หลักฐานการนิเทศ (Advisor Photo Evidence Page) -->
                 <div id="sec-advisor-photos" class="page-content">
-                    <section class="welcome-banner" style="margin-bottom: 14px; background: linear-gradient(135deg, #1e3a5f 0%, #1e40af 100%);">
-                        <div class="welcome-text">
-                            <h2>หลักฐานการนิเทศ</h2>
-                            <p>บันทึกและดูรูปถ่ายหลักฐานการออกตรวจนิเทศงานของนิสิตในความดูแล</p>
-                        </div>
-                        <span class="role-badge" style="background: rgba(255,255,255,0.22); color: #fff; font-weight: 700;">อาจารย์นิเทศ</span>
-                    </section>
-
+                    <!-- Note: Banner removed per user instruction -->
                     <section class="section-card">
-                        <div class="section-header" style="margin-bottom: 12px;">
-                            <div class="section-title">หลักฐานการนิเทศนิสิต</div>
-                            <div style="display: flex; gap: 8px; align-items: center;">
-                                <select id="adv-photo-sec-select" onchange="renderAdvisorPhotosPage()" style="padding: 5px 10px; font-size: 11px; border-radius: 6px; border: 1px solid var(--border-color); background: #ffffff; font-weight: 600;">
-                                    <option value="all">ทุกหมู่เรียน</option>
-                                    <option value="หมู่ 700">หมู่ 700</option>
-                                    <option value="หมู่ 800">หมู่ 800</option>
-                                </select>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <div class="section-title" style="margin: 0; font-size: 15px;">หลักฐานการนิเทศ</div>
+                                <span id="adv-photos-count-badge" class="badge" style="background-color: #ecfdf5; color: #047857; font-weight: 700;">0 คน</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                <div style="display: flex; align-items: center; gap: 5px;">
+                                    <span style="font-size: 11px; font-weight: 700; color: #475569;">หมู่เรียน:</span>
+                                    <select id="adv-photo-sec-select" onchange="renderAdvisorPhotosPage()" style="padding: 5px 9px; font-size: 11px; border-radius: 6px; border: 1px solid var(--border-color); background: #ffffff; font-weight: 600; color: #1e293b;">
+                                        <option value="all">ทุกหมู่เรียนในความดูแล</option>
+                                        <option value="normal">หมู่เรียนภาคปกติ</option>
+                                        <option value="special">หมู่เรียนภาคพิเศษ</option>
+                                    </select>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 5px;">
+                                    <span style="font-size: 11px; font-weight: 700; color: #475569;">ภาคการศึกษา:</span>
+                                    <select id="adv-photo-semester-select" onchange="onAdvisorSemesterChange(this.value)" style="padding: 5px 9px; font-size: 11px; border-radius: 6px; border: 1px solid var(--border-color); background: #ffffff; font-weight: 600; color: #1e293b;">
+                                    <option value="ภาคต้น 2569" selected>ภาคต้น 2569 (ปัจจุบัน)</option>
+                                    <option value="ภาคปลาย 2569">ภาคปลาย 2569</option>
+                                    <option value="ภาคฤดูร้อน 2569">ภาคฤดูร้อน 2569</option>
+                                    <option value="ภาคปลาย 2568">ภาคปลาย 2568</option>
+                                    <option value="ภาคต้น 2568">ภาคต้น 2568</option>
+                                    <option value="ภาคปลาย 2567">ภาคปลาย 2567</option>
+                                    <option value="ภาคต้น 2567">ภาคต้น 2567</option>
+                                    <option value="ภาคปลาย 2566">ภาคปลาย 2566</option>
+                                    <option value="ภาคต้น 2566">ภาคต้น 2566</option>
+                                    <option value="all">ทุกภาคการศึกษา</option>
+                                    </select>
+                                </div>
+                                <input type="text" id="adv-photo-search-input" oninput="renderAdvisorPhotosPage()" placeholder="ค้นหารหัส / ชื่อ / บริษัท..." style="padding: 5px 9px; font-size: 11px; border: 1px solid var(--border-color); border-radius: 6px; width: 170px; background: #ffffff;">
                             </div>
                         </div>
-                        <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 14px;">
-                            คลิกที่นิสิตเพื่อดูหรืออัปโหลดรูปภาพหลักฐานการออกตรวจนิเทศงาน
+
+                        <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 12px;">
+                            รายชื่อนิสิตในความดูแล สามารถกดแนบรูปภาพหรือเปิดกล้องถ่ายรูปหลักฐานการตรวจนิเทศงาน และลบรูปได้
                         </div>
-                        <div id="adv-photos-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px;">
-                            <!-- Rendered dynamically by renderAdvisorPhotosPage() -->
+
+                        <!-- ตารางรายชื่อนิสิตและหลักฐานการนิเทศ -->
+                        <div style="overflow-x: auto; background: #ffffff; border: 1px solid var(--border-color); border-radius: 8px;">
+                            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 11.5px;">
+                                <thead>
+                                    <tr style="background: #f8fafc; border-bottom: 1px solid var(--border-color); color: #64748b; font-weight: 700;">
+                                        <th style="padding: 10px 12px; white-space: nowrap;">รหัสนิสิต</th>
+                                        <th style="padding: 10px 12px;">ชื่อ-นามสกุล</th>
+                                        <th style="padding: 10px 12px; white-space: nowrap;">หมู่เรียน</th>
+                                        <th style="padding: 10px 12px;">สถานประกอบการ</th>
+                                        <th style="padding: 10px 12px; white-space: nowrap;">สถานะหลักฐาน</th>
+                                        <th style="padding: 10px 12px; text-align: center; white-space: nowrap;">รูปภาพหลักฐาน</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="adv-photos-table-body">
+                                    <!-- Rendered dynamically by renderAdvisorPhotosPage() -->
+                                </tbody>
+                            </table>
                         </div>
                     </section>
                 </div>
@@ -2677,13 +2749,23 @@
                         </div>
                     </div>
 
+                    <!-- Input สำหรับเลือกไฟล์ภาพจากเครื่อง -->
                     <input type="file" id="photo-file-input" accept="image/*" style="display: none;" onchange="handlePhotoUpload(event)">
+                    <!-- Input สำหรับเปิดกล้องถ่ายรูปโดยตรง -->
+                    <input type="file" id="photo-camera-input" accept="image/*" capture="environment" style="display: none;" onchange="handlePhotoUpload(event)">
 
-                    <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 4px;">
-                        <button class="btn-primary" onclick="document.getElementById('photo-file-input').click()">
-                            อัปโหลด / เปลี่ยนรูปภาพหลักฐาน
-                        </button>
-                        <button id="btn-delete-photo" class="btn-primary btn-danger" onclick="deletePhotoEvidence()" style="display: none;">
+                    <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px;">
+                        <div style="display: flex; gap: 8px;">
+                            <button type="button" class="btn-primary" style="flex: 1; padding: 8px; font-size: 11.5px; background-color: #0284c7; display: flex; align-items: center; justify-content: center; gap: 6px;" onclick="document.getElementById('photo-file-input').click()">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                                <span>เลือกรูปภาพจากเครื่อง</span>
+                            </button>
+                            <button type="button" class="btn-primary" style="flex: 1; padding: 8px; font-size: 11.5px; background-color: #059669; display: flex; align-items: center; justify-content: center; gap: 6px;" onclick="document.getElementById('photo-camera-input').click()">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                                <span>ถ่ายรูปด้วยกล้อง</span>
+                            </button>
+                        </div>
+                        <button type="button" id="btn-delete-photo" class="btn-primary btn-danger" onclick="deletePhotoEvidence()" style="display: none; padding: 8px; font-size: 11.5px;">
                             ลบรูปภาพหลักฐาน
                         </button>
                     </div>
@@ -2861,11 +2943,15 @@
                             <div>
                                 <label style="font-size: 11px; font-weight: 600; color: var(--primary-color); display: block; margin-bottom: 3px;">ภาคการศึกษา:</label>
                                 <select id="adv-import-semester-select" style="width: 100%; padding: 7px; font-size: 11.5px; border-radius: 6px; border: 1px solid var(--border-color); background: #ffffff;">
-                                    <option value="ภาคต้น 2569" selected>ภาคต้น 2569</option>
+                                    <option value="ภาคต้น 2569">ภาคต้น 2569 (ปัจจุบัน)</option>
                                     <option value="ภาคปลาย 2569">ภาคปลาย 2569</option>
                                     <option value="ภาคฤดูร้อน 2569">ภาคฤดูร้อน 2569</option>
                                     <option value="ภาคปลาย 2568">ภาคปลาย 2568</option>
                                     <option value="ภาคต้น 2568">ภาคต้น 2568</option>
+                                    <option value="ภาคปลาย 2567">ภาคปลาย 2567</option>
+                                    <option value="ภาคต้น 2567">ภาคต้น 2567</option>
+                                    <option value="ภาคปลาย 2566">ภาคปลาย 2566</option>
+                                    <option value="ภาคต้น 2566">ภาคต้น 2566</option>
                                 </select>
                             </div>
                         </div>
@@ -3299,7 +3385,45 @@
                     { id: '6421650223', student_id: '6421650223', name: 'นาย อรรถพล ธนโชติสิริ', email: 'attapol.th@ku.th', role: 'student', section: 'หมู่ 701 (ภาคปกติ)', company_name: 'บริษัท ช้อปปี้ (ประเทศไทย) จำกัด', advisor_name: 'อาจารย์ สมหญิง จงจิต', docs: 'ครบถ้วน', status: 'นิเทศแล้ว', score: 90, feedback: 'พัฒนาตนเองได้รวดเร็ว สามารถทำงานร่วมกับทีมวิศวกรรมได้ดี', semester: 'ภาคต้น 2568' },
                     { id: '6421655224', student_id: '6421655224', name: 'นางสาว กัญญารัตน์ ชาญณรงค์', email: 'kanyarat.ch@ku.th', role: 'student', section: 'หมู่ 801 (ภาคพิเศษ)', company_name: 'บริษัท ทรู คอร์ปอเรชั่น จำกัด (มหาชน)', advisor_name: 'อาจารย์ สมหญิง จงจิต', docs: 'ครบถ้วน', status: 'นิเทศแล้ว', score: 87, feedback: 'ปฏิบัติงานได้ตามเป้าหมายของสถานประกอบการเรียบร้อยดี', semester: 'ภาคต้น 2568' },
                     { id: '6421650325', student_id: '6421650325', name: 'นาย ปฏิภาณ วรเกียรติ', email: 'patiphan.wo@ku.th', role: 'student', section: 'หมู่ 702 (ภาคปกติ)', company_name: 'บริษัท ปตท. สำรวจและผลิตปิโตรเลียม จำกัด (มหาชน)', advisor_name: 'อาจารย์ สมจิต มั่งมี', docs: 'ครบถ้วน', status: 'นิเทศแล้ว', score: 94, feedback: 'มีความคิดริเริ่มสร้างสรรค์ และส่งงานตรงต่อเวลาสม่ำเสมอ', semester: 'ภาคต้น 2568' },
-                    { id: '6421655326', student_id: '6421655326', name: 'นางสาว พัชรพร บูรณสมภพ', email: 'patcharaporn.bu@ku.th', role: 'student', section: 'หมู่ 802 (ภาคพิเศษ)', company_name: 'สำนักงานพัฒนาธุรกรรมทางอิเล็กทรอนิกส์ (ETDA)', advisor_name: 'อาจารย์ สมจิต มั่งมี', docs: 'ครบถ้วน', status: 'นิเทศแล้ว', score: 91, feedback: 'ทำงานเอกสารและการประสานงานได้เป็นระเบียบเรียบร้อยมาก', semester: 'ภาคต้น 2568' }
+                    { id: '6421655326', student_id: '6421655326', name: 'นางสาว พัชรพร บูรณสมภพ', email: 'patcharaporn.bu@ku.th', role: 'student', section: 'หมู่ 802 (ภาคพิเศษ)', company_name: 'สำนักงานพัฒนาธุรกรรมทางอิเล็กทรอนิกส์ (ETDA)', advisor_name: 'อาจารย์ สมจิต มั่งมี', docs: 'ครบถ้วน', status: 'นิเทศแล้ว', score: 91, feedback: 'ทำงานเอกสารและการประสานงานได้เป็นระเบียบเรียบร้อยมาก', semester: 'ภาคต้น 2568' },
+
+                    // ==========================================
+                    // ข้อมูลประวัติย้อนหลัง: ภาคการศึกษา 2567 (12 นิสิตรุ่นพี่)
+                    // ==========================================
+                    // ภาคปลาย 2567 (6 นิสิต)
+                    { id: '6321650111', student_id: '6321650111', name: 'นาย วศิน พรหมมินทร์', email: 'wasin.p@ku.th', role: 'student', section: 'หมู่ 700 (ภาคปกติ)', company_name: 'บริษัท แสนสิริ จำกัด (มหาชน)', advisor_name: 'อาจารย์ สมชาย แจ่มใส', docs: 'ครบถ้วน', status: 'นิเทศแล้ว', score: 92, feedback: 'พัฒนาแอปพลิเคชันได้ตรงตามความต้องการ มีวินัยสูง', semester: 'ภาคปลาย 2567' },
+                    { id: '6321655112', student_id: '6321655112', name: 'นางสาว ปาณิสรา วัฒนโภคา', email: 'panisara.w@ku.th', role: 'student', section: 'หมู่ 800 (ภาคพิเศษ)', company_name: 'บริษัท อโกด้า เซอร์วิสเซส จำกัด', advisor_name: 'อาจารย์ สมชาย แจ่มใส', docs: 'ครบถ้วน', status: 'นิเทศแล้ว', score: 95, feedback: 'ทักษะภาษาอังกฤษและการสื่อสารดีเยี่ยม ทำงานเป็นทีมได้ดี', semester: 'ภาคปลาย 2567' },
+                    { id: '6321650213', student_id: '6321650213', name: 'นาย ธนกร อมรเดชา', email: 'thanakorn.a@ku.th', role: 'student', section: 'หมู่ 701 (ภาคปกติ)', company_name: 'ธนาคารกสิกรไทย จำกัด (มหาชน)', advisor_name: 'อาจารย์ สมหญิง จงจิต', docs: 'ครบถ้วน', status: 'นิเทศแล้ว', score: 90, feedback: 'เข้าใจขั้นตอนงาน Data Analytics รวดเร็ว', semester: 'ภาคปลาย 2567' },
+                    { id: '6321655214', student_id: '6321655214', name: 'นางสาว ศิริพร วิมลชัย', email: 'siriporn.w@ku.th', role: 'student', section: 'หมู่ 801 (ภาคพิเศษ)', company_name: 'บริษัท สามารถคอร์ปอเรชั่น จำกัด (มหาชน)', advisor_name: 'อาจารย์ สมหญิง จงจิต', docs: 'ครบถ้วน', status: 'นิเทศแล้ว', score: 88, feedback: 'มีความกระตือรือร้นในการเรียนรู้เทคโนโลยีใหม่', semester: 'ภาคปลาย 2567' },
+                    { id: '6321650315', student_id: '6321650315', name: 'นาย กานต์ ธนะสิทธิ์', email: 'karn.t@ku.th', role: 'student', section: 'หมู่ 702 (ภาคปกติ)', company_name: 'บริษัท ทรู คอร์ปอเรชั่น จำกัด (มหาชน)', advisor_name: 'อาจารย์ สมจิต มั่งมี', docs: 'ครบถ้วน', status: 'นิเทศแล้ว', score: 93, feedback: 'ส่งงานตรงเวลา มีความรับผิดชอบต่องานสูง', semester: 'ภาคปลาย 2567' },
+                    { id: '6321655316', student_id: '6321655316', name: 'นางสาว ชญานี เจริญชัย', email: 'chayanee.c@ku.th', role: 'student', section: 'หมู่ 802 (ภาคพิเศษ)', company_name: 'สำนักงานนวัตกรรมแห่งชาติ (สนช.)', advisor_name: 'อาจารย์ สมจิต มั่งมี', docs: 'ครบถ้วน', status: 'นิเทศแล้ว', score: 91, feedback: 'มีทักษะการประสานงานและเขียนรายงานวิจัยยอดเยี่ยม', semester: 'ภาคปลาย 2567' },
+
+                    // ภาคต้น 2567 (6 นิสิต)
+                    { id: '6321650121', student_id: '6321650121', name: 'นาย ภควัต จิตติพงศ์', email: 'pakawat.j@ku.th', role: 'student', section: 'หมู่ 700 (ภาคปกติ)', company_name: 'การไฟฟ้าฝ่ายผลิตแห่งประเทศไทย (กฟผ.)', advisor_name: 'อาจารย์ สมชาย แจ่มใส', docs: 'ครบถ้วน', status: 'นิเทศแล้ว', score: 89, feedback: 'ผลงานโครงงานผ่านการประเมินในเกณฑ์ดีมาก', semester: 'ภาคต้น 2567' },
+                    { id: '6321655122', student_id: '6321655122', name: 'นางสาว ณภัทร ชาญวณิช', email: 'naphat.c@ku.th', role: 'student', section: 'หมู่ 800 (ภาคพิเศษ)', company_name: 'บริษัท บิตคับ ออนไลน์ จำกัด (Bitkub)', advisor_name: 'อาจารย์ สมชาย แจ่มใส', docs: 'ครบถ้วน', status: 'นิเทศแล้ว', score: 94, feedback: 'เชี่ยวชาญด้าน Smart Contract และระบบบล็อกเชน', semester: 'ภาคต้น 2567' },
+                    { id: '6321650223', student_id: '6321650223', name: 'นาย อิทธิพล เหมรัตน์', email: 'itthiphon.h@ku.th', role: 'student', section: 'หมู่ 701 (ภาคปกติ)', company_name: 'บริษัท เบทาโกร จำกัด (มหาชน)', advisor_name: 'อาจารย์ สมหญิง จงจิต', docs: 'ครบถ้วน', status: 'นิเทศแล้ว', score: 87, feedback: 'เข้ากับเพื่อนร่วมงานได้ดี มีทักษะการสื่อสารดี', semester: 'ภาคต้น 2567' },
+                    { id: '6321655224', student_id: '6321655224', name: 'นางสาว นันท์นภัส บุญชู', email: 'nannaphat.b@ku.th', role: 'student', section: 'หมู่ 801 (ภาคพิเศษ)', company_name: 'บริษัท ไลน์ คอมพานี (ประเทศไทย) จำกัด', advisor_name: 'อาจารย์ สมหญิง จงจิต', docs: 'ครบถ้วน', status: 'นิเทศแล้ว', score: 96, feedback: 'ผลงานโดดเด่น สถานประกอบการชื่นชมเป็นพิเศษ', semester: 'ภาคต้น 2567' },
+                    { id: '6321650325', student_id: '6321650325', name: 'นาย อภิเชษฐ์ ปรีชา', email: 'aphichet.p@ku.th', role: 'student', section: 'หมู่ 702 (ภาคปกติ)', company_name: 'สถาบันวิจัยวิทยาศาสตร์และเทคโนโลยีฯ', advisor_name: 'อาจารย์ สมจิต มั่งมี', docs: 'ครบถ้วน', status: 'นิเทศแล้ว', score: 90, feedback: 'ปฏิบัติตามกฎระเบียบห้องแล็บอย่างเคร่งครัด', semester: 'ภาคต้น 2567' },
+                    { id: '6321655326', student_id: '6321655326', name: 'นางสาว สุพัชรา สิทธิกร', email: 'supatchara.s@ku.th', role: 'student', section: 'หมู่ 802 (ภาคพิเศษ)', company_name: 'บริษัท ปตท. สำรวจและผลิตปิโตรเลียม จำกัด (มหาชน)', advisor_name: 'อาจารย์ สมจิต มั่งมี', docs: 'ครบถ้วน', status: 'นิเทศแล้ว', score: 93, feedback: 'วิเคราะห์ข้อมูลทางเทคนิคได้ละเอียดรอบคอบ', semester: 'ภาคต้น 2567' },
+
+                    // ==========================================
+                    // ข้อมูลประวัติย้อนหลัง: ภาคการศึกษา 2566 (12 นิสิตรุ่นพี่)
+                    // ==========================================
+                    // ภาคปลาย 2566 (6 นิสิต)
+                    { id: '6221650111', student_id: '6221650111', name: 'นาย ภาสกร กิจเจริญ', email: 'pasakorn.k@ku.th', role: 'student', section: 'หมู่ 700 (ภาคปกติ)', company_name: 'บริษัท กสท โทรคมนาคม จำกัด (มหาชน)', advisor_name: 'อาจารย์ สมชาย แจ่มใส', docs: 'ครบถ้วน', status: 'นิเทศแล้ว', score: 91, feedback: 'ดูแลระบบเครือข่ายได้ดี มีทักษะแก้ปัญหาเฉพาะหน้าดี', semester: 'ภาคปลาย 2566' },
+                    { id: '6221655112', student_id: '6221655112', name: 'นางสาว ชิดชนก วรพงศ์', email: 'chidchanok.w@ku.th', role: 'student', section: 'หมู่ 800 (ภาคพิเศษ)', company_name: 'บริษัท ดิจิทัล เวนเจอร์ส จำกัด', advisor_name: 'อาจารย์ สมชาย แจ่มใส', docs: 'ครบถ้วน', status: 'นิเทศแล้ว', score: 93, feedback: 'สร้างสรรค์ฟีเจอร์ FinTech มีประโยชน์ต่อองค์กร', semester: 'ภาคปลาย 2566' },
+                    { id: '6221650213', student_id: '6221650213', name: 'นาย ศุภวิชญ์ เมธาวี', email: 'supawit.m@ku.th', role: 'student', section: 'หมู่ 701 (ภาคปกติ)', company_name: 'ธนาคารไทยพาณิชย์ จำกัด (มหาชน) (SCB TechX)', advisor_name: 'อาจารย์ สมหญิง จงจิต', docs: 'ครบถ้วน', status: 'นิเทศแล้ว', score: 90, feedback: 'เรียนรู้ระบบ Cloud และ DevOps ได้รวดเร็ว', semester: 'ภาคปลาย 2566' },
+                    { id: '6221655214', student_id: '6221655214', name: 'นางสาว วรรณภา ศรีสุข', email: 'wannapa.s@ku.th', role: 'student', section: 'หมู่ 801 (ภาคพิเศษ)', company_name: 'บริษัท แอดวานซ์ อินโฟร์ เซอร์วิส จำกัด (มหาชน)', advisor_name: 'อาจารย์ สมหญิง จงจิต', docs: 'ครบถ้วน', status: 'นิเทศแล้ว', score: 89, feedback: 'ประสานงานลูกค้าองค์กรได้สุภาพเรียบร้อย', semester: 'ภาคปลาย 2566' },
+                    { id: '6221650315', student_id: '6221650315', name: 'นาย เอกราช ประเสริฐผล', email: 'ekkarat.p@ku.th', role: 'student', section: 'หมู่ 702 (ภาคปกติ)', company_name: 'ตลาดหลักทรัพย์แห่งประเทศไทย (SET)', advisor_name: 'อาจารย์ สมจิต มั่งมี', docs: 'ครบถ้วน', status: 'นิเทศแล้ว', score: 94, feedback: 'พัฒนาแดชบอร์ดติดตามข้อมูลหุ้นได้อย่างถูกต้อง', semester: 'ภาคปลาย 2566' },
+                    { id: '6221655316', student_id: '6221655316', name: 'นางสาว ปัทมา รุ่งเรือง', email: 'pattama.r@ku.th', role: 'student', section: 'หมู่ 802 (ภาคพิเศษ)', company_name: 'บริษัท เกร็บ (ประเทศไทย) จำกัด', advisor_name: 'อาจารย์ สมจิต มั่งมี', docs: 'ครบถ้วน', status: 'นิเทศแล้ว', score: 92, feedback: 'ทัศนคติดีเยี่ยม มีความคิดเชิงตรรกะดี', semester: 'ภาคปลาย 2566' },
+
+                    // ภาคต้น 2566 (6 นิสิต)
+                    { id: '6221650121', student_id: '6221650121', name: 'นาย ธนภัทร สุวรรณโชติ', email: 'thanaphat.s@ku.th', role: 'student', section: 'หมู่ 700 (ภาคปกติ)', company_name: 'บริษัท พีทีที ดิจิตอล โซลูชั่น จำกัด', advisor_name: 'อาจารย์ สมชาย แจ่มใส', docs: 'ครบถ้วน', status: 'นิเทศแล้ว', score: 88, feedback: 'ทำงานระบบฐานข้อมูลได้ถูกต้องแม่นยำ', semester: 'ภาคต้น 2566' },
+                    { id: '6221655122', student_id: '6221655122', name: 'นางสาว มนัสชนก ยั่งยืน', email: 'manatsanok.y@ku.th', role: 'student', section: 'หมู่ 800 (ภาคพิเศษ)', company_name: 'บริษัท ซีพี ออลล์ จำกัด (มหาชน)', advisor_name: 'อาจารย์ สมชาย แจ่มใส', docs: 'ครบถ้วน', status: 'นิเทศแล้ว', score: 91, feedback: 'ส่งรายงานตรงเวลา มีความมุ่งมั่นตั้งใจสูง', semester: 'ภาคต้น 2566' },
+                    { id: '6221650223', student_id: '6221650223', name: 'นาย พชรพล เกียรติสกุล', email: 'pacharapol.k@ku.th', role: 'student', section: 'หมู่ 701 (ภาคปกติ)', company_name: 'บริษัท การบินไทย จำกัด (มหาชน)', advisor_name: 'อาจารย์ สมหญิง จงจิต', docs: 'ครบถ้วน', status: 'นิเทศแล้ว', score: 89, feedback: 'ช่วยเหลืองานทีมไอทีได้เป็นอย่างดี', semester: 'ภาคต้น 2566' },
+                    { id: '6221655224', student_id: '6221655224', name: 'นางสาว พิชญาภา อารีวัลย์', email: 'pichayapa.a@ku.th', role: 'student', section: 'หมู่ 801 (ภาคพิเศษ)', company_name: 'ธนาคารกรุงไทย จำกัด (มหาชน)', advisor_name: 'อาจารย์ สมหญิง จงจิต', docs: 'ครบถ้วน', status: 'นิเทศแล้ว', score: 95, feedback: 'ผลงานระบบโมบายแบงก์กิ้งยอดเยี่ยม', semester: 'ภาคต้น 2566' },
+                    { id: '6221650325', student_id: '6221650325', name: 'นาย สหรัฐ อัครโยธิน', email: 'saharat.a@ku.th', role: 'student', section: 'หมู่ 702 (ภาคปกติ)', company_name: 'สำนักงานพัฒนาธุรกรรมทางอิเล็กทรอนิกส์ (ETDA)', advisor_name: 'อาจารย์ สมจิต มั่งมี', docs: 'ครบถ้วน', status: 'นิเทศแล้ว', score: 90, feedback: 'เข้าใจมาตรฐานความปลอดภัยไซเบอร์เป็นอย่างดี', semester: 'ภาคต้น 2566' },
+                    { id: '6221655326', student_id: '6221655326', name: 'นางสาว พิมลดา ธนารัตน์', email: 'pimonlada.t@ku.th', role: 'student', section: 'หมู่ 802 (ภาคพิเศษ)', company_name: 'บริษัท กัลฟ์ เอ็นเนอร์จี ดีเวลลอปเมนท์ จำกัด (มหาชน)', advisor_name: 'อาจารย์ สมจิต มั่งมี', docs: 'ครบถ้วน', status: 'นิเทศแล้ว', score: 93, feedback: 'มีทักษะการนำเสนอและการวิเคราะห์ข้อมูลที่ดีมาก', semester: 'ภาคต้น 2566' }
                 ]
             };
         }
@@ -3352,7 +3476,7 @@
                 const seededDocStudentIds = new Set(submittedDocs.map(d => String(d.studentId)));
                 let docsAdded = false;
 
-                seeds.students.filter(s => s.semester && s.semester.includes('2568')).forEach(s => {
+                seeds.students.filter(s => s.semester && (s.semester.includes('2568') || s.semester.includes('2567') || s.semester.includes('2566'))).forEach(s => {
                     if (!seededDocStudentIds.has(String(s.id))) {
                         submittedDocs.push({
                             id: 'doc-hist-' + s.id + '-1',
@@ -4504,9 +4628,13 @@
             const dashSel = document.getElementById('adv-semester-dash-select');
             const tabSel = document.getElementById('adv-semester-select-tab');
             const classSel = document.getElementById('adv-classroom-semester-select');
+            const asgSel = document.getElementById('adv-asg-semester-select');
+            const photoSel = document.getElementById('adv-photo-semester-select');
             if (dashSel) dashSel.value = val;
             if (tabSel) tabSel.value = val;
             if (classSel) classSel.value = val;
+            if (asgSel) asgSel.value = val;
+            if (photoSel) photoSel.value = val;
 
             const statLabel = document.getElementById('adv-semester-stat-label');
             if (statLabel) {
@@ -4519,6 +4647,9 @@
             }
             if (typeof renderAdvisorAssignments === 'function') {
                 renderAdvisorAssignments();
+            }
+            if (typeof renderAdvisorPhotosPage === 'function') {
+                renderAdvisorPhotosPage();
             }
         }
 
@@ -5419,23 +5550,69 @@
         // ----------------------------------------------------
         // ADVISOR ASSIGNMENTS & SECTION OVERVIEW RENDERING
         // ----------------------------------------------------
+        let advisorAssignmentSectionFilter = 'all';
+
+        function onAdvisorAssignmentSectionChange(val) {
+            advisorAssignmentSectionFilter = val;
+            renderAdvisorAssignments();
+        }
+
         function renderAdvisorAssignments() {
             const container = document.getElementById('adv-assignments-list-container');
             if (!container) return;
             container.innerHTML = '';
 
-            const allAsgs = getCoopAssignments();
-            const currentSec = currentSelectedClassroom || 'หมู่ 700';
-
-            // Filter assignments for this section or 'all'
-            const secAsgs = allAsgs.filter(a => a.section === 'all' || a.section === currentSec);
-
-            // Get students in this classroom filtered by semester
             loadDynamicStudentsData();
-            let stdList = studentsData[currentSec] || [];
+            const { mySecNormal, mySecSpecial } = getAdvisorSections();
+
+            // Populate Section dropdown options in assignments page if needed
+            const secSelect = document.getElementById('adv-asg-section-select');
+            if (secSelect) {
+                const optNormal = secSelect.querySelector('option[value="normal"]');
+                if (optNormal) optNormal.textContent = `${mySecNormal} (ภาคปกติ)`;
+                const optSpecial = secSelect.querySelector('option[value="special"]');
+                if (optSpecial) optSpecial.textContent = `${mySecSpecial} (ภาคพิเศษ)`;
+                secSelect.value = advisorAssignmentSectionFilter;
+            }
+
+            // Sync Semester dropdown
+            const semSelect = document.getElementById('adv-asg-semester-select');
+            if (semSelect) {
+                semSelect.value = advisorSelectedSemester;
+            }
+
+            // Determine active sections to inspect
+            let activeSections = [];
+            let secLabelText = '';
+            if (advisorAssignmentSectionFilter === 'normal') {
+                activeSections = [mySecNormal];
+                secLabelText = mySecNormal;
+            } else if (advisorAssignmentSectionFilter === 'special') {
+                activeSections = [mySecSpecial];
+                secLabelText = mySecSpecial;
+            } else {
+                activeSections = [mySecNormal, mySecSpecial];
+                secLabelText = `ทุกหมู่เรียน (${mySecNormal}, ${mySecSpecial})`;
+            }
+
+            // Get students for active sections filtered by semester
+            let stdList = [];
+            activeSections.forEach(s => {
+                const arr = studentsData[s] || [];
+                stdList.push(...arr);
+            });
+
             if (advisorSelectedSemester && advisorSelectedSemester !== 'all') {
                 stdList = stdList.filter(s => (s.semester || 'ภาคต้น 2569') === advisorSelectedSemester);
             }
+
+            const allAsgs = getCoopAssignments();
+            // Filter assignments that match active sections or are assigned to 'all'
+            const secAsgs = allAsgs.filter(a => 
+                a.section === 'all' || 
+                activeSections.includes(a.section) ||
+                (advisorAssignmentSectionFilter === 'all' && (a.section === mySecNormal || a.section === mySecSpecial))
+            );
 
             const allDocs = getSubmittedDocs();
             const totalStudents = stdList.length;
@@ -5443,6 +5620,13 @@
             // Update badge count
             const asgBadge = document.getElementById('adv-badge-asg-count');
             if (asgBadge) asgBadge.textContent = secAsgs.length;
+
+            // Stat label
+            const statLabel = document.getElementById('adv-asg-stat-label');
+            if (statLabel) {
+                const semText = advisorSelectedSemester === 'all' ? 'ทุกภาคการศึกษา' : advisorSelectedSemester;
+                statLabel.textContent = `แสดง: ${secLabelText} | ภาค: ${semText} (นิสิต ${totalStudents} คน)`;
+            }
 
             // Calculate overall submission rate
             let totalPossibleSubmissions = totalStudents * secAsgs.length;
@@ -5465,7 +5649,7 @@
             if (overallPercentEl) overallPercentEl.textContent = `${overallPercent}% (${actualSubmissions}/${totalPossibleSubmissions} งาน)`;
             const overallDescEl = document.getElementById('adv-asg-overall-desc');
             if (overallDescEl) {
-                overallDescEl.textContent = `นิสิตใน ${currentSec} ส่งงานแล้ว ${actualSubmissions} จากเป้าหมายทั้งหมด ${totalPossibleSubmissions} รายการ (คิดเป็น ${overallPercent}%)`;
+                overallDescEl.textContent = `นิสิตใน ${secLabelText} ส่งงานแล้ว ${actualSubmissions} จากเป้าหมายทั้งหมด ${totalPossibleSubmissions} รายการ (คิดเป็น ${overallPercent}%)`;
             }
 
             if (secAsgs.length === 0) {
@@ -6772,12 +6956,25 @@
             reader.readAsDataURL(file);
         }
 
-        function openPhotoModal(id, name) {
+        function openPhotoModal(id, name, sec) {
             currentSelectedStudentId = id;
+            if (sec) currentSelectedClassroom = sec;
             document.getElementById('photo-student-name').textContent = `${name} (${id})`;
             
-            const list = studentsData[currentSelectedClassroom] || [];
-            const std = list.find(s => s.id === id);
+            loadDynamicStudentsData();
+            let std = null;
+            if (currentSelectedClassroom && studentsData[currentSelectedClassroom]) {
+                std = studentsData[currentSelectedClassroom].find(s => String(s.id) === String(id));
+            }
+            if (!std) {
+                for (let sSec in studentsData) {
+                    std = (studentsData[sSec] || []).find(s => String(s.id) === String(id));
+                    if (std) {
+                        currentSelectedClassroom = sSec;
+                        break;
+                    }
+                }
+            }
             
             const img = document.getElementById('photo-preview-img');
             const emptyText = document.getElementById('photo-empty-text');
@@ -6805,82 +7002,172 @@
             const reader = new FileReader();
             reader.onload = async function(e) {
                 const photoDataUrl = e.target.result;
-                const list = studentsData[currentSelectedClassroom] || [];
-                const std = list.find(s => s.id === currentSelectedStudentId);
+                loadDynamicStudentsData();
+                let std = null;
+                for (let sSec in studentsData) {
+                    std = (studentsData[sSec] || []).find(s => String(s.id) === String(currentSelectedStudentId));
+                    if (std) break;
+                }
                 if (std) {
                     std.photo = photoDataUrl;
-                    // Save to Supabase DB
-                    await dbUploadPhoto(std.id, photoDataUrl);
-                    alert(`บันทึกรูปถ่ายหลักฐานของ ${std.name} ลง Database (Supabase) เรียบร้อยแล้ว`);
+                    // Persist to customUsers in localStorage
+                    try {
+                        let customUsers = JSON.parse(localStorage.getItem('customUsers') || '{}');
+                        const emailKey = String(std.email || '').toLowerCase().trim();
+                        if (emailKey && customUsers[emailKey]) {
+                            customUsers[emailKey].photo = photoDataUrl;
+                        }
+                        if (customUsers[std.id]) {
+                            customUsers[std.id].photo = photoDataUrl;
+                        }
+                        localStorage.setItem('customUsers', JSON.stringify(customUsers));
+                    } catch (err) {}
+
+                    // Save to Supabase DB if available
+                    try {
+                        if (typeof dbUploadPhoto === 'function') {
+                            await dbUploadPhoto(std.id, photoDataUrl);
+                        }
+                    } catch (err) {}
+
+                    alert(`บันทึกรูปถ่ายหลักฐานของ ${std.name} เรียบร้อยแล้ว`);
                     openPhotoModal(std.id, std.name);
+                    if (typeof renderAdvisorPhotosPage === 'function') renderAdvisorPhotosPage();
+                    if (typeof renderStudentList === 'function') renderStudentList();
                 }
             };
             reader.readAsDataURL(file);
+            event.target.value = '';
         }
 
         function deletePhotoEvidence() {
             if (!confirm('คุณต้องการลบรูปภาพหลักฐานการออกตรวจนี้หรือไม่?')) return;
-            const list = studentsData[currentSelectedClassroom] || [];
-            const std = list.find(s => s.id === currentSelectedStudentId);
+            loadDynamicStudentsData();
+            let std = null;
+            for (let sSec in studentsData) {
+                std = (studentsData[sSec] || []).find(s => String(s.id) === String(currentSelectedStudentId));
+                if (std) break;
+            }
             if (std) {
                 std.photo = '';
+                try {
+                    let customUsers = JSON.parse(localStorage.getItem('customUsers') || '{}');
+                    const emailKey = String(std.email || '').toLowerCase().trim();
+                    if (emailKey && customUsers[emailKey]) {
+                        customUsers[emailKey].photo = '';
+                    }
+                    if (customUsers[std.id]) {
+                        customUsers[std.id].photo = '';
+                    }
+                    localStorage.setItem('customUsers', JSON.stringify(customUsers));
+                } catch (err) {}
+
                 alert('ลบรูปภาพหลักฐานเรียบร้อยแล้ว');
                 openPhotoModal(std.id, std.name);
+                if (typeof renderAdvisorPhotosPage === 'function') renderAdvisorPhotosPage();
+                if (typeof renderStudentList === 'function') renderStudentList();
             }
         }
 
         function renderAdvisorPhotosPage() {
-            const grid = document.getElementById('adv-photos-grid');
-            if (!grid) return;
-            grid.innerHTML = '';
+            const tbody = document.getElementById('adv-photos-table-body');
+            if (!tbody) return;
+            tbody.innerHTML = '';
 
             loadDynamicStudentsData();
-            const secFilter = document.getElementById('adv-photo-sec-select') ? document.getElementById('adv-photo-sec-select').value : 'all';
+            const { mySecNormal, mySecSpecial } = getAdvisorSections();
 
-            const sections = secFilter === 'all' ? ['หมู่ 700', 'หมู่ 800'] : [secFilter];
-            let hasAny = false;
+            // Populate section options
+            const secSelect = document.getElementById('adv-photo-sec-select');
+            if (secSelect) {
+                const optNormal = secSelect.querySelector('option[value="normal"]');
+                if (optNormal) optNormal.textContent = `${mySecNormal} (ภาคปกติ)`;
+                const optSpecial = secSelect.querySelector('option[value="special"]');
+                if (optSpecial) optSpecial.textContent = `${mySecSpecial} (ภาคพิเศษ)`;
+            }
 
-            sections.forEach(sec => {
+            // Sync semester select
+            const semSelect = document.getElementById('adv-photo-semester-select');
+            if (semSelect) {
+                semSelect.value = advisorSelectedSemester;
+            }
+
+            const secChoice = secSelect ? secSelect.value : 'all';
+            const searchVal = document.getElementById('adv-photo-search-input') ? document.getElementById('adv-photo-search-input').value.trim().toLowerCase() : '';
+
+            let targetSections = [];
+            if (secChoice === 'normal') {
+                targetSections = [mySecNormal];
+            } else if (secChoice === 'special') {
+                targetSections = [mySecSpecial];
+            } else {
+                targetSections = [mySecNormal, mySecSpecial];
+            }
+
+            let allList = [];
+            targetSections.forEach(sec => {
                 const list = studentsData[sec] || [];
                 list.forEach(std => {
-                    hasAny = true;
-                    const hasPhoto = std.photo && std.photo.length > 0;
-                    const card = document.createElement('div');
-                    card.style.cssText = 'border: 1px solid var(--border-color); border-radius: 10px; overflow: hidden; cursor: pointer; transition: box-shadow 0.2s;';
-                    card.onmouseover = () => { card.style.boxShadow = '0 4px 12px rgba(0,0,0,0.12)'; };
-                    card.onmouseout = () => { card.style.boxShadow = ''; };
-                    card.onclick = () => {
-                        currentSelectedClassroom = sec;
-                        openPhotoModal(std.id, std.name);
-                    };
-
-                    const imgArea = document.createElement('div');
-                    imgArea.style.cssText = 'width: 100%; height: 130px; background: #f1f5f9; display: flex; align-items: center; justify-content: center; overflow: hidden;';
-
-                    if (hasPhoto) {
-                        const img = document.createElement('img');
-                        img.src = std.photo;
-                        img.style.cssText = 'width: 100%; height: 100%; object-fit: cover;';
-                        imgArea.appendChild(img);
-                    } else {
-                        imgArea.innerHTML = '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>';
-                    }
-
-                    const info = document.createElement('div');
-                    info.style.cssText = 'padding: 8px 10px;';
-                    info.innerHTML = `<div style="font-size: 11px; font-weight: 700; color: var(--primary-color); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${std.name}</div>
-                        <div style="font-size: 10px; color: var(--text-muted);">${std.id} | ${sec}</div>
-                        <div style="font-size: 10px; margin-top: 4px; color: ${hasPhoto ? '#059669' : '#94a3b8'}; font-weight: 600;">${hasPhoto ? 'มีรูปหลักฐาน' : 'ยังไม่มีรูป'}</div>`;
-
-                    card.appendChild(imgArea);
-                    card.appendChild(info);
-                    grid.appendChild(card);
+                    allList.push({ ...std, _assignedSection: sec });
                 });
             });
 
-            if (!hasAny) {
-                grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 24px; color: var(--text-muted); font-size: 12px;">ยังไม่มีข้อมูลนิสิตในระบบ</div>';
+            // Filter by semester
+            if (advisorSelectedSemester && advisorSelectedSemester !== 'all') {
+                allList = allList.filter(s => (s.semester || 'ภาคต้น 2569') === advisorSelectedSemester);
             }
+
+            // Filter by search
+            if (searchVal) {
+                allList = allList.filter(s => 
+                    (s.id && String(s.id).toLowerCase().includes(searchVal)) ||
+                    (s.name && s.name.toLowerCase().includes(searchVal)) ||
+                    (s.company && s.company.toLowerCase().includes(searchVal))
+                );
+            }
+
+            const countBadge = document.getElementById('adv-photos-count-badge');
+            if (countBadge) countBadge.textContent = `${allList.length} คน`;
+
+            if (allList.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 24px; color: var(--text-muted); font-size: 12px;">ไม่พบรายชื่อนิสิตในตัวกรองนี้</td></tr>`;
+                return;
+            }
+
+            allList.forEach(std => {
+                const hasPhoto = !!(std.photo && std.photo.length > 0);
+                const tr = document.createElement('tr');
+                tr.style.borderBottom = '1px solid var(--border-color)';
+
+                tr.innerHTML = `
+                    <td style="padding: 10px 12px; font-weight: 700; color: var(--primary-color); white-space: nowrap;">${std.id}</td>
+                    <td style="padding: 10px 12px; font-weight: 600; color: var(--text-main);">${std.name}</td>
+                    <td style="padding: 10px 12px; white-space: nowrap; color: #475569; font-weight: 600;">${std.section || std._assignedSection}</td>
+                    <td style="padding: 10px 12px; color: #334155;">${std.company || '-'}</td>
+                    <td style="padding: 10px 12px; white-space: nowrap;">
+                        ${hasPhoto ? 
+                            `<span class="status-badge badge-success" style="display: inline-flex; align-items: center; gap: 4px;">มีรูปหลักฐานแล้ว</span>` : 
+                            `<span class="status-badge badge-neutral" style="color: #64748b;">ยังไม่มีรูป</span>`
+                        }
+                    </td>
+                    <td style="padding: 10px 12px; text-align: center; white-space: nowrap;">
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            ${hasPhoto ? `
+                                <img src="${std.photo}" alt="รูปหลักฐาน" style="width: 32px; height: 32px; object-fit: cover; border-radius: 4px; border: 1px solid var(--border-color); cursor: pointer;" onclick="openPhotoModal('${std.id}', '${std.name}', '${std._assignedSection}')" title="คลิกเพื่อดูรูปใหญ่">
+                                <button type="button" class="btn-primary" style="padding: 5px 10px; font-size: 11px; background-color: #0284c7;" onclick="openPhotoModal('${std.id}', '${std.name}', '${std._assignedSection}')">
+                                    ดู / จัดการรูป
+                                </button>
+                            ` : `
+                                <button type="button" class="btn-primary" style="padding: 5px 10px; font-size: 11px; background-color: #059669; display: inline-flex; align-items: center; gap: 4px;" onclick="openPhotoModal('${std.id}', '${std.name}', '${std._assignedSection}')">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                                    <span>+ แนบรูป / ถ่ายรูป</span>
+                                </button>
+                            `}
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
         }
 
 
