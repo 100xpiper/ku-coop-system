@@ -4225,6 +4225,42 @@
         }
 
         function getInitialUser() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const userParam = urlParams.get('user');
+            if (userParam === 'advisor') {
+                return {
+                    id: 'Q1111',
+                    advisor_id: 'Q1111',
+                    name: 'อาจารย์ สมชาย แจ่มใส',
+                    email: 'somchai.j@ku.th',
+                    role: 'advisor',
+                    section: 'หมู่ 700, หมู่ 800'
+                };
+            }
+            if (userParam === 'admin') {
+                return {
+                    id: 'adminku',
+                    name: 'ผู้ดูแลระบบ (Admin)',
+                    email: 'admin@ku.th',
+                    role: 'admin'
+                };
+            }
+            if (userParam === 'student') {
+                return {
+                    id: '6521650101',
+                    student_id: '6521650101',
+                    name: 'นาย กิตติศักดิ์ พลอยประเสริฐ',
+                    email: 'kittisak.plo@ku.th',
+                    role: 'student',
+                    section: 'หมู่ 700 (ภาคปกติ)',
+                    company_name: 'บริษัท กสท โทรคมนาคม จำกัด (มหาชน)',
+                    advisor_name: 'อาจารย์ สมชาย แจ่มใส',
+                    docs: 'ครบถ้วน',
+                    status: 'นิเทศแล้ว',
+                    score: 95
+                };
+            }
+
             const savedSession = localStorage.getItem('currentUser');
             if (savedSession) {
                 try {
@@ -4432,6 +4468,40 @@
             renderCalendarEvents();
             renderTabBar();
             updateNotifyBadge();
+
+            // Check URL search parameters for automated preview or screenshot
+            const urlParams = new URLSearchParams(window.location.search);
+            const targetPage = urlParams.get('page');
+            const targetClassroom = urlParams.get('classroom');
+            const targetModal = urlParams.get('modal');
+
+            if (targetPage) {
+                showPage(targetPage);
+                if (targetPage === 'sec-advisor-assignments') renderAdvisorAssignments();
+                if (targetPage === 'sec-advisor-photos') renderAdvisorPhotosPage();
+                if (targetPage === 'sec-advisor-calendar') renderCalendar();
+                if (targetPage === 'sec-advisor-classroom') {
+                    if (targetClassroom) {
+                        openClassroomDetail("หมู่ " + targetClassroom);
+                    }
+                }
+            }
+            if (targetModal === 'photo') {
+                openPhotoModal('6521650101', 'นาย กิตติศักดิ์ พลอยประเสริฐ', 'หมู่ 700');
+            } else if (targetModal === 'photo_confirm') {
+                openPhotoModal('6521650101', 'นาย กิตติศักดิ์ พลอยประเสริฐ', 'หมู่ 700');
+                const img = document.getElementById('photo-preview-img');
+                const emptyText = document.getElementById('photo-empty-text');
+                const confirmBtn = document.getElementById('btn-confirm-upload-photo');
+                const noticeEl = document.getElementById('photo-pending-notice');
+                if (img) {
+                    img.src = 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=600&q=80';
+                    img.style.display = 'block';
+                }
+                if (emptyText) emptyText.style.display = 'none';
+                if (confirmBtn) confirmBtn.style.display = 'flex';
+                if (noticeEl) noticeEl.style.display = 'block';
+            }
         }
 
         function renderTabBar() {
