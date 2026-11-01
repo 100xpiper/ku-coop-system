@@ -106,3 +106,4 @@ if os.path.exists(tor_html_path):
         shutil.copy2(tor_html_path, os.path.join(ARTIFACT_DIR, "Project_TOR_Final.html"))
 
 print("ALL DOCS CONVERTED TO ANGSANA NEW 16PT SUCCESSFULLY!")
+

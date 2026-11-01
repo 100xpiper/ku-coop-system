@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>รายงานการปฏิบัติงานประจำวัน (Daily Progress Timesheet Log)</title>
+<style>
+    body {
+        font-family: "Angsana New", "TH Sarabun New", "Sarabun", "Tahoma", sans-serif;
+        font-size: 16pt;
+        line-height: 1.25;
+        color: #000000;
+        background-color: #ffffff;
+        margin: 0;
+        padding: 20px;
+    }
+    .document-container {
+        max-width: 900px;
+        margin: 0 auto;
+        background: #ffffff;
+        padding: 30px 40px;
+        font-family: "Angsana New", "TH Sarabun New", "Sarabun", "Tahoma", sans-serif;
+    }
+    h1, h2, h3, h4 {
+        color: #000000;
+        font-family: inherit;
+        font-weight: bold;
+    }
+    p, li, td, th {
+        font-size: 16pt;
+        color: #000000;
+        font-family: inherit;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 14px 0;
+        font-size: 14.5pt;
+        font-family: inherit;
+    }
+    th, td {
+        border: 1px solid #000000;
+        padding: 6px 10px;
+        vertical-align: top;
+        color: #000000;
+    }
+    th {
+        background-color: #ffffff;
+        font-weight: bold;
+        text-align: center;
+        font-size: 15.5pt;
+    }
+    td {
+        font-size: 14pt;
+    }
+    .action-bar {
+        position: sticky;
+        top: 0;
+        background: #ffffff;
+        padding: 12px 0;
+        border-bottom: 2px solid #000000;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-bottom: 25px;
+        z-index: 100;
+    }
+    .btn {
+        background: #000000;
+        color: #ffffff;
+        border: 1px solid #000000;
+        padding: 9px 16px;
+        font-size: 13.5px;
+        font-weight: bold;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        font-family: sans-serif;
+    }
+    .btn:hover {
+        background: #333333;
+    }
+    @media print {
+        .action-bar { display: none; }
+        body { padding: 0; }
+        .document-container { padding: 0; }
+    }
+</style>
+</head>
+<body>
+
+<div class="document-container" id="timesheet-content">
+    <div class="action-bar">
+        <button class="btn" onclick="copyTimesheet()">คัดลอกตารางทั้งหมด (สำหรับวางใน Google Docs)</button>
+        <button class="btn" onclick="window.print()">สั่งพิมพ์ / บันทึกเป็น PDF</button>
+        <a href="Progress_Timesheet.docx" class="btn" download>ดาวน์โหลด Word (.docx)</a>
+    </div>
+
+    <h1 style="text-align: center; margin-top: 18px; margin-bottom: 8px; font-size: 22pt;">รายงานการปฏิบัติงานประจำวัน (Daily Progress Timesheet Log)</h1>\n<h2 style="text-align: center; margin-top: 6px; margin-bottom: 16px; font-size: 18pt;">โครงการ: ระบบจัดการการตรวจนิเทศงานสหกิจศึกษา (Smart Internship Supervision System)</h2>\n<p style="margin: 4px 0 6px 0; font-size: 16pt;">ตารางบันทึกการทำงานรายวัน (Daily Timesheet Log) สรุปขั้นตอนการดำเนินงานจริงแบบวันต่อวัน ตั้งแต่วันเริ่มพัฒนาโครงการจนถึงปัจจุบัน เพื่อใช้สำหรับติดตามความคืบหน้า รายงานอาจารย์ที่ปรึกษา และแนบประกอบเล่มรายงานสหกิจศึกษา:</p>\n<p style="margin: 4px 0 6px 0; font-size: 16pt;">---</p>\n<table>
+<thead>
+<tr>
+<th>วันที่</th>
+<th>ทำอะไร</th>
+<th>ได้ผลยังไง</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center"><strong>08/07/2569</strong></td>
+<td align="left">ศึกษารวบรวมปัญหาและข้อกำหนดการจัดเก็บเอกสารสหกิจศึกษารูปแบบเดิม (กระดาษ) และวิเคราะห์ความต้องการของผู้ใช้ 3 กลุ่ม (นิสิต, อาจารย์นิเทศ, แอดมิน)</td>
+<td align="left">สรุปปัญหา 3 ด้านหลัก: เอกสารสูญหาย, ติดตามสถานะรอนิเทศรายบุคคลยาก, และความล่าช้าในการส่งสรุปคะแนนประเมิน</td>
+</tr>
+<tr>
+<td align="center"><strong>09/07/2569</strong></td>
+<td align="left">ศึกษาคู่มือการใช้งาน Supabase Cloud Database (PostgreSQL), Supabase Auth API และ Geolocation API ของเว็บเบราว์เซอร์สำหรับดึงพิกัด GPS</td>
+<td align="left">ได้แนวทางใช้ Supabase เป็นเซิร์ฟเวอร์ฐานข้อมูลกลาง และใช้ Geolocation API บันทึกละติจูด/ลองจิจูดขณะออกตรวจนิเทศ</td>
+</tr>
+<tr>
+<td align="center"><strong>10/07/2569</strong></td>
+<td align="left">ออกแบบผังขั้นตอนการทำงาน (Workflow Diagram) และแผนภาพการไหลของข้อมูล (Data Flow) การส่งเอกสาร การนัดหมาย และการตรวจนิเทศ</td>
+<td align="left">ได้ Workflow การทำงานสมบูรณ์ทั้ง 3 มุมมอง (นิสิตส่งเอกสาร/รับ QR, อาจารย์ตรวจนิเทศ/ประเมิน, แอดมินดูภาพรวม/ออกรายงาน)</td>
+</tr>
+<tr>
+<td align="center"><strong>11/07/2569</strong></td>
+<td align="left">ออกแบบแผนผังความสัมพันธ์ข้อมูล (ER-Diagram) และโครงสร้างตารางข้อมูล 7 ตารางหลักบน Supabase</td>
+<td align="left">ได้สคริปต์ <code>schema.sql</code> สร้างตาราง <code>users</code>, <code>students</code>, <code>advisors</code>, <code>coop_documents</code>, <code>supervision_photos</code>, <code>appointments</code>, <code>notifications</code></td>
+</tr>
+<tr>
+<td align="center"><strong>12/07/2569</strong></td>
+<td align="left">ทดสอบรันสคริปต์ SQL บน Supabase SQL Editor และตั้งค่าสิทธิ์เข้าถึงข้อมูล (Row Level Security: RLS)</td>
+<td align="left">ตารางฐานข้อมูลทั้ง 7 ตารางถูกสร้างขึ้นบน Supabase Cloud ได้สำเร็จ พร้อมใช้งานรองรับการเชื่อมต่อ</td>
+</tr>
+<tr>
+<td align="center"><strong>13/07/2569</strong></td>
+<td align="left">ออกแบบโครงร่าง UI/UX แพลตฟอร์มจำลองหน้าจอสมาร์ตโฟน (Mobile Container ขนาด 375px x 812px)</td>
+<td align="left">ได้กรอบมือถือ Space Black ทรงมินิมอล มี Notch และ Home Indicator แสดงผลตรงกลางบนพื้นหลังภายนอกสีขาว</td>
+</tr>
+<tr>
+<td align="center"><strong>14/07/2569</strong></td>
+<td align="left">ออกแบบและสร้างระบบจัดรูปแบบสไตล์ Vanilla CSS, โทนสีเขียวมหาวิทยาลัย (KU Theme), Glassmorphic Cards และ Dynamic Animations</td>
+<td align="left">ได้ไฟล์ CSS ตกแต่งอินเตอร์เฟสสวยงาม ดูพรีเมียม ปรับองค์ประกอบให้ตอบสนองแบบ Responsive สมจริง</td>
+</tr>
+<tr>
+<td align="center"><strong>15/07/2569</strong></td>
+<td align="left">ปรับย้ายโครงสร้าง Modals และหน้าต่าง Pop-up ทั้งหมดให้เข้ามาอยู่ภายในกรอบมือถือ <code>.mobile-device</code></td>
+<td align="left">ป๊อปอัปทั้งหมดเด้งแสดงผลซ้อนอยู่ภายในหน้าจอมือถือ 375x812 อย่างสวยงาม สมจริง ไม่หลุดออกนอกกรอบ</td>
+</tr>
+<tr>
+<td align="center"><strong>16/07/2569</strong></td>
+<td align="left">พัฒนาฟอร์มเข้าสู่ระบบ (Sign In) และฟอร์มสมัครสมาชิก (Sign Up) บนหน้า <code>index.html</code> พร้อมสลับแท็บอินเตอร์แอคทีฟ</td>
+<td align="left">ฟอร์มทำงานราบรื่น ลบข้อความตัวอย่าง (Placeholder) ออกจากช่องกรอกทั้งหมดตามข้อกำหนด</td>
+</tr>
+<tr>
+<td align="center"><strong>17/07/2569</strong></td>
+<td align="left">เพิ่มปุ่มเปิด/ปิดการแสดงรหัสผ่าน (Toggle Show/Hide Password Eye Icon) ในฟอร์มเข้าสู่ระบบและสมัครสมาชิก</td>
+<td align="left">ผู้ใช้สามารถกดไอคอนรูปดวงตาเพื่อดูรหัสผ่านตัวอักษรจริงและกดซ่อนกลับเป็นจุดไข่ปลาได้</td>
+</tr>
+<tr>
+<td align="center"><strong>18/07/2569</strong></td>
+<td align="left">พัฒนาระบบคัดแยกสิทธิ์ผู้สมัคร (Role Selector) ระหว่าง "นิสิตสหกิจศึกษา" และ "อาจารย์นิเทศ"</td>
+<td align="left">ระบบสลับช่องกรอกรหัสนิสิต (10 หลัก) และช่องกรอกรหัสประจำตัวอาจารย์ (5 หลัก) ตามบทบาทที่เลือกอัตโนมัติ</td>
+</tr>
+<tr>
+<td align="center"><strong>19/07/2569</strong></td>
+<td align="left">พัฒนาระบบตรวจสอบรหัสประจำตัวอาจารย์ 5 หลัก เพื่อพิสูจน์ตัวตน ป้องกันนิสิตแอบสมัครสิทธิ์อาจารย์</td>
+<td align="left">หากผู้สมัครเลือกสิทธิ์อาจารย์แต่กรอกรหัสไม่ครบ 5 หลัก ระบบจะเด้ง Pop-Up เตือนให้ตรวจสอบรหัส</td>
+</tr>
+<tr>
+<td align="center"><strong>20/07/2569</strong></td>
+<td align="left">ปรับแต่งตัวเลือกหมู่เรียนในระบบสมัครสมาชิกให้เหลือเฉพาะ "หมู่ 700" และ "หมู่ 800"</td>
+<td align="left">ช่องเลือกหมู่เรียนกระชับ สอดคล้องกับโครงสร้างการเปิดกลุ่มเรียนนิเทศจริงของภาควิชา</td>
+</tr>
+<tr>
+<td align="center"><strong>21/07/2569</strong></td>
+<td align="left">เชื่อมต่อระบบยืนยันตัวตนผ่านอีเมลมหาวิทยาลัย (<code>@ku.th</code>) ด้วย Supabase Auth SDK</td>
+<td align="left">ระบบส่งคำขอ Email Confirmation ไปยัง Supabase Auth และบันทึกข้อมูลเข้าตาราง <code>users</code></td>
+</tr>
+<tr>
+<td align="center"><strong>22/07/2569</strong></td>
+<td align="left">เพิ่มระบบ Pop-Up Alert แจ้งเตือนเมื่อกรอกอีเมลที่ไม่มีอยู่จริง หรือกรอกอีเมลที่ไม่ใช่โดเมน <code>@ku.th</code></td>
+<td align="left">หน้าจอเด้ง Pop-Up เตือน <em>"ไม่พบอีเมลนี้ในระบบเซิร์ฟเวอร์มหาวิทยาลัย / กรุณาใช้อีเมลมหาวิทยาลัย (@ku.th) เท่านั้น"</em></td>
+</tr>
+<tr>
+<td align="center"><strong>23/07/2569</strong></td>
+<td align="left">พัฒนาหน้าแดชบอร์ดหลักฝั่งนิสิต (<code>sec-student-dash</code>) แสดงสถานะการฝึกงาน บริษัท และคะแนนรวม</td>
+<td align="left">นิสิตเห็นสรุปคะแนนประเมิน (95/100) สถานะเอกสาร (ครบถ้วน) สถานะการนิเทศ (นิเทศแล้ว) และข้อคิดเห็นจากอาจารย์</td>
+</tr>
+<tr>
+<td align="center"><strong>24/07/2569</strong></td>
+<td align="left">พัฒนาระบบอัปโหลดเอกสารสหกิจศึกษา (0-11 / แผนปฏิบัติงาน / รายงานประจำสัปดาห์) ในหน้า <code>sec-student-docs</code></td>
+<td align="left">นิสิตแนบไฟล์เอกสารส่งให้อาจารย์ที่ปรึกษาตรวจรับได้ พร้อมแสดงประวัติการส่งเอกสาร</td>
+</tr>
+<tr>
+<td align="center"><strong>25/07/2569</strong></td>
+<td align="left">พัฒนาหน้ารับ QR Code ประจำตัวนิสิตแบบ Static QR SVG Card (<code>sec-student-qrcode</code>)</td>
+<td align="left">แสดง QR Code ประจำตัวนิสิตเด่นชัดกลางเสนอมือถือ สำหรับยื่นให้อาจารย์สแกนเช็คอินหน้างาน</td>
+</tr>
+<tr>
+<td align="center"><strong>26/07/2569</strong></td>
+<td align="left">พัฒนาตารางบันทึกแผนและผลการดำเนินงานรายสัปดาห์ (Timesheet Log Table) ฝั่งนิสิต</td>
+<td align="left">แสดงขั้นตอนงาน รายละเอียด วันเริ่มต้น-เสร็จสิ้น และแถบเปอร์เซ็นต์ความคืบหน้า (100% / 40%) ชัดเจน</td>
+</tr>
+<tr>
+<td align="center"><strong>27/07/2569</strong></td>
+<td align="left">พัฒนาหน้าดูตารางนัดหมายออกตรวจนิเทศฝั่งนิสิต (<code>sec-student-schedule</code>)</td>
+<td align="left">นิสิตตรวจสอบวัน เวลา สถานที่ออกตรวจนิเทศ และแจ้งเตือนกิจกรรมจากอาจารย์ได้แบบเรียลไทม์</td>
+</tr>
+<tr>
+<td align="center"><strong>28/07/2569</strong></td>
+<td align="left">เชื่อมต่อฟังก์ชันอัปโหลดเอกสารและประวัติการส่งเอกสารของนิสิตลงตาราง <code>coop_documents</code> บน Supabase</td>
+<td align="left">สถานะการอัปโหลดเอกสารบันทึกเข้า Supabase DB และซิงก์ไปแสดงผลที่ฝั่งอาจารย์</td>
+</tr>
+<tr>
+<td align="center"><strong>29/07/2569</strong></td>
+<td align="left">พัฒนาหน้าแดชบอร์ดอาจารย์นิเทศ (<code>sec-advisor-dash</code>) แสดงสถิติและรายชื่อนิสิตในความดูแล</td>
+<td align="left">อาจารย์เลือกสลับดูรายชื่อนิสิตแยกตาม "หมู่ 700" และ "หมู่ 800" พร้อมดูสถานะรอนิเทศรายบุคคล</td>
+</tr>
+<tr>
+<td align="center"><strong>30/07/2569</strong></td>
+<td align="left">พัฒนาระบบสแกน QR Code จำลองกล้องสแกนพร้อมเส้นอนิเมชันเลเซอร์ และเชื่อม Geolocation API</td>
+<td align="left">อาจารย์กดสแกน QR นิสิต ระบบดึงพิกัดละติจูด/ลองจิจูดจริงเปลี่ยนสถานะเป็น "นิเทศแล้ว" อัตโนมัติ</td>
+</tr>
+<tr>
+<td align="center"><strong>31/07/2569</strong></td>
+<td align="left">พัฒนาระบบจัดการรูปถ่ายหลักฐานการออกตรวจนิเทศ (ลบข้อความ 16:9 ออกทั้งหมด)</td>
+<td align="left">อาจารย์อัปโหลดรูปถ่ายหลักฐาน ลบรูปภาพ หรือเปิดดูรูปถ่ายการออกตรวจนิเทศรายคนได้</td>
+</tr>
+<tr>
+<td align="center"><strong>01/08/2569</strong></td>
+<td align="left">พัฒนาระบบประเมินผล ให้คะแนน (0-100) และป้อนข้อคิดเห็นสำหรับอาจารย์นิเทศ</td>
+<td align="left">คะแนนประเมินและข้อคิดเห็นบันทึกลงตาราง <code>students</code> บน Supabase และอัปเดตไปหน้านิสิตทันที</td>
+</tr>
+<tr>
+<td align="center"><strong>02/08/2569</strong></td>
+<td align="left">พัฒนาปฏิทินนัดหมายการลงพื้นที่ตรวจนิเทศฝั่งอาจารย์ (<code>sec-advisor-calendar</code>)</td>
+<td align="left">อาจารย์เลือกลงวัน-เวลา นัดหมายนิสิตรายคน ข้อมูลบันทึกลงตาราง <code>appointments</code> บน Supabase</td>
+</tr>
+<tr>
+<td align="center"><strong>03/08/2569</strong></td>
+<td align="left">พัฒนาหน้าแดชบอร์ดผู้ดูแลระบบ Admin (<code>sec-admin-dash</code>) พร้อมกำหนดบัญชีแอดมินกลาง (<code>adminku</code> / <code>adminku123</code>)</td>
+<td align="left">แอดมินเข้าดูสถิตินิสิตรวมทั้งคณะ ปรับตั้งค่าพิกัด GPS สถานประกอบการปลายทางได้ล่วงหน้า</td>
+</tr>
+<tr>
+<td align="center"><strong>04/08/2569</strong></td>
+<td align="left">พัฒนาระบบนำเข้าข้อมูลรายชื่อผู้ใช้งานด้วยไฟล์สเปรดชีต Excel สำหรับผู้ดูแลระบบ (Admin User Import via Excel File)</td>
+<td align="left">แอดมินสามารถเตรียมไฟล์สเปรดชีตรายชื่อนิสิตและอาจารย์เพื่อนำเข้าข้อมูลและกำหนดสิทธิ์การเข้าใช้งานล่วงหน้าลงฐานข้อมูล</td>
+</tr>
+<tr>
+<td align="center"><strong>05/08/2569</strong></td>
+<td align="left">ถอดระบบนำเข้าไฟล์ Excel สิทธิ์เดิมออก เปลี่ยนเป็นระบบสมัครสมาชิกอนุมัติตรงลง Supabase DB 100%</td>
+<td align="left">ลดความซ้ำซ้อนของการจัดการสิทธิ์ ข้อมูลนิสิตและอาจารย์ไหลเข้าตาราง <code>users</code>, <code>students</code>, <code>advisors</code> โดยตรง</td>
+</tr>
+<tr>
+<td align="center"><strong>06/08/2569</strong></td>
+<td align="left">ทดสอบการทำงานสลับบทบาท (Role Switching) ทั้ง 3 สิทธิ์: นิสิต, อาจารย์นิเทศ และแอดมิน</td>
+<td align="left">การสลับบทบาทเปลี่ยนโทนสี UI (เขียวอาจารย์ / เขียวเข้มนิสิต / กรมท่าแอดมิน) และสิทธิ์เมนูอย่างถูกต้อง</td>
+</tr>
+<tr>
+<td align="center"><strong>07/08/2569</strong></td>
+<td align="left">ปรับปรุงโครงสร้างบริการ <code>supabase-client.js</code> ให้มีระบบ Local Fallback ป้องกันเว็บค้าง</td>
+<td align="left">ระบบสมัครสมาชิกและเข้าสู่ระบบทำงานได้ราบรื่น 100% ทั้งออนไลน์และออฟไลน์</td>
+</tr>
+<tr>
+<td align="center"><strong>08/08/2569</strong></td>
+<td align="left">ตั้งค่า Custom SMTP บน Supabase Authentication และกำหนด Site URL สำหรับลิงก์ยืนยันตัวตน</td>
+<td align="left">ลิงก์ Confirm Email ส่งผ่านเซิร์ฟเวอร์อย่างถูกต้อง รองรับการกดยืนยันจากกล่องจดหมาย</td>
+</tr>
+<tr>
+<td align="center"><strong>09/08/2569</strong></td>
+<td align="left">อัปเดตตาราง Timesheet Log ในหน้าแดชบอร์ดนิสิตให้แสดงขั้นตอนและรายละเอียดตรงตามเอกสารรายงาน</td>
+<td align="left">ตารางแสดงขั้นตอนการทำงาน 1-4 ละเอียด พร้อมแท็กเปอร์เซ็นต์ (100% / 40%) และวันที่เริ่มต้น-เสร็จสิ้น</td>
+</tr>
+<tr>
+<td align="center"><strong>10/08/2569</strong></td>
+<td align="left">วิเคราะห์ปัญหาการส่งอีเมลยืนยันตัวตน (SMTP Email Confirmation) และปรับเปลี่ยนแนวคิดระบบเป็น "ระบบอนุมัติสิทธิ์โดย Admin (Admin Approval System)"</td>
+<td align="left">ได้แนวทางยกเลิกการบังคับใช้อีเมลมหาวิทยาลัย และเปลี่ยนมาใช้ระบบกักสถานะสมัครใหม่ไว้ที่ pending รอแอดมินอนุมัติสิทธิ์</td>
+<td align="left">ปรับสถาปัตยกรรมความปลอดภัย</td>
+</tr>
+<tr>
+<td align="center"><strong>11/08/2569</strong></td>
+<td align="left">ปรับปรุงโครงสร้างฐานข้อมูล Supabase เพิ่มฟีลด์สถานะ status (pending, approved, rejected) ในตาราง users, students และ advisors</td>
+<td align="left">ฐานข้อมูลบน Supabase Cloud รองรับการบันทึกและตรวจสอบสถานะการอนุมัติสิทธิ์การเข้าใช้งานแบบเรียลไทม์</td>
+<td align="left">อัปเดต schema.sql</td>
+</tr>
+<tr>
+<td align="center"><strong>12/08/2569</strong></td>
+<td align="left">ปรับปรุงบริการ <code>supabase-client.js</code> ในฟังก์ชัน <code>dbSignIn</code> ให้เพิ่มการตรวจสอบสถานะการอนุมัติสิทธิ์จากแอดมินแบบ 3 ลำดับขั้น</td>
+<td align="left">หากบัญชียังไม่อนุมัติ ระบบจะบล็อกล็อกอินและแจ้งเตือน "บัญชีของคุณอยู่ระหว่างรอการอนุมัติสิทธิ์จากผู้ดูแลระบบ (Admin)"</td>
+<td align="left">ตรวจสอบล็อกอิน 3 ขั้นตอน</td>
+</tr>
+<tr>
+<td align="center"><strong>13/08/2569</strong></td>
+<td align="left">ปรับปรุงฟังก์ชัน <code>dbSignUp</code> ให้รองรับการสมัครด้วยอีเมลมาตรฐานทุกโดเมน (Gmail, Hotmail) โดยไม่ต้องพึ่งพา SMTP Mail</td>
+<td align="left">ผู้ใช้สามารถสมัครสมาชิกได้ทันทีโดยระบบบันทึกสถานะเป็น pending และแสดงป๊อปอัปแจ้งผลการลงทะเบียนรออนุมัติสิทธิ์</td>
+<td align="left">แก้ไขปัญหาอีเมลยืนยัน</td>
+</tr>
+<tr>
+<td align="center"><strong>14/08/2569</strong></td>
+<td align="left">พัฒนาการ์ด "อนุมัติสิทธิ์ผู้ใช้งานใหม่ (Pending User Approvals)" บนหน้า Web Dashboard ฝั่งแอดมิน (<code>dashboard.html</code>)</td>
+<td align="left">แอดมินสามารถเปิดดูรายการผู้สมัครค้างอนุมัติ พร้อมแสดงข้อมูลผู้สมัครครบถ้วน (ชื่อ, บทบาท, รหัสประจำตัว, หมู่เรียน, อีเมล, วันเวลาที่สมัคร)</td>
+<td align="left">เพิ่มส่วนอนุมัติใน Admin Dash</td>
+</tr>
+<tr>
+<td align="center"><strong>15/08/2569</strong></td>
+<td align="left">พัฒนาระบบปุ่มดำเนินการ <code>[อนุมัติสิทธิ์เข้าใช้งาน]</code> (Approve) และ <code>[ปฏิเสธ]</code> (Reject) บนการ์ดอนุมัติสิทธิ์ผู้ใช้ใหม่ของแอดมิน</td>
+<td align="left">เมื่อแอดมินกดอนุมัติ ระบบอัปเดตสถานะเป็น approved บน Supabase DB ทันที ทำให้ผู้ใช้ล็อกอินเข้าใช้งานได้ทันที</td>
+<td align="left">เชื่อม API อัปเดตสถานะ DB</td>
+</tr>
+<tr>
+<td align="center"><strong>16/08/2569</strong></td>
+<td align="left">เพิ่มระบบแจ้งเตือนกรณีพยายามเข้าสู่ระบบก่อนได้รับการอนุมัติ และกรณีบัญชีถูกปฏิเสธคำขอลงทะเบียน</td>
+<td align="left">หากล็อกอินก่อนอนุมัติจะบล็อกและแจ้งเตือนชัดเจน ส่วนบัญชีถูกปฏิเสธจะแจ้ง "คำขอลงทะเบียนของคุณถูกปฏิเสธโดยผู้ดูแลระบบ"</td>
+<td align="left">แจ้งเตือนสถานะอนุมัติชัดเจน</td>
+</tr>
+<tr>
+<td align="center"><strong>17/08/2569</strong></td>
+<td align="left">ปรับแต่งบัญชีผู้ดูแลระบบกลาง (Admin Account) ให้พร้อมเข้าใช้งานด้วย <code>adminku@ku.th</code> / <code>adminku123</code></td>
+<td align="left">ผู้ทดสอบระบบสามารถล็อกอินเข้าสู่สิทธิ์ Admin เพื่อทดสอบการกดอนุมัติสิทธิ์บัญชีนิสิตและอาจารย์ที่สมัครใหม่ได้ทันที</td>
+<td align="left">ทดสอบสิทธิ์ Admin</td>
+</tr>
+<tr>
+<td align="center"><strong>18/08/2569</strong></td>
+<td align="left">ปรับปรุงระบบยืนยันตัวตนผ่านลิงก์อีเมล (Email Confirmation Link Verification) ด้วย Supabase Auth SDK</td>
+<td align="left">บัญชีผู้สมัครใหม่ต้องกดยืนยันตัวตนผ่านลิงก์ verify_email ที่ส่งไปยังอีเมลก่อนจึงจะเข้าสู่ระบบได้</td>
+<td align="left">ยืนยันตัวตนผ่านลิงก์อีเมล 100%</td>
+</tr>
+<tr>
+<td align="center"><strong>19/08/2569</strong></td>
+<td align="left">ปรับปรุงข้อความแจ้งเตือนและหน้าต่าง Pop-up Notice เมื่อลงทะเบียนสำเร็จ ให้แนะนำผู้ใช้ไปเช็กอีเมลใน Inbox</td>
+<td align="left">ผู้ใช้เห็นอีเมลของตนเองชัดเจนบนหน้าต่างแจ้งเตือน พร้อมปุ่มสลับไปหน้าเข้าสู่ระบบเพื่อรอผ่านการยืนยันอีเมล</td>
+<td align="left">UX มีความชัดเจน เข้าใจง่าย</td>
+</tr>
+<tr>
+<td align="center"><strong>20/08/2569</strong></td>
+<td align="left">ทำการ Refactor ปรับปรุงส่วนติดต่อผู้ใช้งาน (UI) ทั้งหมด ลบอิโมจิ (Emojis) ออกจากป๊อปอัป ป้ายสถานะ และข้อความแจ้งเตือนทั้งหมด</td>
+<td align="left">อินเทอร์เฟซของแอปพลิเคชันทุกหน้า (<code>index.html</code>, <code>dashboard.html</code>) เรียบหรู สะอาด ตาเป็นทางการตามข้อกำหนด</td>
+<td align="left">UI ปราศจากอิโมจิ 100%</td>
+</tr>
+<tr>
+<td align="center"><strong>21/08/2569</strong></td>
+<td align="left">ปรับแก้รายละเอียดในเอกสาร Proposal (ข้อเสนอโครงงาน) สอดคล้องกับการยืนยันตัวตนผ่านลิงก์อีเมลและการคัดกรองบทบาท</td>
+<td align="left">ได้เนื้อหา Proposal ฉบับอัปเดตตรงตามระบบจริง ทั้งฝั่งนิสิต อาจารย์นิเทศ และผู้ดูแลระบบ (Admin)</td>
+<td align="left">เอกสาร Proposal สมบูรณ์</td>
+</tr>
+<tr>
+<td align="center"><strong>22/08/2569</strong></td>
+<td align="left">ปรับแก้รายละเอียดในเอกสาร TOR (ข้อกำหนดขอบเขตงาน) ให้ครอบคลุมระบบแยกสิทธิ์ 3 บทบาท และการส่งออกรายงาน Excel/PDF</td>
+<td align="left">ได้เนื้อหา TOR ฉบับปรับปรุง 4 หัวข้อหลัก สอดคล้องกับขอบเขตงานและสถาปัตยกรรมฐานข้อมูล Supabase Cloud</td>
+<td align="left">เอกสาร TOR สมบูรณ์</td>
+</tr>
+<tr>
+<td align="center"><strong>23/08/2569</strong></td>
+<td align="left">ปรับปรุงโครงสร้างฐานข้อมูลและเตรียมฟังก์ชันอนุมัติสิทธิ์แอดมิน</td>
+<td align="left">ตาราง users และ advisors พร้อมรองรับการอนุมัติสิทธิ์เข้าใช้งาน</td>
+</tr>
+<tr>
+<td align="center"><strong>24/08/2569</strong></td>
+<td align="left">พัฒนาระบบตรวจสอบสถานะการอนุมัติก่อนเข้าสู่ระบบ (Sign-in Check)</td>
+<td align="left">บล็อกผู้ใช้ที่ยังไม่อนุมัติ แจ้งเตือนให้รอแอดมินอนุมัติสิทธิ์</td>
+</tr>
+<tr>
+<td align="center"><strong>25/08/2569</strong></td>
+<td align="left">พัฒนาหน้าการ์ดอนุมัติสิทธิ์ผู้ใช้งานใหม่บนแดชบอร์ดแอดมิน</td>
+<td align="left">แสดงรายการผู้สมัครค้างอนุมัติพร้อมปุ่มอนุมัติและปฏิเสธสิทธิ์</td>
+</tr>
+<tr>
+<td align="center"><strong>26/08/2569</strong></td>
+<td align="left">เริ่มพัฒนาระบบนำเข้าข้อมูลรายชื่อนิสิตผ่านไฟล์ Excel (.xlsx) ฝั่งแอดมิน</td>
+<td align="left">แอดมินเลือกไฟล์ Excel รายชื่อนิสิตเพื่อเตรียมนำเข้าฐานข้อมูล</td>
+</tr>
+<tr>
+<td align="center"><strong>27/08/2569</strong></td>
+<td align="left">พัฒนาฟังก์ชัน <code>findRowValue()</code> ค้นหาหัวคอลัมน์ Excel แบบยืดหยุ่น</td>
+<td align="left">อ่านค่า รหัสนิสิต, ชื่อ-นามสกุล, หมู่เรียน, อีเมล จากไฟล์ Excel ได้แม่นยำ</td>
+</tr>
+<tr>
+<td align="center"><strong>28/08/2569</strong></td>
+<td align="left">เขียนฟังก์ชัน <code>importStudentExcelFile()</code> แปลงข้อมูล Excel ลงฐานข้อมูล Supabase</td>
+<td align="left">บันทึกข้อมูลนิสิตลงตาราง <code>users</code> และ <code>students</code> อัตโนมัติ</td>
+</tr>
+<tr>
+<td align="center"><strong>29/08/2569</strong></td>
+<td align="left">เพิ่มระบบนำเข้าข้อมูลรายชื่ออาจารย์ผ่านไฟล์ Excel (<code>importAdvisorExcelFile()</code>)</td>
+<td align="left">สร้างบัญชีอาจารย์นิเทศและกำหนดหมู่เรียนที่รับผิดชอบได้พร้อมกัน</td>
+</tr>
+<tr>
+<td align="center"><strong>30/08/2569</strong></td>
+<td align="left">ถอดข้อมูลจำลองนิสิต (Mock Data) ออกจากระบบ 100%</td>
+<td align="left">ระบบใช้เฉพาะข้อมูลจริงที่นำเข้าผ่านไฟล์ Excel เท่านั้น</td>
+</tr>
+<tr>
+<td align="center"><strong>31/08/2569</strong></td>
+<td align="left">แก้ไขบั๊กการคำนวณจำนวนนิสิตบนการ์ดสถิติแดชบอร์ดที่แสดงผลเป็น 0 คน</td>
+<td align="left">สถิตินิสิตทั้งหมด นิเทศแล้ว และรอนิเทศ คำนวณตรงตามรายชื่อจริง</td>
+</tr>
+<tr>
+<td align="center"><strong>01/09/2569</strong></td>
+<td align="left">ออกแบบปฏิทินนัดหมายนิเทศงานให้อิงตามปฏิทินจริงและปีพุทธศักราช</td>
+<td align="left">ปฏิทินแสดงจำนวนวันและวันเริ่มต้นสัปดาห์ตรงตามปฏิทินจริง</td>
+</tr>
+<tr>
+<td align="center"><strong>02/09/2569</strong></td>
+<td align="left">เพิ่ม Dropdown เลือกเดือน (มกราคม - ธันวาคม) ในส่วนปฏิทินนัดหมาย</td>
+<td align="left">อาจารย์และนิสิตเลือกดูตารางนัดหมายในแต่ละเดือนได้อย่างอิสระ</td>
+</tr>
+<tr>
+<td align="center"><strong>03/09/2569</strong></td>
+<td align="left">เพิ่ม Dropdown เลือกปี พ.ศ. (ปีกาญจนาภิเษก/พุทธศักราชปัจจุบัน)</td>
+<td align="left">รองรับการดูและบันทึกนัดหมายล่วงหน้าแยกตามปี พ.ศ. ได้ถูกต้อง</td>
+</tr>
+<tr>
+<td align="center"><strong>04/09/2569</strong></td>
+<td align="left">พัฒนาฟังก์ชัน <code>jumpToCurrentDate()</code> เพิ่มปุ่ม "ไปวันปัจจุบัน" ในปฏิทิน</td>
+<td align="left">สามารถกดลัดกลับมาแสดงผลเดือนและปีปัจจุบันได้ทันที</td>
+</tr>
+<tr>
+<td align="center"><strong>05/09/2569</strong></td>
+<td align="left">เพิ่มระบบไฮไลท์จุดสี (<code>event-dot</code>) แจ้งเตือนวันที่มีนัดหมายในตารางปฏิทิน</td>
+<td align="left">แสดงไฮไลท์วันที่มีนัดหมายและเชื่อมข้อมูลนัดหมายไปยังฝั่งนิสิต</td>
+</tr>
+<tr>
+<td align="center"><strong>06/09/2569</strong></td>
+<td align="left">กำหนดกฎความปลอดภัยรหัสผ่าน 4 ข้อหลัก (ยาว 7+ ตัว, อังกฤษเท่านั้น, มีพิมพ์เล็ก/ใหญ่, ห้ามใช้อักขระพิเศษ)</td>
+<td align="left">ปรับปรุงเงื่อนไขการตั้งรหัสผ่านในฟอร์มสมัครสมาชิกให้รัดกุมขึ้น</td>
+</tr>
+<tr>
+<td align="center"><strong>07/09/2569</strong></td>
+<td align="left">พัฒนาระบบตรวจสอบกฎรหัสผ่านแบบเรียลไทม์ (Real-time Checklist)</td>
+<td align="left">แสดงสัญลักษณ์ติ๊กถูก/ผิด 4 ข้อแบบเรียลไทม์ขณะพิมพ์รหัสผ่าน</td>
+</tr>
+<tr>
+<td align="center"><strong>08/09/2569</strong></td>
+<td align="left">เพิ่มคำอธิบายและตัวอย่างอักขระพิเศษที่ไม่ยินยอมให้ใช้ (เช่น <code>@, #, $, %, ^, &, *</code>)</td>
+<td align="left">แจ้งข้อผิดพลาดชัดเจนว่าผิดกฎข้อใด ป้องกันความสับสน</td>
+</tr>
+<tr>
+<td align="center"><strong>09/09/2569</strong></td>
+<td align="left">พัฒนาปุ่มเปิด/ปิดดูรหัสผ่าน (Toggle Eye Icon) ในฟอร์มสมัครสมาชิกและล็อกอิน</td>
+<td align="left">ผู้ใช้กดดูตัวอักษรรหัสผ่านจริงและกดซ่อนกลับเป็นจุดไข่ปลาได้</td>
+</tr>
+<tr>
+<td align="center"><strong>10/09/2569</strong></td>
+<td align="left">ออกแบบปุ่มย้อนกลับ (Back Button) สไตล์ Apple iOS แบบมินิมอล</td>
+<td align="left">ปุ่มย้อนกลับสไตล์ iOS โค้งมน สวยงาม ตามมาตรฐาน Apple</td>
+</tr>
+<tr>
+<td align="center"><strong>11/09/2569</strong></td>
+<td align="left">วางตำแหน่งปุ่มย้อนกลับ Apple Style ด้านซ้ายของชื่อระบบบน Header Bar</td>
+<td align="left">แสดงผลปุ่มย้อนกลับบนแถบ Header สม่ำเสมอในทุกหน้า ทุกบทบาท</td>
+</tr>
+<tr>
+<td align="center"><strong>12/09/2569</strong></td>
+<td align="left">ทดสอบระบบนำเข้าข้อมูลรายชื่อนิสิตและอาจารย์ผ่านไฟล์ Excel กับชุดข้อมูลตัวอย่างหลายรูปแบบ (Data Sanitization)</td>
+<td align="left">ระบบสามารถกรองช่องว่าง ตัดเว้นวรรคส่วนเกิน และจัดการอีเมลตัวพิมพ์เล็ก-ใหญ่ได้อย่างถูกต้อง ป้องกันข้อมูลผิดพลาด</td>
+</tr>
+<tr>
+<td align="center"><strong>13/09/2569</strong></td>
+<td align="left">ปรับปรุง UI/UX หน้าจอแดชบอร์ด จัดการระยะห่าง (Margin/Padding) และความชัดเจนของปุ่มกดบนสมาร์ตโฟน</td>
+<td align="left">อินเทอร์เฟซแสดงผลสะอาดตา อ่านง่าย ปุ่มกดมีขนาดพอเหมาะกับการใช้นิ้วสัมผัสบนมือถือทุกขนาด</td>
+</tr>
+<tr>
+<td align="center"><strong>14/09/2569</strong></td>
+<td align="left">ทดสอบความถูกต้องของปฏิทินนัดหมายในการเปลี่ยนเดือนและปี พ.ศ. ย้อนหลัง-ล่วงหน้า พร้อมปุ่มไปวันปัจจุบัน</td>
+<td align="left">ปฏิทินแสดงผลไฮไลท์วันนัดหมายถูกต้อง ไม่เกิดอาการค้างหรือแสดงวันผิดพลาดเมื่อสลับเดือนไปมา</td>
+</tr>
+<tr>
+<td align="center"><strong>15/09/2569</strong></td>
+<td align="left">ปรับปรุงส่วนติดต่อผู้ใช้ ถอดเมนูสแกน QR Code และหน้าแสดง QR Code ออกชั่วคราวเพื่อความกระชับของแอปพลิเคชัน</td>
+<td align="left">เมนูแถบด้านล่าง (Tab Bar) ปรับเป็น 3 แท็บหลัก สมดุล สวยงาม และช่วยให้ผู้ใช้เข้าถึงฟังก์ชันหลักได้รวดเร็วขึ้น</td>
+</tr>
+<tr>
+<td align="center"><strong>16/09/2569</strong></td>
+<td align="left">ทดสอบระบบตรวจรับเอกสารสหกิจศึกษา (Form 02-11) การอัปโหลดไฟล์ และระบบส่งสัญญาณแจ้งเตือนไปยังฝั่งนิสิต</td>
+<td align="left">สถานะการตรวจรับเอกสารซิงก์ตรงกันแบบเรียลไทม์ นิสิตได้รับการแจ้งเตือนบนไอคอนกระดิ่งอย่างถูกต้อง</td>
+</tr>
+<tr>
+<td align="center"><strong>17/09/2569</strong></td>
+<td align="left">ตรวจสอบความเรียบร้อยของโค้ดภาพรวม (Code Clean Up & Refactoring) ลบโค้ดที่ไม่เกี่ยวข้องและคอมเมนต์ทดสอบออก</td>
+<td align="left">โค้ดเป็นระเบียบ ทำงานได้อย่างมีประสิทธิภาพ โครงสร้างไฟล์สะอาด และซิงก์ข้อมูลกับ Supabase DB ได้ราบรื่น</td>
+</tr>
+<tr>
+<td align="center"><strong>18/09/2569</strong></td>
+<td align="left">ทดสอบระบบรวมขั้นสุดท้าย (Final System Testing), อัปเดตตาราง Progress Timesheet และ Push โค้ดขึ้น GitHub Repository</td>
+<td align="left">ระบบมีความเสถียร สมบูรณ์ 100% ตรงตามข้อกำหนดของโครงงาน พร้อมส่งมอบและนำเสนอผลงาน</td>
+</tr>
+<tr>
+<td align="center"><strong>21/09/2569</strong></td>
+<td align="left">ปรับปรุงเลย์เอาต์หน้าจอ Web Dashboard และ Mobile View ให้รองรับ Responsive บนหลายขนาดหน้าจอ</td>
+<td align="left">ปรับ CSS Grid และ Flexbox ให้หน้าเว็บยืดหยุ่น แสดงผลได้สมบูรณ์ทั้งจอคอมพิวเตอร์และมือถือ</td>
+</tr>
+<tr>
+<td align="center"><strong>22/09/2569</strong></td>
+<td align="left">ปรับปรุงระบบปฏิทินนัดหมาย (Calendar) ให้อิงตามปฏิทินจริง และเพิ่ม Dropdown เลือกเดือน/ปี พ.ศ.</td>
+<td align="left">แก้ไขฟังก์ชัน <code>renderCalendar()</code>, <code>jumpToCurrentDate()</code> รองรับการเลือกดูวันนัดหมายรายเดือนและปี พ.ศ. ได้ถูกต้อง</td>
+</tr>
+<tr>
+<td align="center"><strong>23/09/2569</strong></td>
+<td align="left">ป่วยไม่สบาย</td>
+<td align="left">ลาป่วยเพื่อพักรักษาตัว</td>
+</tr>
+<tr>
+<td align="center"><strong>24/09/2569</strong></td>
+<td align="left">พักผ่อน</td>
+<td align="left">พักฟื้นร่างกายให้พร้อมสำหรับการปฏิบัติงาน</td>
+</tr>
+<tr>
+<td align="center"><strong>25/09/2569</strong></td>
+<td align="left">พัฒนาระบบนำเข้าข้อมูลรายชื่ออาจารย์ผ่านไฟล์ Excel พร้อมปุ่มดาวน์โหลดไฟล์แม่แบบตัวอย่าง</td>
+<td align="left">มีปุ่มดาวน์โหลดเทมเพลต Excel (<code>Advisor_Import_Template.xlsx</code>) ให้อาจารย์ใช้งาน และแอดมินสามารถอัปโหลดข้อมูลเข้าสู่ระบบได้ทันที</td>
+</tr>
+<tr>
+<td align="center"><strong>26/09/2569</strong></td>
+<td align="left">พัฒนาระบบตั้งค่าพิกัด GPS สถานประกอบการ เพื่อใช้เป็นจุดอ้างอิงตอนสแกนเช็คอิน</td>
+<td align="left">ออกแบบ UI และฟังก์ชันตั้งค่าพิกัดสถานประกอบการ (Latitude, Longitude) บนหน้าแดชบอร์ดแอดมิน เพื่อใช้เป็นจุดอ้างอิงตรวจสอบระยะห่าง</td>
+</tr>
+<tr>
+<td align="center"><strong>27/09/2569</strong></td>
+<td align="left">พัฒนาระบบตั้งค่าพิกัด GPS สถานประกอบการ เพื่อใช้เป็นจุดอ้างอิงตอนสแกนเช็คอิน</td>
+<td align="left">เขียนโค้ดเชื่อมต่อ Geolocation API ของเบราว์เซอร์สำหรับดึงพิกัดปัจจุบัน และทดสอบการคำนวณระยะห่างบน Localhost</td>
+</tr>
+<tr>
+<td align="center"><strong>28/09/2569</strong></td>
+<td align="left">พัฒนาระบบตั้งค่าพิกัด GPS สถานประกอบการ เพื่อใช้เป็นจุดอ้างอิงตอนสแกนเช็คอิน</td>
+<td align="left">พบข้อจำกัดด้านความปลอดภัยของเบราว์เซอร์บนมือถือ (ต้องใช้งานผ่าน HTTPS เท่านั้น จึงจะอนุญาตให้เข้าถึง GPS และกล้องถ่ายรูปได้) ทำให้ยังไม่สามารถทดสอบบนสมาร์ตโฟนผ่าน Localhost ได้โดยตรง</td>
+</tr>
+<tr>
+<td align="center"><strong>29/09/2569</strong></td>
+<td align="left">พัฒนาระบบตั้งค่าพิกัด GPS สถานประกอบการ เพื่อใช้เป็นจุดอ้างอิงตอนสแกนเช็คอิน</td>
+<td align="left">อยู่ระหว่างเตรียมนำซอร์สโค้ดขึ้น GitHub เพื่อ Deploy บนคลาวด์ Render (ระบบออนไลน์ผ่าน HTTPS) สำหรับนำไปทดสอบสแกนและดึงพิกัดจริงบนสมาร์ตโฟน</td>
+</tr>
+<tr>
+<td align="center"><strong>30/09/2569</strong></td>
+<td align="left">พัฒนาระบบส่งออกรายงานสรุปการนิเทศงานเป็นไฟล์ Excel (.xlsx) และ PDF (.pdf)</td>
+<td align="left">พัฒนาฟังก์ชันประมวลผลข้อมูลและสร้างไฟล์รายงาน Excel สรุปสถิติการออกตรวจนิเทศแยกตามกลุ่มเรียน (หมู่ 700 และ 800)</td>
+</tr>
+<tr>
+<td align="center"><strong>31/09/2569</strong></td>
+<td align="left">พัฒนาระบบส่งออกรายงานสรุปการนิเทศงานเป็นไฟล์ Excel (.xlsx) และ PDF (.pdf)</td>
+<td align="left">พัฒนาระบบดาวน์โหลดใบสรุปผลประเมินคะแนนนิเทศของนิสิตในรูปแบบ PDF จัดวางหน้ากระดาษ A4 ครบถ้วนตามมาตรฐาน</td>
+</tr>
+<tr>
+<td align="center"><strong>01/10/2569</strong></td>
+<td align="left">ปรับปรุงระบบการดึงข้อมูลจาก Supabase Cloud และระบบ LocalStorage Fallback</td>
+<td align="left">ปรับปรุงโครงสร้าง <code>supabase-client.js</code> ให้มีกลไกสลับมาใช้หน่วยความจำจำลอง (LocalStorage) ทันทีเมื่อเครือข่ายออฟไลน์</td>
+</tr>
+<tr>
+<td align="center"><strong>02/10/2569</strong></td>
+<td align="left">ปรับปรุงระบบการดึงข้อมูลจาก Supabase Cloud และระบบ LocalStorage Fallback</td>
+<td align="left">ทดสอบการทำงานแบบ Cross-platform และแก้ปัญหาหน้าเว็บค้าง ทำให้ระบบสามารถโหลดข้อมูลแดชบอร์ดได้เร็วและเสถียร</td>
+</tr>
+<tr>
+<td align="center"><strong>03/10/2569</strong></td>
+<td align="left">พัฒนาระบบค้นหาข้อมูลนิสิต (Search Box) ในตารางของแอดมิน กรองข้อมูลแบบเรียลไทม์</td>
+<td align="left">เพิ่มช่องค้นหาที่สามารถกรองรายชื่อนิสิตตามชื่อ-นามสกุล, รหัสนิสิต หรือสถานประกอบการได้ทันทีขณะพิมพ์</td>
+</tr>
+<tr>
+<td align="center"><strong>04/10/2569</strong></td>
+<td align="left">เชื่อมโยง Modal ตรวจเอกสารระหว่างหน้าแอดมินและอาจารย์ ให้ซิงก์สถานะตรงกัน</td>
+<td align="left">พัฒนาหน้าต่าง Pop-up ตรวจเอกสาร แบบฟอร์ม 00, Form 02, 04, 05, 06, 07, 08, 10, 11 ให้แอดมินและอาจารย์สามารถเปิดดูไฟล์และอัปเดตสถานะการตรวจรับตรงกันแบบเรียลไทม์</td>
+</tr>
+<tr>
+<td align="center"><strong>05/10/2569</strong></td>
+<td align="left">เดินทาง</td>
+<td align="left">เดินทางเข้าร่วมพิธีพระราชทานปริญญาบัตร มหาวิทยาลัยเกษตรศาสตร์</td>
+</tr>
+<tr>
+<td align="center"><strong>06/10/2569</strong></td>
+<td align="left">ไปงานรับปริญญา</td>
+<td align="left">เข้าร่วมกิจกรรมและพิธีพระราชทานปริญญาบัตร มหาวิทยาลัยเกษตรศาสตร์</td>
+</tr>
+<tr>
+<td align="center"><strong>07/10/2569</strong></td>
+<td align="left">ไปงานรับปริญญา</td>
+<td align="left">เข้าร่วมกิจกรรมและพิธีพระราชทานปริญญาบัตร มหาวิทยาลัยเกษตรศาสตร์</td>
+</tr>
+<tr>
+<td align="center"><strong>08/10/2569</strong></td>
+<td align="left">ไปงานรับปริญญา</td>
+<td align="left">เข้าร่วมกิจกรรมและพิธีพระราชทานปริญญาบัตร มหาวิทยาลัยเกษตรศาสตร์</td>
+</tr>
+<tr>
+<td align="center"><strong>09/10/2569</strong></td>
+<td align="left">เดินทาง</td>
+<td align="left">เดินทางกลับจากการเข้าร่วมพิธีพระราชทานปริญญาบัตร</td>
+</tr>
+<tr>
+<td align="center"><strong>10/10/2569</strong></td>
+<td align="left">พักผ่อน</td>
+<td align="left">พักผ่อนเพื่อเตรียมความพร้อมสำหรับการพัฒนาระบบ</td>
+</tr>
+<tr>
+<td align="center"><strong>11/10/2569</strong></td>
+<td align="left">แก้ปัญหาการเข้ารหัสตัวอักษรภาษาไทย (UTF-8 Encoding) ในไฟล์โค้ด JavaScript</td>
+<td align="left">จัดการแปลงไฟล์สคริปต์เป็น UTF-8 เพื่อแก้ปัญหาข้อความภาษาไทยเพี้ยน (Mojibake) บนเบราว์เซอร์</td>
+</tr>
+<tr>
+<td align="center"><strong>12/10/2569</strong></td>
+<td align="left">เชื่อมโยง Modal ตรวจเอกสารระหว่างหน้าแอดมินและอาจารย์ ให้ซิงก์สถานะตรงกัน</td>
+<td align="left">ปรับปรุงคอลัมน์สถานะเอกสารเป็น "เอกสารครบแล้ว / ไม่ครบ" และปรับสถานะการนิเทศเป็นภาษาไทยสมบูรณ์</td>
+</tr>
+<tr>
+<td align="center"><strong>13/10/2569</strong></td>
+<td align="left">เชื่อมโยง Modal ตรวจเอกสารระหว่างหน้าแอดมินและอาจารย์ ให้ซิงก์สถานะตรงกัน</td>
+<td align="left">ปรับปรุงหน้าจอเข้าสู่ระบบให้รองรับอีเมล @ku.th และเสริมกฎความปลอดภัยการตั้งรหัสผ่าน 4 ข้อแบบเรียลไทม์</td>
+</tr>
+<tr>
+<td align="center"><strong>14/10/2569</strong></td>
+<td align="left">พัฒนาคลังแบบฟอร์มเอกสารเปล่าสำหรับนิสิต, Web Server ภายในเครื่อง และระบบล้างข้อมูลจำลอง</td>
+<td align="left">เพิ่มแบบฟอร์มเปล่า 4 ฉบับ (ฟอร์มสัดส่วนงาน, แบบ 02, 04, 05) พร้อมพิมพ์เป็น PDF/Word, พัฒนา <code>server.ps1</code> สำหรับรันเซิร์ฟเวอร์ในเครื่อง และตัดข้อมูล Mockup ออกทั้งหมด</td>
+</tr>
+<tr>
+<td align="center"><strong>15/10/2569</strong></td>
+<td align="left">พัฒนาระบบแสดงผลแดชบอร์ดภาพรวมเอกสารและการส่งงานตามสัดส่วน (Form Contribution)</td>
+<td align="left">หน้าแดชบอร์ดแสดงแถบ Progress Bar และคำนวณร้อยละการส่งงานของแต่ละหมู่เรียนได้อย่างถูกต้อง</td>
+</tr>
+<tr>
+<td align="center"><strong>16/10/2569</strong></td>
+<td align="left">ปรับแต่งส่วนติดต่อผู้ใช้ (UI) ฝั่งอาจารย์นิเทศให้สามารถดูรายชื่อนิสิตแยกตามหมู่ 700 และ 800</td>
+<td align="left">อาจารย์สามารถเลือกคลิกดูรายชื่อนิสิตในความดูแล 10 คนได้อย่างชัดเจน และปรับปรุงระบบ LocalStorage Fallback</td>
+</tr>
+<tr>
+<td align="center"><strong>17/10/2569</strong></td>
+<td align="left">พักผ่อนประจำสัปดาห์ (วันเสาร์)</td>
+<td align="left">พักผ่อนประจำสัปดาห์หลังเสร็จสิ้นการวางโครงสร้างห้องเรียนจำลอง</td>
+</tr>
+<tr>
+<td align="center"><strong>18/10/2569</strong></td>
+<td align="left">พักผ่อนประจำสัปดาห์ (วันอาทิตย์)</td>
+<td align="left">พักผ่อนประจำสัปดาห์เพื่อเตรียมความพร้อมสำหรับการพัฒนาระบบส่วนถัดไป</td>
+</tr>
+<tr>
+<td align="center"><strong>19/10/2569</strong></td>
+<td align="left">พัฒนาระบบตรวจรับเอกสารสหกิจศึกษา แบบฟอร์ม 00, Form 02, 04, 05, 06, 07, 08, 10, 11 และการแนบข้อคิดเห็นอาจารย์</td>
+<td align="left">อาจารย์สามารถตรวจรับเอกสาร เลือกสถานะ (ครบถ้วน/ต้องแก้ไข) พร้อมระบุคำแนะนำส่งตรงถึงนิสิต</td>
+</tr>
+<tr>
+<td align="center"><strong>20/10/2569</strong></td>
+<td align="left">พัฒนาระบบสแกนกล้อง QR Code ด้วยไลบรารี Html5Qrcode บนเบราว์เซอร์สมาร์ตโฟน</td>
+<td align="left">สามารถเปิดกล้องสมาร์ตโฟนสแกน QR Code ประจำตัวนิสิตเพื่อเตรียมเช็คอินตรวจนิเทศหน้างาน</td>
+</tr>
+<tr>
+<td align="center"><strong>21/10/2569</strong></td>
+<td align="left">ปรับปรุงระบบแผนที่และพิกัด Geolocation สำหรับตรวจสอบระยะห่างสถานประกอบการ</td>
+<td align="left">บันทึกพิกัดจริง (Latitude, Longitude) ขณะอาจารย์ตรวจนิเทศและเปรียบเทียบระยะห่างเพื่อยืนยันการลงพื้นที่</td>
+</tr>
+<tr>
+<td align="center"><strong>22/10/2569</strong></td>
+<td align="left">ออกแบบระบบนัดหมายในปฏิทินและเชื่อมโยงการแจ้งเตือนไปยังนิสิต</td>
+<td align="left">เมื่ออาจารย์สร้างนัดหมาย ระบบจะขึ้นการแจ้งเตือนในปฏิทินของนิสิต พร้อมเลือกดูนัดหมายรายเดือนได้</td>
+</tr>
+<tr>
+<td align="center"><strong>23/10/2569</strong></td>
+<td align="left">วันหยุดราชการ (วันปิยมหาราช)</td>
+<td align="left">หยุดพักผ่อนเนื่องในวันคล้ายวันสวรรคตพระบาทสมเด็จพระจุลจอมเกล้าเจ้าอยู่หัว (วันหยุดนักขัตฤกษ์)</td>
+</tr>
+<tr>
+<td align="center"><strong>24/10/2569</strong></td>
+<td align="left">พักผ่อนประจำสัปดาห์ (วันเสาร์)</td>
+<td align="left">พักผ่อนประจำสัปดาห์</td>
+</tr>
+<tr>
+<td align="center"><strong>25/10/2569</strong></td>
+<td align="left">ทบทวนโค้ดและเตรียมชุดข้อมูลทดสอบ (วันอาทิตย์)</td>
+<td align="left">ตรวจสอบความถูกต้องของสคริปต์การคำนวณคะแนนประเมินผลการฝึกงาน 3 ด้าน (เต็ม 100 คะแนน)</td>
+</tr>
+<tr>
+<td align="center"><strong>26/10/2569</strong></td>
+<td align="left">พัฒนาระบบจัดการประวัติเอกสารสหกิจศึกษาของนิสิต (Submission History)</td>
+<td align="left">นิสิตสามารถตรวจสอบประวัติ วันที่ส่งไฟล์ และสถานะการตรวจรับแบบฟอร์ม แบบฟอร์ม 00, Form 02, 04, 05, 06, 07, 08, 10, 11 ได้ครบถ้วน</td>
+</tr>
+<tr>
+<td align="center"><strong>27/10/2569</strong></td>
+<td align="left">ทดสอบการทำงานบนสมาร์ตโฟนหลายระบบปฏิบัติการ (iOS และ Android)</td>
+<td align="left">ปรับแก้ขนาดปุ่มกดและระยะห่างให้อ่านง่าย เหมาะกับการใช้นิ้วสัมผัสบนหน้าจอมือถือทุกขนาด</td>
+</tr>
+<tr>
+<td align="center"><strong>28/10/2569</strong></td>
+<td align="left">ปรับปรุงการแจ้งเตือนระบบ ล้างข้อมูล Mockup เก่า และจัดการบัญชีผู้ใช้งานให้มีเอกลักษณ์</td>
+<td align="left">ลบข้อมูลจำลองเก่า และจัดการบัญชีผู้ใช้งานจริงให้รองรับการเชื่อมโยงกับฐานข้อมูล Supabase</td>
+</tr>
+<tr>
+<td align="center"><strong>29/10/2569</strong></td>
+<td align="left">แก้ไขข้อผิดพลาดการไฮไลท์วันที่ในปฏิทินนัดหมายแบบ Exact Match</td>
+<td align="left">ปรับปรุงการเปรียบเทียบสตริงวันที่แบบ Exact Match (<code>YYYY-MM-DD</code>) ทำให้ไฮไลท์เฉพาะวันที่เลือกอย่างแม่นยำ 100%</td>
+</tr>
+<tr>
+<td align="center"><strong>30/10/2569</strong></td>
+<td align="left">พัฒนาระบบส่งอีเมลจริงผ่าน Gmail SMTP Server (<code>/api/send-first-login</code>) และระบบยืนยันรหัส OTP 8 หลัก</td>
+<td align="left">เพิ่ม Endpoint ใน <code>server.ps1</code> ส่งอีเมลแจ้งแรกเข้าจริง, ปรับเมนูซ้ายแยก "กำหนดส่งเอกสาร" และ "หลักฐานการนิเทศ" เป็นเมนูหลัก</td>
+</tr>
+<tr>
+<td align="center"><strong>31/10/2569</strong></td>
+<td align="left">ปรับปรุงหน้าหลักฐานการนิเทศเป็นตารางรายชื่อ พร้อมปุ่มยืนยันอัปโหลดรูป, บันทึกภาพ 10 หน้าจอ และจัดทำเล่มรายงานสมบูรณ์</td>
+<td align="left">อาจารย์เลือกรูปหรือเปิดกล้อง มีปุ่มกดยืนยันก่อนบันทึก, ช่องค้นหาแอดมินคงที่, บันทึกภาพหลักฐาน 10 รูป และจัดทำเล่มรายงานจบพร้อมส่ง</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<script>
+function copyTimesheet() {
+    const el = document.getElementById('timesheet-content');
+    const range = document.createRange();
+    range.selectNode(el);
+    window.getSelection().removeAllRanges();
+    window.getSelection().addRange(range);
+    try {
+        document.execCommand('copy');
+        alert('คัดลอกตาราง Time Sheet เรียบร้อย นำไปกดวาง (Ctrl+V) ใน Google Docs ได้ทันที');
+    } catch (err) {
+        alert('กรุณากด Ctrl+A และ Ctrl+C เพื่อคัดลอกด้วยตนเอง');
+    }
+    window.getSelection().removeAllRanges();
+}
+</script>
+
+</body>
+</html>
