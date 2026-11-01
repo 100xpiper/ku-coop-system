@@ -411,3 +411,4 @@ with open("Project_Progress_Report_Final.html", "w", encoding="utf-8") as f:
     f.write(full_html)
 
 print("Project_Progress_Report_Final.html created successfully!")
+

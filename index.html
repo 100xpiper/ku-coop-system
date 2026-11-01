@@ -604,6 +604,26 @@
         let pendingFirstLoginUser = null;
         let pendingOtpUser = null;
         let currentOtpCode = null;   // เก็บ OTP ที่สุ่มไว้ (fallback)
+        // Clean legacy fallback admin session
+        try {
+            const legacy = localStorage.getItem('currentUser');
+            if (legacy) {
+                const u = JSON.parse(legacy);
+                if (u && (u.id === 'adminku' || u.email === 'admin@ku.th')) {
+                    localStorage.removeItem('currentUser');
+                }
+            }
+        } catch (e) {}
+
+        function saveAuthSession(user) {
+            try {
+                sessionStorage.setItem('currentUser', JSON.stringify(user));
+            } catch (e) {}
+            try {
+                localStorage.removeItem('currentUser');
+            } catch (e) {}
+        }
+
         let supabaseOtpSent = false; // true = Supabase ส่งจริงได้
 
         // ---- ส่ง OTP ผ่าน Supabase Auth (ตามเทมเพลตในภาพที่ 2 สวยงาม ถูกต้อง 100%) ----
@@ -725,12 +745,12 @@
                 closeOtpModal();
                 if (user && user.role === 'advisor') {
                     user.first_login = false;
-                    localStorage.setItem('currentUser', JSON.stringify(user));
+                    saveAuthSession(user);
                     window.location.href = 'dashboard.html';
                 } else if (user && user.first_login) {
                     showFirstLoginPasswordResetModal(user);
                 } else {
-                    localStorage.setItem('currentUser', JSON.stringify(user));
+                    saveAuthSession(user);
                     window.location.href = 'dashboard.html';
                 }
                 return;
@@ -746,12 +766,12 @@
                     closeOtpModal();
                     if (user && user.role === 'advisor') {
                         user.first_login = false;
-                        localStorage.setItem('currentUser', JSON.stringify(user));
+                        saveAuthSession(user);
                         window.location.href = 'dashboard.html';
                     } else if (user && user.first_login) {
                         showFirstLoginPasswordResetModal(user);
                     } else {
-                        localStorage.setItem('currentUser', JSON.stringify(user));
+                        saveAuthSession(user);
                         window.location.href = 'dashboard.html';
                     }
                     return;
@@ -802,7 +822,7 @@
         function showFirstLoginPasswordResetModal(user) {
             if (user && user.role === 'advisor') {
                 user.first_login = false;
-                localStorage.setItem('currentUser', JSON.stringify(user));
+                saveAuthSession(user);
                 window.location.href = 'dashboard.html';
                 return;
             }
@@ -852,7 +872,7 @@
                     customUsers[pendingFirstLoginUser.email] = pendingFirstLoginUser;
                     localStorage.setItem('customUsers', JSON.stringify(customUsers));
                 }
-                localStorage.setItem('currentUser', JSON.stringify(pendingFirstLoginUser));
+                saveAuthSession(pendingFirstLoginUser);
                 document.getElementById('modal-first-login-password').style.display = 'none';
                 alert('ตั้งรหัสผ่านใหม่เรียบร้อยแล้ว!');
                 window.location.href = 'dashboard.html';
@@ -899,14 +919,14 @@
                 if (result.success && result.user) {
                     // ผู้ดูแลระบบ (Admin) และ อาจารย์นิเทศ (Advisor) เข้าสู่ระบบได้ทันที ไม่ต้องผ่าน OTP หรือตั้งรหัสใหม่
                     if (result.user.role === 'admin' || result.user.role === 'advisor') {
-                        localStorage.setItem('currentUser', JSON.stringify(result.user));
+                        saveAuthSession(result.user);
                         window.location.href = 'dashboard.html';
                     } else {
                         // นิสิต: หากเข้าสู่ระบบครั้งแรก ให้แสดงหน้าต่างตั้งรหัสผ่านใหม่
                         if (result.user.first_login === true || result.user.password_changed !== true) {
                             showFirstLoginPasswordResetModal(result.user);
                         } else {
-                            localStorage.setItem('currentUser', JSON.stringify(result.user));
+                            saveAuthSession(result.user);
                             window.location.href = 'dashboard.html';
                         }
                     }

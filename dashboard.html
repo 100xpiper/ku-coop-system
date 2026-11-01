@@ -4547,7 +4547,7 @@
         }
 
         function getAdvisorSections() {
-            const savedSession = localStorage.getItem('currentUser');
+            const savedSession = (sessionStorage.getItem('currentUser') || localStorage.getItem('currentUser'));
             let loggedInUser = null;
             if (savedSession) {
                 try { loggedInUser = JSON.parse(savedSession); } catch (e) {}
@@ -4764,7 +4764,7 @@
                 };
             }
 
-            const savedSession = localStorage.getItem('currentUser');
+            const savedSession = sessionStorage.getItem('currentUser');
             if (savedSession) {
                 try {
                     const parsed = JSON.parse(savedSession);
@@ -4780,7 +4780,7 @@
                             } else {
                                 parsed.section = 'หมู่ 700, หมู่ 800';
                             }
-                            try { localStorage.setItem('currentUser', JSON.stringify(parsed)); } catch (e) {}
+                            try { sessionStorage.setItem('currentUser', JSON.stringify(parsed)); } catch (e) {}
                         }
                         return parsed;
                     }
@@ -4788,21 +4788,18 @@
                     console.error("Session parse error:", e);
                 }
             }
-            // Auto fallback: If opened directly without session, default to Admin dashboard for preview
-            const defaultUser = {
-                id: 'adminku',
-                name: 'ผู้ดูแลระบบ (Admin)',
-                email: 'admin@ku.th',
-                role: 'admin'
-            };
-            try {
-                localStorage.setItem('currentUser', JSON.stringify(defaultUser));
-            } catch (e) {}
-            return defaultUser;
+
+            // Authentication Guard: หากไม่มี Session ผู้ใช้ ให้ดีดกลับไปหน้า Login (index.html) ทันที
+            window.location.replace('index.html');
+            return null;
         }
 
         window.addEventListener('DOMContentLoaded', () => {
             const user = getInitialUser();
+            if (!user) {
+                // Not authenticated, redirecting to login page
+                return;
+            }
             if (user) {
                 // 1. Immediately render UI to prevent any blank screen
                 initUserDashboard(user);
@@ -5275,7 +5272,7 @@
         }
 
         function renderStudentDocsList() {
-            const savedSession = localStorage.getItem('currentUser');
+            const savedSession = (sessionStorage.getItem('currentUser') || localStorage.getItem('currentUser'));
             if (!savedSession) return;
             const user = JSON.parse(savedSession);
             const stdId = String(user.id || user.student_id || '');
@@ -5387,7 +5384,7 @@
 
         function getCurrentAdvisorName() {
             try {
-                const savedSession = localStorage.getItem('currentUser');
+                const savedSession = (sessionStorage.getItem('currentUser') || localStorage.getItem('currentUser'));
                 if (savedSession) {
                     const u = JSON.parse(savedSession);
                     return u.name || 'อาจารย์นิเทศ';
@@ -7198,7 +7195,7 @@
             reader.onload = async function(e) {
                 try {
                     const fileDataUrl = e.target.result;
-                    const savedSession = localStorage.getItem('currentUser');
+                    const savedSession = (sessionStorage.getItem('currentUser') || localStorage.getItem('currentUser'));
                     const user = savedSession ? JSON.parse(savedSession) : {};
                     const stdId = String(user.id || user.student_id || '6521655442');
                     const stdName = user.name || 'นิสิต';
@@ -7257,7 +7254,7 @@
             if (!container) return;
             container.innerHTML = '';
 
-            const savedSession = localStorage.getItem('currentUser');
+            const savedSession = (sessionStorage.getItem('currentUser') || localStorage.getItem('currentUser'));
             if (!savedSession) return;
             const user = JSON.parse(savedSession);
             const stdId = String(user.id || user.student_id || '');
@@ -7688,7 +7685,7 @@
 
             reader.onload = async function(e) {
                 const fileDataUrl = e.target.result;
-                const savedSession = localStorage.getItem('currentUser');
+                const savedSession = (sessionStorage.getItem('currentUser') || localStorage.getItem('currentUser'));
                 const user = savedSession ? JSON.parse(savedSession) : {};
                 const stdId = String(user.id || user.student_id || '6521655442');
                 const stdName = user.name || 'นิสิต';
@@ -9720,8 +9717,9 @@
         }
 
         function logout() {
-            localStorage.removeItem('currentUser');
-            window.location.href = 'index.html';
+            try { sessionStorage.removeItem('currentUser'); } catch (e) {}
+            try { localStorage.removeItem('currentUser'); } catch (e) {}
+            window.location.replace('index.html');
         }
 
         // ==================== DESKTOP SIDEBAR NAVIGATION ====================
@@ -9952,7 +9950,7 @@
         }
 
         function saveStudentProjectTracking() {
-            const savedSession = localStorage.getItem('currentUser');
+            const savedSession = (sessionStorage.getItem('currentUser') || localStorage.getItem('currentUser'));
             if (!savedSession) return;
             const user = JSON.parse(savedSession);
             const stdId = String(user.id || user.student_id);
@@ -10003,7 +10001,7 @@
         }
 
         function updateNotificationBell() {
-            const savedSession = localStorage.getItem('currentUser');
+            const savedSession = (sessionStorage.getItem('currentUser') || localStorage.getItem('currentUser'));
             if (!savedSession) return;
             const user = JSON.parse(savedSession);
             
@@ -10060,7 +10058,7 @@
                 if (!isShowing) {
                     popup.style.display = 'flex';
                     // Mark as read
-                    const savedSession = localStorage.getItem('currentUser');
+                    const savedSession = (sessionStorage.getItem('currentUser') || localStorage.getItem('currentUser'));
                     if (savedSession) {
                         const user = JSON.parse(savedSession);
                         const notifs = JSON.parse(localStorage.getItem('sysNotifications') || '[]');
@@ -10228,7 +10226,7 @@
             let std = currentStudentProfile;
             if (!std) {
                 try {
-                    std = JSON.parse(localStorage.getItem('currentUser') || '{}');
+                    std = JSON.parse((sessionStorage.getItem('currentUser') || localStorage.getItem('currentUser')) || '{}');
                 } catch (e) {}
             }
 
@@ -10239,8 +10237,9 @@
             std.company_lat = latStr;
             std.company_lng = lngStr;
 
-            // Save to currentUser session in localStorage
-            localStorage.setItem('currentUser', JSON.stringify(std));
+            // Save to currentUser session in sessionStorage & localStorage
+            try { sessionStorage.setItem('currentUser', JSON.stringify(std)); } catch (e) {}
+            try { localStorage.setItem('currentUser', JSON.stringify(std)); } catch (e) {}
 
             // Save to customUsers
             try {
