@@ -1,0 +1,57 @@
+function handlePhotoSelected(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                pendingPhotoDataUrl = e.target.result;
+                const img = document.getElementById('photo-preview-img');
+                const emptyText = document.getElementById('photo-empty-text');
+                const delBtn = document.getElementById('btn-delete-photo');
+                const confirmBtn = document.getElementById('btn-confirm-upload-photo');
+                const noticeEl = document.getElementById('photo-pending-notice');
+
+                if (img) {
+                    img.src = pendingPhotoDataUrl;
+                    img.style.display = 'block';
+                }
+                if (emptyText) emptyText.style.display = 'none';
+                if (delBtn) delBtn.style.display = 'none';
+                if (confirmBtn) confirmBtn.style.display = 'flex';
+                if (noticeEl) noticeEl.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+            event.target.value = '';
+        }
+
+        async function confirmPhotoUpload() {
+            if (!pendingPhotoDataUrl) {
+                alert('โปรดเลือกรูปภาพหรือถ่ายรูปก่อนกดยืนยันการอัปโหลด');
+                return;
+            }
+
+            loadDynamicStudentsData();
+            let std = null;
+            for (let sSec in studentsData) {
+                std = (studentsData[sSec] || []).find(s => String(s.id) === String(currentSelectedStudentId));
+                if (std) break;
+            }
+
+            if (std) {
+                std.photo = pendingPhotoDataUrl;
+                // Persist to customUsers in localStorage
+                try {
+                    let customUsers = JSON.parse(localStorage.getItem('customUsers') || '{}');
+                    const emailKey = String(std.email || '').toLowerCase().trim();
+                    if (emailKey && customUsers[emailKey]) {
+                        customUsers[emailKey].photo = pendingPhotoDataUrl;
+                    }
+                    if (customUsers[std.id]) {
+                        customUsers[std.id].photo = pendingPhotoDataUrl;
+                    }
+                    localStorage.setItem('customUsers', JSON.stringify(customUsers));
+                } catch (err) {}
+
+                // Save to Supabase DB if available
+                try {
+                    if (typeof dbUploadPhot

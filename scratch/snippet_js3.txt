@@ -1,0 +1,49 @@
+ระจำตัว', 'รหัสนักศึกษา', 'รหัส', 'ID', 'Student ID', 'student_id']) || `STD_${idx+1}`;
+                    const name = findRowValue(row, ['ชื่อ - นามสกุล', 'ชื่อ-นามสกุล', 'ชื่อนามสกุล', 'ชื่อ', 'Name', 'fullname']);
+                    const title = findRowValue(row, ['คำนำหน้านาม', 'คำนำหน้า', 'Prefix', 'title']);
+                    const fullName = title ? `${title} ${name}`.trim() : (name || 'นิสิต');
+                    const sectionVal = findRowValue(row, ['หมู่เรียน', 'หมู่เรียนที่รับผิดชอบ', 'หมู่', 'Section', 'section']);
+                    const sec = sectionVal ? (sectionVal.includes('หมู่') ? sectionVal : `หมู่ ${sectionVal}`) : 'หมู่ 700';
+                    const advisorVal = findRowValue(row, ['อาจารย์ที่ปรึกษา', 'อาจารย์นิเทศ', 'อาจารย์', 'Advisor', 'advisor']) || '-';
+                    const company = findRowValue(row, ['ชื่อสถานประกอบการ', 'สถานประกอบการ', 'Company', 'company']) || '-';
+
+                    const tr = document.createElement('tr');
+                    tr.style.borderBottom = '1px solid #f1f5f9';
+                    tr.innerHTML = `
+                        <td style="padding: 4px 6px; font-weight: 600; color: #1e293b;">${studentId}</td>
+                        <td style="padding: 4px 6px; color: #334155;">${fullName}</td>
+                        <td style="padding: 4px 6px;"><span style="background: #e0f2fe; color: #0369a1; padding: 1px 6px; border-radius: 4px; font-weight: 700; font-size: 10px;">${sec}</span></td>
+                        <td style="padding: 4px 6px; color: #475569; font-size: 10px;">${advisorVal}</td>
+                        <td style="padding: 4px 6px; color: #64748b; font-size: 10px; max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${company}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+
+                if (adminParsedStudentRows.length > 5) {
+                    const trMore = document.createElement('tr');
+                    trMore.innerHTML = `
+                        <td colspan="5" style="padding: 5px 6px; text-align: center; color: #64748b; background: #f8fafc; font-style: italic; font-size: 10px;">
+                            ... และอีก ${adminParsedStudentRows.length - 5} รายชื่อในไฟล์ ...
+                        </td>
+                    `;
+                    tbody.appendChild(trMore);
+                }
+            }
+
+            if (importBtn) {
+                importBtn.disabled = false;
+                importBtn.style.opacity = '1';
+                importBtn.style.cursor = 'pointer';
+                importBtn.textContent = `ยืนยันนำเข้ารายชื่อนิสิต (${adminParsedStudentRows.length} รายการ) เข้าสู่ระบบ`;
+            }
+        }
+
+        function handleAdvisorExcelSelected(event) {
+            const file = event.target.files[0];
+            if (file) {
+                selectedAdvisorExcelFile = file;
+                const label = document.getElementById('excel-advisor-file-name-label');
+                if (label) {
+                    label.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg> เลือกไฟล์รายชื่ออาจารย์แล้ว: ` + file.name;
+                    label.parentElement.style.backgroundColor = '#dbeafe';
+  

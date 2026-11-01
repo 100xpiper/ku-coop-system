@@ -1,0 +1,55 @@
+: 22px; }
+    </style>
+</head>
+<body>
+
+    <!-- DESKTOP LAYOUT: Sidebar + Main Content -->
+    <div class="mobile-device" id="mobile-device-frame">
+
+        <!-- SIDEBAR NAVIGATION -->
+        <aside class="desktop-sidebar" id="desktop-sidebar">
+            <!-- Brand -->
+            <div class="sidebar-brand">
+                <div class="sidebar-brand-icon">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                </div>
+                <div>
+                    <div class="sidebar-brand-text">ระบบนิเทศสหกิจ</div>
+                    <div class="sidebar-brand-sub">คณะวิทยาศาสตร์ มก.</div>
+                </div>
+            </div>
+
+            <!-- User Info -->
+            <div class="sidebar-user-box">
+                <div class="sidebar-user-name" id="sidebar-username">-</div>
+                <div class="sidebar-user-role" id="sidebar-userrole">-</div>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="sidebar-nav" id="sidebar-nav-container">
+                <!-- Rendered by JS based on role -->
+            </nav>
+
+            <!-- Logout -->
+            <div class="sidebar-footer">
+                <button class="sidebar-logout-btn" onclick="logout()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                    ออกจากระบบ
+                </button>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT WRAPPER -->
+        <div class="desktop-main">
+
+        <!-- Desktop Top Header -->
+        <header>
+            <div class="system-title">
+                <button type="button" id="header-back-btn" class="header-back-btn" onclick="handleHeaderBack()" title="ย้อนกลับ" style="display:none;">
+                    <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+                </button>
+                <span id="header-role-title">ระบบนิเทศสหกิจศึกษา</span>
+            </div>
+            <div class="header-actions">
+                <div class="header-notification" id="header-notification-btn" style="display: none; position: relative; cursor: pointer; margin-right: 12px; align-items: center;" onclick="toggleNotificationPopup()">
+                    <svg width="22" height="22" viewBo

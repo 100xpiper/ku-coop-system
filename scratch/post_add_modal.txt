@@ -1,0 +1,68 @@
+function showPostAddPreviewModal(options = {}) {
+            const {
+                title = 'เพิ่ม / นำเข้ารายชื่อนิสิตสำเร็จเรียบร้อย',
+                roleTitle = 'ผู้ดูแลระบบ',
+                source = 'admin_file',
+                students = [],
+                sectionsCountMap = {},
+                emailSent = false
+            } = options;
+
+            postAddPreviewStudentsList = Array.isArray(students) ? students : [];
+
+            const titleEl = document.getElementById('post-add-preview-title');
+            if (titleEl) titleEl.textContent = title;
+
+            const roleBadge = document.getElementById('post-add-badge-role');
+            if (roleBadge) roleBadge.textContent = `บทบาท: ${roleTitle}`;
+
+            const modeBadge = document.getElementById('post-add-badge-mode');
+            if (modeBadge) {
+                if (source === 'admin_file') modeBadge.textContent = 'วิธี: นำเข้าไฟล์ Excel (Admin)';
+                else if (source === 'advisor_file') modeBadge.textContent = 'วิธี: นำเข้าไฟล์ Excel (อาจารย์)';
+                else modeBadge.textContent = 'วิธี: บันทึกข้อมูลรายบุคคล';
+            }
+
+            const timeBadge = document.getElementById('post-add-badge-time');
+            if (timeBadge) {
+                const now = new Date();
+                const timeStr = now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                const dateStr = now.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' });
+                timeBadge.textContent = `เวลาบันทึก: ${dateStr} ${timeStr}`;
+            }
+
+            const countStat = document.getElementById('post-add-stat-count');
+            if (countStat) countStat.textContent = `${postAddPreviewStudentsList.length} คน`;
+
+            const secStat = document.getElementById('post-add-stat-sections');
+            if (secStat) {
+                const entries = Object.entries(sectionsCountMap);
+                if (entries.length > 0) {
+                    secStat.innerHTML = entries.map(([s, c]) => `${s}: <strong>${c}</strong> คน`).join('<br>');
+                } else {
+                    secStat.textContent = '-';
+                }
+            }
+
+            const authStat = document.getElementById('post-add-stat-auth');
+            if (authStat) {
+                authStat.innerHTML = 'รหัสผ่านแรกเข้า:<br><strong style="color: #15803d; font-family: monospace;">รหัสนิสิต</strong>';
+            }
+
+            const searchInput = document.getElementById('post-add-search-input');
+            if (searchInput) searchInput.value = '';
+
+            const emailNotice = document.getElementById('post-add-email-notice');
+            const emailNoticeText = document.getElementById('post-add-email-notice-text');
+            if (emailNotice) {
+                if (emailSent) {
+                    emailNotice.style.display = 'flex';
+                    emailNotice.style.background = '#f0fdf4';
+                    emailNotice.style.borderColor = '#bbf7d0';
+                    emailNotice.style.color = '#15803d';
+                    if (emailNoticeText) emailNoticeText.textContent = 'ระบบได้ส่งอีเมลแจ้งแรกเข้าใช้งาน (รหัสนิสิต) ไปยังอีเมลเคยูของนิสิตเรียบร้อยแล้ว';
+                } else {
+                    emailNotice.style.display = 'flex';
+                    emailNotice.style.background = '#f8fafc';
+                    emailNotice.style.borderColor = '#e2e8f0';
+                    emailNotice.style.color = '#475569';

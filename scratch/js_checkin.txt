@@ -1,0 +1,82 @@
+           if (placeholder) placeholder.style.display = 'block';
+                }).catch(err => {
+                    html5QrCodeInstance = null;
+                });
+            }
+        }
+
+        function processCheckinAndEval() {
+            const studentSelect = document.getElementById('qr-scan-student-select');
+            if (!studentSelect || !studentSelect.value) {
+                alert('กรุณาเลือกรหัสนิสิตที่ต้องการเช็คอิน');
+                return;
+            }
+
+            const studentId = studentSelect.value;
+            currentSelectedStudentId = studentId;
+
+            let stdName = 'นิสิต';
+            let stdCompany = 'สถานประกอบการ';
+            const allStds = getAllSystemStudents();
+            const stdObj = allStds.find(s => String(s.id) === String(studentId));
+            if (stdObj) {
+                stdName = stdObj.name;
+                stdCompany = stdObj.company && stdObj.company !== '-' ? stdObj.company : 'สถานประกอบการ (พิกัด GPS)';
+                stdObj.status = 'นิเทศแล้ว';
+            }
+
+            // Update user status in localStorage customUsers
+            try {
+                const customUsers = JSON.parse(localStorage.getItem('customUsers') || '{}');
+                Object.values(customUsers).forEach(u => {
+                    if (String(u.id || u.student_id) === String(studentId)) {
+                        u.status = 'นิเทศแล้ว';
+                    }
+                });
+                localStorage.setItem('customUsers', JSON.stringify(customUsers));
+            } catch (e) {
+                console.warn("Storage update notice:", e);
+            }
+
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' });
+            const timeStr = now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }) + ' น.';
+            const fullTimeStr = `${dateStr} เวลา ${timeStr}`;
+
+            let latStr = "13.847621";
+            let lngStr = "100.569432";
+
+            const displayResult = (lat, lng) => {
+                const infoEl = document.getElementById('qr-result-student-info');
+                const locEl = document.getElementById('qr-result-location');
+                const gpsEl = document.getElementById('qr-result-gps');
+                const timeEl = document.getElementById('qr-result-time');
+                const resultCard = document.getElementById('qr-checkin-result-card');
+
+                if (infoEl) infoEl.textContent = `${stdName} (รหัสนิสิต: ${studentId})`;
+                if (locEl) locEl.textContent = stdCompany;
+                if (gpsEl) gpsEl.textContent = `Lat ${lat}, Lng ${lng} (อยู่ในรัศมีสถานประกอบการ)`;
+                if (timeEl) timeEl.textContent = fullTimeStr;
+
+                if (resultCard) {
+                    resultCard.style.display = 'block';
+                    resultCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+
+                addNotification(`เช็คอินเรียบร้อย: ${stdName} ณ ${stdCompany} (${fullTimeStr})`);
+                updateAdvisorStats();
+                renderStudentList();
+            };
+
+            const checkinBtnText = document.getElementById('btn-process-checkin-text');
+            if (checkinBtnText) checkinBtnText.textContent = "กำลังดึงพิกัด GPS...";
+
+            const restoreBtnText = () => {
+                if (checkinBtnText) checkinBtnText.textContent = "สแกน QR Code และเช็คอิน GPS";
+            };
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => {
+                        latStr = pos.coords.latitude.toFixed(6);
+               

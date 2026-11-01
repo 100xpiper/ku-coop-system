@@ -1,0 +1,54 @@
+                           doc_status: 'รอตรวจ',
+                                        supervision_status: 'รอนิเทศ'
+                                    };
+                                    if (advisorVal) studentData.advisor_name = advisorVal;
+                                    if (lat) studentData.company_lat = lat;
+                                    if (lng) studentData.company_lng = lng;
+
+                                    await supabaseClient.from('students').upsert([studentData], { onConflict: 'student_id' });
+                                }
+                            } catch (err) {
+                                console.warn("Supabase upsert notice:", err.message);
+                            }
+                        }
+                        importedCount++;
+                        sectionsCountMap[section] = (sectionsCountMap[section] || 0) + 1;
+                        importedStudentsList.push({
+                            id: studentId || email.split('@')[0],
+                            student_id: studentId || email.split('@')[0],
+                            name: fullName,
+                            email: email,
+                            section: section,
+                            company: company || '-',
+                            advisor: advisorVal || '-',
+                            initialPassword: pass,
+                            status: 'approved'
+                        });
+                    }
+
+                    localStorage.setItem('customUsers', JSON.stringify(customUsers));
+                    renderAdminUsersTable();
+                    updateAdvisorStats();
+                    clearAdminStudentFile();
+
+                    // Open Post-Addition Preview Modal!
+                    showPostAddPreviewModal({
+                        title: 'นำเข้ารายชื่อนิสิตเข้าสู่ระบบสำเร็จ',
+                        roleTitle: 'ผู้ดูแลระบบ (Admin)',
+                        source: 'admin_file',
+                        students: importedStudentsList,
+                        sectionsCountMap: sectionsCountMap,
+                        emailSent: false
+                    });
+
+                } catch (err) {
+                    console.error("Student Excel import error:", err);
+                    alert('เกิดข้อผิดพลาดในการอ่านไฟล์ Excel รายชื่อนิสิต กรุณาตรวจสอบรูปแบบไฟล์แล้วลองใหม่อีกครั้ง');
+                }
+            };
+            reader.readAsArrayBuffer(selectedStudentExcelFile);
+        }
+
+        function importAdvisorExcelFile() {
+            if (!selectedAdvisorExcelFile) {
+                alert('กรุณาคลิกเลือกไฟล์ Excel รายชื่ออ�

@@ -1,0 +1,32 @@
+', 'รหัส', 'ID', 'Student ID', 'StudentID', 'student_id']);
+                        const yearVal = findRowValue(row, ['ชั้นปี', 'ชั้น', 'Year', 'year']);
+                        const deptVal = findRowValue(row, ['ภาควิชา', 'สาขาวิชา', 'ภาค', 'Department', 'dept']);
+                        const curriculumVal = findRowValue(row, ['หลักสูตร', 'Curriculum', 'program']);
+                        const sectionVal = findRowValue(row, ['หมู่เรียน', 'หมู่เรียนที่รับผิดชอบ', 'หมู่', 'Section', 'section']);
+                        const section = sectionVal ? (sectionVal.includes('หมู่') ? sectionVal : `หมู่ ${sectionVal}`) : 'หมู่ 700';
+                        const company = findRowValue(row, ['ชื่อสถานประกอบการ', 'สถานประกอบการ', 'Company', 'company']);
+                        const advisorVal = findRowValue(row, ['อาจารย์ที่ปรึกษา', 'อาจารย์นิเทศ', 'อาจารย์', 'อาจารย์ผู้ดูแล', 'Advisor', 'advisor', 'ที่ปรึกษา']);
+                        const semesterRaw = findRowValue(row, ['ภาคการศึกษา', 'ภาคเรียน', 'เทอม', 'Semester', 'semester', 'Term', 'term']);
+                        let semester = semesterRaw || 'ภาคต้น 2569';
+                        if (semester === '69' || semester === '2569') {
+                            semester = 'ภาคต้น 2569';
+                        }
+                        const phoneVal = findRowValue(row, ['เบอร์โทรศัพท์', 'เบอร์โทร', 'เบอร์', 'โทร', 'Phone', 'Tel', 'tel']);
+                        
+                        // อ่านพิกัดแบบรวม (เช่น "14.076948, 100.601234" หรือตัวเลขพิกัด)
+                        const locationCoord = findRowValue(row, ['พิกัด', 'พิกัด GPS', 'GPS', 'Location', 'พิกัดจีพีเอส']);
+                        let lat = null;
+                        let lng = null;
+                        if (locationCoord) {
+                            if (locationCoord.includes(',')) {
+                                const parts = locationCoord.split(',');
+                                if (parts.length >= 2) {
+                                    lat = parseFloat(parts[0].trim());
+                                    lng = parseFloat(parts[1].trim());
+                                }
+                            } else if (!isNaN(parseFloat(locationCoord))) {
+                                lat = parseFloat(locationCoord.trim());
+                            }
+                        }
+
+                        const p

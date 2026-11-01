@@ -1,0 +1,56 @@
+const evaluateDistanceAndDisplay = (advLat, advLng, accuracyMeters) => {
+                const MAX_ALLOWED_RADIUS = 500; // 500 meters rule strictly enforced!
+                const distanceMeters = calculateHaversineDistance(advLat, advLng, targetLat, targetLng);
+                const isWithinRadius = (distanceMeters <= MAX_ALLOWED_RADIUS);
+
+                const card = document.getElementById('qr-checkin-result-card');
+                const dot = document.getElementById('qr-result-dot');
+                const titleEl = document.getElementById('qr-result-title');
+                const badgeEl = document.getElementById('qr-result-status-badge');
+                const infoEl = document.getElementById('qr-result-student-info');
+                const locEl = document.getElementById('qr-result-location');
+                const gpsEl = document.getElementById('qr-result-gps');
+                const targetGpsEl = document.getElementById('qr-result-target-gps');
+                const distEl = document.getElementById('qr-result-distance');
+                const timeEl = document.getElementById('qr-result-time');
+                const warningBox = document.getElementById('qr-result-warning-box');
+                const evalBtn = document.getElementById('btn-open-eval-modal');
+                const disabledNotice = document.getElementById('btn-eval-disabled-notice');
+                const mapLink = document.getElementById('qr-result-map-link');
+
+                if (infoEl) infoEl.textContent = `${stdName} (รหัสนิสิต: ${studentId})`;
+                if (locEl) locEl.textContent = stdCompany;
+                if (gpsEl) gpsEl.textContent = `Lat ${advLat}, Lng ${advLng} (±${accuracyMeters || 5} ม.)`;
+                if (targetGpsEl) targetGpsEl.textContent = `Lat ${targetLat.toFixed(6)}, Lng ${targetLng.toFixed(6)}`;
+                if (timeEl) timeEl.textContent = fullTimeStr;
+
+                if (mapLink) {
+                    mapLink.href = `https://www.google.com/maps/dir/?api=1&origin=${advLat},${advLng}&destination=${targetLat},${targetLng}`;
+                    mapLink.title = `เปิดดูเส้นทางและระยะห่างบน Google Maps`;
+                }
+
+                if (isWithinRadius) {
+                    // ==============================================================
+                    // CASE 1: SUCCESS (Distance <= 500 Meters)
+                    // ==============================================================
+                    if (card) {
+                        card.style.display = 'block';
+                        card.style.backgroundColor = '#f0fdf4';
+                        card.style.borderColor = '#22c55e';
+                    }
+                    if (dot) {
+                        dot.style.backgroundColor = '#22c55e';
+                        dot.style.boxShadow = '0 0 8px #22c55e';
+                    }
+                    if (titleEl) {
+                        titleEl.textContent = 'เช็คอินยืนยันพิกัด GPS สำเร็จ!';
+                        titleEl.style.color = '#15803d';
+                    }
+                    if (badgeEl) {
+                        badgeEl.textContent = 'อยู่ในรัศมี (ผ่านเกณฑ์)';
+                        badgeEl.style.backgroundColor = '#dcfce7';
+                        badgeEl.style.color = '#15803d';
+                    }
+                    if (distEl) {
+                        distEl.textContent = `${distanceMeters.toLocaleString()} เมตร (อยู่ในรัศมีไม่เกิน 500 เมตร)`;
+                        distEl.style.color = '#

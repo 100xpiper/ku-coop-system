@@ -1,0 +1,36 @@
+ic QR Code ประจำตัวนิสิต -->
+                <div id="sec-student-qrcode" class="page-content">
+                    <section class="section-card" style="text-align: center;">
+                        <div class="section-header" style="justify-content: center;">
+                            <div class="section-title">QR Code ประจำตัวนิสิต</div>
+                        </div>
+                        <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 12px;">
+                            ยื่นหน้าจอนี้ให้อาจารย์สแกนเพื่อเช็คอินยืนยันพิกัด ณ สถานประกอบการ
+                        </div>
+
+                        <!-- Static QR Code Card -->
+                        <div style="background-color: #ffffff; border: 2px solid var(--primary-color); padding: 16px; border-radius: 16px; display: inline-block; box-shadow: 0 4px 12px rgba(0,0,0,0.06);">
+                            <!-- Real QR Code Image -->
+                            <div id="std-qr-placeholder" style="width: 160px; height: 160px; background: #f1f5f9; display: flex; align-items: center; justify-content: center; border-radius: 8px; margin: 0 auto;">
+                                <span style="font-size: 12px; color: #94a3b8;">กำลังสร้าง...</span>
+                            </div>
+                            <img id="std-qr-image" src="" alt="QR Code" style="width: 160px; height: 160px; display: none; margin: 0 auto;" />
+                            <div style="font-size: 13px; font-weight: 700; color: var(--primary-color); margin-top: 8px;" id="std-qr-id">รหัสนิสิต: -</div>
+                            <div style="font-size: 11px; color: var(--text-muted);" id="std-qr-name">นิสิต</div>
+                        </div>
+                    </section>
+                </div>
+
+
+                <!-- ============================================== -->
+                <!-- VIEW 3: ฝั่งผู้ดูแลระบบ (ADMIN WEB DASHBOARD) -->
+                <!-- ============================================== -->
+
+                <div id="sec-admin-dash" class="page-content">
+                    <!-- Welcome banner removed per request -->
+
+                    <!-- 1. ภาพรวมรายชื่อนิสิตทั้งหมด -->
+                    <section class="section-card" id="admin-card-overview">
+                        <div class="section-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                            <div class="section-title">รายชื่อนิสิตทั้งหมด</div>
+                            <div style="display: flex; align-items: c

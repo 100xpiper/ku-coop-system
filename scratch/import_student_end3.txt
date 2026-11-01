@@ -1,0 +1,61 @@
+hone: phoneVal || '',
+                            status: 'approved',
+                            first_login: true,
+                            password_changed: false
+                        };
+
+                        customUsers[email] = userObj;
+
+                        if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+                            try {
+                                await supabaseClient.from('users').upsert([{
+                                    email: email,
+                                    password_hash: pass,
+                                    full_name: fullName,
+                                    role: 'student',
+                                    status: 'approved'
+                                }], { onConflict: 'email' });
+
+                                if (studentId) {
+                                    const studentData = {
+                                        student_id: studentId,
+                                        email: email,
+                                        full_name: fullName,
+                                        section: section,
+                                        company_name: company,
+                                        doc_status: 'รอตรวจ',
+                                        supervision_status: 'รอนิเทศ'
+                                    };
+                                    if (advisorVal) studentData.advisor_name = advisorVal;
+                                    if (lat) studentData.company_lat = lat;
+                                    if (lng) studentData.company_lng = lng;
+
+                                    await supabaseClient.from('students').upsert([studentData], { onConflict: 'student_id' });
+                                }
+                            } catch (err) {
+                                console.warn("Supabase upsert notice:", err.message);
+                            }
+                        }
+                        importedCount++;
+                        sectionsCountMap[section] = (sectionsCountMap[section] || 0) + 1;
+                        importedStudentsList.push({
+                            id: studentId || email.split('@')[0],
+                            student_id: studentId || email.split('@')[0],
+                            name: fullName,
+                            email: email,
+                            section: section,
+                            company: company || '-',
+                            advisor: advisorVal || '-',
+                            initialPassword: pass,
+                            status: 'approved'
+                        });
+                    }
+
+                    localStorage.setItem('customUsers', JSON.stringify(customUsers));
+                    renderAdminUsersTable();
+                    updateAdvisorStats();
+                    clearAdminStudentFile();
+
+                    // Open Post-Addition Preview Modal!
+                    showPostAddPreviewModal({
+            

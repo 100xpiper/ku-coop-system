@@ -1,0 +1,66 @@
+e.backgroundColor = '#ffffff';
+                    parentBox.style.border = '1.5px dashed #86efac';
+                }
+            }
+
+            const previewContainer = document.getElementById('admin-student-preview-container');
+            if (previewContainer) previewContainer.style.display = 'none';
+
+            const importBtn = document.getElementById('admin-student-import-btn');
+            if (importBtn) {
+                importBtn.disabled = true;
+                importBtn.style.opacity = '0.6';
+                importBtn.style.cursor = 'not-allowed';
+                importBtn.textContent = 'นำเข้ารายชื่อนิสิตเข้าสู่ระบบ';
+            }
+        }
+
+        function renderAdminStudentPreImportPreview() {
+            const previewContainer = document.getElementById('admin-student-preview-container');
+            const countBadge = document.getElementById('admin-student-preview-count-badge');
+            const secPills = document.getElementById('admin-student-preview-sec-pills');
+            const tbody = document.getElementById('admin-student-preview-tbody');
+            const importBtn = document.getElementById('admin-student-import-btn');
+
+            if (!adminParsedStudentRows || adminParsedStudentRows.length === 0) {
+                if (previewContainer) previewContainer.style.display = 'none';
+                return;
+            }
+
+            if (previewContainer) previewContainer.style.display = 'block';
+            if (countBadge) countBadge.textContent = `${adminParsedStudentRows.length} รายการ`;
+
+            const secCounts = {};
+            adminParsedStudentRows.forEach(row => {
+                const sectionVal = findRowValue(row, ['หมู่เรียน', 'หมู่เรียนที่รับผิดชอบ', 'หมู่', 'Section', 'section']);
+                const sec = sectionVal ? (sectionVal.includes('หมู่') ? sectionVal : `หมู่ ${sectionVal}`) : 'หมู่ 700';
+                secCounts[sec] = (secCounts[sec] || 0) + 1;
+            });
+
+            if (secPills) {
+                secPills.innerHTML = Object.entries(secCounts).map(([sec, count]) => `
+                    <span style="background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; padding: 2px 7px; border-radius: 12px; font-size: 10px; font-weight: 700;">
+                        ${sec}: ${count} คน
+                    </span>
+                `).join('');
+            }
+
+            if (tbody) {
+                tbody.innerHTML = '';
+                const previewRows = adminParsedStudentRows.slice(0, 5);
+                previewRows.forEach((row, idx) => {
+                    const studentId = findRowValue(row, ['รหัสนิสิต', 'รหัสประจำตัว', 'รหัสนักศึกษา', 'รหัส', 'ID', 'Student ID', 'student_id']) || `STD_${idx+1}`;
+                    const name = findRowValue(row, ['ชื่อ - นามสกุล', 'ชื่อ-นามสกุล', 'ชื่อนามสกุล', 'ชื่อ', 'Name', 'fullname']);
+                    const title = findRowValue(row, ['คำนำหน้านาม', 'คำนำหน้า', 'Prefix', 'title']);
+                    const fullName = title ? `${title} ${name}`.trim() : (name || 'นิสิต');
+                    const sectionVal = findRowValue(row, ['หมู่เรียน', 'หมู่เรียนที่รับผิดชอบ', 'หมู่', 'Section', 'section']);
+                    const sec = sectionVal ? (sectionVal.includes('หมู่') ? sectionVal : `หมู่ ${sectionVal}`) : 'หมู่ 700';
+                    const advisorVal = findRowValue(row, ['อาจารย์ที่ปรึกษา', 'อาจารย์นิเทศ', 'อาจารย์', 'Advisor', 'advisor']) || '-';
+                    const company = findRowValue(row, ['ชื่อสถานประกอบการ', 'สถานประกอบการ', 'Company', 'company']) || '-';
+
+                    const tr = document.createElement('tr');
+                    tr.style.borderBottom = '1px solid #f1f5f9';
+                    tr.innerHTML = `
+                        <td style="padding: 4px 6px; font-weight: 600; color: #1e293b;">${studentId}</td>
+                        <td style="padding: 4px 6px; color: #334155;">${fullName}</td>
+                        <td style="padding: 4px 6px;"><span style="background: #e0f2fe; color: #0369a1; padding: 1px 6px; border-radius: 4px; font-weight: 7

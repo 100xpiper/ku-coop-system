@@ -115,3 +115,4 @@
 [5] SheetJS LLC. SheetJS Community Edition: Spreadsheet Data Processor. [ออนไลน์]. เข้าถึงได้จาก: https://sheetjs.com
 [6] Sinnott, R. W. Virtues of the Haversine. Sky and Telescope, vol. 68, no. 2, p. 159, 1984.
 [7] Brooke, J. SUS: A 'Quick and Dirty' Usability Scale. Usability Evaluation in Industry, Taylor & Francis, London, pp. 189-194, 1996.
+

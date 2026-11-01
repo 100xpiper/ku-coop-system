@@ -1,0 +1,50 @@
+function importStudentExcelFile() {
+            if (!selectedStudentExcelFile) {
+                alert('กรุณาคลิกเลือกไฟล์ Excel รายชื่อนิสิต (.xlsx / .csv) ก่อนกดนำเข้าข้อมูล');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+                    const jsonRows = XLSX.utils.sheet_to_json(worksheet);
+
+                    if (!jsonRows || jsonRows.length === 0) {
+                        alert('ไม่พบข้อมูลรายชื่อในไฟล์ Excel ที่เลือก');
+                        return;
+                    }
+
+                    let importedCount = 0;
+                    const customUsers = JSON.parse(localStorage.getItem('customUsers') || '{}');
+                    const importedStudentsList = [];
+                    const sectionsCountMap = {};
+
+                    for (const row of jsonRows) {
+                        const emailRaw = findRowEmail(row, ['อีเมลมหาวิทยาลัย', 'อีเมล', 'อีเมล์', 'อีเมล์มหาวิทยาลัย', 'Email', 'email', 'E-mail', 'KU-Mail', 'KU Mail', 'เมล', 'อีเมลนิสิต']);
+                        if (!emailRaw) continue;
+                        const email = String(emailRaw).trim().toLowerCase();
+                        if (!email) continue;
+
+                        const name = findRowValue(row, ['ชื่อ - นามสกุล', 'ชื่อ-นามสกุล', 'ชื่อนามสกุล', 'ชื่อ', 'Name', 'fullname']);
+                        const title = findRowValue(row, ['คำนำหน้านาม', 'คำนำหน้า', 'Prefix', 'title']);
+                        const fullName = title ? `${title} ${name}`.trim() : (name || 'นิสิตสหกิจศึกษา');
+                        const studentId = findRowValue(row, ['รหัสนิสิต', 'รหัสประจำตัว', 'รหัสนักศึกษา', 'รหัส', 'ID', 'Student ID', 'StudentID', 'student_id']);
+                        const yearVal = findRowValue(row, ['ชั้นปี', 'ชั้น', 'Year', 'year']);
+                        const deptVal = findRowValue(row, ['ภาควิชา', 'สาขาวิชา', 'ภาค', 'Department', 'dept']);
+                        const curriculumVal = findRowValue(row, ['หลักสูตร', 'Curriculum', 'program']);
+                        const sectionVal = findRowValue(row, ['หมู่เรียน', 'หมู่เรียนที่รับผิดชอบ', 'หมู่', 'Section', 'section']);
+                        const section = sectionVal ? (sectionVal.includes('หมู่') ? sectionVal : `หมู่ ${sectionVal}`) : 'หมู่ 700';
+                        const company = findRowValue(row, ['ชื่อสถานประกอบการ', 'สถานประกอบการ', 'Company', 'company']);
+                        const advisorVal = findRowValue(row, ['อาจารย์ที่ปรึกษา', 'อาจารย์นิเทศ', 'อาจารย์', 'อาจารย์ผู้ดูแล', 'Advisor', 'advisor', 'ที่ปรึกษา']);
+                        const semesterRaw = findRowValue(row, ['ภาคการศึกษา', 'ภาคเรียน', 'เทอม', 'Semester', 'semester', 'Term', 'term']);
+                        let semester = semesterRaw || 'ภาคต้น 2569';
+                        if (semester === '69' || semester === '2569') {
+                            semester = 'ภาคต้น 2569';
+                        }
+                        const phoneVal = findRowValue(row, ['เบอร์โทรศัพท์', 'เบอร์โทร', 'เบอร์', 'โทร', 'Phone', 'Tel', 'tel']);
+                        
+                        // อ่านพิกัดแบบรวม (เช่น "14.076948, 100.601234" หรือต

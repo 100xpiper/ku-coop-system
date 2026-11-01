@@ -1,0 +1,7 @@
+with open('dashboard.html', 'r', encoding='utf-8') as f:
+    text = f.read()
+
+idx = text.find('function processCheckinAndEval')
+idx2 = text.find('function openEvalModalFromResult', idx)
+print(text[idx:idx2+600])
+

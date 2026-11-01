@@ -1,0 +1,33 @@
+id="sec-advisor-qr" class="page-content">
+                    <section class="section-card">
+                        <div class="section-header">
+                            <div class="section-title" style="display: flex; align-items: center; gap: 8px;">
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--primary-color)" stroke-width="2"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><rect x="7" y="7" width="10" height="10" rx="1"/></svg>
+                                สแกน QR Code เช็คอินสถานประกอบการ
+                            </div>
+                        </div>
+                        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px; line-height: 1.5;">
+                            เลือกนิสิตและกดปุ่มสแกน QR Code เพื่อยืนยันการเช็คอินพิกัด GPS ณ สถานประกอบการจริง
+                        </div>
+
+                        <!-- เลือกนิสิตและปุ่มสแกน -->
+                        <div style="display: flex; flex-direction: column; gap: 10px; background: #f8fafc; padding: 14px; border-radius: 10px; border: 1px solid var(--border-color);">
+                            <label style="font-size: 12px; font-weight: 700; color: var(--primary-color); display: flex; align-items: center; gap: 6px;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                เลือกรหัสนิสิตเพื่อเช็คอิน ณ สถานประกอบการ:
+                            </label>
+                            <select id="qr-scan-student-select" style="padding: 10px; font-size: 13px; border-radius: 8px; border: 1px solid var(--border-color); background-color: #fff; width: 100%; font-weight: 500;">
+                                <option value="">ยังไม่มีข้อมูลนิสิต (รอแอดมินนำเข้าข้อมูล)</option>
+                            </select>
+
+                            <button id="btn-process-checkin" class="btn-primary" style="width: 100%; padding: 12px; font-size: 13px; font-weight: 700; background-color: var(--primary-color); border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.08); cursor: pointer;" onclick="processCheckinAndEval()">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                                <span id="btn-process-checkin-text">สแกน QR Code และเช็คอิน GPS</span>
+                            </button>
+                        </div>
+
+                        <!-- การ์ดแสดงผลลัพธ์การเช็คอิน (เมื่อสแกนแล้วจะแสดงรายละเอียด) -->
+                        <div id="qr-checkin-result-card" style="display: none; margin-top: 16px; padding: 16px; border-radius: 12px; background-color: #f0fdf4; border: 1.5px solid #22c55e;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; border-bottom: 1px dashed #bbf7d0; padding-bottom: 10px;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="width: 10px; height: 10px; border-radius

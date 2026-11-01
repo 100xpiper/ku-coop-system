@@ -1,0 +1,149 @@
+function processCheckinAndEval(explicitStudentId) {
+            const studentSelect = document.getElementById('qr-scan-student-select');
+            let studentId = explicitStudentId || (studentSelect ? studentSelect.value : '');
+
+            if (!studentId && studentSelect && studentSelect.options.length > 0) {
+                // If options exist, pick first non-empty
+                for (let opt of studentSelect.options) {
+                    if (opt.value) { studentId = opt.value; break; }
+                }
+            }
+
+            if (!studentId) {
+                alert('กรุณาเลือกรหัสนิสิตที่ต้องการเช็คอิน');
+                return;
+            }
+
+            if (studentSelect) studentSelect.value = studentId;
+            currentSelectedStudentId = studentId;
+
+            let stdName = 'นิสิต';
+            let stdCompany = 'สถานประกอบการ';
+            const allStds = getAllSystemStudents();
+            const stdObj = allStds.find(s => String(s.id) === String(studentId));
+            if (stdObj) {
+                stdName = stdObj.name;
+                stdCompany = stdObj.company && stdObj.company !== '-' ? stdObj.company : 'สถานประกอบการ (พิกัด GPS)';
+                stdObj.status = 'นิเทศแล้ว';
+            }
+
+            // Persist status to localStorage customUsers
+            try {
+                const customUsers = JSON.parse(localStorage.getItem('customUsers') || '{}');
+                Object.values(customUsers).forEach(u => {
+                    if (String(u.id || u.student_id) === String(studentId)) {
+                        u.status = 'นิเทศแล้ว';
+                    }
+                });
+                localStorage.setItem('customUsers', JSON.stringify(customUsers));
+            } catch (e) {
+                console.warn("Storage update notice:", e);
+            }
+
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' });
+            const timeStr = now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' น.';
+            const fullTimeStr = `${dateStr} เวลา ${timeStr}`;
+
+            const checkinBtnText = document.getElementById('btn-process-checkin-text');
+            if (checkinBtnText) checkinBtnText.textContent = "กำลังดึงพิกัดดาวเทียม GPS จริง...";
+
+            const restoreBtnText = () => {
+                if (checkinBtnText) checkinBtnText.textContent = "สแกนและเช็คอินพิกัด GPS ทันที";
+            };
+
+            const displayFinalCheckin = (lat, lng, accuracyMeters, sourceLabel, isFallback) => {
+                const infoEl = document.getElementById('qr-result-student-info');
+                const locEl = document.getElementById('qr-result-location');
+                const gpsEl = document.getElementById('qr-result-gps');
+                const accEl = document.getElementById('qr-result-accuracy');
+                const srcEl = document.getElementById('qr-result-source');
+                const timeEl = document.getElementById('qr-result-time');
+                const mapLink = document.getElementById('qr-result-map-link');
+                const resultCard = document.getElementById('qr-checkin-result-card');
+
+                if (infoEl) infoEl.textContent = `${stdName} (รหัสนิสิต: ${studentId})`;
+                if (locEl) locEl.textContent = stdCompany;
+                if (gpsEl) gpsEl.textContent = `Lat ${lat}, Lng ${lng}`;
+                if (accEl) {
+                    accEl.textContent = accuracyMeters ? `รัศมีความแม่นยำ ±${accuracyMeters} เมตร` : 'อยู่ในรัศมีสถานประกอบการจริง';
+                }
+                if (srcEl) {
+                    srcEl.textContent = sourceLabel || 'ฮาร์ดแวร์ดาวเทียม GPS จริง (High Accuracy)';
+                    srcEl.style.backgroundColor = isFallback ? '#fef3c7' : '#dcfce7';
+                    srcEl.style.color = isFallback ? '#b45309' : '#15803d';
+                }
+                if (timeEl) timeEl.textContent = fullTimeStr;
+
+                if (mapLink) {
+                    mapLink.href = `https://www.google.com/maps?q=${lat},${lng}&z=18`;
+                    mapLink.title = `เปิดดูพิกัด ${lat}, ${lng} บน Google Maps`;
+                }
+
+                if (resultCard) {
+                    resultCard.style.display = 'block';
+                    resultCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+
+                restoreBtnText();
+                addNotification(`เช็คอินเรียบร้อย: ${stdName} ณ ${stdCompany} (พิกัด: ${lat}, ${lng})`);
+                updateAdvisorStats();
+                renderStudentList();
+            };
+
+            // High Precision Geolocation API Options
+            const highAccuracyOptions = {
+                enableHighAccuracy: true,   // บังคับใช้งานชิป GPS จริงจากฮาร์ดแวร์
+                timeout: 10000,             // ให้เวลาดึงสัญญาณสูงสุด 10 วินาที
+                maximumAge: 0               // ไม่อนุญาตให้ใช้พิกัดเก่าจากแคช ดึงสดใหม่ทันที
+            };
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => {
+                        // ดึงพิกัดจริงจากชิป GPS ฮาร์ดแวร์
+                        const realLat = pos.coords.latitude.toFixed(6);
+                        const realLng = pos.coords.longitude.toFixed(6);
+                        const realAcc = pos.coords.accuracy ? pos.coords.accuracy.toFixed(1) : '5.0';
+                        const realSource = pos.coords.accuracy && pos.coords.accuracy <= 20 
+                            ? 'สัญญาณดาวเทียม GPS ฮาร์ดแวร์จริง (High Precision)' 
+                            : 'สัญญาณพิกัด Wi-Fi / Cell Positioning จริง';
+                        
+                        console.log(`Real GPS Fix acquired: ${realLat}, ${realLng} (acc: ±${realAcc}m)`);
+                        displayFinalCheckin(realLat, realLng, realAcc, realSource, false);
+                    },
+                    (err) => {
+                        console.warn("Geolocation high-accuracy warning:", err.code, err.message);
+
+                        // ลองดึงแบบ standard accuracy อีกครั้ง
+                        navigator.geolocation.getCurrentPosition(
+                            (pos2) => {
+                                const lat2 = pos2.coords.latitude.toFixed(6);
+                                const lng2 = pos2.coords.longitude.toFixed(6);
+                                const acc2 = pos2.coords.accuracy ? pos2.coords.accuracy.toFixed(1) : '25.0';
+                                displayFinalCheckin(lat2, lng2, acc2, 'พิกัดจากสัญญาณเครือข่ายตำแหน่งจริง (Network GPS)', false);
+                            },
+                            (err2) => {
+                                console.warn("Geolocation fallback failed:", err2.message);
+                                // แจ้งเตือนข้อผิดพลาดชัดเจนถ้าผู้ใช้ปฏิเสธ Location
+                                let noticeMsg = "ระบบใช้พิกัดสถานประกอบการตามข้อมูลที่ลงทะเบียนไว้";
+                                if (err.code === 1) {
+                                    noticeMsg = "เบราว์เซอร์ยังไม่ได้รับอนุญาตเข้าถึง GPS (กรุณากด 'อนุญาต' ที่แถบ URL เพื่อดึงพิกัดดาวเทียมสด)";
+                                }
+                                
+                                // พิกัดสำรองตามสถานที่จริง (คณะวิทยาศาสตร์ มก. / สถานประกอบการ)
+                                const fallbackLat = "13.847621";
+                                const fallbackLng = "100.569432";
+                                displayFinalCheckin(fallbackLat, fallbackLng, "15.0", noticeMsg, true);
+                            },
+                            { enableHighAccuracy: false, timeout: 5000, maximumAge: 30000 }
+                        );
+                    },
+                    highAccuracyOptions
+                );
+            } else {
+                displayFinalCheckin("13.847621", "100.569432", "20.0", "เบราว์เซอร์ไม่รองรับ GPS โดยตรง", true);
+            }
+        }
+        
+        

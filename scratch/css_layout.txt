@@ -1,0 +1,76 @@
+device เป็น full-screen desktop layout */
+        .mobile-device {
+            width: 100vw;
+            height: 100vh;
+            border-radius: 0;
+            box-shadow: none;
+            display: flex;
+            flex-direction: row; /* เปลี่ยนเป็น row สำหรับ Sidebar + Content */
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* ซ่อน mobile-specific elements */
+        .mobile-notch, .status-bar, .home-indicator, .home-indicator-bar {
+            display: none !important;
+        }
+
+        /* Notch */
+        .mobile-notch {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 26px;
+            background-color: #0f172a;
+            border-bottom-left-radius: 18px;
+            border-bottom-right-radius: 18px;
+            z-index: 999;
+        }
+
+        .mobile-notch::before {
+            content: "";
+            position: absolute;
+            top: 6px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 4px;
+            background-color: #1e293b;
+            border-radius: 2px;
+        }
+
+        .mobile-notch::after {
+            content: "";
+            position: absolute;
+            top: 4px;
+            right: 35px;
+            width: 8px;
+            height: 8px;
+            background-color: #101827;
+            border-radius: 50%;
+        }
+
+        /* Status Bar */
+        .status-bar {
+            height: 44px;
+            padding: 14px 24px 0 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: #ffffff;
+            background-color: var(--primary-color);
+            z-index: 10;
+            transition: background-color 0.2s ease;
+        }
+
+        .status-bar-icons {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+      

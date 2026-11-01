@@ -1,0 +1,72 @@
+lFile = null;
+        let selectedAdvisorExcelFile = null;
+        let adminParsedStudentRows = [];
+
+        function handleStudentExcelSelected(event) {
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
+
+            const ext = file.name.split('.').pop().toLowerCase();
+            if (!['xlsx', 'xls', 'csv'].includes(ext)) {
+                alert('กรุณาเลือกไฟล์สเปรดชีต Excel (.xlsx, .xls) หรือ CSV (.csv) เท่านั้น');
+                return;
+            }
+
+            selectedStudentExcelFile = file;
+            const label = document.getElementById('excel-student-file-name-label');
+            if (label) {
+                const sizeKb = (file.size / 1024).toFixed(1);
+                label.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg> เลือกไฟล์แล้ว: <strong>${file.name}</strong> (${sizeKb} KB)`;
+                const parentBox = label.closest('div');
+                if (parentBox) {
+                    parentBox.style.backgroundColor = '#dcfce7';
+                    parentBox.style.border = '1.5px solid #22c55e';
+                }
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const jsonRows = XLSX.utils.sheet_to_json(firstSheet);
+
+                    if (!jsonRows || jsonRows.length === 0) {
+                        alert('ไม่พบข้อมูลรายชื่อนิสิตในไฟล์ที่เลือก');
+                        clearAdminStudentFile();
+                        return;
+                    }
+
+                    adminParsedStudentRows = jsonRows;
+                    renderAdminStudentPreImportPreview();
+                } catch (err) {
+                    console.error("Admin file read error:", err);
+                    alert('เกิดข้อผิดพลาดในการอ่านไฟล์สเปรดชีต กรุณาตรวจสอบรูปแบบไฟล์');
+                    clearAdminStudentFile();
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function clearAdminStudentFile() {
+            selectedStudentExcelFile = null;
+            adminParsedStudentRows = [];
+
+            const input = document.getElementById('admin-student-excel-file-input');
+            if (input) input.value = '';
+
+            const label = document.getElementById('excel-student-file-name-label');
+            if (label) {
+                label.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg> คลิกเพื่อเลือกไฟล์ Excel รายชื่อนิสิต (.xlsx / .csv)`;
+                const parentBox = label.closest('div');
+                if (parentBox) {
+                    parentBox.style.backgroundColor = '#ffffff';
+                    parentBox.style.border = '1.5px dashed #86efac';
+                }
+            }
+
+            const previewContainer = document.getElementById('admin-student-preview-container');
+            if (previewContainer) previewContainer.style.display = 'none';
+
+            const importBtn = document.getElementById('admin

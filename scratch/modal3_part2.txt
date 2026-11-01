@@ -1,0 +1,21 @@
+     ยังไม่มีรูปถ่ายหลักฐานการลงตรวจ
+                        </div>
+                    </div>
+
+                    <!-- ข้อความแนะนำเมื่อเลือกรูปแล้ว -->
+                    <div id="photo-pending-notice" style="display: none; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 6px; padding: 8px 12px; font-size: 11px; color: #047857; text-align: center; font-weight: 600; margin-top: 6px;">
+                        เลือกรูปภาพเรียบร้อยแล้ว กรุณากดปุ่ม "ยืนยันการอัปโหลดรูปภาพ" ด้านล่าง
+                    </div>
+
+                    <!-- Input สำหรับเลือกไฟล์ภาพจากเครื่อง -->
+                    <input type="file" id="photo-file-input" accept="image/*" style="display: none;" onchange="handlePhotoSelected(event)">
+                    <!-- Input สำหรับเปิดกล้องถ่ายรูปโดยตรง -->
+                    <input type="file" id="photo-camera-input" accept="image/*" capture="environment" style="display: none;" onchange="handlePhotoSelected(event)">
+
+                    <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px;">
+                        <div style="display: flex; gap: 8px;">
+                            <button type="button" class="btn-primary" style="flex: 1; padding: 8px; font-size: 11.5px; background-color: #0284c7; display: flex; align-items: center; justify-content: center; gap: 6px;" onclick="document.getElementById('photo-file-input').click()">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                                <span>เลือกรูปภาพจากเครื่อง</span>
+                            </button>
+                            <button type="button" class="btn-primary" style="flex: 1; padding: 8px; font-size: 11.5px; background-color: #059669; display: flex; align-items: center; justify-content: cente

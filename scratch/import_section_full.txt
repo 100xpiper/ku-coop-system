@@ -1,0 +1,143 @@
+<section class="section-card" id="admin-card-users">
+                        <div class="section-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                            <div class="section-title" style="display: flex; align-items: center; gap: 8px;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                                ข้อมูลนิสิตและอาจารย์ในระบบ
+                            </div>
+                            <!-- Switch Tab: นิสิต / อาจารย์ -->
+                            <div style="display: flex; gap: 6px;">
+                                <button type="button" id="admin-tab-btn-student" onclick="switchAdminUserTab('student')" style="padding: 6px 14px; font-size: 11px; font-weight: 700; border-radius: 6px; border: 1.5px solid var(--primary-color); background: var(--primary-color); color: #fff; cursor: pointer;">
+                                    รายชื่อนิสิต (Students)
+                                </button>
+                                <button type="button" id="admin-tab-btn-advisor" onclick="switchAdminUserTab('advisor')" style="padding: 6px 14px; font-size: 11px; font-weight: 600; border-radius: 6px; border: 1px solid var(--border-color); background: #ffffff; color: var(--text-muted); cursor: pointer;">
+                                    รายชื่ออาจารย์ (Advisors)
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- ตารางแสดงผลรายชื่อ -->
+                        <!-- Search + Filter bar: static HTML, not re-rendered -->
+                        <div id="admin-search-filter-bar" style="background: #f8fafc; border: 1px solid var(--border-color); border-radius: 8px 8px 0 0; padding: 8px 12px; margin-top: 10px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; display: none;">
+                            <div style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 240px; max-width: 360px;">
+                                <input type="text" id="admin-student-search-input" placeholder="ค้นหาด้วยชื่อ, รหัส, หมู่เรียน (เช่น 801), อาจารย์..." oninput="onAdminStudentSearch(this.value)" style="width: 100%; padding: 6px 10px; font-size: 11.5px; border-radius: 6px; border: 1px solid var(--border-color); background: white;">
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <span style="font-size: 11px; font-weight: 700; color: #475569;">หมู่เรียน:</span>
+                                    <select id="admin-section-select" onchange="onAdminSectionChange(this.value)" style="padding: 6px 10px; font-size: 11px; border-radius: 6px; border: 1px solid var(--border-color); background: white; font-weight: 600; color: #1e293b;">
+                                        <option value="all">ทุกหมู่เรียน (700-802)</option>
+                                        <option value="700">หมู่ 700 (ภาคปกติ)</option>
+                                        <option value="701">หมู่ 701 (ภาคปกติ)</option>
+                                        <option value="702">หมู่ 702 (ภาคปกติ)</option>
+                                        <option value="800">หมู่ 800 (ภาคพิเศษ)</option>
+                                        <option value="801">หมู่ 801 (ภาคพิเศษ)</option>
+                                        <option value="802">หมู่ 802 (ภาคพิเศษ)</option>
+                                    </select>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <span style="font-size: 11px; font-weight: 700; color: #475569;">ภาคการศึกษา:</span>
+                                    <select id="admin-semester-select" onchange="onAdminSemesterChange(this.value)" style="padding: 6px 10px; font-size: 11px; border-radius: 6px; border: 1px solid var(--border-color); background: white; font-weight: 600; color: #1e293b;">
+                                        <option value="ภาคต้น 2569">ภาคต้น 2569 (1/2569 - ปัจจุบัน)</option>
+                                        <option value="ภาคปลาย 2569">ภาคปลาย 2569 (2/2569)</option>
+                                        <option value="ภาคฤดูร้อน 2569">ภาคฤดูร้อน 2569 (3/2569)</option>
+                                        <option value="ภาคปลาย 2568">ภาคปลาย 2568 (2/2568)</option>
+                                        <option value="ภาคต้น 2568">ภาคต้น 2568 (1/2568)</option>
+                                        <option value="ภาคปลาย 2567">ภาคปลาย 2567 (2/2567)</option>
+                                        <option value="ภาคต้น 2567">ภาคต้น 2567 (1/2567)</option>
+                                        <option value="ภาคปลาย 2566">ภาคปลาย 2566 (2/2566)</option>
+                                        <option value="ภาคต้น 2566">ภาคต้น 2566 (1/2566)</option>
+                                        <option value="all">ทุกภาคการศึกษา</option>
+                                    </select>
+                                </div>
+                                <div id="admin-result-count" style="font-size: 11px; color: var(--text-muted);">แสดง <strong>0</strong> จาก 0 คน</div>
+                            </div>
+                        </div>
+                        <div id="admin-users-table-container" style="margin-top: 0;">
+                            <!-- เรนเดอร์ผ่าน JS (เฉพาะตาราง) -->
+                        </div>
+                    </section>
+
+                    <!-- 3. นำเข้าข้อมูลสเปรดชีต (Import Excel) -->
+                    <div id="admin-card-import" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px;">
+                        <!-- นำเข้าข้อมูลนิสิตสหกิจศึกษา (Student Import Card) -->
+                        <section class="section-card" style="border: 1px solid #16a34a; background-color: #f0fdf4; border-radius: 12px; padding: 14px; margin: 0;">
+                            <div class="section-header" style="margin-bottom: 8px;">
+                                <div class="section-title" style="color: #15803d; display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 13px;">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg>
+                                    นำเข้าข้อมูลนิสิตสหกิจศึกษา (.xlsx)
+                                </div>
+                                <span class="status-badge badge-success">บัญชีนิสิต</span>
+                            </div>
+                            <div style="font-size: 11px; color: #166534; margin-bottom: 10px; line-height: 1.4;">
+                                อัปโหลดไฟล์สเปรดชีตรายชื่อนิสิตเพื่อสร้างบัญชี จัดกลุ่มหมู่เรียน และเพิ่มเข้าฐานข้อมูล Supabase
+                            </div>
+
+                            <div style="background: #ffffff; border: 1.5px dashed #86efac; border-radius: 8px; padding: 12px; text-align: center; margin-bottom: 10px; transition: all 0.2s ease;">
+                                <input type="file" id="admin-student-excel-file-input" accept=".xlsx, .xls, .csv" style="display: none;" onchange="handleStudentExcelSelected(event)">
+                                <label for="admin-student-excel-file-input" style="cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px;">
+                                    <div style="font-size: 12px; font-weight: 700; color: #15803d; display: flex; align-items: center; gap: 6px;" id="excel-student-file-name-label">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                                        คลิกเพื่อเลือกไฟล์ Excel รายชื่อนิสิต (.xlsx / .csv)
+                                    </div>
+                                    <div style="font-size: 10px; color: var(--text-muted);">
+                                        คอลัมน์มาตรฐาน: รหัสนิสิต, คำนำหน้านาม, ชื่อ - นามสกุล, หมู่เรียน, อาจารย์ที่ปรึกษา, ภาคการศึกษา, อีเมลมหาวิทยาลัย, พิกัด
+                                    </div>
+                                </label>
+                            </div>
+
+                            <!-- Pre-Import Preview Container (for Admin) -->
+                            <div id="admin-student-preview-container" style="display: none; background: #ffffff; border: 1px solid #bbf7d0; border-radius: 8px; padding: 10px; margin-bottom: 10px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                    <div style="font-size: 11.5px; font-weight: 700; color: #166534; display: flex; align-items: center; gap: 6px;">
+                                        <span>พรีวิวข้อมูลก่อนนำเข้า (ตรวจพบ):</span>
+                                        <span id="admin-student-preview-count-badge" style="background: #dcfce7; color: #15803d; font-size: 10px; padding: 2px 8px; border-radius: 12px; font-weight: 700;">0 รายการ</span>
+                                    </div>
+                                    <button type="button" onclick="clearAdminStudentFile()" style="border: none; background: none; color: #ef4444; font-size: 10.5px; cursor: pointer; text-decoration: underline;">
+                                        เปลี่ยนไฟล์
+                                    </button>
+                                </div>
+                                <div id="admin-student-preview-sec-pills" style="display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 6px;"></div>
+                                <div style="max-height: 140px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 6px;">
+                                    <table style="width: 100%; border-collapse: collapse; font-size: 10.5px;">
+                                        <thead>
+                                            <tr style="background: #f8fafc; border-bottom: 1px solid #e2e8f0; color: #475569; position: sticky; top: 0;">
+                                                <th style="padding: 4px 6px; text-align: left;">รหัส</th>
+                                                <th style="padding: 4px 6px; text-align: left;">ชื่อ - นามสกุล</th>
+                                                <th style="padding: 4px 6px; text-align: left;">หมู่เรียน</th>
+                                                <th style="padding: 4px 6px; text-align: left;">อาจารย์ที่ปรึกษา</th>
+                                                <th style="padding: 4px 6px; text-align: left;">สถานประกอบการ</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="admin-student-preview-tbody">
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div style="display: flex; gap: 6px;">
+                                <button type="button" id="admin-student-import-btn" class="btn-primary" style="flex: 1; background-color: #16a34a; padding: 10px; font-size: 11px; font-weight: 700; opacity: 0.6; cursor: not-allowed;" disabled onclick="importStudentExcelFile()">
+                                    นำเข้ารายชื่อนิสิตเข้าสู่ระบบ
+                                </button>
+                                <button type="button" class="btn-primary" style="background-color: #ffffff; color: #166534; border: 1px solid #bbf7d0; padding: 10px; font-size: 11px;" onclick="downloadStudentExcelTemplate()">
+                                    แม่แบบไฟล์นิสิต
+                                </button>
+                            </div>
+                        </section>
+
+
+
+                        <!-- การลบ/รีเซ็ตข้อมูลผู้ใช้งานแยกประเภท -->
+                        <section class="section-card" style="border: 1px solid #fca5a5; background-color: #fff5f5; border-radius: 12px; padding: 12px; margin: 0; grid-column: 1 / -1; justify-self: flex-start; width: fit-content; max-width: 100%; min-width: 320px;">
+                            <div class="section-header" style="margin-bottom: 8px;">
+                                <div class="section-title" style="color: #dc2626; font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 6px;">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                    จัดการลบ / รีเซ็ตข้อมูลรายชื่อนิสิต
+                                </div>
+                            </div>
+                            <div style="display: flex; flex-direction: row; flex-wrap: wrap; justify-content: flex-start; gap: 8px;">
+                                <button type="button" style="background-color: #ffffff; color: #dc2626; border: 1px solid #fca5a5; padding: 6px 16px; font-size: 11px; font-weight: 700; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;" onclick="clearImportedUsersByRole('student')">
+                                    ลบรายชื่อ "นิสิต" ทั้งหมด
+                                </button>
+                            </div>
+                        </section>
+         

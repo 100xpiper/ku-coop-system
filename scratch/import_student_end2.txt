@@ -1,0 +1,58 @@
+ัวเลขพิกัด)
+                        const locationCoord = findRowValue(row, ['พิกัด', 'พิกัด GPS', 'GPS', 'Location', 'พิกัดจีพีเอส']);
+                        let lat = null;
+                        let lng = null;
+                        if (locationCoord) {
+                            if (locationCoord.includes(',')) {
+                                const parts = locationCoord.split(',');
+                                if (parts.length >= 2) {
+                                    lat = parseFloat(parts[0].trim());
+                                    lng = parseFloat(parts[1].trim());
+                                }
+                            } else if (!isNaN(parseFloat(locationCoord))) {
+                                lat = parseFloat(locationCoord.trim());
+                            }
+                        }
+
+                        const passRaw = findRowValue(row, ['รหัสผ่านชั่วคราว', 'รหัสผ่าน', 'Password', 'pass']);
+                        const pass = passRaw || studentId || '123456';
+
+                        const userObj = {
+                            id: studentId || email.split('@')[0],
+                            student_id: studentId || email.split('@')[0],
+                            name: fullName,
+                            email: email,
+                            password: pass,
+                            password_hash: pass,
+                            role: 'student',
+                            year: yearVal || '4',
+                            department: deptVal || 'วิทยาการคอมพิวเตอร์',
+                            curriculum: curriculumVal || (section.includes('800') ? 'ภาคพิเศษ' : 'ภาคปกติ'),
+                            section: section,
+                            company_name: company,
+                            company_lat: lat || null,
+                            company_lng: lng || null,
+                            advisor_name: advisorVal || '',
+                            semester: semester,
+                            phone: phoneVal || '',
+                            status: 'approved',
+                            first_login: true,
+                            password_changed: false
+                        };
+
+                        customUsers[email] = userObj;
+
+                        if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+                            try {
+                                await supabaseClient.from('users').upsert([{
+                                    email: email,
+                                    password_hash: pass,
+                                    full_name: fullName,
+                                    role: 'student',
+                                    status: 'approved'
+                                }], { onConflict: 'email' });
+
+                                if (studentId) {
+                                    const studentData = {
+                                        student_id: studentId,
+                                        email
