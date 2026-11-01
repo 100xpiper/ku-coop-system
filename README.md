@@ -70,3 +70,4 @@ Project/
 - **Libraries:** jsQR (QR Code Scanning Engine), Canvas API, Geolocation API (Haversine Formula)
 - **Database / Backend:** Supabase (PostgreSQL 15), LocalStorage & SessionStorage State Management
 - **Local Server:** PowerShell HttpListener Web Server (Port 8080) with Gmail SMTP Integration
+
