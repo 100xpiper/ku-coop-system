@@ -14,3 +14,4 @@ print("Output length:", len(res.stdout))
 print("Contains student dashboard element:")
 if "student-profile" in res.stdout or "sec-student-docs" in res.stdout or "sidebar" in res.stdout:
     print("Found student dashboard in DOM!")
+

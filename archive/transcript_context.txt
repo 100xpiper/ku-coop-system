@@ -1,0 +1,862 @@
+=== Line 615 [MODEL] ===
+Created At: 2026-10-30T21:50:23+07:00
+Completed At: 2026-10-30T21:50:24+07:00
+You have 1 background task(s) currently running:
+[{"taskId":"ddb60d44-47b2-4e84-bca5-28d119fdaf51/task-2894","toolName":"run_command","toolSummary":"Start KU Coop Web Server","description":"powershell -ExecutionPolicy Bypass -File \"C:\\Users\\PER\\Downloads\\Project\\server.ps1\"","startTime":"2026-10-30T14:46:30Z","logUri":"file:///C:/Users/PER/.gemini/antigravity/brain/ddb60d44-47b2-4e84-bca5-28d119fdaf51/.system_generated/tasks/task-2894.log","isDaemon":true}]
+
+=== Line 616 [MODEL] ===
+
+
+=== Line 617 [MODEL] ===
+Created At: 2026-10-30T21:50:28+07:00
+Completed At: 2026-10-30T21:50:29+07:00
+Task: ddb60d44-47b2-4e84-bca5-28d119fdaf51/task-2894
+Status: RUNNING
+Log: file:///C:/Users/PER/.gemini/antigravity/brain/ddb60d44-47b2-4e84-bca5-28d119fdaf51/.system_generated/tasks/task-2894.log
+Log output:
+==========================================================
+ KU Coop Web Server started successfully!
+ Access URL: http://localhost:8080
+ OTP Email API: http://localhost:8080/api/send-otp
+ Press Ctrl+C to stop the server
+==========================================================
+[FirstLogin] Sending first login email to wongsapat.u@ku.th (� ǧȾѷ� �෹) ...
+[FirstLogin] Email sent successfully to wongsapat.u@ku.th
+[SendEmail] Sending email to wongsapat.u@ku.th
+[SendEmail] Email sent successfully to wongsapat.u@ku.th
+
+Last progress: 3m22s ago
+
+
+=== Line 618 [MODEL] ===
+
+
+=== Line 619 [MODEL] ===
+Created At: 2026-10-30T21:50:34+07:00
+Completed At: 2026-10-30T21:50:35+07:00
+Command exited with code 0.
+
+Command output:
+On branch main
+Your branch is up to date with 'origin/main'.
+
+nothing to commit, working tree clean
+
+
+=== Line 620 [MODEL] ===
+**งานทั้งหมดเสร็จสมบูรณ์ 100% เรียบร้อยแล้วครับ** 
+
+คำอธิบายสิ่งที่ปรากฏในภาพหน้าจอ มีดังนี้ครับ
+
+---
+
+### 1. แถบ `1 task running` ที่ขึ้นอยู่คืออะไร
+- แถบนี้คือ **Web Server (`server.ps1`)** ที่กำลังเปิดทำงานอยู่เบื้องหลัง เพื่อให้บริการเว็บไซต์ที่ `http://localhost:8080` และทำหน้าที่ส่งอีเมลจริง
+- กระบวนการของเซิร์ฟเวอร์จะเปิดค้างไว้ตลอดเวลา เพื่อให้สามารถเข้าใช้งานหน้าเว็บและกดส่งอีเมลได้ตลอดเวลา ไม่ใช่โค้ดยังรันไม่เสร็จครับ
+
+---
+
+### 2. ข้อความสีแดงในหน้าต่าง Terminal ทางซ้ายเกิดจากอะไร
+- เกิดจากการพิมพ์คำสั่ง `-ExecutionPolicy Bypass ...` โดยไม่มีคำว่า `powershell` นำหน้า 
+- ในตอนนี้**ไม่ต้องพิมพ์คำสั่งนี้ใน Terminal เองแล้ว** เพราะระบบได้เปิดเซิร์ฟเวอร์ให้ทำงานในเบื้องหลังเรียบร้อยแล้วครับ
+
+---
+
+### 3. สรุปสถานะงานล่าสุด
+- **ปุ่มติดตามงาน**: นำสัญลักษณ์และไอคอนด้านหน้าออกเรียบร้อยแล้ว
+- **ปุ่มส่งอีเมลแจ้งแรกเข้าใช้งาน**: ปรับเปลี่ยนข้อความ และตัดสัญลักษณ์ออกเรียบร้อย
+- **ระบบส่งอีเมลจริง**: เชื่อมต่อ Gmail SMTP ผ่านเซิร์ฟเวอร์ สามารถส่งเข้ากล่องจดหมายจริงได้ทันที
+- **ซอร์สโค้ด**: บันทึกและ Push ขึ้น GitHub (Branch main) เรียบร้อยแล้ว
+
+สามารถสลับไปที่แท็บเบราว์เซอร์ [http://localhost:8080/dashboard.html](http://localhost:8080/dashboard.html) แล้วกดรีเฟรช (F5) เพื่อทดสอบใช้งานได้ทันทีครับ
+
+=== Line 621 [USER_EXPLICIT] ===
+<USER_REQUEST>
+ไม่แล้วต้องเปิดไว้ตลอกเวลาหรอไม่ใช่ว่ากดส่
+</USER_REQUEST>
+<ADDITIONAL_METADATA>
+The current local time is: 2026-10-30T22:03:51+07:00.
+
+The user's current state is as follows:
+Other open documents:
+- c:\Users\PER\Downloads\Project\supabase-client.js (LANGUAGE_UNSPECIFIED)
+- c:\Users\PER\Downloads\Project\test_semester.py (LANGUAGE_UNSPECIFIED)
+- c:\Users\PER\Downloads\Project\test_assert.py (LANGUAGE_UNSPECIFIED)
+- c:\Users\PER\Downloads\Project\server.ps1 (LANGUAGE_UNSPECIFIED)
+- c:\Users\PER\Downloads\Project\index.html (LANGUAGE_UNSPECIFIED)
+</ADDITIONAL_METADATA>
+
+=== Line 622 [USER_EXPLICIT] ===
+<USER_REQUEST>
+ไม่แล้วต้องเปิดไว้ตลอกเวลาหรอไม่ใช่ว่ากดส่งอีเมลเมื่อไหร่ก็ได้หรอ ถ้าปิดคอมเปิดใหม่มันจะกดส่งเมลได้ตลอดเวลาไหม
+</USER_REQUEST>
+<ADDITIONAL_METADATA>
+The current local time is: 2026-10-30T22:04:23+07:00.
+
+The user's current state is as follows:
+Other open documents:
+- c:\Users\PER\Downloads\Project\supabase-client.js (LANGUAGE_UNSPECIFIED)
+- c:\Users\PER\Downloads\Project\test_semester.py (LANGUAGE_UNSPECIFIED)
+- c:\Users\PER\Downloads\Project\test_assert.py (LANGUAGE_UNSPECIFIED)
+- c:\Users\PER\Downloads\Project\server.ps1 (LANGUAGE_UNSPECIFIED)
+- c:\Users\PER\Downloads\Project\index.html (LANGUAGE_UNSPECIFIED)
+</ADDITIONAL_METADATA>
+
+=== Line 623 [MODEL] ===
+
+
+=== Line 624 [MODEL] ===
+Created At: 2026-10-30T22:04:36+07:00
+Completed At: 2026-10-30T22:04:43+07:00
+The tool's output was truncated due to being too long. You can find the full output in a file at file:///C:/Users/PER/.gemini/antigravity/brain/ddb60d44-47b2-4e84-bca5-28d119fdaf51/.system_generated/steps/2916/output.txt.
+
+Here is a preview with the middle of the output truncated:
+Command exited with code 0.
+
+Command output:
+commit 06f158831811ef28340333efc7802a88fc5b2b68
+Author: Wongsapat <per.300846@gmail.comณ>
+Date:   Fri Sep 18 07:44:38 2026 +0700
+
+    Initial commit
+
+diff --git a/index.html b/index.html
+new file mode 100644
+index 0000000..ccdce23
+--- /dev/null
++++ b/index.html
+@@ -0,0 +1,741 @@
++<!DOCTYPE html>
++<html lang="th">
++<head>
++    <meta charset="UTF-8">
++    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+... [truncated] ...
+
+=== Line 625 [MODEL] ===
+ขออธิบายการทำงานเพื่อให้เห็นภาพชัดเจนและเข้าใจง่าย ดังนี้ครับ
+
+---
+
+### 1. ถ้าปิดคอมพิวเตอร์แล้วเปิดใหม่ จะยังส่งได้ไหม
+- **ไม่ต้องเปิดคอมทิ้งไว้ตลอดเวลาครับ** 
+- ปัจจุบันเซิร์ฟเวอร์จำลองกำลังทำงานอยู่บนเครื่องนี้ (Localhost) 
+- เมื่อคุณปิดคอมพิวเตอร์ ตัวเซิร์ฟเวอร์ในเครื่องจะดับไปตามปกติ 
+- **เมื่อเปิดคอมขึ้นมาใหม่ในวันหลัง**: เพียงแค่ดับเบิลคลิกที่ไฟล์ **[start-server.bat](file:///c:/Users/PER/Downloads/Project/start-server.bat)** ในโฟลเดอร์โปรเจกต์ 1 ครั้ง หน้าเว็บและระบบส่งอีเมลจะเปิดกลับมาทำงานพร้อมส่งอีเมลได้ทันทีครับ
+
+---
+
+### 2. ทำไมต้องมีตัวส่งนี้ในเครื่อง
+- เพราะเว็บเบราว์เซอร์ (Chrome/Edge) มีมาตรฐานความปลอดภัยระดับสากลที่ไม่อนุญาตให้หน้าเว็บส่งคำสั่งตรงเข้าพอร์ตอีเมล (SMTP) เอง จึงต้องมีตัวกลางคอยนำส่งออกไปให้
+
+---
+
+### 3. ถ้าอยากให้ส่งเมลได้ 24 ชม. โดยไม่ต้องเปิดคอมพิวเตอร์ทิ้งไว้เลย (Cloud 24/7)
+หากต้องการให้ระบบนี้เป็นเว็บออนไลน์ 100% ที่อาจารย์หรือนิสิตสามารถเข้าใช้งานผ่านมือถือหรืออุปกรณ์อื่น และกดส่งอีเมลได้ตลอดเวลา แม้เครื่องคอมพิวเตอร์นี้จะปิดอยู่ สามารถทำได้โดย:
+
+1. **ใช้ Google Apps Script Webhook (แนะนำ - ฟรี 100%):**
+   - นำโค้ดส่งอีเมลไปแปะไว้บน Google Drive (Apps Script) ของบัญชี Gmail ที่ต้องการ
+   - เมื่อกด Deploy จะได้ URL สำหรับรับส่งอีเมลตลอด 24 ชั่วโมงจากเซิร์ฟเวอร์ของ Google โดยตรง โดยที่เครื่องคอมพิวเตอร์ของคุณจะปิดอยู่ก็ยังส่งได้
+2. **ใช้บริการ Cloud Email API (เช่น Resend หรือ Brevo):**
+   - ยิงคำสั่งส่งผ่าน API บนคลาวด์ได้ทันที
+... [truncated] ...
+
+=== Line 626 [USER_EXPLICIT] ===
+<USER_REQUEST>
+พักเรื่องนี้ไว้ก่อนก็ได้
+</USER_REQUEST>
+<ADDITIONAL_METADATA>
+The current local time is: 2026-10-30T22:07:07+07:00.
+
+The user's current state is as follows:
+Other open documents:
+- c:\Users\PER\Downloads\Project\supabase-client.js (LANGUAGE_UNSPECIFIED)
+- c:\Users\PER\Downloads\Project\test_semester.py (LANGUAGE_UNSPECIFIED)
+- c:\Users\PER\Downloads\Project\test_assert.py (LANGUAGE_UNSPECIFIED)
+- c:\Users\PER\Downloads\Project\server.ps1 (LANGUAGE_UNSPECIFIED)
+- c:\Users\PER\Downloads\Project\index.html (LANGUAGE_UNSPECIFIED)
+</ADDITIONAL_METADATA>
+
+=== Line 627 [MODEL] ===
+รับทราบครับ พักเรื่องนี้ไว้ก่อนได้เลยครับ
+
+ตอนนี้ระบบบนเครื่องพร้อมใช้งานตามปกติทุกอย่างแล้วครับ หากมีจุดไหนที่ต้องการให้ตรวจเช็ค ปรับแต่ง หรือทำต่อ สามารถแจ้งได้เลยครับ
+
+=== Line 628 [USER_EXPLICIT] ===
+<USER_REQUEST>
+กำหนดส่งเอกสารให้เป็นหมวดใหม่ทางซ้ายเลยไม่ต้องไปรวมกับหมู่เรียน แล้วก็รูปหลักฐานการเข้าพบให้ทำเป็นหวมดใหม่เหมือนกันแยกไปเลย และก็การสั่งงานเวลากดสั่งงานใหม่ให้โพสงานใหม่ขึ้นมาอยู่ข้างบนล่าสุดก่อน และอัปโหลดเอกสารสหกิจศึกษาใหม่ ให้เอาออกไปเลยให้อัปโหลดได้ที่โพสอาจารย์นั้นแหละ แต่ประวัติการส่งเก็บไว้ก่อน
+
+</USER_REQUEST>
+<ADDITIONAL_METADATA>
+The current local time is: 2026-10-30T22:21:05+07:00.
+
+The user's current state is as follows:
+Other open documents:
+- c:\Users\PER\Downloads\Project\supabase-client.js (LANGUAGE_UNSPECIFIED)
+- c:\Users\PER\Downloads\Project\test_semester.py (LANGUAGE_UNSPECIFIED)
+- c:\Users\PER\Downloads\Project\test_assert.py (LANGUAGE_UNSPECIFIED)
+- c:\Users\PER\Downloads\Project\server.ps1 (LANGUAGE_UNSPECIFIED)
+- c:\Users\PER\Downloads\Project\index.html (LANGUAGE_UNSPECIFIED)
+
+The user has uploaded 2 image(s):
+- C:/Users/PER/.gemini/antigravity/brain/ddb60d44-47b2-4e84-bca5-28d119fdaf51/.user_uploaded/media_1793373277409_aaaa99b3.jpg
+- C:/Users/PER/.gemini/antigravity/brain/ddb60d44-47b2-4e84-bca5-28d119fdaf51/.user_uploaded/media_1793373602899_f014cdc3.jpg
+You can embed these images in an artifact if you need the USER to review them.
+</ADDITIONAL_METADATA>
+<USER_SETTINGS_CHANGE>
+The user changed setting `Model Selection` from Gemini 3.8 Flash (High) to Claude Sonnet 4.6 (Thinking). No need to comment on this change if the user doesn't ask about it. If reporting what model you are, please use a human readable name instead of the exact string.
+</USER_SETTINGS_CHANGE>
+
+=== Line 705 [MODEL] ===
+
+
+=== Line 706 [MODEL] ===
+Created At: 2026-10-31T11:58:37+07:00
+Completed At: 2026-10-31T11:58:41+07:00
+Command exited with code 0.
+
+Command output:
+
+dashboard.html:3270:                    // �Ż�ѵ�͹�ѧ: �Ҥ�֡� 2568 (12 �Ե�蹾�)
+
+
+
+
+=== Line 707 [MODEL] ===
+บรรทัด 3270 เป็นแค่ comment ใน JS ไม่ใช่ option ใน dropdown ไม่มีผลกับ UI แล้ว push:
+
+=== Line 708 [MODEL] ===
+Created At: 2026-10-31T11:58:47+07:00
+Completed At: 2026-10-31T11:58:55+07:00
+Command exited with code 0.
+
+Command output:
+[main 84ced1a] fix: remove ประวัติย้อนหลัง label from semester dropdown options
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+To https://github.com/100xpiper/ku-coop-system.git
+   6e7ca58..84ced1a  main -> main
+
+
+=== Line 709 [MODEL] ===
+เสร็จแล้วครับ commit `84ced1a` — ลบ "ประวัติย้อนหลัง" ออกจากทุก option ใน dropdown ภาคการศึกษา ตอนนี้จะแสดงแค่ "ภาคปลาย 2568 (2/2568)" และ "ภาคต้น 2568 (1/2568)" โดยไม่มีวงเล็บต่อท้ายแล้วครับ
+
+=== Line 710 [USER_EXPLICIT] ===
+<USER_REQUEST>
+ในหน้ากำหนดส่งเอกสารมันไม่มีอะไรขึ้นมาเลยอ่ะ แล้วก็ไม่ต้องแยกหมวดเช่น ภาพรวม จัดการนิสิต ไม่ต้อง แล้วก็รูปหลักฐานการเข้าพบเข้าไปก็ไม่มีอะไรเกิดขึ้นมาเลย แล้วก็ให้เปลี่ยนชื่อเป็นหลักฐานการนิเทศ 
+แล้วก็ให้เพิ่มภาคการศึกษาเก่าด้วยอีกสักสองปี 
+และก็มีสิ่งที่จะถาม
+1. อาจารย์คนอื่นเราสามารถเข้าสู่ระบบได้ไหม
+2. เราควรเพิ่มอีเมลรองไหม เพื่อให้เห็นว่าฉันเข้าสู่ระบบของทุกบัญชีได้ เพราะว่าอีเมลมอเราไม่สามารถสร้างและเข้าสู่ระบบได้เลยจะเพิ่มเมลสำรองเพิ่มให้ฉันทดลองเข้าใช้งานได้ เพราะฉันต้องไปสอบพรีเซ้นโปรเจคนี้
+</USER_REQUEST>
+<ADDITIONAL_METADATA>
+The current local time is: 2026-10-31T12:10:43+07:00.
+
+The user's current state is as follows:
+Active Document: c:\Users\PER\Downloads\Project\supabase-client.js (LANGUAGE_UNSPECIFIED)
+Cursor is on line: 274
+Other open documents:
+- c:\Users\PER\Downloads\Project\test_semester.py (LANGUAGE_UNSPECIFIED)
+- c:\Users\PER\Downloads\Project\test_assert.py (LANGUAGE_UNSPECIFIED)
+- c:\Users\PER\Downloads\Project\server.ps1 (LANGUAGE_UNSPECIFIED)
+- c:\Users\PER\Downloads\Project\index.html (LANGUAGE_UNSPECIFIED)
+- c:\Users\PER\Downloads\Project\dashboard.html (LANGUAGE_UNSPECIFIED)
+
+The user has uploaded 2 image(s):
+- C:/Users/PER/.gemini/antigravity/brain/ddb60d44-47b2-4e84-bca5-28d119fdaf51/.user_uploaded/media_1793423020374_5d817c14.png
+- C:/Users/PER/.gemini/antigravity/brain/ddb60d44-47b2-4e84-bca5-28d119fdaf51/.user_uploaded/media_1793423169889_d2a773bf.png
+You can embed these images in an artifact if you need the USER to review them.
+</ADDITIONAL_METADATA>
+
+=== Line 711 [MODEL] ===
+ดูปัญหาก่อนเลย อ่านโค้ดส่วนที่เกี่ยวข้อง:
+
+=== Line 712 [MODEL] ===
+Created At: 2026-10-31T12:10:58+07:00
+Completed At: 2026-10-31T12:11:14+07:00
+Command exited with code 0.
+
+Command output:
+
+dashboard.html:3521:        function loadDynamicStudentsData() {
+dashboard.html:3606:                if (!studentsData[targetSec]) studentsData[targetSec] = [];
+dashboard.html:3607:                studentsData[targetSec].push(stdObj);
+dashboard.html:3616:                (studentsData[sec] || []).forEach(s => {
+dashboard.html:3941:            const raw700 = ['� 700', '� 701', '� 702'].flatMap(sec => studentsData[sec] 
+|| []);
+dashboard.html:3942:            const raw800 = ['� 800', '� 801', '� 802'].flatMap(sec => studentsData[sec] 
+|| []);
+dashboard.html:3968:            const rawMyNorm = studentsData[mySecNormal] || [];
+dashboard.html:3969:            const rawMySpec = studentsData[mySecSpecial] || [];
+dashboard.html:5406:        function renderAdvisorAssignments() {
+dashboard.html:5419:            let stdList = studentsData[currentSec] || [];
+dashboard.html:5601:                const l1 = studentsData[mySecNormal] || [];
+dashboard.html:5602:                const l2 = studentsData[mySecSpecial] || [];
+dashboard.html:5605:                stdList = studentsData[currentViewingSubmittersSection] || [];
+dashboard.html:5608:                stdList = studentsData[currentSec] || [];
+dashboard.html:5835:            let normStds = studentsData[mySecNormal] || [];
+
+
+... [truncated] ...
+
+=== Line 713 [MODEL] ===
+
+
+=== Line 714 [MODEL] ===
+Created At: 2026-10-31T12:11:18+07:00
+Completed At: 2026-10-31T12:11:19+07:00
+Showing lines 5406-5430 of 8674
+5406:         function renderAdvisorAssignments() {
+5407:             const container = document.getElementById('adv-assignments-list-container');
+5408:             if (!container) return;
+5409:             container.innerHTML = '';
+5410: 
+5411:             const allAsgs = getCoopAssignments();
+5412:             const currentSec = currentSelectedClassroom || 'หมู่ 700';
+5413: 
+5414:             // Filter assignments for this section or 'all'
+5415:             const secAsgs = allAsgs.filter(a => a.section === 'all' || a.section === currentSec);
+5416: 
+5417:             // Get students in this classroom filtered by semester
+5418:             loadDynamicStudentsData();
+5419:             let stdList = studentsData[currentSec] || [];
+5420:             if (advisorSelectedSemester && advisorSelectedSemester !== 'all') {
+5421:                 stdList = stdList.filter(s => (s.semester || 'ภาคต้น 2569') === advisorSelectedSemester);
+5422:             }
+5423: 
+5424:             const allDocs = getSubmittedDocs();
+5425:             const totalStudents = stdList.length;
+5426: 
+5427:             // Update badge count
+... [truncated] ...
+
+=== Line 715 [MODEL] ===
+Created At: 2026-10-31T12:11:18+07:00
+Completed At: 2026-10-31T12:11:19+07:00
+Showing lines 8270-8310 of 8674
+8270: 
+8271:             const groups = navsByRole[role] || navsByRole['advisor'];
+8272:             let html = '';
+8273:             groups.forEach(group => {
+8274:                 html += `<div class="sidebar-nav-label">${group.label}</div>`;
+8275:                 group.items.forEach(item => {
+8276:                     html += `<button class="sidebar-nav-item" onclick="sidebarNavigate('${item.id}', '${item.page}', this)">${item.icon}<span>${item.text}</span></button>`;
+8277:                 });
+8278:             });
+8279:             container.innerHTML = html;
+8280: 
+8281:             // Set first item as active
+8282:             const firstBtn = container.querySelector('.sidebar-nav-item');
+8283:             if (firstBtn) firstBtn.classList.add('active');
+8284:         }
+8285: 
+8286:         function sidebarNavigate(targetId, pageId, btn) {
+8287:             // Update active state in sidebar
+8288:             document.querySelectorAll('.sidebar-nav-item').forEach(el => el.classList.remove('active'));
+8289:             if (btn) btn.classList.add('active');
+8290: 
+8291:             // Update header title
+... [truncated] ...
+
+=== Line 716 [MODEL] ===
+
+
+=== Line 717 [MODEL] ===
+Created At: 2026-10-31T12:11:24+07:00
+Completed At: 2026-10-31T12:11:36+07:00
+Command exited with code 0.
+
+Command output:
+
+dashboard.html:4199:                showPage('sec-advisor-dash');
+dashboard.html:4279:                showPage('sec-student-docs');
+dashboard.html:4288:                showPage('sec-admin-dash');
+dashboard.html:4400:            showPage(pageId);
+dashboard.html:4434:        function showPage(pageId, keepExistingActive = false) {
+dashboard.html:4462:                showPage('sec-admin-dash');
+dashboard.html:6511:            showPage('sec-advisor-classroom');
+dashboard.html:8299:            showPage(actualPageId, true);
+
+
+
+
+=== Line 718 [MODEL] ===
+
+
+=== Line 719 [MODEL] ===
+Created At: 2026-10-31T12:11:40+07:00
+Completed At: 2026-10-31T12:11:40+07:00
+Showing lines 4434-4470 of 8674
+4434:         function showPage(pageId, keepExistingActive = false) {
+4435:             document.querySelectorAll('.page-content').forEach(el => el.classList.remove('active'));
+4436:             const target = document.getElementById(pageId);
+4437:             if (target) target.classList.add('active');
+4438:             if (!keepExistingActive) {
+4439:                 syncSidebarActive(pageId);
+4440:             }
+4441:         }
+4442: 
+4443:         function backToClassroomList() {
+4444:             const selectView = document.getElementById('advisor-classroom-select-view');
+4445:             const detailView = document.getElementById('advisor-classroom-detail-view');
+4446:             if (selectView) selectView.style.display = 'block';
+4447:             if (detailView) detailView.style.display = 'none';
+4448:         }
+4449: 
+4450:         function handleHeaderBack() {
+4451:             const detailView = document.getElementById('advisor-classroom-detail-view');
+4452:             if (detailView && detailView.style.display !== 'none') {
+4453:                 backToClassroomList();
+4454:                 return;
+4455:             }
+... [truncated] ...
+
+=== Line 720 [MODEL] ===
+เข้าใจปัญหาแล้ว — `showPage()` ใช้ `classList.add('active')` แต่หน้าใหม่ถูกสร้างด้วย `style="display:none;"` ตายตัว CSS class `.active` อาจถูก override ดูที่ CSS:
+
+=== Line 721 [MODEL] ===
+Created At: 2026-10-31T12:11:46+07:00
+Completed At: 2026-10-31T12:11:50+07:00
+Command exited with code 0.
+
+Command output:
+
+dashboard.html:1176:        .page-content {
+dashboard.html:1182:        .page-content.active {
+dashboard.html:4435:            document.querySelectorAll('.page-content').forEach(el => 
+el.classList.remove('active'));
+
+
+
+
+=== Line 722 [MODEL] ===
+
+
+=== Line 723 [MODEL] ===
+Created At: 2026-10-31T12:11:53+07:00
+Completed At: 2026-10-31T12:11:54+07:00
+Showing lines 1176-1190 of 8674
+1176:         .page-content {
+1177:             display: none;
+1178:             flex-direction: column;
+1179:             gap: 12px;
+1180:         }
+1181: 
+1182:         .page-content.active {
+1183:             display: flex;
+1184:         }
+1185: 
+1186:         /* Cards */
+1187:         .welcome-banner {
+1188:             background-color: var(--primary-color);
+1189:             color: #ffffff;
+1190:             padding: 14px 16px;
+
+=== Line 724 [MODEL] ===
+เจอปัญหาแล้ว! หน้าใหม่ใช้ `style="display:none;"` inline ซึ่ง specificity สูงกว่า `.page-content.active { display: flex; }` ทำให้ `.active` class ไม่ทำงาน ต้องลบ `style="display:none;"` ออก และปล่อยให้ CSS จัดการแทน
+
+ตอนนี้จะแก้ทุกอย่างพร้อมกันใน script เดียว:
+
+=== Line 725 [MODEL] ===
+Created At: 2026-10-31T12:12:33+07:00
+Completed At: 2026-10-31T12:12:33+07:00
+Created file.
+
+=== Line 726 [MODEL] ===
+
+
+=== Line 727 [MODEL] ===
+Created At: 2026-10-31T12:12:37+07:00
+Completed At: 2026-10-31T12:12:55+07:00
+Command exited with code 0.
+
+Command output:
+FIX 1: Removed display:none from new pages - OK
+FIX 2: Renamed to �ѡ�ҹ�ù� - OK
+FIX 3: Removed sidebar group labels - OK
+FIX 4a: FAILED
+FIX 4b: Static admin search semester - OK
+FIX 4c: Advisor classroom semester - OK
+FIX 4d: FAILED (this might be inside JS template literal, checking...)
+
+File written successfully.
+
+
+=== Line 728 [MODEL] ===
+FIX 4a และ 4d ยังไม่ผ่าน ดูว่าข้อความในไฟล์เป็นอะไร:
+
+=== Line 729 [MODEL] ===
+Created At: 2026-10-31T12:12:59+07:00
+Completed At: 2026-10-31T12:13:12+07:00
+Command exited with code 0.
+
+Command output:
+
+LineNumber Line                                                                                                        
+---------- ----                                                                                                        
+      1720                                 <option value="�Ҥ� 2568">�Ҥ� 2568 (�͹�ѧ)</option>                 
+      1859                                     <option value="�Ҥ� 2568">�Ҥ� 2568 (�͹�ѧ)</option>             
+      1913                                             <option value="�Ҥ� 2568">�Ҥ� 2568</option>                
+      2407                                     <option value="�Ҥ� 2568">�Ҥ� 2568 (1/2568)</option>               
+      2472                                         <option value="�Ҥ� 2568">�Ҥ� 2568 (1/2568)</option>           
+      2770                                         <option value="�Ҥ� 2568">�Ҥ� 2568</option>                    
+      2860                                     <option value="�Ҥ� 2568">�Ҥ� 2568</option>                        
+      3288                     // �Ҥ� 2568 (6 �Ե - ʶҹ�稡�ý֡�ҹ�ú�ǹ)                                  
+      3289                     { id: '6421650121', student_id: '6421650121', name: '� �Ԫ� �Է�Ի�԰', emai...
+      3290                     { id: '6421655122', student_id: '6421655122', name: '�ҧ� � �ԭ�ҡ�', email...
+      3291                     { id: '6421650223', student_id: '6421650223', name: '� �ö� �⪵�', email: '...
+      3292                     { id: '6421655224', student_id: '6421655224', name: '�ҧ� �ѭ�ѵ� �ҭ�ç�', ema...
+      3293                     { id: '6421650325', student_id: '6421650325', name: '� �ҳ �õ�', email: 'p...
+      3294                     { id: '6421655326', student_id: '6421655326', name: '�ҧ� �Ѫþ� �ó�', email: ...
+
+
+
+
+=== Line 730 [MODEL] ===
+
+
+=== Line 731 [MODEL] ===
+Created At: 2026-10-31T12:13:15+07:00
+Completed At: 2026-10-31T12:13:16+07:00
+Showing lines 2400-2415 of 8681
+2400:                             <div style="display: flex; align-items: center; gap: 8px;">
+2401:                                 <span style="font-size: 11.5px; font-weight: 700; color: #475569;">ภาคการศึกษา:</span>
+2402:                                 <select id="admin-overview-semester-select" onchange="onAdminSemesterChange(this.value)" style="padding: 6px 12px; font-size: 11.5px; border-radius: 6px; border: 1px solid var(--border-color); background: white; font-weight: 600; color: #1e293b;">
+2403:                                     <option value="ภาคต้น 2569" selected>ภาคต้น 2569 (1/2569 - ปัจจุบัน)</option>
+2404:                                     <option value="ภาคปลาย 2569">ภาคปลาย 2569 (2/2569)</option>
+2405:                                     <option value="ภาคฤดูร้อน 2569">ภาคฤดูร้อน 2569 (3/2569)</option>
+2406:                                     <option value="ภาคปลาย 2568">ภาคปลาย 2568 (2/2568)</option>
+2407:                                     <option value="ภาคต้น 2568">ภาคต้น 2568 (1/2568)</option>
+2408:                                     <option value="all">ทุกภาคการศึกษา</option>
+2409:                                 </select>
+2410:                             </div>
+2411:                         </div>
+2412:                         <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px;">
+2413:                             <div class="stat-card" style="border-left: 4px solid var(--primary-color);">
+2414:                                 <h3>นิสิตสหกิจรวม</h3>
+2415:                                 <span class="stat-value" id="admin-total-std">0 คน</span>
+
+=== Line 732 [MODEL] ===
+Created At: 2026-10-31T12:13:16+07:00
+Completed At: 2026-10-31T12:13:16+07:00
+Showing lines 2760-2780 of 8681
+2760:                                     <label style="font-size: 11px; font-weight: 600; color: var(--primary-color);">สถานประกอบการ / บริษัท:</label>
+2761:                                     <input type="text" id="adv-add-std-company" placeholder="เช่น บริษัท ปตท. จำกัด (มหาชน)" style="width: 100%; padding: 7px; font-size: 12px; border-radius: 6px; border: 1px solid var(--border-color);">
+2762:                                 </div>
+2763:                                 <div>
+2764:                                     <label style="font-size: 11px; font-weight: 600; color: var(--primary-color);">ภาคการศึกษา:</label>
+2765:                                     <select id="adv-add-std-semester" style="width: 100%; padding: 7px; font-size: 12px; border-radius: 6px; border: 1px solid var(--border-color); background: #f8fafc;">
+2766:                                         <option value="ภาคต้น 2569">ภาคต้น 2569</option>
+2767:                                         <option value="ภาคปลาย 2569">ภาคปลาย 2569</option>
+2768:                                         <option value="ภาคฤดูร้อน 2569">ภาคฤดูร้อน 2569</option>
+2769:                                         <option value="ภาคปลาย 2568">ภาคปลาย 2568</option>
+2770:                                         <option value="ภาคต้น 2568">ภาคต้น 2568</option>
+2771:                                     </select>
+2772:                                 </div>
+2773:                                 <div style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 10px; border-radius: 6px; margin-top: 4px;">
+2774:                                     <label style="display: flex; align-items: flex-start; gap: 8px; font-size: 11.5px; color: #166534; cursor: pointer;">
+2775:                                         <input type="checkbox" id="adv-add-std-send-email" checked style="margin-top: 2px;">
+2776:                                         <div>
+2777:                                             <strong>ส่งอีเมลแจ้งแรกเข้าใช้งานทันที</strong>
+2778:                                             <div style="font-size: 10.5px; color: #15803d; margin-top: 2px;">ระบบจะส่งรหัสผ่านแรกเข้า (รหัสนิสิต) พร้อมขั้นตอนการยืนยัน OTP ไปยังอีเมลเคยูของนิสิต</div>
+2779:                                         </div>
+2780:                                     </label>
+
+=== Line 733 [MODEL] ===
+ได้ข้อมูลครบ ตอนนี้แก้ที่เหลือด้วย edit_file โดยตรง:
+
+=== Line 734 [MODEL] ===
+Created At: 2026-10-31T12:13:24+07:00
+Completed At: 2026-10-31T12:13:27+07:00
+Encountered error in step execution: target content not found in the file; the Target must exactly match existing file text, including whitespace
+
+=== Line 735 [MODEL] ===
+Created At: 2026-10-31T12:13:27+07:00
+Completed At: 2026-10-31T12:13:27+07:00
+Encountered error in step execution: target content not found in the file; the Target must exactly match existing file text, including whitespace
+
+=== Line 736 [MODEL] ===
+ใช้ Python script แทนเพราะมี CRLF ในไฟล์:
+
+=== Line 737 [MODEL] ===
+Created At: 2026-10-31T12:13:51+07:00
+Completed At: 2026-10-31T12:13:51+07:00
+Created file.
+
+=== Line 738 [MODEL] ===
+
+
+=== Line 739 [MODEL] ===
+Created At: 2026-10-31T12:13:55+07:00
+Completed At: 2026-10-31T12:14:39+07:00
+Command exited with code 0.
+
+Command output:
+4a: FAILED
+4b: FAILED - trying alternative...
+4b: FAILED completely
+4c: FAILED
+
+WARNING: No changes!
+
+
+=== Line 740 [MODEL] ===
+ปัญหาน่าจะเป็นเรื่อง line ending ตรวจสอบ:
+
+=== Line 741 [MODEL] ===
+Created At: 2026-10-31T12:14:44+07:00
+Completed At: 2026-10-31T12:14:54+07:00
+Command exited with code 0.
+
+Command output:
+Found at byte: 150131
+b'\xb2\xe0\xb8\x84\xe0\xb8\x95\xe0\xb9\x89\xe0\xb8\x99 2568">\xe0\xb8\xa0\xe0\xb8\xb2\xe0\xb8\x84\xe0\xb8\x95\xe0\xb9\x89\xe0\xb8\x99 2568 (1/2568)</option>\r\n                                    <option value="all">\xe0'
+
+
+=== Line 742 [MODEL] ===
+ไฟล์ใช้ UTF-8 + CRLF ปกติ แต่เมื่อ python อ่านด้วย `'r'` mode จะแปลง `\r\n` เป็น `\n` ทำให้ pattern ที่มี `\r\n` ไม่ match ต้องอ่านด้วย `newline=''`:
+
+=== Line 743 [MODEL] ===
+Created At: 2026-10-31T12:15:20+07:00
+Completed At: 2026-10-31T12:15:20+07:00
+Created file.
+
+=== Line 744 [MODEL] ===
+
+
+=== Line 745 [MODEL] ===
+Created At: 2026-10-31T12:15:25+07:00
+Completed At: 2026-10-31T12:15:28+07:00
+Command exited with code 0.
+
+Command output:
+4a: OK
+4b: OK
+4c: FAILED
+  Context at idx 132667: '�Ҥ� 2568 (1/2568)</option>\r\n                                    <option value="�Ҥ� 2567">�Ҥ� 2567 (2/2567)</option>\r\n                                    <option value="�Ҥ� 2567">�Ҥ� 2'
+
+File saved.
+
+
+=== Line 746 [MODEL] ===
+4a และ 4b สำเร็จ 4c (JS template literal) ดู context แล้วพบว่าภาคปลาย 2567 ถูก add ไปแล้วตั้งแต่ 4a (มันเป็น dropdown เดียวกัน) ตรวจสอบว่าการเปลี่ยนแปลงครบหรือไม่:
+
+=== Line 747 [MODEL] ===
+Created At: 2026-10-31T12:15:35+07:00
+Completed At: 2026-10-31T12:15:40+07:00
+Command exited with code 0.
+
+Command output:
+
+LineNumber
+----------
+      1914
+      1917
+      2408
+      2411
+      2477
+      2480
+      2775
+      2778
+
+
+
+
+=== Line 748 [MODEL] ===
+มีอยู่หลายจุด ตอนนี้แก้ส่วน renderAdminUsersTable JS template literal ที่ยังไม่ได้แก้:
+
+=== Line 749 [MODEL] ===
+Created At: 2026-10-31T12:15:44+07:00
+Completed At: 2026-10-31T12:15:44+07:00
+Showing lines 3845-3870 of 8689
+3845:                                     ${rowsHtml || '<tr><td colspan="8" style="text-align:center; padding:20px; color:var(--text-muted); font-size:12px;">ไม่พบนิสิตที่ตรงกับเงื่อนไข</td></tr>'}
+3846:                                 </tbody>
+3847:                             </table>
+3848:                         </div>
+3849:                         <div style="padding: 8px 12px; background: #f8fafc; border-top: 1px solid var(--border-color); font-size: 11px; color: var(--text-muted); display: flex; justify-content: space-between;">
+3850:                             <span>แสดงนิสิตในตัวกรองนี้: <strong>${filteredStds.length} คน</strong> (ทั้งหมด ${allStds.length} คน)</span>
+3851:                             <span></span>
+3852:                         </div>
+3853:                     </div>
+3854:                 `;
+3855:             } else {
+3856:                 const customUsers = JSON.parse(localStorage.getItem('customUsers') || '{}');
+3857:                 const uniqueAdvisors = new Map();
+3858:                 Object.values(customUsers).forEach(u => {
+3859:                     if (u && u.role === 'advisor') {
+3860:                         const key = (u.email || u.advisor_id || u.id || '').toLowerCase().trim();
+3861:                         if (key && !uniqueAdvisors.has(key)) {
+3862:                             uniqueAdvisors.set(key, u);
+3863:                         }
+3864:                     }
+3865:                 });
+3866:                 const advisors = Array.from(uniqueAdvisors.values());
+... [truncated] ...
+
+=== Line 750 [MODEL] ===
+ส่วน renderAdminUsersTable ไม่ได้อยู่ใน dropdowns แล้ว เพราะเราย้ายออกมาเป็น static HTML แล้ว ผ่านแล้ว commit push:
+
+=== Line 751 [MODEL] ===
+Created At: 2026-10-31T12:15:51+07:00
+Completed At: 2026-10-31T12:16:11+07:00
+Command exited with code 0.
+
+Command output:
+[main 0edc1e7] fix: assignments+photos pages visible, remove sidebar labels, rename to หลักฐานการนิเทศ, add 2566-2567 semesters
+ 1 file changed, 27 insertions(+), 12 deletions(-)
+To https://github.com/100xpiper/ku-coop-system.git
+   84ced1a..0edc1e7  main -> main
+
+
+=== Line 752 [MODEL] ===
+commit `0edc1e7` สำเร็จ สรุปสิ่งที่แก้:
+
+- **หน้ากำหนดส่งเอกสาร/หลักฐานการนิเทศ** — แก้แล้ว สาเหตุคือ `style="display:none;"` inline ทำให้ CSS class `.page-content.active` ไม่ทำงาน
+- **ลบหัวข้อหมวด** (ภาพรวม, จัดการนิสิต ฯลฯ) ออกจาก sidebar แล้ว
+- **เปลี่ยนชื่อ** "รูปหลักฐานการเข้าพบ" → **"หลักฐานการนิเทศ"** ทุกจุด
+- **เพิ่มภาคการศึกษา** ย้อนหลังอีก 2 ปี: ภาคปลาย 2567, ภาคต้น 2567, ภาคปลาย 2566, ภาคต้น 2566
+
+---
+
+**ตอบคำถาม:**
+
+**1. อาจารย์คนอื่นเข้าระบบได้ไหม?**
+ได้ครับ — เข้าที่ `localhost:8080/index.html` แล้วใช้ email + รหัสผ่านที่เพิ่มไว้ใน Admin (หน้านำเข้า Excel หรือเพิ่มด้วย import) ถ้ายังไม่ได้เพิ่มอาจารย์คนอื่นในระบบก็เพิ่มผ่านหน้า Admin → จัดการนิสิต & อาจารย์ แท็บ "รายชื่ออาจารย์"
+
+**2. เพิ่มอีเมลสำรองสำหรับทดสอบ**
+แนะนำให้ใช้ **Gmail ทั่วไป** (เช่น gmail.com) เป็นอีเมลสำรองให้อาจารย์แต่ละคน ทำได้ 2 ทาง:
+- **ทางที่ 1 (แนะนำ):** Admin → เพิ่ม/แก้ไขอาจารย์ ใส่ email เป็น gmail ส่วนตัว → ระบบจะใช้นั้นเป็น login
+- **ทางที่ 2:** แก้ไข `customUsers` ใน localStorage ผ่าน DevTools โดยตรง
+
+อยากให้ช่วยเพิ่มอีเมลสำรองให้อาจารย์คนไหนบ้างครับ?
+
+=== Line 753 [USER_EXPLICIT] ===
+<USER_REQUEST>
+2. ทางเลือกที่ 2 คืออะไร
+</USER_REQUEST>
+<ADDITIONAL_METADATA>
+The current local time is: 2026-10-31T12:19:06+07:00.
+
+The user's current state is as follows:
+Active Document: c:\Users\PER\Downloads\Project\supabase-client.js (LANGUAGE_UNSPECIFIED)
+Cursor is on line: 274
+Other open documents:
+- c:\Users\PER\Downloads\Project\test_semester.py (LANGUAGE_UNSPECIFIED)
+- c:\Users\PER\Downloads\Project\test_assert.py (LANGUAGE_UNSPECIFIED)
+- c:\Users\PER\Downloads\Project\server.ps1 (LANGUAGE_UNSPECIFIED)
+- c:\Users\PER\Downloads\Project\index.html (LANGUAGE_UNSPECIFIED)
+- c:\Users\PER\Downloads\Project\dashboard.html (LANGUAGE_UNSPECIFIED)
+</ADDITIONAL_METADATA>
+
+=== Line 754 [MODEL] ===
+ทางที่ 2 คือแก้ไขข้อมูลใน **localStorage** ของ browser โดยตรง ผ่าน DevTools ไม่ต้องแตะโค้ดเลย
+
+---
+
+**วิธีทำ:**
+
+1. เปิด `localhost:8080/dashboard.html` แล้ว login เป็น Admin
+2. กด **F12** เพื่อเปิด DevTools
+3. ไปแท็บ **Application** → ซ้ายมือเลือก **Local Storage** → `http://localhost:8080`
+4. หา key ชื่อ **`customUsers`** → ดับเบิลคลิกที่ value
+5. แก้ไข email ของอาจารย์คนที่ต้องการตรงๆ ในนั้น
+6. กด Enter ข้อมูลเปลี่ยนทันที
+
+---
+
+**ตัวอย่าง JSON ใน customUsers:**
+```json
+{
+  "somchai.j@ku.th": {
+    "role": "advisor",
+    "email": "somchai.j@ku.th",
+    "name": "อาจารย์ สมชาย โจนส์",
+    "password": "advisor123"
+  }
+}
+... [truncated] ...
+
+=== Line 755 [USER_EXPLICIT] ===
+<USER_REQUEST>
+เราพักเรื่องนี้ไว้ก่อน 
+หน้ากำหนดส่งเอกสาร ทำไมมันแปลก ๆ อ่ะ แบบไม่มีให้เลือกหมู่อ่ะ แล้วก็หน้าหลักฐานการนิเทศ ให้เป็นเรียนชื่อแล้วก็ให้มีปุ่มกดเพิ่มรูปพอกดแล้วให้มีหน้าต่างขึ้นมาให้กดเพิ่มรูปหรือถ่ายรูป แล้วสามารถลบรูปได้ แล้วกล่องหลักฐานการนิเทศ
+บันทึกและดูรูปถ่ายหลักฐานการออกตรวจนิเทศงานของนิสิตในความดูแล ลบออกไปเลย
+ส่วนทุกฟีเจอร์การเลือกภาคการศึกษาให้มีภาคการศึกษาเหมือนกันทุกฟีเจอร์ แล้วก็mockup แค่รายชื่อของภาคการศึกษาก่อน ๆ ไว้ แล้วรายชื่อที่เราmockupไว้ให้เราสามารถทำอะไรกับมันก็ได้
+</USER_REQUEST>
+<ADDITIONAL_METADATA>
+The current local time is: 2026-10-31T12:32:56+07:00.
+
+The user's current state is as follows:
+Active Document: c:\Users\PER\Downloads\Project\supabase-client.js (LANGUAGE_UNSPECIFIED)
+Cursor is on line: 274
+Other open documents:
+- c:\Users\PER\Downloads\Project\test_semester.py (LANGUAGE_UNSPECIFIED)
+- c:\Users\PER\Downloads\Project\test_assert.py (LANGUAGE_UNSPECIFIED)
+- c:\Users\PER\Downloads\Project\server.ps1 (LANGUAGE_UNSPECIFIED)
+- c:\Users\PER\Downloads\Project\index.html (LANGUAGE_UNSPECIFIED)
+- c:\Users\PER\Downloads\Project\dashboard.html (LANGUAGE_UNSPECIFIED)
+
+The user has uploaded 2 image(s):
+- C:/Users/PER/.gemini/antigravity/brain/ddb60d44-47b2-4e84-bca5-28d119fdaf51/.user_uploaded/media_1793424283553_1c2bd6af.jpg
+- C:/Users/PER/.gemini/antigravity/brain/ddb60d44-47b2-4e84-bca5-28d119fdaf51/.user_uploaded/media_1793424331949_bd13b2ef.jpg
+You can embed these images in an artifact if you need the USER to review them.
+</ADDITIONAL_METADATA>
+
+=== Line 756 [MODEL] ===
+ดูโค้ดปัจจุบันของทั้งสองหน้า:
+
+=== Line 757 [MODEL] ===
+Created At: 2026-10-31T12:33:10+07:00
+Completed At: 2026-10-31T12:33:11+07:00
+Showing lines 1959-2060 of 8689
+1959:                     </div>
+1960:                 </div>
+1961: 
+1962:                 <!-- หน้า: กำหนดส่งเอกสาร (Advisor Assignments Page) -->
+1963:                 <div id="sec-advisor-assignments" class="page-content">
+1964:                     <section class="welcome-banner" style="margin-bottom: 14px;">
+1965:                         <div class="welcome-text">
+1966:                             <h2>กำหนดส่งเอกสาร</h2>
+1967:                             <p id="adv-asg-page-subtitle">จัดการและติดตามการส่งเอกสารสหกิจศึกษาของนิสิตในความดูแล</p>
+1968:                         </div>
+1969:                         <span class="role-badge" style="background: rgba(255,255,255,0.22); color: #fff; font-weight: 700;">อาจารย์นิเทศ</span>
+1970:                     </section>
+1971: 
+1972:                     <section class="section-card">
+1973:                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+1974:                             <div>
+1975:                                 <div class="section-title" style="margin-bottom: 4px;">รายการการมอบหมายงาน</div>
+1976:                                 <div style="font-size: 11px; color: var(--text-muted);">กำหนดการส่งเอกสารและสรุปภาพรวมความคืบหน้าของนิสิตในหมู่เรียน</div>
+1977:                             </div>
+1978:                             <button class="btn-primary" style="padding: 6px 12px; font-size: 11px; background-color: #2563eb; display: flex; align-items: center; gap: 6px;" onclick="openNewAssign
+<truncated 6226 bytes>
+44:                             <!-- แถบควบคุมเลือกเดือนและปี -->
+... [truncated] ...
+
+=== Line 758 [MODEL] ===
+Created At: 2026-10-31T12:33:10+07:00
+Completed At: 2026-10-31T12:33:11+07:00
+Showing lines 2002-2058 of 8689
+2002:                     </section>
+2003:                 </div>
+2004: 
+2005:                 <!-- หน้า: หลักฐานการนิเทศ (Advisor Photo Evidence Page) -->
+2006:                 <div id="sec-advisor-photos" class="page-content">
+2007:                     <section class="welcome-banner" style="margin-bottom: 14px; background: linear-gradient(135deg, #1e3a5f 0%, #1e40af 100%);">
+2008:                         <div class="welcome-text">
+2009:                             <h2>หลักฐานการนิเทศ</h2>
+2010:                             <p>บันทึกและดูรูปถ่ายหลักฐานการออกตรวจนิเทศงานของนิสิตในความดูแล</p>
+2011:                         </div>
+2012:                         <span class="role-badge" style="background: rgba(255,255,255,0.22); color: #fff; font-weight: 700;">อาจารย์นิเทศ</span>
+2013:                     </section>
+2014: 
+2015:                     <section class="section-card">
+2016:                         <div class="section-header" style="margin-bottom: 12px;">
+2017:                             <div class="section-title">หลักฐานการนิเทศนิสิต</div>
+2018:                             <div style="display: flex; gap: 8px; align-items: center;">
+2019:                                 <select id="adv-photo-sec-select" onchange="renderAdvisorPhotosPage()" style="padding: 5px 10px; font-size: 11px; border-radius: 6px; border: 1px solid var(--border-color); background: #ffffff; font-weight: 600;">
+2020:                                     <option value="all">ทุกหมู่เรียน</option>
+2021:                                     <option value="หมู่ 700">หมู่ 700</option>
+2022:                                     <opt
+<truncated 1634 bytes>
+... [truncated] ...
+

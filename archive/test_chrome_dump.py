@@ -18,3 +18,4 @@ if "เข้าสู่ระบบ" in res.stdout or "ระบบสหก�
     print("Found login page text in DOM!")
 for line in res.stdout.split('\n')[:25]:
     print(line)
+

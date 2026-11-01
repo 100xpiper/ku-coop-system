@@ -146,3 +146,4 @@ dash_content = dash_content.replace(old_std_save, new_std_save, 1)
 with open('dashboard.html', 'w', encoding='utf-8') as f:
     f.write(dash_content)
 print("dashboard.html updated successfully!")
+

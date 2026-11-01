@@ -315,6 +315,14 @@ try {
             $decoded   = [System.Uri]::UnescapeDataString($urlPath).TrimStart('/')
             $localPath = Join-Path $baseDir $decoded
 
+            # Fallback to docs/ folder if file not found in root
+            if (-not (Test-Path $localPath -PathType Leaf)) {
+                $docsPath = Join-Path (Join-Path $baseDir "docs") $decoded
+                if (Test-Path $docsPath -PathType Leaf) {
+                    $localPath = $docsPath
+                }
+            }
+
             if (Test-Path $localPath -PathType Leaf) {
                 $ext         = [System.IO.Path]::GetExtension($localPath).ToLower()
                 $contentType = "application/octet-stream"
