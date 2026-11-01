@@ -275,8 +275,14 @@ while idx < len(lines):
 
     idx += 1
 
-doc.save(DOCX_PATH)
-print(f"Generated: {DOCX_PATH}")
+try:
+    doc.save(DOCX_PATH)
+    print(f"Generated: {DOCX_PATH}")
+except PermissionError:
+    alt_docx = os.path.join(DOCS_DIR, "Project_Progress_Report_Final_Latest.docx")
+    doc.save(alt_docx)
+    print(f"Notice: {DOCX_PATH} is locked by Microsoft Word.")
+    print(f"Saved latest version to: {alt_docx}")
 
 
 # -----------------------------------------------------------------------------
@@ -526,3 +532,4 @@ if os.path.exists(ARTIFACT_DIR):
         print(f"Synced to artifact: {dest}")
 
 print("\nALL TASKS COMPLETED SUCCESSFULLY!")
+
