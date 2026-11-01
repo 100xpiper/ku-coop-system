@@ -25,9 +25,11 @@ DOCX_PATH = os.path.join(DOCS_DIR, "Project_Progress_Report_Final.docx")
 HTML_PATH = os.path.join(DOCS_DIR, "Project_Progress_Report_Final.html")
 
 NEW_ADVISOR_NAME = "อาจารย์ปรวี วงศ์สวัสดิ์สุริยะ"
+FONT_NAME = "Angsana New"
+BODY_SIZE_PT = 16
 
 # -----------------------------------------------------------------------------
-# 1. UPDATE ADVISOR NAME IN MD AND CLEAN LINES
+# 1. READ CLEAN MARKDOWN
 # -----------------------------------------------------------------------------
 print(f"Reading: {MD_PATH}")
 with open(MD_PATH, "r", encoding="utf-8") as f:
@@ -44,34 +46,12 @@ clean_md = re.sub(r'\n{3,}', '\n\n', clean_md)
 with open(MD_PATH, "w", encoding="utf-8") as f:
     f.write(clean_md)
 
-print("Updated Project_Progress_Report_Final.md with new advisor name and zero divider lines!")
-
-# Also update TOR and Proposal
-tor_path = os.path.join(DOCS_DIR, "Project_TOR_Final.md")
-if os.path.exists(tor_path):
-    with open(tor_path, "r", encoding="utf-8") as f:
-        tor_c = f.read()
-    tor_c = re.sub(r'อาจารย์\s*สมชาย(?:\s*แจ่มใส|\s*ใจดี)?', NEW_ADVISOR_NAME, tor_c)
-    tor_c = re.sub(r'สมชาย\s*(?:แจ่มใส|ใจดี)', NEW_ADVISOR_NAME, tor_c)
-    with open(tor_path, "w", encoding="utf-8") as f:
-        f.write(tor_c)
-    print("Updated Project_TOR_Final.md with new advisor name!")
-
-prop_path = os.path.join(DOCS_DIR, "Project_Proposal_Updated.md")
-if os.path.exists(prop_path):
-    with open(prop_path, "r", encoding="utf-8") as f:
-        prop_c = f.read()
-    prop_c = re.sub(r'อาจารย์\s*สมชาย(?:\s*แจ่มใส|\s*ใจดี)?', NEW_ADVISOR_NAME, prop_c)
-    prop_c = re.sub(r'สมชาย\s*(?:แจ่มใส|ใจดี)', NEW_ADVISOR_NAME, prop_c)
-    with open(prop_path, "w", encoding="utf-8") as f:
-        f.write(prop_c)
-    print("Updated Project_Proposal_Updated.md with new advisor name!")
-
+print("Updated Project_Progress_Report_Final.md!")
 
 # -----------------------------------------------------------------------------
-# 2. GENERATE CLEAN Project_Progress_Report_Final.docx
+# 2. GENERATE CLEAN Project_Progress_Report_Final.docx (Angsana New 16pt)
 # -----------------------------------------------------------------------------
-print("Building docx document...")
+print(f"Building docx document using font '{FONT_NAME}', size {BODY_SIZE_PT}pt...")
 doc = docx.Document()
 
 for sec in doc.sections:
@@ -83,11 +63,54 @@ for sec in doc.sections:
     sec.right_margin = Inches(1.0)
 
 style = doc.styles['Normal']
-style.font.name = 'TH Sarabun New'
-style.font.size = Pt(15)
+style.font.name = FONT_NAME
+style.font.size = Pt(BODY_SIZE_PT)
 style.font.color.rgb = RGBColor(0, 0, 0)
 
-def add_clean_paragraph(doc, text="", bold=False, italic=False, size_pt=15, align=WD_ALIGN_PARAGRAPH.LEFT, space_before=0, space_after=6):
+# Set complex script fonts in Normal style
+rPr = style.element.get_or_add_rPr()
+rFonts = rPr.find(qn('w:rFonts'))
+if rFonts is None:
+    rFonts = OxmlElement('w:rFonts')
+    rPr.append(rFonts)
+rFonts.set(qn('w:ascii'), FONT_NAME)
+rFonts.set(qn('w:hAnsi'), FONT_NAME)
+rFonts.set(qn('w:cs'), FONT_NAME)
+rFonts.set(qn('w:eastAsia'), FONT_NAME)
+
+szCs = rPr.find(qn('w:szCs'))
+if szCs is None:
+    szCs = OxmlElement('w:szCs')
+    rPr.append(szCs)
+szCs.set(qn('w:val'), str(int(BODY_SIZE_PT * 2)))
+
+def set_run_font(run, font_name=FONT_NAME, size_pt=BODY_SIZE_PT, bold=None, italic=None, color_rgb=RGBColor(0, 0, 0)):
+    run.font.name = font_name
+    run.font.size = Pt(size_pt)
+    if bold is not None:
+        run.bold = bold
+    if italic is not None:
+        run.italic = italic
+    if color_rgb is not None:
+        run.font.color.rgb = color_rgb
+
+    rPr = run._r.get_or_add_rPr()
+    rFonts = rPr.find(qn('w:rFonts'))
+    if rFonts is None:
+        rFonts = OxmlElement('w:rFonts')
+        rPr.append(rFonts)
+    rFonts.set(qn('w:ascii'), font_name)
+    rFonts.set(qn('w:hAnsi'), font_name)
+    rFonts.set(qn('w:cs'), font_name)
+    rFonts.set(qn('w:eastAsia'), font_name)
+
+    szCs = rPr.find(qn('w:szCs'))
+    if szCs is None:
+        szCs = OxmlElement('w:szCs')
+        rPr.append(szCs)
+    szCs.set(qn('w:val'), str(int(size_pt * 2)))
+
+def add_clean_paragraph(doc, text="", bold=False, italic=False, size_pt=BODY_SIZE_PT, align=WD_ALIGN_PARAGRAPH.LEFT, space_before=0, space_after=6):
     p = doc.add_paragraph()
     p.alignment = align
     p.paragraph_format.space_before = Pt(space_before)
@@ -95,31 +118,26 @@ def add_clean_paragraph(doc, text="", bold=False, italic=False, size_pt=15, alig
     p.paragraph_format.line_spacing = 1.15
     if text:
         run = p.add_run(text)
-        run.bold = bold
-        run.italic = italic
-        run.font.name = 'TH Sarabun New'
-        run.font.size = Pt(size_pt)
-        run.font.color.rgb = RGBColor(0, 0, 0)
+        set_run_font(run, FONT_NAME, size_pt, bold=bold, italic=italic)
     return p
 
-def format_inline_runs(paragraph, text, base_size=15):
+def format_inline_runs(paragraph, text, base_size=BODY_SIZE_PT):
     parts = re.split(r'(\*\*.*?\*\*|\*.*?\*|`.*?`)', text)
     for part in parts:
         if not part:
             continue
         if part.startswith('**') and part.endswith('**'):
             r = paragraph.add_run(part[2:-2])
-            r.bold = True
+            set_run_font(r, FONT_NAME, base_size, bold=True)
         elif part.startswith('*') and part.endswith('*'):
             r = paragraph.add_run(part[1:-1])
-            r.italic = True
+            set_run_font(r, FONT_NAME, base_size, italic=True)
         elif part.startswith('`') and part.endswith('`'):
             r = paragraph.add_run(part[1:-1])
+            set_run_font(r, "Courier New", max(11, base_size - 3))
         else:
             r = paragraph.add_run(part)
-        r.font.name = 'TH Sarabun New'
-        r.font.size = Pt(base_size)
-        r.font.color.rgb = RGBColor(0, 0, 0)
+            set_run_font(r, FONT_NAME, base_size)
 
 def add_clean_table(doc, headers, rows):
     col_count = len(headers)
@@ -136,9 +154,9 @@ def add_clean_table(doc, headers, rows):
         p.alignment = WD_ALIGN_PARAGRAPH.CENTER
         p.paragraph_format.space_before = Pt(3)
         p.paragraph_format.space_after = Pt(3)
-        format_inline_runs(p, h.strip(), base_size=14)
+        format_inline_runs(p, h.strip(), base_size=15)
         for run in p.runs:
-            run.bold = True
+            set_run_font(run, FONT_NAME, 15, bold=True)
         set_cell_margins(hdr_cells[i], top=80, bottom=80, left=100, right=100)
 
     for r_idx, row_data in enumerate(rows):
@@ -153,7 +171,7 @@ def add_clean_table(doc, headers, rows):
                 p.alignment = WD_ALIGN_PARAGRAPH.CENTER
             else:
                 p.alignment = WD_ALIGN_PARAGRAPH.LEFT
-            format_inline_runs(p, val, base_size=13.5)
+            format_inline_runs(p, val, base_size=14.5)
             set_cell_margins(row_cells[c_idx], top=60, bottom=60, left=100, right=100)
 
     p_post = doc.add_paragraph()
@@ -176,8 +194,12 @@ while idx < len(lines):
         else:
             in_code = False
             for c_line in code_lines:
-                p = add_clean_paragraph(doc, c_line, size_pt=12, space_before=1, space_after=1)
+                p = doc.add_paragraph()
                 p.paragraph_format.left_indent = Inches(0.4)
+                p.paragraph_format.space_before = Pt(1)
+                p.paragraph_format.space_after = Pt(1)
+                run = p.add_run(c_line)
+                set_run_font(run, "Courier New", 12)
             code_lines = []
         idx += 1
         continue
@@ -223,10 +245,7 @@ while idx < len(lines):
             p_cap.paragraph_format.space_before = Pt(2)
             p_cap.paragraph_format.space_after = Pt(10)
             run_cap = p_cap.add_run(caption)
-            run_cap.italic = True
-            run_cap.font.name = 'TH Sarabun New'
-            run_cap.font.size = Pt(13.5)
-            run_cap.font.color.rgb = RGBColor(0, 0, 0)
+            set_run_font(run_cap, FONT_NAME, 14, italic=True)
         idx += 1
         continue
 
@@ -237,7 +256,7 @@ while idx < len(lines):
     elif trimmed.startswith('### '):
         add_clean_paragraph(doc, trimmed[4:].strip(), bold=True, size_pt=16, space_before=8, space_after=4)
     elif trimmed.startswith('#### '):
-        add_clean_paragraph(doc, trimmed[5:].strip(), bold=True, size_pt=15, space_before=6, space_after=2)
+        add_clean_paragraph(doc, trimmed[5:].strip(), bold=True, size_pt=16, space_before=6, space_after=2)
     elif trimmed.startswith('- ') or trimmed.startswith('* '):
         bullet_text = trimmed[2:].strip()
         p = doc.add_paragraph()
@@ -246,10 +265,8 @@ while idx < len(lines):
         p.paragraph_format.space_before = Pt(1)
         p.paragraph_format.space_after = Pt(2)
         r_bullet = p.add_run("•  ")
-        r_bullet.font.name = 'TH Sarabun New'
-        r_bullet.font.size = Pt(15)
-        r_bullet.font.color.rgb = RGBColor(0, 0, 0)
-        format_inline_runs(p, bullet_text, base_size=15)
+        set_run_font(r_bullet, FONT_NAME, BODY_SIZE_PT)
+        format_inline_runs(p, bullet_text, base_size=BODY_SIZE_PT)
     elif re.match(r'^\d+\.\s', trimmed):
         m = re.match(r'^(\d+\.\s)(.*)', trimmed)
         prefix = m.group(1)
@@ -260,35 +277,33 @@ while idx < len(lines):
         p.paragraph_format.space_before = Pt(1)
         p.paragraph_format.space_after = Pt(2)
         r_num = p.add_run(prefix)
-        r_num.bold = True
-        r_num.font.name = 'TH Sarabun New'
-        r_num.font.size = Pt(15)
-        r_num.font.color.rgb = RGBColor(0, 0, 0)
-        format_inline_runs(p, body, base_size=15)
+        set_run_font(r_num, FONT_NAME, BODY_SIZE_PT, bold=True)
+        format_inline_runs(p, body, base_size=BODY_SIZE_PT)
     elif trimmed:
         p = doc.add_paragraph()
         p.alignment = WD_ALIGN_PARAGRAPH.LEFT
         p.paragraph_format.space_before = Pt(1)
         p.paragraph_format.space_after = Pt(4)
         p.paragraph_format.line_spacing = 1.15
-        format_inline_runs(p, trimmed, base_size=15)
+        format_inline_runs(p, trimmed, base_size=BODY_SIZE_PT)
 
     idx += 1
+
+alt_docx = os.path.join(DOCS_DIR, "Project_Progress_Report_Final_Latest.docx")
+doc.save(alt_docx)
+print(f"Generated: {alt_docx}")
 
 try:
     doc.save(DOCX_PATH)
     print(f"Generated: {DOCX_PATH}")
 except PermissionError:
-    alt_docx = os.path.join(DOCS_DIR, "Project_Progress_Report_Final_Latest.docx")
-    doc.save(alt_docx)
     print(f"Notice: {DOCX_PATH} is locked by Microsoft Word.")
-    print(f"Saved latest version to: {alt_docx}")
 
 
 # -----------------------------------------------------------------------------
-# 3. GENERATE CLEAN Project_Progress_Report_Final.html (PLAIN BLACK, NO DECORATIONS, NO LINES)
+# 3. GENERATE CLEAN Project_Progress_Report_Final.html (Angsana New 16pt)
 # -----------------------------------------------------------------------------
-print("Building HTML document...")
+print("Building HTML document with Angsana New 16pt...")
 
 def md_inline_to_html(text):
     text = re.sub(r'\*\*(.*?)\*\*', r'<strong>\1</strong>', text)
@@ -364,27 +379,27 @@ while idx < len(lines):
         b64_src = get_base64_img(rel_img_path)
         fig_html = f'''<figure style="text-align: center; margin: 18px 0;">
   <img src="{b64_src}" alt="{caption}" style="max-width: 100%; border: 1px solid #000000;" />
-  <figcaption style="font-size: 14px; font-style: italic; margin-top: 6px; color: #000000;">{caption}</figcaption>
+  <figcaption style="font-family: 'Angsana New', 'Sarabun', sans-serif; font-size: 14pt; font-style: italic; margin-top: 6px; color: #000000;">{caption}</figcaption>
 </figure>'''
         html_body.append(fig_html)
         idx += 1
         continue
 
     if trimmed.startswith('# '):
-        html_body.append(f'<h1 style="text-align: center; margin-top: 24px; margin-bottom: 12px;">{md_inline_to_html(trimmed[2:])}</h1>')
+        html_body.append(f'<h1 style="text-align: center; margin-top: 24px; margin-bottom: 12px; font-size: 22pt;">{md_inline_to_html(trimmed[2:])}</h1>')
     elif trimmed.startswith('## '):
-        html_body.append(f'<h2 style="margin-top: 20px; margin-bottom: 10px;">{md_inline_to_html(trimmed[3:])}</h2>')
+        html_body.append(f'<h2 style="margin-top: 20px; margin-bottom: 10px; font-size: 18pt;">{md_inline_to_html(trimmed[3:])}</h2>')
     elif trimmed.startswith('### '):
-        html_body.append(f'<h3 style="margin-top: 16px; margin-bottom: 8px;">{md_inline_to_html(trimmed[4:])}</h3>')
+        html_body.append(f'<h3 style="margin-top: 16px; margin-bottom: 8px; font-size: 16pt;">{md_inline_to_html(trimmed[4:])}</h3>')
     elif trimmed.startswith('#### '):
-        html_body.append(f'<h4 style="margin-top: 14px; margin-bottom: 6px;">{md_inline_to_html(trimmed[5:])}</h4>')
+        html_body.append(f'<h4 style="margin-top: 14px; margin-bottom: 6px; font-size: 16pt;">{md_inline_to_html(trimmed[5:])}</h4>')
     elif trimmed.startswith('- ') or trimmed.startswith('* '):
-        html_body.append(f'<p style="margin: 3px 0 3px 25px; text-indent: -15px;">• &nbsp; {md_inline_to_html(trimmed[2:])}</p>')
+        html_body.append(f'<p style="margin: 3px 0 3px 25px; text-indent: -15px; font-size: 16pt;">• &nbsp; {md_inline_to_html(trimmed[2:])}</p>')
     elif re.match(r'^\d+\.\s', trimmed):
         m = re.match(r'^(\d+\.\s)(.*)', trimmed)
-        html_body.append(f'<p style="margin: 3px 0 3px 25px; text-indent: -15px;"><strong>{m.group(1)}</strong>{md_inline_to_html(m.group(2))}</p>')
+        html_body.append(f'<p style="margin: 3px 0 3px 25px; text-indent: -15px; font-size: 16pt;"><strong>{m.group(1)}</strong>{md_inline_to_html(m.group(2))}</p>')
     elif trimmed:
-        html_body.append(f'<p style="margin: 4px 0 6px 0; text-align: justify;">{md_inline_to_html(trimmed)}</p>')
+        html_body.append(f'<p style="margin: 4px 0 6px 0; text-align: justify; font-size: 16pt;">{md_inline_to_html(trimmed)}</p>')
 
     idx += 1
 
@@ -395,7 +410,7 @@ full_html = f'''<!DOCTYPE html>
 <title>รายงานความก้าวหน้าโครงการฉบับสมบูรณ์ (KU Coop)</title>
 <style>
     body {{
-        font-family: "TH Sarabun New", "Sarabun", "Tahoma", sans-serif;
+        font-family: "Angsana New", "TH Sarabun New", "Sarabun", "Tahoma", sans-serif;
         font-size: 16pt;
         line-height: 1.25;
         color: #000000;
@@ -408,36 +423,44 @@ full_html = f'''<!DOCTYPE html>
         margin: 0 auto;
         background: #ffffff;
         padding: 40px 50px;
+        font-family: "Angsana New", "TH Sarabun New", "Sarabun", "Tahoma", sans-serif;
     }}
     h1, h2, h3, h4, h5, h6 {{
         color: #000000;
-        font-family: inherit;
+        font-family: "Angsana New", "TH Sarabun New", "Sarabun", "Tahoma", sans-serif;
         font-weight: bold;
     }}
     h1 {{ font-size: 22pt; }}
     h2 {{ font-size: 18pt; }}
     h3 {{ font-size: 16pt; }}
-    h4 {{ font-size: 15pt; }}
+    h4 {{ font-size: 16pt; }}
     p, li, td, th {{
-        font-size: 15pt;
+        font-size: 16pt;
         color: #000000;
+        font-family: "Angsana New", "TH Sarabun New", "Sarabun", "Tahoma", sans-serif;
     }}
     table {{
         width: 100%;
         border-collapse: collapse;
         margin: 14px 0;
-        font-size: 14pt;
+        font-size: 15pt;
+        font-family: "Angsana New", "TH Sarabun New", "Sarabun", "Tahoma", sans-serif;
     }}
     th, td {{
         border: 1px solid #000000;
         padding: 6px 10px;
         vertical-align: top;
         color: #000000;
+        font-family: "Angsana New", "TH Sarabun New", "Sarabun", "Tahoma", sans-serif;
     }}
     th {{
         background-color: #ffffff;
         font-weight: bold;
         text-align: center;
+        font-size: 15.5pt;
+    }}
+    td {{
+        font-size: 15pt;
     }}
     pre, code {{
         font-family: "Courier New", Courier, monospace;
@@ -474,6 +497,7 @@ full_html = f'''<!DOCTYPE html>
         cursor: pointer;
         text-decoration: none;
         display: inline-block;
+        font-family: sans-serif;
     }}
     .btn:hover {{
         background: #333333;
@@ -526,10 +550,9 @@ print(f"Generated: {HTML_PATH}")
 # 4. SYNC TO BRAIN ARTIFACT DIRECTORY
 # -----------------------------------------------------------------------------
 if os.path.exists(ARTIFACT_DIR):
-    for f in [MD_PATH, DOCX_PATH, HTML_PATH]:
+    for f in [MD_PATH, DOCX_PATH, alt_docx, HTML_PATH]:
         dest = os.path.join(ARTIFACT_DIR, os.path.basename(f))
         shutil.copy2(f, dest)
         print(f"Synced to artifact: {dest}")
 
 print("\nALL TASKS COMPLETED SUCCESSFULLY!")
-
