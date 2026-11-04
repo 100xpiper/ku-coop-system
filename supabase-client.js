@@ -353,8 +353,8 @@ async function dbSignIn(email, password) {
                 'q3333': { role: 'advisor', name: 'อาจารย์ สมจิต มั่งมี', id: 'Q3333', advisor_id: 'Q3333', email: 'somjit.m@ku.th', password: 'Asd1234', password_hash: 'Asd1234', first_login: false, section: 'หมู่ 702, 802', responsible_sections: ['702', '802'], status: 'approved' },
 
                 // นิสิตหลักนำเสนอ
-                'wongsapat.u@ku.th': { role: 'student', name: 'นาย วงศพัทธ์ อุเทน', id: '6521655442', student_id: '6521655442', email: 'wongsapat.u@ku.th', password: 'password', password_hash: '123456', section: 'หมู่ 800 (ภาคพิเศษ)', company_name: 'สำนักงานพัฒนาวิทยาศาสตร์และเทคโนโลยีแห่งชาติ (สวทช)', company_lat: 14.076949, company_lng: 100.601563, advisor_name: 'อาจารย์ สมชาย แจ่มใส', semester: 'ภาคต้น 2569', status: 'approved' },
-                '6521655442': { role: 'student', name: 'นาย วงศพัทธ์ อุเทน', id: '6521655442', student_id: '6521655442', email: 'wongsapat.u@ku.th', password: 'password', password_hash: '123456', section: 'หมู่ 800 (ภาคพิเศษ)', company_name: 'สำนักงานพัฒนาวิทยาศาสตร์และเทคโนโลยีแห่งชาติ (สวทช)', company_lat: 14.076949, company_lng: 100.601563, advisor_name: 'อาจารย์ สมชาย แจ่มใส', semester: 'ภาคต้น 2569', status: 'approved' }
+                'wongsapat.u@ku.th': { role: 'student', name: 'นาย วงศพัทธ์ อุเทน', id: '6521655442', student_id: '6521655442', email: 'wongsapat.u@ku.th', password: 'password', password_hash: '123456', section: 'หมู่ 800 (ภาคพิเศษ)', company_name: 'สำนักงานพัฒนาวิทยาศาสตร์และเทคโนโลยีแห่งชาติ (สวทช)', advisor_name: 'อาจารย์ สมชาย แจ่มใส', semester: 'ภาคต้น 2569', status: 'approved' },
+                '6521655442': { role: 'student', name: 'นาย วงศพัทธ์ อุเทน', id: '6521655442', student_id: '6521655442', email: 'wongsapat.u@ku.th', password: 'password', password_hash: '123456', section: 'หมู่ 800 (ภาคพิเศษ)', company_name: 'สำนักงานพัฒนาวิทยาศาสตร์และเทคโนโลยีแห่งชาติ (สวทช)', advisor_name: 'อาจารย์ สมชาย แจ่มใส', semester: 'ภาคต้น 2569', status: 'approved' }
             };
             if (defaultAccounts[cleanId]) {
                 existingUser = { ...defaultAccounts[cleanId] };
