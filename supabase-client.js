@@ -52,7 +52,7 @@ async function dispatchWebConfirmationEmail(toEmail, toName) {
 /**
  * Dispatch First Login Invitation Email to Student
  */
-async function dispatchFirstLoginInviteEmail(studentEmail, studentName, studentId, advisorName) {
+async function dispatchFirstLoginInviteEmail(studentEmail, studentName, studentId, advisorName, initialPassword) {
     if (!studentEmail) return { success: false, error: 'No email provided' };
 
     const origin = (window.location.origin && window.location.origin !== 'null' && !window.location.origin.startsWith('file')) ? window.location.origin : 'http://localhost:8080';
@@ -109,9 +109,9 @@ async function dispatchFirstLoginInviteEmail(studentEmail, studentName, studentI
             `ท่านสามารถเข้าสู่ระบบเพื่อเข้าใช้งานครั้งแรกได้ที่:\n${loginUrl}\n\n` +
             `ข้อมูลการเข้าสู่ระบบครั้งแรก:\n` +
             `• ชื่อผู้ใช้งาน: ${studentEmail} หรือ ${studentId}\n` +
-            `• รหัสผ่านแรกเข้า: ${studentId}\n\n` +
+            `• รหัสผ่านแรกเข้า: ${initialPassword || studentId}\n\n` +
             `ขั้นตอนการเข้าสู่ระบบครั้งแรก:\n` +
-            `1. กรอกอีเมล (@ku.th) หรือรหัสนิสิต และรหัสผ่านแรกเข้า (รหัสนิสิต)\n` +
+            `1. กรอกอีเมล (@ku.th) หรือรหัสนิสิต และรหัสผ่านแรกเข้า (${initialPassword || studentId})\n` +
             `2. ระบบจะส่งรหัส OTP 8 หลักไปยังอีเมลเพื่อยืนยันตัวตน\n` +
             `3. ตั้งรหัสผ่านใหม่สำหรับการเข้าใช้งานประจำตัว\n\n` +
             `ขอแสดงความนับถือ\nระบบนิเทศสหกิจศึกษา ภาควิชาวิทยาการคอมพิวเตอร์ มหาวิทยาลัยเกษตรศาสตร์`;

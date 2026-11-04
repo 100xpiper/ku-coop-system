@@ -175,6 +175,8 @@ try {
                     $toName      = $body.name
                     $studentId   = $body.studentId
                     $advisorName = $body.advisorName
+                    $initialPassword = $body.initialPassword
+                    if (-not $initialPassword) { $initialPassword = $studentId }
                     $loginUrl    = $body.loginUrl
                     if (-not $loginUrl) { $loginUrl = "http://localhost:8080/index.html" }
 
@@ -215,7 +217,7 @@ try {
         </tr>
         <tr>
           <td style="padding:6px 0;font-weight:600;color:#15803d;">รหัสผ่านแรกเข้า:</td>
-          <td style="padding:6px 0;"><code style="background:#dcfce7;color:#166534;padding:2px 8px;border-radius:4px;font-weight:700;">$studentId</code></td>
+          <td style="padding:6px 0;"><code style="background:#dcfce7;color:#166534;padding:2px 8px;border-radius:4px;font-weight:700;">$initialPassword</code></td>
         </tr>
       </table>
     </div>
@@ -224,7 +226,7 @@ try {
       <strong>ขั้นตอนการเข้าสู่ระบบครั้งแรก:</strong>
       <ol style="margin:8px 0 0 0;padding-left:20px;line-height:1.7;">
         <li>กดปุ่มเข้าสู่ระบบด้านล่าง หรือเข้าผ่านลิงก์ของระบบ</li>
-        <li>กรอกอีเมล (@ku.th) หรือรหัสนิสิต และรหัสผ่านแรกเข้า (รหัสนิสิต)</li>
+        <li>กรอกอีเมล (@ku.th) หรือรหัสนิสิต และรหัสผ่านแรกเข้า ($initialPassword)</li>
         <li>ระบบจะส่งรหัส OTP 8 หลักไปยังอีเมลนี้ เพื่อยืนยันตัวตน</li>
         <li>ตั้งรหัสผ่านใหม่สำหรับการใช้งานประจำตัว</li>
       </ol>

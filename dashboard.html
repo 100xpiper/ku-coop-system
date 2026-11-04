@@ -2320,7 +2320,8 @@
                     status: u.status || 'รอนิเทศ',
                     photo: u.photo || '',
                     advisor_name: u.advisor_name || u.advisor || '-',
-                    semester: u.semester || 'ภาคต้น 2569'
+                    semester: u.semester || 'ภาคต้น 2569',
+                    initialPassword: u.initialPassword || u.password || u.initial_password || u.id
                 };
 
                 if (!studentsData[targetSec]) studentsData[targetSec] = [];
@@ -3983,7 +3984,7 @@
                 // Dispatch invite email
                 if (sendEmail && typeof dispatchFirstLoginInviteEmail === 'function') {
                     try {
-                        await dispatchFirstLoginInviteEmail(email, fullName, studentId, advisorName);
+                        await dispatchFirstLoginInviteEmail(email, fullName, studentId, advisorName, pass);
                     } catch (e) {
                         console.warn("Email dispatch error:", e);
                     }
@@ -4203,32 +4204,53 @@
             return saveAdvisorNewStudentConfirmed();
         }
 
-        async function sendFirstLoginInviteToStudent(stdId, stdName, stdEmail, btn) {
+        async function sendFirstLoginInviteToStudent(stdId, stdName, stdEmail, btn, initialPass) {
             if (!stdEmail || !stdEmail.includes('@')) {
-                alert(`นิสิต ${stdName} ยังไม่มีอีเมลเคยูในระบบ`);
+                alert(`นิสิต ${stdName} ยังไม่ระบุอีเมลในระบบ`);
                 return;
             }
+            let resolvedPass = (initialPass && String(initialPass).trim().length > 0) ? String(initialPass).trim() : '';
+            if (!resolvedPass) {
+                try {
+                    const rawCustom = localStorage.getItem('coop_custom_users') || localStorage.getItem('customUsers');
+                    if (rawCustom) {
+                        const parsed = JSON.parse(rawCustom);
+                        const user = Object.values(parsed).find(u => 
+                            (u.email && u.email.toLowerCase() === (stdEmail || '').toLowerCase()) ||
+                            (u.id && String(u.id) === String(stdId)) ||
+                            (u.student_id && String(u.student_id) === String(stdId))
+                        );
+                        if (user) {
+                            resolvedPass = user.initialPassword || user.password || user.initial_password;
+                        }
+                    }
+                } catch (e) {}
+            }
+            if (!resolvedPass) {
+                resolvedPass = stdId;
+            }
+
             const currentAdv = getCurrentAdvisorName();
-            const conf = confirm(`ต้องการส่งอีเมลแจ้งแรกเข้าใช้งาน (รหัสเริ่มต้น: ${stdId}) ไปที่ ${stdEmail} ใช่หรือไม่?`);
+            const conf = confirm(`ต้องการส่งอีเมลแจ้งแรกเข้าใช้งาน (รหัสเริ่มต้น: ${resolvedPass}) ไปที่ ${stdEmail} ใช่หรือไม่?`);
             if (!conf) return;
 
             let originalHtml = '';
             if (btn) {
                 originalHtml = btn.innerHTML;
                 btn.disabled = true;
-                btn.innerHTML = '<span>กำลังส่งอีเมล...</span>';
+                btn.innerHTML = '<span>กำลังส่ง...</span>';
             }
 
             try {
                 if (typeof dispatchFirstLoginInviteEmail === 'function') {
-                    const res = await dispatchFirstLoginInviteEmail(stdEmail, stdName, stdId, currentAdv);
+                    const res = await dispatchFirstLoginInviteEmail(stdEmail, stdName, stdId, currentAdv, resolvedPass);
                     if (res && res.success === false && res.error) {
                         alert(`ไม่สามารถส่งอีเมลได้: ${res.error}`);
                         return;
                     }
-                    alert(`ระบบได้ส่งอีเมลแจ้งแรกเข้าใช้งานถึง ${stdName} (${stdEmail}) เรียบร้อยแล้ว`);
+                    alert(`ส่งอีเมลแจ้งแรกเข้าใช้งานถึง ${stdName} (${stdEmail}) เรียบร้อยแล้ว\n(รหัสผ่านแรกเข้า: ${resolvedPass})`);
                 } else {
-                    alert(`ส่งอีเมลแจ้งแรกเข้าใช้งานถึง ${stdEmail} สำเร็จ`);
+                    alert(`ระบบจำลองการส่งอีเมลแจ้งแรกเข้าถึง ${stdEmail} สำเร็จ\n(รหัสผ่านแรกเข้า: ${resolvedPass})`);
                 }
             } finally {
                 if (btn) {
@@ -5637,7 +5659,7 @@
                             <button class="btn-primary btn-secondary" style="padding: 6px; font-size: 11px;" onclick="openPhotoModal('${std.id}', '${std.name}')">
                                 รูปหลักฐาน
                             </button>
-                            <button class="btn-primary" style="padding: 6px; font-size: 11px; font-weight: 600; grid-column: span 2; background-color: #4f46e5; border-color: #4f46e5; display: flex; align-items: center; justify-content: center; gap: 5px;" onclick="sendFirstLoginInviteToStudent('${std.id}', '${std.name}', '${std.email}', this)">
+                            <button class="btn-primary" style="padding: 6px; font-size: 11px; font-weight: 600; grid-column: span 2; background-color: #4f46e5; border-color: #4f46e5; display: flex; align-items: center; justify-content: center; gap: 5px;" onclick="sendFirstLoginInviteToStudent('${std.id}', '${std.name}', '${std.email}', this, '${std.initialPassword || std.password || std.id}')">
                                 <span>ส่งอีเมลแจ้งแรกเข้าใช้งาน</span>
                             </button>
                         </div>
