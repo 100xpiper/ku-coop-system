@@ -1,0 +1,600 @@
+8001:         let activeCameraStream = null;
+8002:         let cameraScanAnimId = null;
+8003:         let cameraScanInterval = null;
+8004:         const qrScanCanvas = document.createElement('canvas');
+8005:         const qrScanCtx = qrScanCanvas.getContext('2d', { willReadFrequently: true });
+8006: 
+8007:         async function startRealCameraScanner() {
+8008:             const video = document.getElementById('qr-camera-video');
+8009:             const placeholder = document.getElementById('qr-camera-placeholder');
+8010:             const laser = document.getElementById('scanner-laser-line');
+8011:             const statusBadge = document.getElementById('qr-camera-status-badge');
+8012:             const btnStart = document.getElementById('btn-start-camera');
+8013:             const btnStop = document.getElementById('btn-stop-camera');
+8014: 
+8015:             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+8016:                 alert('เบราว์เซอร์ของท่านไม่รองรับการเปิดกล้องโดยตรง หรือไม่ได้เปิดผ่านการเชื่อมต่อที่ปลอดภัย (HTTPS / localhost)');
+8017:                 return;
+8018:             }
+8019: 
+8020:             try {
+8021:                 const stream = await navigator.mediaDevices.getUserMedia({
+8022:                     video: {
+8023:                         facingMode: { ideal: "environment" },
+8024:                         width: { ideal: 1280 },
+8025:                         height: { ideal: 720 }
+8026:                     },
+8027:                     audio: false
+8028:                 });
+8029: 
+8030:                 activeCameraStream = stream;
+8031:                 if (video) {
+8032:                     video.srcObject = stream;
+8033:                     video.setAttribute('playsinline', 'true');
+8034:                     await video.play();
+8035:                     video.style.display = 'block';
+8036:                 }
+8037: 
+8038:                 if (placeholder) placeholder.style.display = 'none';
+8039:                 if (laser) laser.style.display = 'block';
+8040:                 if (btnStart) btnStart.style.display = 'none';
+8041:                 if (btnStop) btnStop.style.display = 'inline-flex';
+8042:                 if (statusBadge) {
+8043:                     statusBadge.textContent = 'กล้องกำลังสแกน QR Code (Active)';
+8044:                     statusBadge.style.backgroundColor = '#dcfce7';
+8045:                     statusBadge.style.color = '#15803d';
+8046:                 }
+8047: 
+8048:                 // Start continuous QR scanning loop
+8049:                 startQrScanningLoop();
+8050: 
+8051:             } catch (err) {
+8052:                 console.warn('Camera access issue:', err);
+8053:                 alert('ไม่สามารถเปิดกล้องได้: ' + (err.name === 'NotAllowedError' ? 'โปรดอนุญาตให้เบราว์เซอร์เข้าถึงกล้อง' : err.message) + '\n\nท่านสามารถใช้ปุ่ม "แนบรูปภาพ QR Code" หรือ "สแกนและเช็คอินพิกัด GPS ทันที" ได้ตามปกติ');
+8054:             }
+8055:         }
+8056: 
+8057:         function startQrScanningLoop() {
+8058:             const video = document.getElementById('qr-camera-video');
+8059:             if (!video) return;
+8060: 
+8061:             let lastScanTime = 0;
+8062: 
+8063:             function scanStep(timestamp) {
+8064:                 if (!activeCameraStream) return;
+8065: 
+8066:                 if (timestamp - lastScanTime > 120) {
+8067:                     lastScanTime = timestamp;
+8068: 
+8069:                     if (video.readyState >= 2 && video.videoWidth > 0 && video.videoHeight > 0) {
+8070:                         try {
+8071:                             // High precision decoding via jsQR
+8072:                             if (typeof jsQR !== 'undefined') {
+8073:                                 qrScanCanvas.width = video.videoWidth;
+8074:                                 qrScanCanvas.height = video.videoHeight;
+8075:                                 qrScanCtx.drawImage(video, 0, 0, qrScanCanvas.width, qrScanCanvas.height);
+8076:                                 const imageData = qrScanCtx.getImageData(0, 0, qrScanCanvas.width, qrScanCanvas.height);
+8077:                                 const code = jsQR(imageData.data, imageData.width, imageData.height, {
+8078:                                     inversionAttempts: "dontInvert"
+8079:                                 });
+8080:                                 if (code && code.data) {
+8081:                                     console.log("jsQR detected payload:", code.data);
+8082:                                     handleScannedQrPayload(code.data);
+8083:                                     return;
+8084:                                 }
+8085:                             }
+8086: 
+8087:                             // Native BarcodeDetector fallback
+8088:                             if ('BarcodeDetector' in window) {
+8089:                                 const bd = new BarcodeDetector({ formats: ['qr_code'] });
+8090:                                 bd.detect(video).then(barcodes => {
+8091:                                     if (barcodes && barcodes.length > 0 && barcodes[0].rawValue) {
+8092:                                         console.log("BarcodeDetector detected payload:", barcodes[0].rawValue);
+8093:                                         handleScannedQrPayload(barcodes[0].rawValue);
+8094:                                         return;
+8095:                                     }
+8096:                                 }).catch(() => {});
+8097:                             }
+8098:                         } catch (e) {}
+8099:                     }
+8100:                 }
+8101: 
+8102:                 cameraScanAnimId = requestAnimationFrame(scanStep);
+8103:             }
+8104: 
+8105:             cameraScanAnimId = requestAnimationFrame(scanStep);
+8106:         }
+8107: 
+8108:         function stopRealCameraScanner() {
+8109:             if (cameraScanAnimId) {
+8110:                 cancelAnimationFrame(cameraScanAnimId);
+8111:                 cameraScanAnimId = null;
+8112:             }
+8113:             if (cameraScanInterval) {
+8114:                 clearInterval(cameraScanInterval);
+8115:                 cameraScanInterval = null;
+8116:             }
+8117:             if (activeCameraStream) {
+8118:                 activeCameraStream.getTracks().forEach(track => track.stop());
+8119:                 activeCameraStream = null;
+8120:             }
+8121:             const video = document.getElementById('qr-camera-video');
+8122:             const placeholder = document.getElementById('qr-camera-placeholder');
+8123:             const laser = document.getElementById('scanner-laser-line');
+8124:             const statusBadge = document.getElementById('qr-camera-status-badge');
+8125:             const btnStart = document.getElementById('btn-start-camera');
+8126:             const btnStop = document.getElementById('btn-stop-camera');
+8127: 
+8128:             if (video) {
+8129:                 video.pause();
+8130:                 video.srcObject = null;
+8131:                 video.style.display = 'none';
+8132:             }
+8133:             if (placeholder) placeholder.style.display = 'flex';
+8134:             if (laser) laser.style.display = 'none';
+8135:             if (btnStart) btnStart.style.display = 'inline-flex';
+8136:             if (btnStop) btnStop.style.display = 'none';
+8137:             if (statusBadge) {
+8138:                 statusBadge.textContent = 'กล้องปิดอยู่ (Standby)';
+8139:                 statusBadge.style.backgroundColor = '#f1f5f9';
+8140:                 statusBadge.style.color = '#64748b';
+8141:             }
+8142:         }
+8143: 
+8144:         function handleQrImageUpload(event) {
+8145:             const file = event.target.files && event.target.files[0];
+8146:             if (!file) return;
+8147: 
+8148:             const reader = new FileReader();
+8149:             reader.onload = function(e) {
+8150:                 const img = new Image();
+8151:                 img.onload = function() {
+8152:                     try {
+8153:                         if (typeof jsQR !== 'undefined') {
+8154:                             qrScanCanvas.width = img.width;
+8155:                             qrScanCanvas.height = img.height;
+8156:                             qrScanCtx.drawImage(img, 0, 0);
+8157:                             const imageData = qrScanCtx.getImageData(0, 0, qrScanCanvas.width, qrScanCanvas.height);
+8158:                             const code = jsQR(imageData.data, imageData.width, imageData.height);
+8159:                             if (code && code.data) {
+8160:                                 handleScannedQrPayload(code.data);
+8161:                                 return;
+8162:                             }
+8163:                         }
+8164:                     } catch (err) {}
+8165: 
+8166:                     if ('BarcodeDetector' in window) {
+8167:                         createImageBitmap(img).then(bmp => {
+8168:                             const bd = new BarcodeDetector({ formats: ['qr_code'] });
+8169:                             bd.detect(bmp).then(barcodes => {
+8170:                                 if (barcodes && barcodes.length > 0 && barcodes[0].rawValue) {
+8171:                                     handleScannedQrPayload(barcodes[0].rawValue);
+8172:                                 } else {
+8173:                                     processCheckinAndEval();
+8174:                                 }
+8175:                             }).catch(() => processCheckinAndEval());
+8176:                         }).catch(() => processCheckinAndEval());
+8177:                     } else {
+8178:                         processCheckinAndEval();
+8179:                     }
+8180:                 };
+8181:                 img.src = e.target.result;
+8182:             };
+8183:             reader.readAsDataURL(file);
+8184:             event.target.value = '';
+8185:         }
+8186: 
+8187:         function handleScannedQrPayload(payload) {
+8188:             stopRealCameraScanner();
+8189:             if (!payload) {
+8190:                 processCheckinAndEval();
+8191:                 return;
+8192:             }
+8193: 
+8194:             const payloadStr = String(payload).trim();
+8195:             const studentSelect = document.getElementById('qr-scan-student-select');
+8196:             let matchedId = null;
+8197: 
+8198:             if (studentSelect) {
+8199:                 // 1. Direct contains check
+8200:                 for (let opt of studentSelect.options) {
+8201:                     if (opt.value && payloadStr.includes(opt.value)) {
+8202:                         matchedId = opt.value;
+8203:                         studentSelect.value = opt.value;
+8204:                         break;
+8205:                     }
+8206:                 }
+8207: 
+8208:                 // 2. 10-digit ID pattern
+8209:                 if (!matchedId) {
+8210:                     const idMatch = payloadStr.match(/\b\d{10}\b/);
+8211:                     if (idMatch) {
+8212:                         for (let opt of studentSelect.options) {
+8213:                             if (opt.value === idMatch[0]) {
+8214:                                 matchedId = opt.value;
+8215:                                 studentSelect.value = opt.value;
+8216:                                 break;
+8217:                             }
+8218:                         }
+8219:                     }
+8220:                 }
+8221: 
+8222:                 // 3. Name pattern
+8223:                 if (!matchedId) {
+8224:                     for (let opt of studentSelect.options) {
+8225:                         const namePart = opt.text.split(' - ')[1] || '';
+8226:                         if (namePart && payloadStr.includes(namePart.trim())) {
+8227:                             matchedId = opt.value;
+8228:                             studentSelect.value = opt.value;
+8229:                             break;
+8230:                         }
+8231:                     }
+8232:                 }
+8233:             }
+8234: 
+8235:             // Beep sound confirmation
+8236:             try {
+8237:                 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+8238:                 const osc = audioCtx.createOscillator();
+8239:                 const gain = audioCtx.createGain();
+8240:                 osc.connect(gain);
+8241:                 gain.connect(audioCtx.destination);
+8242:                 osc.frequency.value = 880;
+8243:                 gain.gain.value = 0.15;
+8244:                 osc.start();
+8245:                 setTimeout(() => {
+8246:                     osc.stop();
+8247:                     audioCtx.close();
+8248:                 }, 150);
+8249:             } catch (e) {}
+8250: 
+8251:             processCheckinAndEval(matchedId);
+8252:         }
+8253:         
+8254:         // Haversine Distance Calculation Formula (Returns distance in meters)
+8255:         function calculateHaversineDistance(lat1, lon1, lat2, lon2) {
+8256:             const R = 6371e3; // Earth radius in meters
+8257:             const phi1 = (lat1 * Math.PI) / 180;
+8258:             const phi2 = (lat2 * Math.PI) / 180;
+8259:             const deltaPhi = ((lat2 - lat1) * Math.PI) / 180;
+8260:             const deltaLambda = ((lon2 - lon1) * Math.PI) / 180;
+8261: 
+8262:             const a = Math.sin(deltaPhi / 2) * Math.sin(deltaPhi / 2) +
+8263:                       Math.cos(phi1) * Math.cos(phi2) *
+8264:                       Math.sin(deltaLambda / 2) * Math.sin(deltaLambda / 2);
+8265:             const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+8266: 
+8267:             return Math.round(R * c); // Distance in meters
+8268:         }
+8269: 
+8270:         function processCheckinAndEval(explicitStudentId) {
+8271:             const studentSelect = document.getElementById('qr-scan-student-select');
+8272:             let studentId = explicitStudentId || (studentSelect ? studentSelect.value : '');
+8273: 
+8274:             if (!studentId && studentSelect && studentSelect.options.length > 0) {
+8275:                 for (let opt of studentSelect.options) {
+8276:                     if (opt.value) { studentId = opt.value; break; }
+8277:                 }
+8278:             }
+8279: 
+8280:             if (!studentId) {
+8281:                 alert('กรุณาเลือกรหัสนิสิตที่ต้องการเช็คอิน');
+8282:                 return;
+8283:             }
+8284: 
+8285:             if (studentSelect) studentSelect.value = studentId;
+8286:             currentSelectedStudentId = studentId;
+8287: 
+8288:             let stdName = 'นิสิต';
+8289:             let stdCompany = 'สถานประกอบการ';
+8290:             const allStds = getAllSystemStudents();
+8291:             const stdObj = allStds.find(s => String(s.id) === String(studentId));
+8292:             if (stdObj) {
+8293:                 stdName = stdObj.name;
+8294:                 stdCompany = stdObj.company && stdObj.company !== '-' ? stdObj.company : 'สถานประกอบการ (พิกัด GPS)';
+8295:             }
+8296: 
+8297:             // 1. Retrieve Target Workplace Coordinates set by Student or Admin
+8298:             let targetLat = null;
+8299:             let targetLng = null;
+8300: 
+8301:             try {
+8302:                 const customUsers = JSON.parse(localStorage.getItem('customUsers') || '{}');
+8303:                 const u = Object.values(customUsers).find(user => 
+8304:                     String(user.student_id || user.id) === String(studentId) || 
+8305:                     (user.email && stdObj && String(user.email).toLowerCase() === String(stdObj.email).toLowerCase())
+8306:                 );
+8307:                 if (u && u.company_lat && u.company_lng) {
+8308:                     targetLat = parseFloat(u.company_lat);
+8309:                     targetLng = parseFloat(u.company_lng);
+8310:                 }
+8311:             } catch (e) {}
+8312: 
+8313:             if ((!targetLat || !targetLng) && stdObj && stdObj.company_lat && stdObj.company_lng) {
+8314:                 targetLat = parseFloat(stdObj.company_lat);
+8315:                 targetLng = parseFloat(stdObj.company_lng);
+8316:             }
+8317: 
+8318:             // Default fallback workplace coordinate if student hasn't set one yet
+8319:             // (e.g. 13.884500, 100.578600 for CAT Telecom / Laksi)
+8320:             if (!targetLat || !targetLng) {
+8321:                 targetLat = 13.884500;
+8322:                 targetLng = 100.578600;
+8323:             }
+8324: 
+8325:             const now = new Date();
+8326:             const dateStr = now.toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' });
+8327:             const timeStr = now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' น.';
+8328:             const fullTimeStr = `${dateStr} เวลา ${timeStr}`;
+8329: 
+8330:             const checkinBtnText = document.getElementById('btn-process-checkin-text');
+8331:             if (checkinBtnText) checkinBtnText.textContent = "กำลังคำนวณระยะห่างจากพิกัดสถานประกอบการ...";
+8332: 
+8333:             const restoreBtnText = () => {
+8334:                 if (checkinBtnText) checkinBtnText.textContent = "สแกนและเช็คอินพิกัด GPS ทันที";
+8335:             };
+8336: 
+8337:             // Main Verification Function (500 Meters Geo-Fence Rule)
+8338:             const evaluateDistanceAndDisplay = (advLat, advLng, accuracyMeters) => {
+8339:                 const MAX_ALLOWED_RADIUS = 500; // 500 meters rule strictly enforced!
+8340:                 const distanceMeters = calculateHaversineDistance(advLat, advLng, targetLat, targetLng);
+8341:                 const isWithinRadius = (distanceMeters <= MAX_ALLOWED_RADIUS);
+8342: 
+8343:                 const card = document.getElementById('qr-checkin-result-card');
+8344:                 const dot = document.getElementById('qr-result-dot');
+8345:                 const titleEl = document.getElementById('qr-result-title');
+8346:                 const badgeEl = document.getElementById('qr-result-status-badge');
+8347:                 const infoEl = document.getElementById('qr-result-student-info');
+8348:                 const locEl = document.getElementById('qr-result-location');
+8349:                 const gpsEl = document.getElementById('qr-result-gps');
+8350:                 const targetGpsEl = document.getElementById('qr-result-target-gps');
+8351:                 const distEl = document.getElementById('qr-result-distance');
+8352:                 const timeEl = document.getElementById('qr-result-time');
+8353:                 const warningBox = document.getElementById('qr-result-warning-box');
+8354:                 const evalBtn = document.getElementById('btn-open-eval-modal');
+8355:                 const disabledNotice = document.getElementById('btn-eval-disabled-notice');
+8356:                 const mapLink = document.getElementById('qr-result-map-link');
+8357: 
+8358:                 if (infoEl) infoEl.textContent = `${stdName} (รหัสนิสิต: ${studentId})`;
+8359:                 if (locEl) locEl.textContent = stdCompany;
+8360:                 if (gpsEl) gpsEl.textContent = `Lat ${advLat}, Lng ${advLng} (±${accuracyMeters || 5} ม.)`;
+8361:                 if (targetGpsEl) targetGpsEl.textContent = `Lat ${targetLat.toFixed(6)}, Lng ${targetLng.toFixed(6)}`;
+8362:                 if (timeEl) timeEl.textContent = fullTimeStr;
+8363: 
+8364:                 if (mapLink) {
+8365:                     mapLink.href = `https://www.google.com/maps/dir/?api=1&origin=${advLat},${advLng}&destination=${targetLat},${targetLng}`;
+8366:                     mapLink.title = `เปิดดูเส้นทางและระยะห่างบน Google Maps`;
+8367:                 }
+8368: 
+8369:                 if (isWithinRadius) {
+8370:                     // ==============================================================
+8371:                     // CASE 1: SUCCESS (Distance <= 500 Meters)
+8372:                     // ==============================================================
+8373:                     if (card) {
+8374:                         card.style.display = 'block';
+8375:                         card.style.backgroundColor = '#f0fdf4';
+8376:                         card.style.borderColor = '#22c55e';
+8377:                     }
+8378:                     if (dot) {
+8379:                         dot.style.backgroundColor = '#22c55e';
+8380:                         dot.style.boxShadow = '0 0 8px #22c55e';
+8381:                     }
+8382:                     if (titleEl) {
+8383:                         titleEl.textContent = 'เช็คอินยืนยันพิกัด GPS สำเร็จ!';
+8384:                         titleEl.style.color = '#15803d';
+8385:                     }
+8386:                     if (badgeEl) {
+8387:                         badgeEl.textContent = 'อยู่ในรัศมี (ผ่านเกณฑ์)';
+8388:                         badgeEl.style.backgroundColor = '#dcfce7';
+8389:                         badgeEl.style.color = '#15803d';
+8390:                     }
+8391:                     if (distEl) {
+8392:                         distEl.textContent = `${distanceMeters.toLocaleString()} เมตร (อยู่ในรัศมีไม่เกิน 500 เมตร)`;
+8393:                         distEl.style.color = '#15803d';
+8394:                     }
+8395:                     if (warningBox) warningBox.style.display = 'none';
+8396:                     if (evalBtn) evalBtn.style.display = 'flex';
+8397:                     if (disabledNotice) disabledNotice.style.display = 'none';
+8398: 
+8399:                     // Update student status to 'นิเทศแล้ว'
+8400:                     if (stdObj) stdObj.status = 'นิเทศแล้ว';
+8401:                     try {
+8402:                         const customUsers = JSON.parse(localStorage.getItem('customUsers') || '{}');
+8403:                         Object.values(customUsers).forEach(u => {
+8404:                             if (String(u.id || u.student_id) === String(studentId)) {
+8405:                                 u.status = 'นิเทศแล้ว';
+8406:                             }
+8407:                         });
+8408:                         localStorage.setItem('customUsers', JSON.stringify(customUsers));
+8409:                     } catch (e) {}
+8410: 
+8411:                     // Audio success chime
+8412:                     try {
+8413:                         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+8414:                         const osc = audioCtx.createOscillator();
+8415:                         const gain = audioCtx.createGain();
+8416:                         osc.connect(gain); gain.connect(audioCtx.destination);
+8417:                         osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); // D5
+8418:                         osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.1); // A5
+8419:                         gain.gain.value = 0.2;
+8420:                         osc.start();
+8421:                         osc.stop(audioCtx.currentTime + 0.25);
+8422:                     } catch (e) {}
+8423: 
+8424:                     addNotification(`เช็คอินสำเร็จ: ${stdName} ณ ${stdCompany} (ระยะห่าง ${distanceMeters} ม.)`);
+8425:                     updateAdvisorStats();
+8426:                     renderStudentList();
+8427: 
+8428:                 } else {
+8429:                     // ==============================================================
+8430:                     // CASE 2: FAILED (Distance > 500 Meters) - DO NOT APPROVE
+8431:                     // ==============================================================
+8432:                     if (card) {
+8433:                         card.style.display = 'block';
+8434:                         card.style.backgroundColor = '#fef2f2';
+8435:                         card.style.borderColor = '#ef4444';
+8436:                     }
+8437:                     if (dot) {
+8438:                         dot.style.backgroundColor = '#ef4444';
+8439:                         dot.style.boxShadow = '0 0 8px #ef4444';
+8440:                     }
+8441:                     if (titleEl) {
+8442:                         titleEl.textContent = 'เช็คอินไม่สำเร็จ: อยู่นอกรัศมีสถานประกอบการ!';
+8443:                         titleEl.style.color = '#dc2626';
+8444:                     }
+8445:                     if (badgeEl) {
+8446:                         badgeEl.textContent = 'เกินระยะ 500 เมตร (ไม่ผ่านเกณฑ์)';
+8447:                         badgeEl.style.backgroundColor = '#fee2e2';
+8448:                         badgeEl.style.color = '#b91c1c';
+8449:                     }
+8450:                     if (distEl) {
+8451:                         distEl.textContent = `${distanceMeters.toLocaleString()} เมตร (ห่างเกินเกณฑ์กำหนด 500 เมตร)`;
+8452:                         distEl.style.color = '#dc2626';
+8453:                     }
+8454:                     if (warningBox) warningBox.style.display = 'block';
+8455:                     if (evalBtn) evalBtn.style.display = 'none'; // DO NOT allow evaluation!
+8456:                     if (disabledNotice) disabledNotice.style.display = 'block';
+8457: 
+8458:                     // DO NOT change student status! Keep as 'รอนิเทศ'
+8459:                     // Audio warning buzzer
+8460:                     try {
+8461:                         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+8462:                         const osc = audioCtx.createOscillator();
+8463:                         const gain = audioCtx.createGain();
+8464:                         osc.connect(gain); gain.connect(audioCtx.destination);
+8465:                         osc.type = 'sawtooth';
+8466:                         osc.frequency.value = 160; // Low warning tone
+8467:                         gain.gain.value = 0.25;
+8468:                         osc.start();
+8469:                         osc.stop(audioCtx.currentTime + 0.35);
+8470:                     } catch (e) {}
+8471: 
+8472:                     addNotification(`เช็คอินไม่สำเร็จ: ${stdName} อยู่นอกรัศมี 500 เมตร (ระยะห่าง ${distanceMeters.toLocaleString()} ม.)`);
+8473:                 }
+8474: 
+8475:                 if (card) {
+8476:                     card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+8477:                 }
+8478:                 restoreBtnText();
+8479:             };
+8480: 
+8481:             // Retrieve Live Advisor GPS Coordinates
+8482:             const highAccuracyOptions = {
+8483:                 enableHighAccuracy: true,
+8484:                 timeout: 10000,
+8485:                 maximumAge: 0
+8486:             };
+8487: 
+8488:             if (navigator.geolocation) {
+8489:                 navigator.geolocation.getCurrentPosition(
+8490:                     (pos) => {
+8491:                         const advLat = pos.coords.latitude;
+8492:                         const advLng = pos.coords.longitude;
+8493:                         const acc = pos.coords.accuracy ? pos.coords.accuracy.toFixed(1) : '5.0';
+8494:                         evaluateDistanceAndDisplay(advLat, advLng, acc);
+8495:                     },
+8496:                     (err) => {
+8497:                         console.warn("High-accuracy GPS error, trying fallback:", err.message);
+8498:                         navigator.geolocation.getCurrentPosition(
+8499:                             (pos2) => {
+8500:                                 evaluateDistanceAndDisplay(pos2.coords.latitude, pos2.coords.longitude, pos2.coords.accuracy ? pos2.coords.accuracy.toFixed(1) : '20.0');
+8501:                             },
+8502:                             (err2) => {
+8503:                                 console.warn("Fallback GPS failed:", err2.message);
+8504:                                 // Fallback mock advisor position at Faculty of Science KU
+8505:                                 const fallbackAdvLat = 13.847621;
+8506:                                 const fallbackAdvLng = 100.569432;
+8507:                                 evaluateDistanceAndDisplay(fallbackAdvLat, fallbackAdvLng, '15.0');
+8508:                             },
+8509:                             { enableHighAccuracy: false, timeout: 5000, maximumAge: 30000 }
+8510:                         );
+8511:                     },
+8512:                     highAccuracyOptions
+8513:                 );
+8514:             } else {
+8515:                 const fallbackAdvLat = 13.847621;
+8516:                 const fallbackAdvLng = 100.569432;
+8517:                 evaluateDistanceAndDisplay(fallbackAdvLat, fallbackAdvLng, '20.0');
+8518:             }
+8519:         }
+8520:         
+8521:         function openEvalModalFromResult() {
+8522:             if (!currentSelectedStudentId) return;
+8523:             let stdName = 'นิสิต';
+8524:             const allStds = getAllSystemStudents();
+8525:             const stdObj = allStds.find(s => String(s.id) === String(currentSelectedStudentId));
+8526:             if (stdObj) stdName = stdObj.name;
+8527: 
+8528:             document.getElementById('eval-student-name').textContent = `${stdName} (${currentSelectedStudentId})`;
+8529:             document.getElementById('modal-eval-form').style.display = 'flex';
+8530:         }
+8531: 
+8532:         async function saveEvaluationForm() {
+8533:             const s1 = parseInt(document.getElementById('eval-score-1').value) || 0;
+8534:             const s2 = parseInt(document.getElementById('eval-score-2').value) || 0;
+8535:             const s3 = parseInt(document.getElementById('eval-score-3').value) || 0;
+8536:             const total = s1 + s2 + s3;
+8537:             const feedback = document.getElementById('eval-feedback').value;
+8538: 
+8539:             const allStds = getAllSystemStudents();
+8540:             const std = allStds.find(s => String(s.id) === String(currentSelectedStudentId));
+8541:             if (std) {
+8542:                 std.status = 'นิเทศแล้ว';
+8543:                 std.score = total;
+8544:                 renderStudentList();
+8545:             }
+8546: 
+8547:             // Update in customUsers as well
+8548:             const customUsers = JSON.parse(localStorage.getItem('customUsers') || '{}');
+8549:             Object.values(customUsers).forEach(u => {
+8550:                 if (String(u.id || u.student_id) === String(currentSelectedStudentId)) {
+8551:                     u.status = 'นิเทศแล้ว';
+8552:                     u.score = total;
+8553:                     u.feedback = feedback;
+8554:                 }
+8555:             });
+8556:             localStorage.setItem('customUsers', JSON.stringify(customUsers));
+8557: 
+8558:             // Save Evaluation to Supabase DB
+8559:             await dbSaveEvaluation(currentSelectedStudentId, total, feedback);
+8560: 
+8561:             const scoreEl = document.getElementById('std-score-val');
+8562:             if (scoreEl) scoreEl.textContent = `${total} / 100`;
+8563:             const feedEl = document.getElementById('std-feedback-val');
+8564:             if (feedEl) feedEl.textContent = feedback;
+8565: 
+8566:             addNotification(`การประเมินนิเทศงานเสร็จสิ้น คะแนนรวม: ${total}/100`);
+8567:             alert(`บันทึกผลการประเมินดิจิทัลลง Database (Supabase) เรียบร้อย คะแนนรวม ${total}/100`);
+8568:             closeModal('modal-eval-form');
+8569:             updateAdvisorStats();
+8570:         }
+8571: 
+8572:         function getSystemAppointments() {
+8573:             try {
+8574:                 const stored = localStorage.getItem('systemAppointments');
+8575:                 return stored ? JSON.parse(stored) : [];
+8576:             } catch (e) {
+8577:                 return [];
+8578:             }
+8579:         }
+8580: 
+8581:         function saveSystemAppointments(apps) {
+8582:             localStorage.setItem('systemAppointments', JSON.stringify(apps));
+8583:         }
+8584: 
+8585:         const THAI_MONTHS = [
+8586:             'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน',
+8587:             'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม',
+8588:             'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
+8589:         ];
+8590: 
+8591:         let currentCalYear = new Date().getFullYear(); // e.g. 2026
+8592:         let currentCalMonth = new Date().getMonth();   // 0-11
+8593:         let selectedCalDateStr = '';
+8594: 
+8595:         function initCalendarControls() {
+8596:             const yearSelect = document.getElementById('cal-year-select');
+8597:             if (yearSelect && yearSelect.options.length === 0) {
+8598:                 const startYear = 2024;
+8599:                 const endYear = 2032;
+8600:                 for (let y = startYear; y <= endYear; y++) {

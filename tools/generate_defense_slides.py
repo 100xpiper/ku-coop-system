@@ -1028,3 +1028,4 @@ if os.path.exists(ARTIFACT_DIR):
     import shutil
     shutil.copy2(PPTX_OUTPUT, os.path.join(ARTIFACT_DIR, os.path.basename(PPTX_OUTPUT)))
     print("Synced to brain artifact directory")
+
