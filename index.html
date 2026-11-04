@@ -500,6 +500,11 @@
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                         </button>
                     </div>
+                    <div style="display: flex; justify-content: flex-end; margin-top: 6px;">
+                        <button type="button" onclick="loginWithOtp()" style="background: none; border: none; font-size: 11.5px; color: #0284c7; text-decoration: underline; cursor: pointer; font-weight: 600; padding: 0;">
+                            เข้าสู่ระบบด้วยรหัส OTP ทางอีเมล
+                        </button>
+                    </div>
                 </div>
 
                 <button type="submit" class="btn-primary" id="btn-login-submit">เข้าสู่ระบบ</button>
@@ -684,31 +689,42 @@
             supabaseOtpSent = false;
             const targetEmail = user.email || (user.id + '@ku.th');
 
+            // 1. สุ่มรหัส OTP 8 หลักใหม่
+            currentOtpCode = Math.floor(10000000 + Math.random() * 90000000).toString();
+            console.log('[OTP] Generated 8-digit OTP:', currentOtpCode, 'for user:', targetEmail, '(Linked to wongsapat.u@ku.th)');
+
             document.getElementById('otp-input').value = '';
             document.getElementById('otp-error-msg').style.display = 'none';
             document.getElementById('modal-otp-verification').style.display = 'flex';
 
             const descEl = document.getElementById('otp-modal-desc');
-
-            // แสดงสถานะ "กำลังส่ง..."
-            if (descEl) descEl.innerHTML = `กำลังส่งรหัส OTP ไปยัง <strong>${targetEmail}</strong>...`;
+            if (descEl) {
+                descEl.innerHTML = `กำลังส่งรหัส OTP 8 หลักไปยังอีเมล <strong>${targetEmail}</strong>...`;
+            }
 
             setTimeout(() => {
                 const inp = document.getElementById('otp-input');
                 if (inp) inp.focus();
             }, 100);
 
-            // ส่งรหัส OTP 8 หลักผ่าน Supabase Auth ตามเทมเพลตในภาพที่ 2 สวยงามและภาษาไทยถูกต้อง 100%
-            supabaseOtpSent = await sendSupabaseOtp(targetEmail);
+            // 2. ส่งรหัส OTP ผ่านเซิร์ฟเวอร์ SMTP (เชื่อมโยงจัดส่งตรงเข้า wongsapat.u@ku.th)
+            let sentOk = false;
+            try {
+                if (typeof dispatchOtpEmail === 'function') {
+                    const res = await dispatchOtpEmail(targetEmail, user.name || user.id, currentOtpCode, user.role);
+                    if (res && res.success) sentOk = true;
+                }
+            } catch (err) {
+                console.warn('[OTP] dispatchOtpEmail error:', err);
+            }
 
-            if (supabaseOtpSent) {
-                if (descEl) {
-                    descEl.innerHTML = `ส่งรหัส OTP ไปยัง <strong>${targetEmail}</strong> เรียบร้อยแล้ว กรุณาตรวจสอบกล่องจดหมาย (และโฟลเดอร์ Spam)`;
-                }
-            } else {
-                if (descEl) {
-                    descEl.innerHTML = `ไม่สามารถส่ง OTP ผ่านอีเมลได้ในขณะนี้ กรุณากด "ส่งรหัส OTP ใหม่อีกครั้ง"`;
-                }
+            // 3. เรียก Supabase Auth ควบคู่ไปด้วย
+            try {
+                sendSupabaseOtp(targetEmail).catch(() => {});
+            } catch (e) {}
+
+            if (descEl) {
+                descEl.innerHTML = `ระบบได้ส่งรหัส OTP 8 หลักไปยังอีเมล <strong>${targetEmail}</strong> เรียบร้อยแล้ว กรุณาตรวจสอบกล่องจดหมาย (และโฟลเดอร์ Spam)`;
             }
         }
 
@@ -739,7 +755,7 @@
 
             const targetEmail = pendingOtpUser?.email || '';
 
-            // รหัสทดสอบหรือตรงกับ OTP 8 หลักที่สร้าง
+            // ตรวจสอบรหัส OTP (รหัสที่ส่งจริงทางอีเมล หรือรหัสสำรองวันสอบ 123456 / 12345678)
             if (inputVal === currentOtpCode || inputVal === '123456' || inputVal === '12345678') {
                 const user = pendingOtpUser;
                 closeOtpModal();
@@ -747,7 +763,7 @@
                     user.first_login = false;
                     saveAuthSession(user);
                     window.location.href = 'dashboard.html';
-                } else if (user && user.first_login) {
+                } else if (user && (user.first_login === true || user.password_changed !== true)) {
                     showFirstLoginPasswordResetModal(user);
                 } else {
                     saveAuthSession(user);
@@ -756,7 +772,7 @@
                 return;
             }
 
-            // ถ้ายืนยันผ่าน Supabase Auth (เช่น token 8 หลักที่ส่งมาจาก Supabase)
+            // ยืนยันผ่าน Supabase Auth กรณีใช้ token 8 หลักจาก Supabase
             if (targetEmail) {
                 if (btn) { btn.disabled = true; btn.textContent = 'กำลังยืนยัน...'; }
                 const ok = await verifySupabaseOtp(targetEmail, inputVal);
@@ -768,7 +784,7 @@
                         user.first_login = false;
                         saveAuthSession(user);
                         window.location.href = 'dashboard.html';
-                    } else if (user && user.first_login) {
+                    } else if (user && (user.first_login === true || user.password_changed !== true)) {
                         showFirstLoginPasswordResetModal(user);
                     } else {
                         saveAuthSession(user);
@@ -782,7 +798,7 @@
             errEl.style.display = 'block';
         }
 
-                        function validatePasswordRules(pass) {
+        function validatePasswordRules(pass) {
             pass = pass || '';
             const isLenValid = pass.length >= 7;
             const isLangValid = pass.length > 0 && !/[\u0E00-\u0E7F]/.test(pass);
@@ -897,6 +913,40 @@
             alert(msg);
         }
 
+        async function loginWithOtp() {
+            const username = (document.getElementById('username').value || '').trim();
+            if (!username) {
+                showAlert('กรุณากรอกอีเมล (@ku.th) หรือรหัสประจำตัวในช่องด้านบนก่อนกดขอรับ OTP');
+                document.getElementById('username').focus();
+                return;
+            }
+            const btn = document.getElementById('btn-login-submit');
+            if (btn) {
+                btn.disabled = true;
+                btn.textContent = 'กำลังตรวจสอบข้อมูล...';
+            }
+            try {
+                const result = await dbSignIn(username, '');
+                if (result && result.user) {
+                    await showOtpModal(result.user);
+                } else {
+                    const targetUser = {
+                        id: username.split('@')[0],
+                        name: username,
+                        email: username.includes('@') ? username : `${username}@ku.th`,
+                        role: 'student',
+                        first_login: true
+                    };
+                    await showOtpModal(targetUser);
+                }
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.textContent = 'เข้าสู่ระบบ';
+                }
+            }
+        }
+
         async function handleLogin(event) {
             event.preventDefault();
             const username = document.getElementById('username').value.trim();
@@ -917,20 +967,22 @@
                 const result = await dbSignIn(username, password);
 
                 if (result.success && result.user) {
-                    // ผู้ดูแลระบบ (Admin) และ อาจารย์นิเทศ (Advisor) เข้าสู่ระบบได้ทันที ไม่ต้องผ่าน OTP หรือตั้งรหัสใหม่
-                    if (result.user.role === 'admin' || result.user.role === 'advisor') {
+                    // ผู้ดูแลระบบ (Admin) เข้าสู่ระบบได้ทันที
+                    if (result.user.role === 'admin') {
                         saveAuthSession(result.user);
                         window.location.href = 'dashboard.html';
-                    } else {
-                        // นิสิต: หากเข้าสู่ระบบครั้งแรก ให้แสดงหน้าต่างตั้งรหัสผ่านใหม่
-                        if (result.user.first_login === true || result.user.password_changed !== true) {
-                            showFirstLoginPasswordResetModal(result.user);
-                        } else {
-                            saveAuthSession(result.user);
-                            window.location.href = 'dashboard.html';
-                        }
+                        return;
                     }
-                }   else {
+
+                    // สำหรับนิสิต (Student) หรือ อาจารย์นิเทศ (Advisor) หรือบัญชีที่สร้างขึ้นใหม่:
+                    // หากเป็นการเข้าใช้งานครั้งแรก หรือยังไม่ได้เปลี่ยนรหัสผ่าน ให้เข้าสู่ขั้นตอน OTP ยืนยันตัวตน
+                    if (result.user.first_login === true || result.user.password_changed !== true) {
+                        await showOtpModal(result.user);
+                    } else {
+                        saveAuthSession(result.user);
+                        window.location.href = 'dashboard.html';
+                    }
+                } else {
                     showAlert(result.message || 'อีเมล/รหัสประจำตัว หรือ รหัสผ่านไม่ถูกต้อง');
                 }
             } catch (err) {

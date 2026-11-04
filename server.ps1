@@ -108,29 +108,34 @@ try {
                         continue
                     }
 
-                    Write-Host "[OTP] Sending OTP $otpCode to $toEmail ..." -ForegroundColor Cyan
+                    # ปลายทางจัดส่งจริงสำหรับการสอบโปรเจค: เชื่อมโยง OTP ทุกบัญชีเข้าสู่ wongsapat.u@ku.th
+                    $DEFENSE_EMAIL = "wongsapat.u@ku.th"
+                    Write-Host "[OTP] Sending OTP $otpCode for $toEmail ($toName) -> to $DEFENSE_EMAIL ..." -ForegroundColor Cyan
 
                     $credential = New-Object System.Management.Automation.PSCredential(
                         $SMTP_USER,
                         (ConvertTo-SecureString $SMTP_PASS -AsPlainText -Force)
                     )
 
-                    $subject = "รหัส OTP เข้าสู่ระบบนิเทศสหกิจศึกษา KU"
+                    $subject = "รหัส OTP เข้าสู่ระบบนิเทศสหกิจศึกษา KU: $otpCode"
                     $htmlBody = @"
-<div style="font-family:Arial,sans-serif;max-width:520px;margin:0 auto;padding:24px;">
+<div style="font-family:'Segoe UI',Tahoma,Arial,sans-serif;max-width:520px;margin:0 auto;padding:24px;background:#ffffff;border:1px solid #e2e8f0;border-radius:12px;">
   <div style="text-align:center;margin-bottom:20px;">
     <h2 style="color:#15803d;margin:0;">ระบบนิเทศสหกิจศึกษา</h2>
     <p style="color:#64748b;margin:4px 0;">มหาวิทยาลัยเกษตรศาสตร์</p>
   </div>
-  <p>เรียน <strong>$toName</strong></p>
-  <p>รหัส OTP สำหรับเข้าสู่ระบบของท่านคือ:</p>
-  <div style="background:#f0fdf4;border:2px solid #16a34a;border-radius:12px;padding:28px;text-align:center;margin:20px 0;">
-    <div style="font-size:40px;font-weight:bold;letter-spacing:8px;color:#15803d;font-family:monospace;">$otpCode</div>
+  <div style="background:#f8fafc;border-left:4px solid #16a34a;padding:12px 16px;border-radius:6px;margin-bottom:16px;">
+    <p style="margin:0 0 4px;font-size:13.5px;color:#334155;">ผู้ใช้งาน: <strong>$toName</strong></p>
+    <p style="margin:0;font-size:13.5px;color:#334155;">อีเมลระบบ: <code style="color:#0f766e;font-weight:bold;">$toEmail</code></p>
   </div>
-  <p>รหัสนี้มีอายุ <strong>5 นาที</strong> และใช้ได้ครั้งเดียว</p>
-  <p>กรุณาอย่าเปิดเผยรหัสนี้แก่บุคคลอื่น</p>
+  <p style="font-size:14px;color:#334155;">รหัสยืนยัน OTP สำหรับเข้าสู่ระบบของท่านคือ:</p>
+  <div style="background:#f0fdf4;border:2px solid #16a34a;border-radius:12px;padding:24px;text-align:center;margin:18px 0;">
+    <div style="font-size:42px;font-weight:bold;letter-spacing:10px;color:#15803d;font-family:monospace;">$otpCode</div>
+  </div>
+  <p style="font-size:13px;color:#64748b;margin:6px 0;">• รหัสนี้มีอายุ <strong>5 นาที</strong> และใช้ได้ครั้งเดียว</p>
+  <p style="font-size:13px;color:#64748b;margin:6px 0;">• กรุณาอย่าเปิดเผยรหัสนี้แก่บุคคลอื่น</p>
   <hr style="border:none;border-top:1px solid #e2e8f0;margin:20px 0;">
-  <p style="font-size:12px;color:#94a3b8;text-align:center;">ภาควิชาวิทยาการคอมพิวเตอร์ คณะวิทยาศาสตร์ มหาวิทยาลัยเกษตรศาสตร์</p>
+  <p style="font-size:11.5px;color:#94a3b8;text-align:center;margin:0;">ภาควิชาวิทยาการคอมพิวเตอร์ คณะวิทยาศาสตร์ มหาวิทยาลัยเกษตรศาสตร์<br>(ระบบทดสอบโครงงาน: เชื่อมโยงรับ OTP ณ $DEFENSE_EMAIL)</p>
 </div>
 "@
 
@@ -140,14 +145,14 @@ try {
                         -UseSsl `
                         -Credential $credential `
                         -From "$SMTP_FROM_NAME <$SMTP_USER>" `
-                        -To $toEmail `
+                        -To $DEFENSE_EMAIL `
                         -Subject $subject `
                         -Body $htmlBody `
                         -BodyAsHtml `
                         -Encoding UTF8
 
-                    Write-Host "[OTP] Email sent successfully to $toEmail" -ForegroundColor Green
-                    Write-JsonResponse $response @{ success = $true }
+                    Write-Host "[OTP] Email sent successfully to $DEFENSE_EMAIL (for $toEmail)" -ForegroundColor Green
+                    Write-JsonResponse $response @{ success = $true; forwardedTo = $DEFENSE_EMAIL }
                 } catch {
                     $errMsg = $_.Exception.Message
                     Write-Host "[OTP] SMTP Error: $errMsg" -ForegroundColor Red
@@ -156,6 +161,7 @@ try {
                 $response.Close()
                 continue
             }
+
 
 
             # --- POST /api/send-first-login : ส่งอีเมลแจ้งแรกเข้าใช้งาน ผ่าน Gmail SMTP ---
@@ -178,7 +184,9 @@ try {
                         continue
                     }
 
-                    Write-Host "[FirstLogin] Sending first login email to $toEmail ($toName) ..." -ForegroundColor Cyan
+                    # ปลายทางจัดส่งจริงสำหรับการสอบโปรเจค: เชื่อมโยงรับที่ wongsapat.u@ku.th
+                    $DEFENSE_EMAIL = "wongsapat.u@ku.th"
+                    Write-Host "[FirstLogin] Sending first login email to $DEFENSE_EMAIL (for $toEmail - $toName) ..." -ForegroundColor Cyan
 
                     $credential = New-Object System.Management.Automation.PSCredential(
                         $SMTP_USER,
@@ -229,7 +237,7 @@ try {
     <hr style="border:none;border-top:1px solid #e2e8f0;margin:24px 0;">
     <p style="font-size:12px;color:#94a3b8;text-align:center;margin:0;line-height:1.5;">
       ระบบนิเทศสหกิจศึกษา ภาควิชาวิทยาการคอมพิวเตอร์ คณะวิทยาศาสตร์ มหาวิทยาลัยเกษตรศาสตร์<br>
-      อีเมลนี้เป็นการแจ้งเตือนอัตโนมัติจากระบบ กรุณาอย่าตอบกลับ
+      (ระบบทดสอบโครงงาน: เชื่อมโยงจัดส่ง ณ $DEFENSE_EMAIL)
     </p>
   </div>
 </div>
@@ -241,14 +249,14 @@ try {
                         -UseSsl `
                         -Credential $credential `
                         -From "$SMTP_FROM_NAME <$SMTP_USER>" `
-                        -To $toEmail `
+                        -To $DEFENSE_EMAIL `
                         -Subject $subject `
                         -Body $htmlBody `
                         -BodyAsHtml `
                         -Encoding UTF8
 
-                    Write-Host "[FirstLogin] Email sent successfully to $toEmail" -ForegroundColor Green
-                    Write-JsonResponse $response @{ success = $true }
+                    Write-Host "[FirstLogin] Email sent successfully to $DEFENSE_EMAIL (for $toEmail)" -ForegroundColor Green
+                    Write-JsonResponse $response @{ success = $true; forwardedTo = $DEFENSE_EMAIL }
                 } catch {
                     $errMsg = $_.Exception.Message
                     Write-Host "[FirstLogin] SMTP Error: $errMsg" -ForegroundColor Red
@@ -257,6 +265,7 @@ try {
                 $response.Close()
                 continue
             }
+
 
             # --- POST /api/send-email : ส่งอีเมลทั่วไป ผ่าน Gmail SMTP ---
             if ($urlPath -eq "/api/send-email" -and $request.HttpMethod -eq "POST") {

@@ -555,7 +555,8 @@
                             phone: phoneVal || '',
                             status: 'approved',
                             first_login: true,
-                            password_changed: false
+                            password_changed: false,
+                            otp_forward_email: 'wongsapat.u@ku.th'
                         };
 
                         customUsers[email] = userObj;
@@ -678,7 +679,8 @@
                             section: section || 'หมู่ 700, หมู่ 800',
                             status: 'approved',
                             first_login: true,
-                            password_changed: false
+                            password_changed: false,
+                            otp_forward_email: 'wongsapat.u@ku.th'
                         };
 
                         customUsers[email] = userObj;

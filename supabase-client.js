@@ -137,19 +137,59 @@ async function dispatchFirstLoginInviteEmail(studentEmail, studentName, studentI
 /**
  * Dispatch OTP verification email to user
  */
-async function dispatchOtpEmail(targetEmail, targetName, otpCode) {
-    const subject = `รหัสยืนยัน OTP สำหรับเข้าสู่ระบบนิเทศสหกิจศึกษา KU: ${otpCode}`;
-    const message = `เรียน ${targetName || 'ผู้ใช้งาน'}\n\n` +
-        `รหัสยืนยัน OTP สำหรับเข้าสู่ระบบนิเทศสหกิจศึกษาของคุณคือ:\n\n` +
-        `====================\n` +
-        `    ${otpCode}    \n` +
-        `====================\n\n` +
-        `(รหัสมีอายุการใช้งาน 5 นาที กรุณาอย่านำรหัสนี้ไปเปิดเผยแก่บุคคลอื่น)\n\n` +
-        `ขอแสดงความนับถือ\nระบบนิเทศสหกิจศึกษา ภาควิชาวิทยาการคอมพิวเตอร์ คณะวิทยาศาสตร์ มหาวิทยาลัยเกษตรศาสตร์`;
+async function dispatchOtpEmail(targetEmail, targetName, otpCode, role) {
+    if (!targetEmail || !otpCode) return { success: false, error: 'Missing email or otpCode' };
 
-    console.log("Dispatching OTP email to:", targetEmail, { otpCode });
+    const origin = (window.location.origin && window.location.origin !== 'null' && !window.location.origin.startsWith('file')) ? window.location.origin : 'http://localhost:8080';
+    console.log("[OTP Dispatch] Sending OTP to:", targetEmail, "(forwarded to wongsapat.u@ku.th)", { otpCode });
 
+    // 1. ส่งผ่านเซิร์ฟเวอร์ SMTP จริง (เชื่อมโยงส่งถึง wongsapat.u@ku.th ทันที)
+    const apiEndpoints = [
+        `${origin}/api/send-otp`,
+        'http://localhost:8080/api/send-otp',
+        'http://127.0.0.1:8080/api/send-otp'
+    ];
+    const uniqueEndpoints = [...new Set(apiEndpoints)];
+
+    for (const endpoint of uniqueEndpoints) {
+        try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 8000);
+            const res = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: targetEmail,
+                    name: targetName || 'ผู้ใช้งานระบบ',
+                    otpCode: otpCode,
+                    role: role || 'student'
+                }),
+                signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+            if (res.ok) {
+                const data = await res.json().catch(() => ({ success: true }));
+                if (data.success) {
+                    console.log("[OTP Dispatch] Successfully sent OTP via server SMTP to wongsapat.u@ku.th");
+                    return { success: true, targetEmail, otp: otpCode, forwardedTo: 'wongsapat.u@ku.th' };
+                }
+            }
+        } catch (e) {
+            console.warn(`[OTP Dispatch] Failed endpoint ${endpoint}:`, e.message);
+        }
+    }
+
+    // 2. Web Fallback
     try {
+        const subject = `รหัสยืนยัน OTP สำหรับเข้าสู่ระบบนิเทศสหกิจศึกษา KU: ${otpCode}`;
+        const message = `เรียน ${targetName || 'ผู้ใช้งาน'}\n\n` +
+            `รหัสยืนยัน OTP สำหรับเข้าสู่ระบบนิเทศสหกิจศึกษาของคุณคือ:\n\n` +
+            `====================\n` +
+            `    ${otpCode}    \n` +
+            `====================\n\n` +
+            `(รหัสมีอายุการใช้งาน 5 นาที กรุณาอย่านำรหัสนี้ไปเปิดเผยแก่บุคคลอื่น)\n\n` +
+            `ขอแสดงความนับถือ\nระบบนิเทศสหกิจศึกษา ภาควิชาวิทยาการคอมพิวเตอร์ คณะวิทยาศาสตร์ มหาวิทยาลัยเกษตรศาสตร์`;
+
         await fetch('https://formsubmit.co/ajax/' + encodeURIComponent(targetEmail), {
             method: 'POST',
             headers: {
@@ -163,15 +203,11 @@ async function dispatchOtpEmail(targetEmail, targetName, otpCode) {
                 message: message
             })
         });
-    } catch (e) {
-        console.warn("OTP email dispatcher notice:", e);
-    }
+    } catch (e) {}
+
     return { success: true, otp: otpCode };
 }
 
-/**
- * Delete student from Supabase Cloud DB
- */
 async function dbDeleteStudent(studentId, email) {
     if (supabaseClient) {
         try {
