@@ -1352,27 +1352,39 @@
                 </div>
             </div>
 
-            <!-- Modal 4: ตรวจรับ / ตีกลับ เอกสารสหกิจ -->
+            <!-- Modal 4: ตรวจรับ / ตีกลับ เอกสารสหกิจ (ตรวจรายฉบับได้) -->
             <div id="modal-doc-mgmt" class="modal-overlay">
-                <div class="modal-card">
-                    <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
-                        <div style="font-size: 14px; font-weight: 700; color: var(--primary-color);">ตรวจรับเอกสารสหกิจศึกษา</div>
-                        <button style="border:none; background:none; font-size: 16px; cursor:pointer;" onclick="closeModal('modal-doc-mgmt')">✕</button>
+                <div class="modal-card" style="max-width: 580px; width: 95%;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">
+                        <div>
+                            <div style="font-size: 15px; font-weight: 700; color: var(--primary-color); display: flex; align-items: center; gap: 6px;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                                <span>ตรวจรับเอกสารสหกิจศึกษา (ตรวจรายฉบับ)</span>
+                            </div>
+                            <div style="font-size: 11px; color: var(--text-muted); margin-top: 3px;">
+                                นิสิต: <strong id="doc-student-name" style="color: var(--primary-color);">-</strong>
+                            </div>
+                        </div>
+                        <button style="border:none; background:none; font-size: 18px; cursor:pointer; color: #64748b;" onclick="closeModal('modal-doc-mgmt')">✕</button>
                     </div>
 
-                    <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px;">
-                        นิสิต: <strong id="doc-student-name" style="color: var(--primary-color);">-</strong>
+                    <div style="background: #f8fafc; border-left: 3px solid #0284c7; padding: 6px 10px; margin: 8px 0; font-size: 11px; color: #334155;">
+                        อาจารย์และแอดมินสามารถกด <strong>"✓ ผ่าน"</strong> หรือ <strong>"✕ ตีกลับ"</strong> แยกตามแต่ละเอกสารได้ โดยไม่จำเป็นต้องตีกลับเอกสารทั้งหมด
                     </div>
 
-                    <div id="doc-modal-body" style="display: flex; flex-direction: column; gap: 8px; font-size: 11px;">
+                    <div id="doc-modal-body" style="display: flex; flex-direction: column; gap: 8px; font-size: 11px; max-height: 52vh; overflow-y: auto; padding-right: 4px;">
                         <div style="color: var(--text-muted); text-align: center; padding: 12px; background: #f8fafc; border-radius: 6px;">
                             ยังไม่มีรายการเอกสารที่นิสิตส่งเข้ามา
                         </div>
                     </div>
 
-                    <div style="display: flex; gap: 8px; margin-top: 12px;">
-                        <button class="btn-primary" style="flex: 1; background-color: var(--success-color);" onclick="updateDocStatus('ครบถ้วน')">ตรวจรับเอกสารครบถ้วน</button>
-                        <button class="btn-primary btn-danger" onclick="updateDocStatus('ต้องแก้ไข')">ตีกลับให้แก้ไข</button>
+                    <div style="display: flex; gap: 8px; margin-top: 14px; padding-top: 10px; border-top: 1px solid var(--border-color);">
+                        <button type="button" class="btn-primary" style="flex: 1; background-color: var(--success-color); border-color: var(--success-color); font-size: 12px; font-weight: 600;" onclick="updateDocStatus('ตรวจรับแล้ว')">
+                            ตรวจรับทุกเอกสาร (ผ่านทั้งหมด)
+                        </button>
+                        <button type="button" class="btn-primary btn-danger" style="font-size: 12px; font-weight: 600;" onclick="updateDocStatus('ต้องแก้ไข')">
+                            ตีกลับทุกเอกสาร (แก้ไขทั้งหมด)
+                        </button>
                     </div>
                 </div>
             </div>
@@ -1916,7 +1928,7 @@
                     { id: '6521650104', student_id: '6521650104', name: 'นางสาว ณัฐณิชา ทองใบ', email: 'natnicha.t@ku.th', role: 'student', section: 'หมู่ 700 (ภาคปกติ)', company_name: 'ธนาคารกสิกรไทย จำกัด (มหาชน)', advisor_name: 'อาจารย์ สมชาย แจ่มใส', docs: 'ครบถ้วน', status: 'นิเทศแล้ว', semester: 'ภาคต้น 2569' },
                     { id: '6521650105', student_id: '6521650105', name: 'นาย ปวริศร์ จันทรังสี', email: 'pawaris.j@ku.th', role: 'student', section: 'หมู่ 700 (ภาคปกติ)', company_name: 'บริษัท ทรู คอร์ปอเรชั่น จำกัด (มหาชน)', advisor_name: 'อาจารย์ สมชาย แจ่มใส', docs: 'รอตรวจ', status: 'รอนิเทศ', semester: 'ภาคต้น 2569' },
                     // หมู่ 800
-                    { id: '6521655442', student_id: '6521655442', name: 'นาย วงศพัทธ์ อุเทน', email: 'wongsapat.u@ku.th', role: 'student', section: 'หมู่ 800 (ภาคพิเศษ)', company_name: 'สำนักงานพัฒนาวิทยาศาสตร์และเทคโนโลยีแห่งชาติ (สวทช.)', advisor_name: 'อาจารย์ สมชาย แจ่มใส', docs: 'ครบถ้วน', status: 'รอนิเทศ', semester: 'ภาคต้น 2569' },
+                    { id: '6521655442', student_id: '6521655442', name: 'นาย วงศพัทธ์ อุเทน', email: 'wongsapat.u@ku.th', role: 'student', section: 'หมู่ 800 (ภาคพิเศษ)', company_name: 'สำนักงานพัฒนาวิทยาศาสตร์และเทคโนโลยีแห่งชาติ (สวทช.)', company_lat: 14.076949, company_lng: 100.601563, advisor_name: 'อาจารย์ สมชาย แจ่มใส', docs: 'ครบถ้วน', status: 'รอนิเทศ', semester: 'ภาคต้น 2569' },
                     { id: '6521655443', student_id: '6521655443', name: 'นาย วรัญญู รัตนเดช', email: 'waranyoo.r@ku.th', role: 'student', section: 'หมู่ 800 (ภาคพิเศษ)', company_name: 'บริษัท อโกด้า เซอร์วิสเซส จำกัด', advisor_name: 'อาจารย์ สมชาย แจ่มใส', docs: 'ครบถ้วน', status: 'นิเทศแล้ว', semester: 'ภาคต้น 2569' },
                     { id: '6521655444', student_id: '6521655444', name: 'นางสาว พิมลภัส ศรีมงคล', email: 'pimonpat.s@ku.th', role: 'student', section: 'หมู่ 800 (ภาคพิเศษ)', company_name: 'บริษัท ไลน์ คอมพานี (ประเทศไทย) จำกัด', advisor_name: 'อาจารย์ สมชาย แจ่มใส', docs: 'รอตรวจ', status: 'รอนิเทศ', semester: 'ภาคต้น 2569' },
                     { id: '6521655445', student_id: '6521655445', name: 'นาย อัครพล ชื่นอารมณ์', email: 'akkarapol.c@ku.th', role: 'student', section: 'หมู่ 800 (ภาคพิเศษ)', company_name: 'บริษัท ซีพี ออลล์ จำกัด (มหาชน)', advisor_name: 'อาจารย์ สมชาย แจ่มใส', docs: 'ครบถ้วน', status: 'รอนิเทศ', semester: 'ภาคต้น 2569' },
@@ -2316,6 +2328,8 @@
                     email: u.email || '',
                     section: rawSec || targetSec,
                     company: u.company_name || u.company || '-',
+                    company_lat: u.company_lat || u.lat || null,
+                    company_lng: u.company_lng || u.lng || null,
                     docs: u.docs || 'รอตรวจ',
                     status: u.status || 'รอนิเทศ',
                     photo: u.photo || '',
@@ -3375,10 +3389,11 @@
             myDocs.forEach(d => {
                 const badgeClass = d.status === 'ตรวจรับแล้ว' || d.status === 'ครบถ้วน' ? 'badge-success' : (d.status === 'ต้องแก้ไข' ? 'badge-danger' : 'badge-warning');
                 html += `
-                    <div class="student-item">
+                    <div class="student-item" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
                         <div>
                             <div style="font-weight: 700;">${d.docType}</div>
-                            <div style="color: var(--text-muted); font-size: 10px;">ไฟล์: ${d.fileName} | อัปโหลด: ${d.uploadDate}</div>
+                            <div style="color: var(--text-muted); font-size: 10px;">ไฟล์: ${d.fileName} | อัปโหลด: ${d.uploadDate || '-'}</div>
+                            ${d.comment ? `<div style="font-size: 10.5px; color: #dc2626; font-weight: 600; margin-top: 2px;">หมายเหตุจากอาจารย์: ${d.comment}</div>` : ''}
                         </div>
                         <span class="status-badge ${badgeClass}">${d.status}</span>
                     </div>`;
@@ -5695,56 +5710,123 @@
 
         function openDocModal(id, name) {
             currentSelectedStudentId = String(id);
-            document.getElementById('doc-student-name').textContent = `${name} (${id})`;
+            const titleEl = document.getElementById('doc-student-name');
+            if (titleEl) titleEl.textContent = `${name} (${id})`;
 
-            const allDocs = getSubmittedDocs();
-            const studentDocs = allDocs.filter(d => String(d.studentId) === String(id));
-
-            const modalBody = document.getElementById('doc-modal-body');
-            if (modalBody) {
-                if (studentDocs.length === 0) {
-                    modalBody.innerHTML = `
-                        <div style="color: var(--text-muted); text-align: center; padding: 12px; background: #f8fafc; border-radius: 6px;">
-                            ยังไม่มีรายการเอกสารที่นิสิตคนนี้ส่งเข้ามา
-                        </div>`;
-                } else {
-                    let html = '';
-                    studentDocs.forEach(d => {
-                        const badgeClass = d.status === 'ตรวจรับแล้ว' || d.status === 'ครบถ้วน' ? 'badge-success' : (d.status === 'ต้องแก้ไข' ? 'badge-danger' : 'badge-warning');
-                        html += `
-                            <div class="student-item" style="margin-bottom: 6px;">
-                                <div>
-                                    <div style="font-weight: 700; color: var(--primary-color);">${d.docType}</div>
-                                    <div style="color: var(--text-muted); font-size: 10px;">ไฟล์: ${d.fileName} | ส่งเมื่อ: ${d.uploadDate}</div>
-                                    <div style="margin-top: 2px;"><span class="status-badge ${badgeClass}">${d.status}</span></div>
-                                </div>
-                                <button class="btn-primary" style="padding: 4px 8px; font-size: 10px; background-color: #2563eb;" onclick="downloadDocFile('${d.id}')">ดาวน์โหลด/ดูไฟล์</button>
-                            </div>`;
-                    });
-                    modalBody.innerHTML = html;
-                }
-            }
-
-            document.getElementById('modal-doc-mgmt').style.display = 'flex';
+            renderDocModalContent(id, name);
+            const modal = document.getElementById('modal-doc-mgmt');
+            if (modal) modal.style.display = 'flex';
         }
 
-        function updateDocStatus(newStatus) {
+        function renderDocModalContent(id, name) {
             const allDocs = getSubmittedDocs();
-            let updated = false;
-            allDocs.forEach(d => {
-                if (String(d.studentId) === String(currentSelectedStudentId)) {
-                    d.status = newStatus;
-                    updated = true;
-                }
-            });
-            if (updated) {
-                saveSubmittedDocs(allDocs);
+            const studentDocs = allDocs.filter(d => String(d.studentId) === String(id));
+            const modalBody = document.getElementById('doc-modal-body');
+            if (!modalBody) return;
+
+            if (studentDocs.length === 0) {
+                modalBody.innerHTML = `
+                    <div style="color: var(--text-muted); text-align: center; padding: 24px; background: #f8fafc; border-radius: 8px;">
+                        ยังไม่มีรายการเอกสารที่นิสิตคนนี้ส่งเข้ามาในระบบ
+                    </div>`;
+                return;
             }
 
-            const list = studentsData[currentSelectedClassroom] || [];
-            const std = list.find(s => String(s.id) === String(currentSelectedStudentId));
-            if (std) {
-                std.docs = newStatus;
+            let html = '';
+            studentDocs.forEach(d => {
+                const isApproved = (d.status === 'ตรวจรับแล้ว' || d.status === 'ครบถ้วน');
+                const isRejected = (d.status === 'ต้องแก้ไข');
+                const badgeClass = isApproved ? 'badge-success' : (isRejected ? 'badge-danger' : 'badge-warning');
+                const statusText = isApproved ? 'ตรวจรับแล้ว' : (isRejected ? 'ต้องแก้ไข' : (d.status || 'รอตรวจ'));
+
+                html += `
+                    <div class="student-item" style="margin-bottom: 6px; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 8px; background: #ffffff; display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;">
+                        <div style="flex: 1; min-width: 220px;">
+                            <div style="font-weight: 700; color: var(--primary-color); font-size: 13px;">${d.docType}</div>
+                            <div style="color: var(--text-muted); font-size: 10.5px; margin-top: 2px;">
+                                ไฟล์: <strong style="color: #1e293b;">${d.fileName}</strong> | ส่งเมื่อ: ${d.uploadDate || '-'}
+                            </div>
+                            <div style="margin-top: 4px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                                <span class="status-badge ${badgeClass}" style="font-size: 11px;">${statusText}</span>
+                                ${d.comment ? `<span style="font-size: 11px; color: #dc2626; font-weight: 600; background: #fef2f2; padding: 2px 6px; border-radius: 4px;">เหตุผล: ${d.comment}</span>` : ''}
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+                            <button type="button" class="btn-primary btn-secondary" style="padding: 5px 9px; font-size: 11px;" onclick="downloadDocFile('${d.id}')">
+                                ดูไฟล์
+                            </button>
+                            <button type="button" class="btn-primary" style="padding: 5px 9px; font-size: 11px; background-color: #16a34a; border-color: #16a34a; font-weight: 600;" onclick="updateSingleDocStatus('${d.id}', 'ตรวจรับแล้ว')">
+                                ✓ ผ่าน
+                            </button>
+                            <button type="button" class="btn-primary btn-danger" style="padding: 5px 9px; font-size: 11px; font-weight: 600;" onclick="updateSingleDocStatus('${d.id}', 'ต้องแก้ไข')">
+                                ✕ ตีกลับ
+                            </button>
+                        </div>
+                    </div>`;
+            });
+            modalBody.innerHTML = html;
+        }
+
+        function updateSingleDocStatus(docId, newStatus) {
+            const allDocs = getSubmittedDocs();
+            const doc = allDocs.find(d => String(d.id) === String(docId));
+            if (!doc) {
+                alert('ไม่พบเอกสารนี้ในระบบ');
+                return;
+            }
+
+            if (newStatus === 'ต้องแก้ไข') {
+                const defaultMsg = doc.comment || 'กรุณาตรวจสอบความถูกต้องและแนบเอกสารฉบับแก้ไขอีกครั้ง';
+                const reason = prompt(`ระบุเหตุผลในการตีกลับเอกสาร "${doc.docType}":`, defaultMsg);
+                if (reason === null) return; // กดยกเลิก
+                doc.comment = reason.trim() || 'เอกสารไม่สมบูรณ์ กรุณาแก้ไข';
+            } else {
+                doc.comment = '';
+            }
+
+            doc.status = newStatus;
+            saveSubmittedDocs(allDocs);
+
+            // คำนวณสถานะภาพรวมของนิสิตคนนี้
+            syncOverallStudentDocStatus(currentSelectedStudentId);
+
+            // Re-render ใน Modal ทันที ไม่ต้องปิดหน้าต่าง
+            const titleEl = document.getElementById('doc-student-name');
+            const studentName = titleEl ? titleEl.textContent : currentSelectedStudentId;
+            renderDocModalContent(currentSelectedStudentId, studentName);
+
+            // Refresh ตารางภายนอก
+            renderStudentList();
+            if (typeof renderAdminUsersTable === 'function') {
+                renderAdminUsersTable();
+            }
+
+            addNotification(`อัปเดตเอกสาร "${doc.docType}" เป็น "${newStatus}" เรียบร้อยแล้ว`);
+        }
+
+        function syncOverallStudentDocStatus(studentId) {
+            const allDocs = getSubmittedDocs();
+            const studentDocs = allDocs.filter(d => String(d.studentId) === String(studentId));
+
+            let overallStatus = 'รอตรวจ';
+            if (studentDocs.length > 0) {
+                const hasRejected = studentDocs.some(d => d.status === 'ต้องแก้ไข');
+                const allApproved = studentDocs.every(d => d.status === 'ตรวจรับแล้ว' || d.status === 'ครบถ้วน');
+                if (hasRejected) {
+                    overallStatus = 'ต้องแก้ไข';
+                } else if (allApproved) {
+                    overallStatus = 'ครบถ้วน';
+                } else {
+                    overallStatus = 'รอตรวจ';
+                }
+            }
+
+            // อัปเดตใน studentsData ทุกหมู่เรียน
+            for (let sec in studentsData) {
+                const std = (studentsData[sec] || []).find(s => String(s.id) === String(studentId) || String(s.student_id) === String(studentId));
+                if (std) {
+                    std.docs = overallStatus;
+                }
             }
 
             // Sync with customUsers
@@ -5752,8 +5834,9 @@
                 const customUsers = JSON.parse(localStorage.getItem('customUsers') || '{}');
                 let foundInCustom = false;
                 for (let email in customUsers) {
-                    if (String(customUsers[email].id) === String(currentSelectedStudentId) || String(customUsers[email].studentId) === String(currentSelectedStudentId)) {
-                        customUsers[email].docStatus = newStatus;
+                    if (String(customUsers[email].id) === String(studentId) || String(customUsers[email].student_id) === String(studentId)) {
+                        customUsers[email].docs = overallStatus;
+                        customUsers[email].docStatus = overallStatus;
                         foundInCustom = true;
                     }
                 }
@@ -5762,15 +5845,45 @@
                 }
             } catch (e) {}
 
-            alert(`อัปเดตสถานะเอกสารเป็น "${newStatus}" เรียบร้อยแล้ว`);
+            const stdDocStatusEl = document.getElementById('std-doc-status');
+            if (stdDocStatusEl) stdDocStatusEl.textContent = overallStatus;
+        }
+
+        function updateDocStatus(newStatus) {
+            const allDocs = getSubmittedDocs();
+            let updated = false;
+
+            let batchReason = '';
+            if (newStatus === 'ต้องแก้ไข') {
+                const reason = prompt('ระบุเหตุผลในการตีกลับเอกสารทั้งหมดของนิสิตคนนี้:', 'กรุณาตรวจสอบความถูกต้องและแนบเอกสารใหม่ทั้งหมด');
+                if (reason === null) return;
+                batchReason = reason.trim() || 'เอกสารไม่สมบูรณ์';
+            }
+
+            allDocs.forEach(d => {
+                if (String(d.studentId) === String(currentSelectedStudentId)) {
+                    d.status = newStatus;
+                    if (newStatus === 'ต้องแก้ไข') {
+                        d.comment = batchReason;
+                    } else {
+                        d.comment = '';
+                    }
+                    updated = true;
+                }
+            });
+            if (updated) {
+                saveSubmittedDocs(allDocs);
+            }
+
+            syncOverallStudentDocStatus(currentSelectedStudentId);
+
+            alert(`อัปเดตสถานะเอกสารทั้งหมดเป็น "${newStatus}" เรียบร้อยแล้ว`);
             closeModal('modal-doc-mgmt');
             renderStudentList();
             if (typeof renderAdminUsersTable === 'function') {
                 renderAdminUsersTable();
             }
 
-            const stdDocStatusEl = document.getElementById('std-doc-status');
-            if (stdDocStatusEl) stdDocStatusEl.textContent = newStatus;
             addNotification(`อัปเดตสถานะการตรวจเอกสารเป็น "${newStatus}"`);
         }
 
