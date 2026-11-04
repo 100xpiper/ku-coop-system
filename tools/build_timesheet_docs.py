@@ -379,3 +379,4 @@ if os.path.exists(ARTIFACT_DIR):
     print("Synced timesheet files to brain artifact directory")
 
 print("Timesheet docs generation completed successfully!")
+
