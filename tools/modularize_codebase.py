@@ -163,3 +163,4 @@ with open(DASHBOARD_PATH, "w", encoding="utf-8") as f:
     f.write(new_html)
 
 print(f"Updated {DASHBOARD_PATH} successfully! New line count: {len(new_html.splitlines())}")
+
