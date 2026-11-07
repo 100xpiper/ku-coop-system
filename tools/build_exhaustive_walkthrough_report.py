@@ -734,3 +734,4 @@ cmd = [
 subprocess.run(cmd, check=True)
 print(f"Generated PDF: {pdf_path} (Size: {os.path.getsize(pdf_path)} bytes)")
 print("=== Exhaustive Step-by-Step Manual completed successfully! ===")
+
