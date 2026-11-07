@@ -866,13 +866,20 @@ print(f"Saved HTML: {html_path}")
 # 3. PRINT TO PDF VIA CHROME HEADLESS
 # -----------------------------------------------------------------------------
 pdf_path = os.path.join(docs_dir, "บันทึกผลการทดลองและทดสอบระบบ_Timesheet.pdf")
-cmd = [
-    chrome_path,
-    "--headless=new",
-    "--disable-gpu",
-    f"--print-to-pdf={pdf_path}",
-    html_path
-]
-subprocess.run(cmd, check=True)
-print(f"Generated PDF: {pdf_path} (Size: {os.path.getsize(pdf_path)} bytes)")
+pdf_path_clean = os.path.join(docs_dir, "บันทึกผลการทดลองและทดสอบระบบ_Timesheet_ฉบับสมบูรณ์.pdf")
+
+for target_pdf in [pdf_path_clean, pdf_path]:
+    try:
+        cmd = [
+            chrome_path,
+            "--headless=new",
+            "--disable-gpu",
+            f"--print-to-pdf={target_pdf}",
+            html_path
+        ]
+        subprocess.run(cmd, check=True)
+        print(f"Generated PDF: {target_pdf} (Size: {os.path.getsize(target_pdf):,} bytes)")
+    except Exception as e:
+        print(f"Could not overwrite {target_pdf} (may be locked by viewer): {e}")
+
 print("=== Document 2 completed successfully! ===")
