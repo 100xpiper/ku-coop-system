@@ -530,15 +530,18 @@ print(f"Saved DOCX: {docx_path}")
 # -----------------------------------------------------------------------------
 # 2. BUILD HTML FOR PRINT-TO-PDF VIA CHROME
 # -----------------------------------------------------------------------------
+import base64
+
 def img_html(img_name, caption):
     img_path = os.path.join(steps_dir, img_name)
     if not os.path.exists(img_path):
         img_path = os.path.join(base_dir, "screenshots", img_name)
-    img_url = img_path.replace("\\", "/")
+    with open(img_path, "rb") as f:
+        b64 = base64.b64encode(f.read()).decode("utf-8")
     return f"""
     <div class="step-card">
         <div class="img-wrapper">
-            <img src="file:///{img_url}" alt="{caption}">
+            <img src="data:image/png;base64,{b64}" alt="{caption}">
         </div>
         <p class="img-caption">{caption}</p>
     </div>
