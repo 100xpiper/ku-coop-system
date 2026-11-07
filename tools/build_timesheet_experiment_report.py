@@ -523,9 +523,17 @@ add_p("2. การเลือกใช้แนวคิดการพัฒ�
 add_p("3. ระบบมีความพร้อมอย่างสมบูรณ์สำหรับการนำไปประยุกต์ใช้งานจริงในกระบวนการตรวจนิเทศงานสหกิจศึกษาของคณะวิทยาศาสตร์ มหาวิทยาลัยเกษตรศาสตร์ เพื่อทดแทนระบบเอกสารกระดาษได้อย่างมีประสิทธิภาพและยั่งยืน", indent=True)
 
 # Save DOCX
+docx_path_plain = os.path.join(docs_dir, "บันทึกผลการทดลองและทดสอบระบบ.docx")
 docx_path = os.path.join(docs_dir, "บันทึกผลการทดลองและทดสอบระบบ_Timesheet.docx")
-doc.save(docx_path)
-print(f"Saved DOCX: {docx_path}")
+
+doc.save(docx_path_plain)
+print(f"Saved DOCX: {docx_path_plain}")
+
+try:
+    doc.save(docx_path)
+    print(f"Saved DOCX: {docx_path}")
+except Exception as e:
+    print(f"Could not overwrite {docx_path} (may be locked by Word): {e}")
 
 # -----------------------------------------------------------------------------
 # 2. BUILD HTML FOR PRINT-TO-PDF VIA CHROME
@@ -865,10 +873,11 @@ print(f"Saved HTML: {html_path}")
 # -----------------------------------------------------------------------------
 # 3. PRINT TO PDF VIA CHROME HEADLESS
 # -----------------------------------------------------------------------------
+pdf_path_plain = os.path.join(docs_dir, "บันทึกผลการทดลองและทดสอบระบบ.pdf")
 pdf_path = os.path.join(docs_dir, "บันทึกผลการทดลองและทดสอบระบบ_Timesheet.pdf")
 pdf_path_clean = os.path.join(docs_dir, "บันทึกผลการทดลองและทดสอบระบบ_Timesheet_ฉบับสมบูรณ์.pdf")
 
-for target_pdf in [pdf_path_clean, pdf_path]:
+for target_pdf in [pdf_path_plain, pdf_path_clean, pdf_path]:
     try:
         cmd = [
             chrome_path,
