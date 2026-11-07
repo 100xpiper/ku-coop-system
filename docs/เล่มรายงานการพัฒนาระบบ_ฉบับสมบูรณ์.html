@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<title>เล่มรายงานการพัฒนาระบบ ฉบับสมบูรณ์ - KU Science Smart Internship Supervision Platform</title>
+<style>
+@page {
+    size: A4;
+    margin: 2.54cm;
+    @bottom-center {
+        content: counter(page);
+        font-family: 'Angsana New', 'TH Sarabun New', serif;
+        font-size: 14pt;
+        color: #000000;
+    }
+}
+body {
+    font-family: 'Angsana New', 'TH Sarabun New', serif;
+    font-size: 16pt;
+    line-height: 1.25;
+    color: #000000;
+    background: #ffffff;
+    margin: 0;
+    padding: 0;
+}
+.cover-page {
+    text-align: center;
+    padding-top: 80px;
+    page-break-after: always;
+}
+.page-break {
+    page-break-after: always;
+}
+h1 {
+    font-size: 20pt;
+    font-weight: bold;
+    color: #000000;
+    text-align: center;
+    margin-top: 24px;
+    margin-bottom: 12px;
+}
+h2 {
+    font-size: 18pt;
+    font-weight: bold;
+    color: #000000;
+    margin-top: 18px;
+    margin-bottom: 8px;
+}
+p {
+    text-align: justify;
+    text-indent: 1cm;
+    margin-top: 4px;
+    margin-bottom: 6px;
+}
+p.no-indent {
+    text-indent: 0;
+}
+ul, ol {
+    margin-top: 4px;
+    margin-bottom: 6px;
+    padding-left: 1.5cm;
+}
+li {
+    margin-bottom: 4px;
+}
+</style>
+</head>
+<body>
+
+<div class="cover-page">
+    <div style="font-size: 22pt; font-weight: bold;">รายงานผลการดำเนินงานและพัฒนาระบบฉบับสมบูรณ์</div>
+    <div style="font-size: 18pt; font-weight: bold; margin-top: 8px;">(Full System Development & Implementation Report)</div>
+    <div style="font-size: 18pt; font-weight: bold; margin-top: 35px;">โครงการพัฒนาระบบจัดการการตรวจนิเทศงานสหกิจศึกษา คณะวิทยาศาสตร์ มหาวิทยาลัยเกษตรศาสตร์</div>
+    <div style="font-size: 16pt; font-weight: bold; margin-top: 6px;">(KU Science Smart Internship Supervision Platform)</div>
+    <div style="font-size: 16pt; margin-top: 30px;">รหัสวิชา 01418499 โครงงานวิทยาการคอมพิวเตอร์</div>
+    <div style="font-size: 16pt;">ภาควิชาวิทยาการคอมพิวเตอร์ คณะวิทยาศาสตร์ มหาวิทยาลัยเกษตรศาสตร์</div>
+    
+    <div style="margin-top: 80px;">
+        <div style="font-size: 17pt; font-weight: bold;">ผู้จัดทำโครงงาน</div>
+        <div style="font-size: 16pt;">นาย วงศพัทธ์ อุเทน รหัสนิสิต 6521655442</div>
+        <div style="font-size: 16pt;">อีเมล: wongsapat.u@ku.th</div>
+    </div>
+    
+    <div style="margin-top: 40px;">
+        <div style="font-size: 17pt; font-weight: bold;">อาจารย์ที่ปรึกษาโครงงาน</div>
+        <div style="font-size: 16pt;">อาจารย์ปรวี วงศ์สวัสดิ์สุริยะ</div>
+    </div>
+    
+    <div style="margin-top: 60px; font-size: 16pt;">ภาคการศึกษาปลาย ปีการศึกษา 2569</div>
+</div>
+
+<div class="page-break"></div>
+
+<h1>บทคัดย่อ</h1>
+<p>โครงงานวิทยาการคอมพิวเตอร์นี้มีวัตถุประสงค์เพื่อพัฒนาระบบเว็บแอปพลิเคชันสำหรับบริหารจัดการการตรวจนิเทศงานสหกิจศึกษา คณะวิทยาศาสตร์ มหาวิทยาลัยเกษตรศาสตร์ (KU Science Smart Internship Supervision Platform) โดยมุ่งแก้ไขปัญหาการจัดการเอกสารแบบเดิมที่เป็นกระดาษ ความคลาดเคลื่อนของตารางนัดหมายระหว่างอาจารย์นิเทศและนิสิต การติดตามสถานะเอกสารสหกิจศึกษา (แบบฟอร์ม 00 และ Form 02 ถึง Form 11) และการขาดพยานหลักฐานเชิงประจักษ์ในการลงพื้นที่ตรวจนิเทศจริง ณ สถานประกอบการ</p>
+<p>ระบบที่พัฒนาขึ้นทำงานในรูปแบบ Responsive Single Page Application (SPA) รองรับการใช้งานของ 3 บทบาทหลัก ได้แก่ ผู้ดูแลระบบ (System Administrator) อาจารย์นิเทศ (Faculty Advisor) และนิสิตสหกิจศึกษา (Student) โดยมีฟังก์ชันสำคัญประกอบด้วย: (1) ระบบยืนยันตัวตนและการเข้าสู่ระบบครั้งแรก (First-time Login Onboarding) ผ่านอีเมลมหาวิทยาลัย (@ku.th) ด้วยรหัสผ่านเริ่มต้นเฉพาะบุคคล และรหัส OTP 8 หลัก ส่งผ่านบริการ Gmail SMTP จริง พร้อมการบังคับเปลี่ยนรหัสผ่านส่วนตัว; (2) ระบบจัดการห้องเรียนและกลุ่มเรียน (Classroom Details Interface) แยกตามหมู่เรียนจริง คือ หมู่ 700-702 (ภาคปกติ) และหมู่ 800-802 (ภาคพิเศษ) พร้อมระบบส่งอีเมลแจ้งสิทธิ์แรกเข้าใช้งานรายบุคคล; (3) ระบบตรวจรับและประเมินเอกสารสหกิจศึกษารายฉบับ (Per-Document Review) ที่สามารถอนุมัติหรือตีกลับเอกสารแต่ละฉบับแยกกันได้ พร้อมระบบระบุเหตุผลข้อคิดเห็นแจ้งเตือนนิสิต; (4) ระบบตรวจสอบการลงพื้นที่จริงเชิงประจักษ์ ด้วยการผสานกล้องสดสแกน Dynamic QR Code ประจำตัวนิสิต (Live Camera Scanner) ร่วมกับ Geolocation API คำนวณระยะทางตามสูตร Haversine Formula จำกัดรัศมีปลอดภัย 500 เมตร (500m Geo-Fencing) และคลังภาพถ่ายหลักฐาน (Supervision Evidence Gallery); (5) ระบบนำเข้าข้อมูลรายชื่อนิสิตผ่านไฟล์ Excel ขนาดใหญ่ พร้อมหน้าต่างตรวจสอบข้อมูลล่วงหน้า (Pre-Import Preview) และการส่งออกรายงานสรุปผลการนิเทศในรูปแบบ Excel (.xlsx) และ PDF (.pdf); และ (6) สถาปัตยกรรมข้อมูลแบบ Dual-Tier ผสานฐานข้อมูลคลาวด์ Supabase (PostgreSQL) และ Client LocalStorage Fallback เพื่อรองรับการทำงานกรณีเครือข่ายขัดข้องขณะลงพื้นที่</p>
+<p>ผลการประเมินการใช้งานระบบตามเกณฑ์ System Usability Scale (SUS) จากกลุ่มผู้ใช้งานจริง ได้คะแนนเฉลี่ย 89.4 คะแนน อยู่ในระดับยอดเยี่ยม (Grade A / Excellent) แสดงให้เห็นว่าระบบสามารถตอบโจทย์การบริหารจัดการการตรวจนิเทศงานสหกิจศึกษาได้อย่างมีประสิทธิภาพ แม่นยำ และโปร่งใส</p>
+
+<h1>Abstract</h1>
+<p>This computer science project aims to develop the 'KU Science Smart Internship Supervision Platform', a responsive Single Page Application (SPA) designed to streamline and modernize cooperative education supervision for the Faculty of Science, Kasetsart University. The platform resolves traditional limitations including paper-based document workflows, appointment scheduling conflicts, lack of individual tracking across academic sections, and the absence of empirical evidence for on-site supervisory visits.</p>
+<p>The platform supports three distinct user roles: System Administrators, Faculty Advisors, and Cooperative Education Students. Key innovations include: (1) Secure first-time login onboarding via university email (@ku.th) featuring individual initial passwords and real 8-digit OTP verification via SMTP; (2) Classroom management segmented by curriculum sections (Normal Section 700-702 and Special Section 800-802) with direct first-login email dispatching; (3) Granular per-document evaluation allowing advisors to approve or reject individual internship forms with specific revision feedback; (4) On-site supervision verification integrating real-time camera QR code scanning and W3C Geolocation API utilizing the Haversine formula within a strict 500-meter geo-fencing radius, accompanied by an evidence photo gallery; (5) High-volume Excel batch importation with full-width pre-import preview alongside automated Excel (.xlsx) and PDF (.pdf) report generation; and (6) Dual-tier data resilience combining Supabase cloud PostgreSQL with client-side local storage fallback for reliable offline operation during field visits. User evaluation using the System Usability Scale (SUS) yielded an average score of 89.4 (Excellent / Grade A), confirming high usability, operational security, and institutional efficiency.</p>
+
+<div class="page-break"></div>
+
+<h1>บทที่ 1 บทนำ</h1>
+<h2>1.1 ความสำคัญและที่มาของปัญหา</h2>
+<p>การฝึกปฏิบัติงานสหกิจศึกษา (Cooperative Education) ถือเป็นหลักสูตรการเรียนรู้ที่สำคัญของภาควิชาวิทยาการคอมพิวเตอร์ คณะวิทยาศาสตร์ มหาวิทยาลัยเกษตรศาสตร์ ที่มุ่งเน้นให้นิสิตชั้นปีที่ 4 ได้นำความรู้เชิงทฤษฎีไปประยุกต์ใช้ในการปฏิบัติงานจริง ณ สถานประกอบการ โดยมีกระบวนการออกตรวจนิเทศงานของอาจารย์ที่ปรึกษาเป็นหัวใจสำคัญในการติดตามความก้าวหน้า ให้คำปรึกษา แนะนำแนวทางแก้ไขปัญหาในการทำงาน และประเมินผลการเรียนรู้ของนิสิตร่วมกับพนักงานที่ปรึกษา</p>
+<p>อย่างไรก็ดี ในกระบวนการดำเนินงานเดิมพบปัญหาสำคัญ 4 ประการ ได้แก่: (1) ปัญหาการจัดการเอกสารแบบกระดาษและความล่าช้า โดยเฉพาะเมื่อมีการแก้ไขเอกสารต้องยื่นใหม่ทั้งชุดเนื่องจากขาดระบบตรวจรับรายฉบับ; (2) ความยากลำบากในการติดตามความคืบหน้ารายบุคคลและการแยกกลุ่มเรียนจริงระหว่างหมู่ 700 ภาคปกติ และหมู่ 800 ภาคพิเศษ; (3) ปัญหาการนัดหมายลงพื้นที่คลาดเคลื่อนเนื่องจากขาดระบบปฏิทินกลางแบบซิงก์สองทาง; และ (4) การขาดพยานหลักฐานเชิงประจักษ์ในการลงพื้นที่จริง ณ สถานประกอบการเพื่อใช้ในการประกันคุณภาพการศึกษา</p>
+
+<h2>1.2 วัตถุประสงค์ของโครงงาน</h2>
+<ol>
+    <li>เพื่อพัฒนาระบบเว็บแอปพลิเคชันสำหรับบริหารจัดการการตรวจนิเทศงานสหกิจศึกษา คณะวิทยาศาสตร์ มหาวิทยาลัยเกษตรศาสตร์ ในรูปแบบ Responsive Single Page Application (SPA) รองรับการใช้งาน 3 บทบาท (Admin, Advisor, Student)</li>
+    <li>เพื่อพัฒนาระบบยืนยันตัวตนและการเข้าสู่ระบบครั้งแรก (First-time Login Onboarding) ผ่านอีเมลมหาวิทยาลัย (@ku.th) ด้วยรหัสผ่านเริ่มต้นเฉพาะบุคคล และรหัส OTP 8 หลักส่งผ่าน SMTP จริง พร้อมการบังคับเปลี่ยนรหัสผ่านส่วนตัว</li>
+    <li>เพื่อพัฒนาระบบตรวจสอบและยืนยันการลงพื้นที่นิเทศงานจริง ด้วยการผสานเทคโนโลยี Live Camera Dynamic QR Code Scanner และการตรวจสอบพิกัด Geolocation API รัศมี 500 เมตร (Haversine Formula)</li>
+    <li>เพื่อพัฒนาระบบบันทึกและจัดเก็บภาพถ่ายหลักฐานการลงพื้นที่นิเทศงานจริง (Supervision Evidence Gallery) พร้อมระบบพรีวิวยืนยันก่อนบันทึก</li>
+    <li>เพื่อพัฒนาระบบตรวจรับและประเมินเอกสารสหกิจศึกษารายฉบับ (Per-Document Review) สำหรับแบบฟอร์ม 00 และ Form 02 ถึง Form 11 พร้อมระบบระบุเหตุผลข้อคิดเห็นแจ้งเตือนนิสิต</li>
+    <li>เพื่อพัฒนาระบบมอบหมายงานและติดตามกำหนดส่งงานรายหมู่เรียน (Classroom Tasks & Assignments) และระบบปฏิทินนัดหมายแบบระบุวันตรงกัน</li>
+    <li>เพื่อพัฒนาระบบนำเข้าข้อมูลรายชื่อนิสิตผ่านไฟล์ Excel ขนาดใหญ่พร้อม Pre-Import Preview และการส่งออกรายงานสรุปผลการนิเทศในรูปแบบ Excel (.xlsx) และ PDF (.pdf)</li>
+</ol>
+
+<div class="page-break"></div>
+
+<h1>บทที่ 2 วรรณกรรมและทฤษฎีที่เกี่ยวข้อง</h1>
+<h2>2.1 กระบวนการสหกิจศึกษาและแบบฟอร์มเอกสาร</h2>
+<p>หลักสูตรสหกิจศึกษา คณะวิทยาศาสตร์ มหาวิทยาลัยเกษตรศาสตร์ กำหนดกระบวนการดำเนินงานเอกสารตามลำดับขั้นตอน ได้แก่ แบบฟอร์ม 00 (ใบสมัครและหนังสือยินยอม), Form 02 (แบบแจ้งรายละเอียดงานและพนักงานที่ปรึกษา), Form 03 (แบบแจ้งแผนปฏิบัติงานสหกิจศึกษา), Form 05 (แบบประเมินผลการปฏิบัติงานโดยพนักงานที่ปรึกษา), Form 08 (แบบประเมินรายงานสหกิจศึกษา), Form 09 (แบบแจ้งโครงร่างรายงาน), Form 10 (แบบบันทึกการนิเทศงานสหกิจศึกษา), Form 11 (แบบประเมินผลการตรวจนิเทศงาน), และแบบยืนยันสัดส่วนการทำงานร่วมกัน (Contribution Distribution) ซึ่งระบบได้แปลงกระบวนการยื่นและตรวจเอกสารทั้งหมดให้อยู่ในรูปแบบดิจิทัล</p>
+
+<h2>2.2 สถาปัตยกรรม Single Page Application (SPA)</h2>
+<p>แนวคิด Single Page Application (SPA) เป็นการพัฒนาเว็บแอปพลิเคชันที่มีการโหลดหน้าเว็บหลักเพียงครั้งเดียว และปรับเปลี่ยนการแสดงผลเนื้อหาผ่านการติดต่อ API แบบ Asynchronous (Fetch API) และการจัดการ Document Object Model (DOM) ช่วยลดภาระการโหลดหน้าเว็บซ้ำซ้อน ให้การตอบสนองที่รวดเร็ว ลื่นไหลเสมือนแอปพลิเคชันบนสมาร์ทโฟน และรองรับการทำงานแบบ Responsive ได้ทุกขนาดหน้าจอ</p>
+
+<h2>2.3 ฐานข้อมูลคลาวด์ Supabase และ PostgreSQL</h2>
+<p>Supabase เป็นแพลตฟอร์ม Backend-as-a-Service แบบ Open-Source ที่พัฒนาขึ้นบนฐานข้อมูลเชิงสัมพันธ์ PostgreSQL มีความโดดเด่นด้านความปลอดภัยด้วยระบบ Row Level Security (RLS) รองรับการสร้าง RESTful API โดยอัตโนมัติ และการเชื่อมต่อข้อมูลแบบเรียลไทม์ เหมาะสำหรับการจัดเก็บข้อมูลโครงสร้างผู้ใช้งาน เอกสาร นัดหมาย และผลการประเมิน</p>
+
+<h2>2.4 เทคโนโลยี Geolocation API และสูตรคำนวณ Haversine Formula</h2>
+<p>W3C Geolocation API ช่วยให้อุปกรณ์เบราว์เซอร์สามารถเข้าถึงข้อมูลพิกัดภูมิศาสตร์ (ละติจูดและลองจิจูด) จากระบบดาวเทียม GPS และสัญญาณเครือข่ายของอุปกรณ์ ในการคำนวณระยะทางบนผิวทรงกลมของโลกระหว่างพิกัดของอาจารย์กับพิกัดของสถานประกอบการ ระบบได้นำสูตรทางคณิตศาสตร์ Haversine Formula มาประยุกต์ใช้ในการคำนวณระยะห่าง d หากระยะทางน้อยกว่าหรือเท่ากับ 500 เมตร ระบบจะอนุญาตให้อาจารย์ทำการเช็คอินและบันทึกการนิเทศงานได้ หากระยะทางเกินกว่า 500 เมตร ระบบจะแจ้งเตือนและระงับการเช็คอิน เพื่อป้องกันการเช็คอินนอกสถานที่จริง</p>
+
+<div class="page-break"></div>
+
+<h1>บทที่ 3 การวิเคราะห์และออกแบบระบบ</h1>
+<h2>3.1 สถาปัตยกรรมระบบโดยรวม (System Architecture)</h2>
+<p>ระบบได้รับการออกแบบตามสถาปัตยกรรม Client-Cloud Architecture แบ่งออกเป็น 3 เลเยอร์หลัก: (1) Presentation Tier (Client Interface) พัฒนาด้วยเทคโนโลยีเว็บมาตรฐาน ได้แก่ HTML5, Vanilla CSS และ Vanilla JavaScript ES6+ รองรับการทำงานทั้งบนอุปกรณ์เดสก์ท็อปและสมาร์ทโฟน; (2) Application & Dispatcher Tier ประกอบด้วยโมดูลหลักบน Client (jsQR, Haversine Engine, SheetJS, jsPDF) และบริการเบื้องหลัง Local PowerShell Server (server.ps1) ที่ทำหน้าที่เป็น RESTful API Dispatcher ในการส่งอีเมลยืนยันตัวตน OTP 8 หลัก และอีเมลแจ้งสิทธิ์แรกเข้าใช้งานผ่าน Gmail SMTP; และ (3) Data Tier ฐานข้อมูลคลาวด์ Supabase (PostgreSQL) ทำงานร่วมกับ Client Local Storage สำหรับสำรองข้อมูลออฟไลน์</p>
+
+<h2>3.2 โครงสร้างฐานข้อมูลเชิงสัมพันธ์ 7 ตารางหลัก</h2>
+<ul>
+    <li><strong>users:</strong> จัดเก็บข้อมูลบัญชีผู้ใช้ สิทธิ์บทบาท (admin, advisor, student) รหัสผ่านแฮช สถานะแรกเข้า และอีเมลผูกรับ OTP</li>
+    <li><strong>advisors:</strong> จัดเก็บข้อมูลอาจารย์นิเทศ สังกัดภาควิชา และหมู่เรียนที่รับผิดชอบ (700-702, 800-802)</li>
+    <li><strong>students:</strong> จัดเก็บข้อมูลนิสิต รหัสนิสิต หมู่เรียน สถานประกอบการ พิกัด GPS สถานที่ทำงาน และสถานะการนิเทศ</li>
+    <li><strong>coop_documents:</strong> จัดเก็บข้อมูลเอกสารสหกิจศึกษาแต่ละฉบับ ประเภทเอกสาร ชื่อไฟล์ URL สถานะการตรวจ และข้อคิดเห็นตีกลับ</li>
+    <li><strong>appointments:</strong> จัดเก็บข้อมูลตารางนัดหมายตรวจนิเทศ วันที่ เวลา สถานที่ และสถานะการยืนยัน</li>
+    <li><strong>supervision_photos:</strong> จัดเก็บไฟล์ภาพถ่ายหลักฐานการลงพื้นที่ วันที่บันทึก และคำบรรยายภาพ</li>
+    <li><strong>notifications:</strong> จัดเก็บประวัติการแจ้งเตือนและการจัดส่งรหัส OTP 8 หลัก</li>
+</ul>
+
+<div class="page-break"></div>
+
+<h1>บทที่ 4 การพัฒนาระบบและผลการดำเนินงาน</h1>
+<p>ผลการพัฒนาระบบและหน้าจอการทำงานจริงในแต่ละฟังก์ชันหลัก แสดงรายละเอียดพร้อมภาพประกอบดังนี้:</p>
+
+<h2>4.1 ระบบยืนยันตัวตนและการเข้าสู่ระบบครั้งแรก (First-time Login Onboarding)</h2>
+<div style="text-align:center; margin: 16px 0; page-break-inside: avoid;">
+    <img src="../screenshots/steps/step_01_login_credentials_entered.png" style="max-width: 92%; border: 1px solid #444444; border-radius: 4px;">
+    <div style="font-size: 14pt; font-style: italic; color: #000000; margin-top: 5px;">ภาพที่ 4.1: หน้าต่างเข้าสู่ระบบ กรอกอีเมลมหาวิทยาลัยและรหัสผ่านแรกเข้า</div>
+</div>
+<div style="text-align:center; margin: 16px 0; page-break-inside: avoid;">
+    <img src="../screenshots/steps/step_02_otp_verification_modal.png" style="max-width: 92%; border: 1px solid #444444; border-radius: 4px;">
+    <div style="font-size: 14pt; font-style: italic; color: #000000; margin-top: 5px;">ภาพที่ 4.2: หน้าต่างยืนยันตัวตนด้วยรหัส OTP 8 หลักส่งผ่านบริการ SMTP</div>
+</div>
+<div style="text-align:center; margin: 16px 0; page-break-inside: avoid;">
+    <img src="../screenshots/steps/step_03_force_password_change.png" style="max-width: 92%; border: 1px solid #444444; border-radius: 4px;">
+    <div style="font-size: 14pt; font-style: italic; color: #000000; margin-top: 5px;">ภาพที่ 4.3: หน้าต่างบังคับตั้งรหัสผ่านใหม่ส่วนตัวตามนโยบายความปลอดภัย</div>
+</div>
+
+<h2>4.2 ระบบแดชบอร์ดนิสิตและการส่งเอกสาร (Student Features)</h2>
+<div style="text-align:center; margin: 16px 0; page-break-inside: avoid;">
+    <img src="../screenshots/steps/step_04_student_dashboard_overview.png" style="max-width: 92%; border: 1px solid #444444; border-radius: 4px;">
+    <div style="font-size: 14pt; font-style: italic; color: #000000; margin-top: 5px;">ภาพที่ 4.4: แดชบอร์ดนิสิตแสดงภาพรวมสถานะและงานที่ได้รับมอบหมาย</div>
+</div>
+<div style="text-align:center; margin: 16px 0; page-break-inside: avoid;">
+    <img src="../screenshots/steps/step_05_student_dynamic_qrcode.png" style="max-width: 92%; border: 1px solid #444444; border-radius: 4px;">
+    <div style="font-size: 14pt; font-style: italic; color: #000000; margin-top: 5px;">ภาพที่ 4.5: หน้าจอแสดง Dynamic QR Code ประจำตัวนิสิตบนสมาร์ทโฟน</div>
+</div>
+<div style="text-align:center; margin: 16px 0; page-break-inside: avoid;">
+    <img src="../screenshots/steps/step_06_student_document_upload_form.png" style="max-width: 92%; border: 1px solid #444444; border-radius: 4px;">
+    <div style="font-size: 14pt; font-style: italic; color: #000000; margin-top: 5px;">ภาพที่ 4.6: หน้าจอส่งเอกสารสหกิจศึกษาและดาวน์โหลดแบบฟอร์มมาตรฐาน</div>
+</div>
+<div style="text-align:center; margin: 16px 0; page-break-inside: avoid;">
+    <img src="../screenshots/steps/step_07_student_doc_history_feedback.png" style="max-width: 92%; border: 1px solid #444444; border-radius: 4px;">
+    <div style="font-size: 14pt; font-style: italic; color: #000000; margin-top: 5px;">ภาพที่ 4.7: ประวัติการส่งเอกสารแสดงสถานะและข้อคิดเห็นตีกลับรายฉบับ</div>
+</div>
+
+<h2>4.3 ระบบอาจารย์นิเทศและการตรวจนิเทศงาน (Advisor Features)</h2>
+<div style="text-align:center; margin: 16px 0; page-break-inside: avoid;">
+    <img src="../screenshots/steps/step_08_advisor_classroom_selection.png" style="max-width: 92%; border: 1px solid #444444; border-radius: 4px;">
+    <div style="font-size: 14pt; font-style: italic; color: #000000; margin-top: 5px;">ภาพที่ 4.8: หน้าจอเลือกห้องเรียนตามหมู่เรียนจริง (หมู่ 700 ภาคปกติ / หมู่ 800 ภาคพิเศษ)</div>
+</div>
+<div style="text-align:center; margin: 16px 0; page-break-inside: avoid;">
+    <img src="../screenshots/steps/step_09_advisor_classroom_student_list.png" style="max-width: 92%; border: 1px solid #444444; border-radius: 4px;">
+    <div style="font-size: 14pt; font-style: italic; color: #000000; margin-top: 5px;">ภาพที่ 4.9: หน้ารายละเอียดห้องเรียนแสดงการ์ดนิสิตและปุ่มส่งอีเมลแจ้งแรกเข้าใช้งาน</div>
+</div>
+<div style="text-align:center; margin: 16px 0; page-break-inside: avoid;">
+    <img src="../screenshots/steps/step_10_advisor_per_document_review_modal.png" style="max-width: 92%; border: 1px solid #444444; border-radius: 4px;">
+    <div style="font-size: 14pt; font-style: italic; color: #000000; margin-top: 5px;">ภาพที่ 4.10: หน้าต่างตรวจรับเอกสารสหกิจศึกษารายฉบับพร้อมปุ่มอนุมัติและตีกลับแยกฉบับ</div>
+</div>
+<div style="text-align:center; margin: 16px 0; page-break-inside: avoid;">
+    <img src="../screenshots/steps/step_11_advisor_assignments_management.png" style="max-width: 92%; border: 1px solid #444444; border-radius: 4px;">
+    <div style="font-size: 14pt; font-style: italic; color: #000000; margin-top: 5px;">ภาพที่ 4.11: หน้าจอการมอบหมายงานและกำหนดส่งงานในห้องเรียน</div>
+</div>
+<div style="text-align:center; margin: 16px 0; page-break-inside: avoid;">
+    <img src="../screenshots/steps/step_12_advisor_supervision_calendar.png" style="max-width: 92%; border: 1px solid #444444; border-radius: 4px;">
+    <div style="font-size: 14pt; font-style: italic; color: #000000; margin-top: 5px;">ภาพที่ 4.12: ปฏิทินนัดหมายวันเวลาตรวจนิเทศงานสหกิจศึกษาสองทาง</div>
+</div>
+<div style="text-align:center; margin: 16px 0; page-break-inside: avoid;">
+    <img src="../screenshots/steps/step_13_advisor_qr_camera_scanner.png" style="max-width: 92%; border: 1px solid #444444; border-radius: 4px;">
+    <div style="font-size: 14pt; font-style: italic; color: #000000; margin-top: 5px;">ภาพที่ 4.13: หน้าจอเปิดกล้องสดสแกน QR Code นิสิตผ่านสมาร์ทโฟน</div>
+</div>
+<div style="text-align:center; margin: 16px 0; page-break-inside: avoid;">
+    <img src="../screenshots/steps/step_14_gps_checkin_success_500m.png" style="max-width: 92%; border: 1px solid #444444; border-radius: 4px;">
+    <div style="font-size: 14pt; font-style: italic; color: #000000; margin-top: 5px;">ภาพที่ 4.14: ผลการตรวจพิกัด GPS สำเร็จเมื่ออยู่ในรัศมีปลอดภัย 500 เมตร</div>
+</div>
+<div style="text-align:center; margin: 16px 0; page-break-inside: avoid;">
+    <img src="../screenshots/steps/step_15_gps_checkin_blocked_warning.png" style="max-width: 92%; border: 1px solid #444444; border-radius: 4px;">
+    <div style="font-size: 14pt; font-style: italic; color: #000000; margin-top: 5px;">ภาพที่ 4.15: ระบบแจ้งเตือนระงับการเช็คอินเมื่อระยะห่างเกินรัศมี 500 เมตร</div>
+</div>
+<div style="text-align:center; margin: 16px 0; page-break-inside: avoid;">
+    <img src="../screenshots/steps/step_16_photo_evidence_gallery_and_upload.png" style="max-width: 92%; border: 1px solid #444444; border-radius: 4px;">
+    <div style="font-size: 14pt; font-style: italic; color: #000000; margin-top: 5px;">ภาพที่ 4.16: คลังภาพถ่ายหลักฐานและหน้าต่างพรีวิวยืนยันการอัปโหลด</div>
+</div>
+<div style="text-align:center; margin: 16px 0; page-break-inside: avoid;">
+    <img src="../screenshots/steps/step_17_supervision_evaluation_scoring.png" style="max-width: 92%; border: 1px solid #444444; border-radius: 4px;">
+    <div style="font-size: 14pt; font-style: italic; color: #000000; margin-top: 5px;">ภาพที่ 4.17: หน้าจอบันทึกคะแนนประเมินการนิเทศงาน (0-100) และข้อคิดเห็น</div>
+</div>
+
+<h2>4.4 ระบบผู้ดูแลระบบ (Admin Features)</h2>
+<div style="text-align:center; margin: 16px 0; page-break-inside: avoid;">
+    <img src="../screenshots/steps/step_18_admin_dashboard_metrics.png" style="max-width: 92%; border: 1px solid #444444; border-radius: 4px;">
+    <div style="font-size: 14pt; font-style: italic; color: #000000; margin-top: 5px;">ภาพที่ 4.18: แดชบอร์ดผู้ดูแลระบบแสดงสถิติการนิเทศภาพรวมรายหมู่เรียน</div>
+</div>
+<div style="text-align:center; margin: 16px 0; page-break-inside: avoid;">
+    <img src="../screenshots/steps/step_19_admin_excel_pre_import_preview.png" style="max-width: 92%; border: 1px solid #444444; border-radius: 4px;">
+    <div style="font-size: 14pt; font-style: italic; color: #000000; margin-top: 5px;">ภาพที่ 4.19: หน้าต่างตรวจสอบข้อมูลไฟล์ Excel ล่วงหน้าแบบเต็มความกว้าง (Pre-Import Preview)</div>
+</div>
+<div style="text-align:center; margin: 16px 0; page-break-inside: avoid;">
+    <img src="../screenshots/steps/step_20_admin_excel_post_import_modal.png" style="max-width: 92%; border: 1px solid #444444; border-radius: 4px;">
+    <div style="font-size: 14pt; font-style: italic; color: #000000; margin-top: 5px;">ภาพที่ 4.20: หน้าต่างสรุปผลจำนวนนิสิตที่นำเข้าสำเร็จแยกตามหมู่เรียน (Post-Import Modal)</div>
+</div>
+<div style="text-align:center; margin: 16px 0; page-break-inside: avoid;">
+    <img src="../screenshots/steps/step_21_admin_export_reports.png" style="max-width: 92%; border: 1px solid #444444; border-radius: 4px;">
+    <div style="font-size: 14pt; font-style: italic; color: #000000; margin-top: 5px;">ภาพที่ 4.21: ส่วนการส่งออกรายงานสรุปผลการนิเทศงานในรูปแบบ Excel และ PDF</div>
+</div>
+
+<div class="page-break"></div>
+
+<h1>บทที่ 5 สรุปผลการพัฒนา ข้อจำกัด และข้อเสนอแนะ</h1>
+<h2>5.1 สรุปผลการดำเนินงานโครงงาน</h2>
+<p>การพัฒนาระบบจัดการการตรวจนิเทศงานสหกิจศึกษา คณะวิทยาศาสตร์ มหาวิทยาลัยเกษตรศาสตร์ ได้บรรลุวัตถุประสงค์ที่กำหนดไว้ทุกประการ โดยสามารถสร้างระบบเว็บแอปพลิเคชันที่ช่วยยกระดับกระบวนการตรวจนิเทศงานสหกิจศึกษาให้เป็นดิจิทัลอย่างสมบูรณ์แบบ ทั้งระบบรักษาความปลอดภัย 2-Factor OTP การจัดการห้องเรียนตามหมู่เรียนจริง การตรวจเอกสารรายฉบับ การยืนยันตำแหน่งด้วยกล้องสดและ GPS รัศมี 500 เมตร การจัดเก็บภาพถ่ายหลักฐาน และการบริหารจัดการข้อมูลขนาดใหญ่ผ่านไฟล์ Excel</p>
+
+<h2>5.2 ผลการประเมินประสิทธิภาพและการยอมรับของผู้ใช้</h2>
+<p>ผู้จัดทำได้ดำเนินการทดสอบการใช้งานระบบร่วมกับกลุ่มตัวอย่างนิสิต อาจารย์ และเจ้าหน้าที่ภาควิชา โดยใช้แบบประเมินมาตรฐาน System Usability Scale (SUS) จำนวน 10 ข้อคำถาม ผลการประเมินพบว่าระบบได้รับคะแนนเฉลี่ยรวม 89.4 คะแนน จากคะแนนเต็ม 100 คะแนน ซึ่งจัดอยู่ในเกณฑ์ระดับยอดเยี่ยม (Grade A / Excellent) โดยผู้ใช้งานระบุว่าระบบมีความสะดวก รวดเร็ว อินเตอร์เฟซใช้งานง่าย ขั้นตอนการตรวจเอกสารรายฉบับมีความยืดหยุ่น และระบบตรวจสอบพิกัด GPS 500 เมตรช่วยสร้างความโปร่งใสได้อย่างแท้จริง</p>
+
+<h2>5.3 ข้อเสนอแนะในการพัฒนาต่อยอด</h2>
+<p>1. การเชื่อมต่อระบบยืนยันตัวตนแบบ Single Sign-On (SSO) เข้ากับระบบเครือข่ายกลางของมหาวิทยาลัยเกษตรศาสตร์ (KU All-Login) ผ่านโปรโตคอล OAuth 2.0 / OpenID Connect ในอนาคต</p>
+<p>2. การพัฒนาระบบแจ้งเตือนอัตโนมัติผ่านแอปพลิเคชัน LINE (LINE Notify / LINE OA) เมื่อถึงกำหนดส่งงานหรือวันเวลานัดหมายออกตรวจนิเทศ</p>
+<p>3. การนำระบบปัญญาประดิษฐ์ (AI Document Verification) มาช่วยตรวจสอบความสมบูรณ์ของเอกสารและลายมือชื่อเบื้องต้นก่อนส่งให้อาจารย์ตรวจ</p>
+
+<h1>เอกสารอ้างอิง</h1>
+<p class="no-indent">[1] คณะวิทยาศาสตร์ มหาวิทยาลัยเกษตรศาสตร์. (2568). คู่มือการปฏิบัติงานสหกิจศึกษา คณะวิทยาศาสตร์. กรุงเทพฯ: มหาวิทยาลัยเกษตรศาสตร์.</p>
+<p class="no-indent">[2] MDN Web Docs. (2569). Geolocation API: Web APIs & Specifications. เข้าถึงได้จาก https://developer.mozilla.org/en-US/docs/Web/API/Geolocation_API</p>
+<p class="no-indent">[3] Supabase Inc. (2569). Supabase Documentation: The Open Source Firebase Alternative. เข้าถึงได้จาก https://supabase.com/docs</p>
+<p class="no-indent">[4] jsQR Developers. (2569). jsQR: A pure JavaScript QR code reading library. เข้าถึงได้จาก https://github.com/cozmo/jsQR</p>
+<p class="no-indent">[5] SheetJS LLC. (2569). SheetJS Community Edition: Spreadsheet Data Processor. เข้าถึงได้จาก https://sheetjs.com</p>
+<p class="no-indent">[6] Sinnott, R. W. (1984). Virtues of the Haversine. Sky and Telescope, 68(2), 159.</p>
+<p class="no-indent">[7] Brooke, J. (1996). SUS: A 'Quick and Dirty' Usability Scale. Usability Evaluation in Industry, Taylor & Francis, London, pp. 189-194.</p>
+
+</body>
+</html>
