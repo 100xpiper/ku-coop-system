@@ -206,3 +206,4 @@ while idx < len(lines):
 out_docx = os.path.join(docs_dir, "บันทึกผลการทำงานและผลการทดลองใช้งานระบบ.docx")
 doc.save(out_docx)
 print(f"Generated: {out_docx} ({os.path.getsize(out_docx):,} bytes)")
+
