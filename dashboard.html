@@ -29,6 +29,31 @@
 
     <!-- Main Application Stylesheet -->
     <link rel="stylesheet" href="css/dashboard.css">
+
+    <!-- Global Safety Error Boundary & Self-Healing Guard (ป้องกันหน้าจอขาว 100%) -->
+    <script>
+        window.addEventListener('error', function(e) {
+            console.error('[SafetyGuard] Runtime error captured:', e.message, e.filename, e.lineno);
+            setTimeout(function() {
+                try {
+                    var activePages = document.querySelectorAll('.page-content.active, .app-section.active');
+                    var hasVisible = false;
+                    for (var i = 0; i < activePages.length; i++) {
+                        if (activePages[i].offsetHeight > 50) { hasVisible = true; break; }
+                    }
+                    if (!hasVisible) {
+                        var user = JSON.parse(sessionStorage.getItem('currentUser') || localStorage.getItem('currentUser') || '{}');
+                        var targetId = user.role === 'admin' ? 'sec-admin-dash' : (user.role === 'student' ? 'sec-student-docs' : 'sec-advisor-dash');
+                        var el = document.getElementById(targetId);
+                        if (el) {
+                            el.classList.add('active');
+                            el.style.display = 'block';
+                        }
+                    }
+                } catch(recoveryErr) {}
+            }, 300);
+        });
+    </script>
 </head>
 <body>
 
@@ -3236,28 +3261,38 @@
         }
 
         window.addEventListener('DOMContentLoaded', () => {
-            const user = getInitialUser();
-            if (!user) {
-                // Not authenticated, redirecting to login page
-                return;
-            }
-            if (user) {
-                // 1. Immediately render UI to prevent any blank screen
-                initUserDashboard(user);
+            try {
+                const user = getInitialUser();
+                if (!user) {
+                    // Not authenticated, redirecting to login page
+                    return;
+                }
+                if (user) {
+                    // 1. Immediately render UI to prevent any blank screen
+                    initUserDashboard(user);
 
-                // 2. Non-blocking background sync from Supabase
-                setTimeout(() => {
-                    syncDatabaseUsers()
-                        .then(() => {
-                            if (currentRole === 'admin') {
-                                renderAdminUsersTable();
-                            } else if (currentRole === 'advisor') {
-                                updateAdvisorStats();
-                                renderStudentList();
-                            }
-                        })
-                        .catch(err => console.warn("Background sync warning:", err));
-                }, 50);
+                    // 2. Non-blocking background sync from Supabase
+                    setTimeout(() => {
+                        syncDatabaseUsers()
+                            .then(() => {
+                                if (currentRole === 'admin') {
+                                    renderAdminUsersTable();
+                                } else if (currentRole === 'advisor') {
+                                    updateAdvisorStats();
+                                    renderStudentList();
+                                }
+                            })
+                            .catch(err => console.warn("Background sync warning:", err));
+                    }, 50);
+                }
+            } catch (initErr) {
+                console.error("[Dashboard Initial Load Error]", initErr);
+                try {
+                    const fallbackUser = JSON.parse(sessionStorage.getItem('currentUser') || localStorage.getItem('currentUser') || '{}');
+                    if (fallbackUser && fallbackUser.role) {
+                        initUserDashboard(fallbackUser);
+                    }
+                } catch(e) {}
             }
         });
 
@@ -6818,63 +6853,6 @@
             }
 
             addNotification(`อัปเดตสถานะการตรวจเอกสารเป็น "${newStatus}"`);
-        }
-
-        async function handleStudentDocUpload() {
-            const typeSelect = document.getElementById('std-doc-type-select');
-            const fileInput = document.getElementById('std-doc-file-input');
-
-            if (!fileInput.files || fileInput.files.length === 0) {
-                alert('โปรดเลือกไฟล์เอกสารก่อนกดอัปโหลด');
-                return;
-            }
-
-            const file = fileInput.files[0];
-            const reader = new FileReader();
-
-            reader.onload = async function(e) {
-                const fileDataUrl = e.target.result;
-                const savedSession = (sessionStorage.getItem('currentUser') || localStorage.getItem('currentUser'));
-                const user = savedSession ? JSON.parse(savedSession) : {};
-                const stdId = String(user.id || user.student_id || '6521655442');
-                const stdName = user.name || 'นิสิต';
-
-                const docType = typeSelect.value;
-                const fileName = file.name;
-                const nowStr = new Date().toLocaleDateString('th-TH') + ' ' + new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }) + ' น.';
-
-                const allDocs = getSubmittedDocs();
-                const newDoc = {
-                    id: Date.now(),
-                    studentId: stdId,
-                    studentName: stdName,
-                    email: user.email || '',
-                    docType: docType,
-                    fileName: fileName,
-                    fileDataUrl: fileDataUrl,
-                    uploadDate: nowStr,
-                    status: 'รอตรวจ'
-                };
-                allDocs.unshift(newDoc);
-                saveSubmittedDocs(allDocs);
-                sendNotification('advisor', 'all', `นิสิต ${stdName} (รหัส ${stdId}) ส่งเอกสารใหม่: ${docType}`);
-
-                if (typeof dbUploadDocument === 'function') {
-                    await dbUploadDocument(stdId, docType, fileName, fileDataUrl);
-                }
-
-                renderStudentDocsList();
-                renderStudentClassroomAssignments();
-
-                const stdDocStatusEl = document.getElementById('std-doc-status');
-                if (stdDocStatusEl) stdDocStatusEl.textContent = 'รอตรวจ';
-
-                addNotification(`อัปโหลดเอกสาร "${docType}" เรียบร้อย ส่งให้อาจารย์ตรวจรับแล้ว`);
-                alert(`อัปโหลดเอกสาร "${docType}" เรียบร้อยแล้ว! ส่งถึงอาจารย์ผู้สอนแล้ว`);
-                fileInput.value = '';
-            };
-
-            reader.readAsDataURL(file);
         }
 
         let pendingPhotoDataUrl = null;
