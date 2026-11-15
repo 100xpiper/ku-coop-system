@@ -4,5 +4,6 @@
 tools/*.exe
 tools/*.log
 tools/mobile_url.txt
+tools/test_bind_ip.ps1
 __pycache__/
 .agents/

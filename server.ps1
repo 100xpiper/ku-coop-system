@@ -1,20 +1,38 @@
-$customPy = "$env:USERPROFILE\AppData\Roaming\uv\python\cpython-3.12.16-windows-x86_64-none\ku_coop_server.exe"
-if (Test-Path $customPy) {
-    & $customPy (Join-Path $PSScriptRoot "server.py")
-    exit 0
-}
-$pyExe = "$env:USERPROFILE\.local\bin\python3.12.exe"
-if (Test-Path $pyExe) {
-    & $pyExe (Join-Path $PSScriptRoot "server.py")
-    exit 0
-}
-$pyCmd = Get-Command python, python3 -ErrorAction SilentlyContinue | Select-Object -First 1
-if ($pyCmd) {
-    & $pyCmd.Source (Join-Path $PSScriptRoot "server.py")
-    exit 0
+﻿$pyCandidates = @(
+    "$env:USERPROFILE\.local\bin\python3.12.exe",
+    "$env:USERPROFILE\AppData\Local\Microsoft\WindowsApps\python.exe",
+    "$env:USERPROFILE\AppData\Local\Programs\Python\Python312\python.exe",
+    "$env:USERPROFILE\AppData\Local\Programs\Python\Python311\python.exe",
+    "$env:USERPROFILE\AppData\Local\Programs\Python\Python310\python.exe"
+)
+
+# Also check uv-managed python
+$uvPy = Get-ChildItem "$env:USERPROFILE\AppData\Roaming\uv\python" -Recurse -Filter "python.exe" -ErrorAction SilentlyContinue | Select-Object -First 1
+if ($uvPy) {
+    $pyCandidates = @($uvPy.FullName) + $pyCandidates
 }
 
-﻿$preferredPorts = @(8080, 8081, 8082, 3000)
+$pyExe = $null
+foreach ($c in $pyCandidates) {
+    if (Test-Path $c) {
+        $pyExe = $c
+        break
+    }
+}
+
+if (-not $pyExe) {
+    $cmd = Get-Command python, python3, py -ErrorAction SilentlyContinue | Select-Object -First 1
+    if ($cmd) { $pyExe = $cmd.Source }
+}
+
+$serverPyPath = Join-Path $PSScriptRoot "server.py"
+if ($pyExe -and (Test-Path $serverPyPath)) {
+    & $pyExe $serverPyPath
+    exit $LASTEXITCODE
+}
+
+# --- Fallback: PowerShell Pure HttpListener Server ---
+$preferredPorts = @(8080, 8081, 8082, 3000)
 $listener = $null
 $port = $null
 
@@ -126,7 +144,7 @@ try {
                 continue
             }
 
-            # --- POST /api/send-otp : Send OTP Email via Gmail SMTP ---
+            # --- POST /api/send-otp ---
             if ($urlPath -eq "/api/send-otp" -and $request.HttpMethod -eq "POST") {
                 try {
                     $reader   = New-Object System.IO.StreamReader($request.InputStream, [System.Text.Encoding]::UTF8)
@@ -171,7 +189,7 @@ try {
                 continue
             }
 
-            # --- POST /api/send-reminder : Send reminder email ---
+            # --- POST /api/send-reminder ---
             if ($urlPath -eq "/api/send-reminder" -and $request.HttpMethod -eq "POST") {
                 try {
                     $reader   = New-Object System.IO.StreamReader($request.InputStream, [System.Text.Encoding]::UTF8)
@@ -221,7 +239,7 @@ try {
                 continue
             }
 
-            # --- POST /api/send-first-login : Send first login invite email ---
+            # --- POST /api/send-first-login ---
             if ($urlPath -eq "/api/send-first-login" -and $request.HttpMethod -eq "POST") {
                 try {
                     $reader   = New-Object System.IO.StreamReader($request.InputStream, [System.Text.Encoding]::UTF8)
@@ -270,7 +288,7 @@ try {
                 continue
             }
 
-            # --- POST /api/send-email : Generic email sender ---
+            # --- POST /api/send-email ---
             if ($urlPath -eq "/api/send-email" -and $request.HttpMethod -eq "POST") {
                 try {
                     $reader   = New-Object System.IO.StreamReader($request.InputStream, [System.Text.Encoding]::UTF8)
