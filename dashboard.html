@@ -878,7 +878,7 @@
                             </div>
                             <div>
                                 <label style="font-size: 11px; font-weight: 700; color: #475569; margin-bottom: 4px; display: block;">สัปดาห์ที่:</label>
-                                <select id="student-pt-week" style="width: 100%; padding: 8px; font-size: 12px; border-radius: 6px; border: 1px solid #cbd5e1; box-sizing: border-box;">
+                                <select id="student-pt-week" onchange="onStudentReportWeekChange()" style="width: 100%; padding: 8px; font-size: 12px; border-radius: 6px; border: 1px solid #cbd5e1; box-sizing: border-box;">
                                     <option value="1">สัปดาห์ที่ 1</option><option value="2">สัปดาห์ที่ 2</option><option value="3">สัปดาห์ที่ 3</option><option value="4">สัปดาห์ที่ 4</option>
                                     <option value="5">สัปดาห์ที่ 5</option><option value="6">สัปดาห์ที่ 6</option><option value="7">สัปดาห์ที่ 7</option><option value="8">สัปดาห์ที่ 8</option>
                                     <option value="9">สัปดาห์ที่ 9</option><option value="10">สัปดาห์ที่ 10</option><option value="11">สัปดาห์ที่ 11</option><option value="12">สัปดาห์ที่ 12</option>
@@ -889,6 +889,43 @@
                                 <label style="font-size: 11px; font-weight: 700; color: #475569; margin-bottom: 4px; display: block;">บันทึกประจำสัปดาห์ / ปัญหาอุปสรรค:</label>
                                 <textarea id="student-pt-issues" rows="3" placeholder="ระบุสิ่งที่ทำในสัปดาห์นี้ หรือปัญหาที่พบ..." style="width: 100%; padding: 8px; font-size: 12px; border-radius: 6px; border: 1px solid #cbd5e1; resize: none; box-sizing: border-box;"></textarea>
                             </div>
+
+                            <!-- ส่วนแนบไฟล์เอกสาร -->
+                            <div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; padding: 10px 12px;">
+                                <label style="font-size: 11px; font-weight: 700; color: #1e3a8a; display: flex; align-items: center; gap: 6px; margin-bottom: 6px;">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                                    <span>แนบไฟล์เอกสารประกอบ (PDF, Word, Excel, ZIP)</span>
+                                </label>
+                                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                    <label for="student-pt-file-input" class="btn-secondary" style="cursor: pointer; padding: 6px 12px; font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; margin: 0; background: #eff6ff; border: 1px solid #93c5fd; border-radius: 6px; color: #1d4ed8;">
+                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                                        <span>เลือกไฟล์เอกสาร...</span>
+                                    </label>
+                                    <input type="file" id="student-pt-file-input" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.rar,.txt" style="display: none;" onchange="handleStudentPtFile(event)">
+                                    <span id="student-pt-filename" style="font-size: 11px; color: #64748b; font-style: italic; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 260px;">ยังไม่ได้เลือกไฟล์</span>
+                                    <button type="button" id="student-pt-clear-file-btn" onclick="clearStudentPtFile()" style="display: none; border: none; background: none; color: #ef4444; font-size: 11px; cursor: pointer; font-weight: 600;">✕ ลบไฟล์</button>
+                                </div>
+                            </div>
+
+                            <!-- ส่วนแนบรูปภาพ -->
+                            <div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; padding: 10px 12px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                    <label style="font-size: 11px; font-weight: 700; color: #0284c7; display: flex; align-items: center; gap: 6px; margin: 0;">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                                        <span>เพิ่มรูปภาพ / รูปถ่ายหลักฐานการทำงาน</span>
+                                    </label>
+                                    <span id="student-pt-img-count" style="font-size: 10.5px; color: #64748b;">(ยังไม่ได้เลือกรูปภาพ)</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                    <label for="student-pt-img-input" class="btn-secondary" style="cursor: pointer; padding: 6px 12px; font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; margin: 0; background: #f0fdfa; border: 1px solid #99f6e4; border-radius: 6px; color: #0d9488;">
+                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                                        <span>เลือกรูปภาพ / ถ่ายภาพ...</span>
+                                    </label>
+                                    <input type="file" id="student-pt-img-input" accept="image/*" multiple style="display: none;" onchange="handleStudentPtImages(event)">
+                                </div>
+                                <div id="student-pt-image-previews" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px;"></div>
+                            </div>
+
                             <button class="btn-primary" style="padding: 10px; font-weight: 700; background-color: #0f766e; border-color: #0f766e;" onclick="saveStudentProjectTracking()">
                                 บันทึกข้อมูลประจำสัปดาห์
                             </button>
@@ -8500,6 +8537,157 @@
 
         // ------------------ Project Tracking & Map ------------------
         let currentTrackingStudentId = null;
+        let studentPtSelectedFile = null; // { name, size, type, dataUrl }
+        let studentPtSelectedImages = []; // array of { name, dataUrl }
+
+        function handleStudentPtFile(event) {
+            const input = event.target;
+            if (input && input.files && input.files.length > 0) {
+                const f = input.files[0];
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    studentPtSelectedFile = {
+                        name: f.name,
+                        size: f.size,
+                        type: f.type,
+                        dataUrl: e.target.result
+                    };
+                    updateStudentPtFileDisplay();
+                };
+                reader.readAsDataURL(f);
+            }
+        }
+
+        function clearStudentPtFile() {
+            studentPtSelectedFile = null;
+            const input = document.getElementById('student-pt-file-input');
+            if (input) input.value = '';
+            updateStudentPtFileDisplay();
+        }
+
+        function updateStudentPtFileDisplay() {
+            const display = document.getElementById('student-pt-filename');
+            const clearBtn = document.getElementById('student-pt-clear-file-btn');
+            if (studentPtSelectedFile) {
+                const sizeKb = (studentPtSelectedFile.size / 1024).toFixed(1);
+                if (display) {
+                    display.innerHTML = `<strong style="color: #0f766e;">${studentPtSelectedFile.name}</strong> (${sizeKb} KB)`;
+                    display.style.fontStyle = 'normal';
+                }
+                if (clearBtn) clearBtn.style.display = 'inline-block';
+            } else {
+                if (display) {
+                    display.textContent = 'ยังไม่ได้เลือกไฟล์';
+                    display.style.fontStyle = 'italic';
+                }
+                if (clearBtn) clearBtn.style.display = 'none';
+            }
+        }
+
+        function handleStudentPtImages(event) {
+            const input = event.target;
+            if (!input || !input.files || input.files.length === 0) return;
+            const files = Array.from(input.files);
+            let processed = 0;
+            files.forEach(f => {
+                if (!f.type.startsWith('image/')) return;
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    studentPtSelectedImages.push({
+                        name: f.name,
+                        dataUrl: e.target.result
+                    });
+                    processed++;
+                    if (processed === files.length) {
+                        renderStudentPtImagePreviews();
+                    }
+                };
+                reader.readAsDataURL(f);
+            });
+            input.value = '';
+        }
+
+        function removeStudentPtImage(index) {
+            studentPtSelectedImages.splice(index, 1);
+            renderStudentPtImagePreviews();
+        }
+
+        function renderStudentPtImagePreviews() {
+            const container = document.getElementById('student-pt-image-previews');
+            const countEl = document.getElementById('student-pt-img-count');
+            if (!container) return;
+
+            if (!studentPtSelectedImages || studentPtSelectedImages.length === 0) {
+                container.innerHTML = '';
+                if (countEl) countEl.textContent = '(ยังไม่ได้เลือกรูปภาพ)';
+                return;
+            }
+
+            if (countEl) countEl.textContent = `(เลือกแล้ว ${studentPtSelectedImages.length} รูป)`;
+
+            container.innerHTML = studentPtSelectedImages.map((img, idx) => `
+                <div style="position: relative; width: 68px; height: 68px; border-radius: 6px; overflow: hidden; border: 1px solid #cbd5e1; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
+                    <img src="${img.dataUrl}" style="width: 100%; height: 100%; object-fit: cover; cursor: pointer;" onclick="viewImagePreviewModal('${img.dataUrl}', '${img.name || 'รูปที่ ' + (idx + 1)}')" alt="รูปภาพประกอบ">
+                    <button type="button" onclick="removeStudentPtImage(${idx})" title="ลบรูปนี้" style="position: absolute; top: 2px; right: 2px; width: 18px; height: 18px; border-radius: 50%; background: rgba(220, 38, 38, 0.88); color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; line-height: 1;">✕</button>
+                </div>
+            `).join('');
+        }
+
+        function onStudentReportWeekChange() {
+            const savedSession = (sessionStorage.getItem('currentUser') || localStorage.getItem('currentUser'));
+            if (!savedSession) return;
+            const user = JSON.parse(savedSession);
+            const stdId = String(user.id || user.student_id);
+            const data = JSON.parse(localStorage.getItem('projectTracking_' + stdId) || '{"projectName": "", "weeklyReports": []}');
+
+            const weekEl = document.getElementById('student-pt-week');
+            if (!weekEl) return;
+            const wNum = parseInt(weekEl.value);
+            const existing = (data.weeklyReports || []).find(r => r.week === wNum);
+
+            if (existing) {
+                document.getElementById('student-pt-issues').value = existing.issues || '';
+                studentPtSelectedFile = existing.file ? { ...existing.file } : null;
+                studentPtSelectedImages = existing.images ? existing.images.map(img => typeof img === 'string' ? { name: '', dataUrl: img } : img) : [];
+            } else {
+                document.getElementById('student-pt-issues').value = '';
+                studentPtSelectedFile = null;
+                studentPtSelectedImages = [];
+            }
+            updateStudentPtFileDisplay();
+            renderStudentPtImagePreviews();
+        }
+
+        function viewImagePreviewModal(imgSrc, title = 'รูปภาพประกอบ') {
+            let modal = document.getElementById('modal-image-preview-global');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'modal-image-preview-global';
+                modal.className = 'modal-overlay';
+                modal.style.cssText = 'display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.88); z-index: 99999; justify-content: center; align-items: center; padding: 20px;';
+                modal.onclick = function (e) {
+                    if (e.target === modal || e.target.classList.contains('close-btn') || e.target.closest('.close-btn')) {
+                        modal.style.display = 'none';
+                    }
+                };
+                modal.innerHTML = `
+                    <div style="position: relative; max-width: 90vw; max-height: 90vh; display: flex; flex-direction: column; align-items: center;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 10px; color: #ffffff;">
+                            <span id="modal-image-preview-title" style="font-size: 14px; font-weight: 600;"></span>
+                            <button class="close-btn" style="background: rgba(255,255,255,0.2); border: none; color: white; border-radius: 50%; width: 30px; height: 30px; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 1;">✕</button>
+                        </div>
+                        <img id="modal-image-preview-img" src="" style="max-width: 90vw; max-height: 80vh; object-fit: contain; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.6);" alt="พรีวิวรูปภาพ">
+                    </div>
+                `;
+                document.body.appendChild(modal);
+            }
+            const imgEl = document.getElementById('modal-image-preview-img');
+            const titleEl = document.getElementById('modal-image-preview-title');
+            if (imgEl) imgEl.src = imgSrc;
+            if (titleEl) titleEl.textContent = title;
+            modal.style.display = 'flex';
+        }
+
         function openProjectTrackingModal(stdId, stdName) {
             currentTrackingStudentId = stdId;
             const modal = document.getElementById('modal-project-tracking');
@@ -8518,15 +8706,34 @@
                     } else {
                         const sorted = [...data.weeklyReports].sort((a, b) => b.week - a.week);
                         histContainer.innerHTML = sorted.map(r => `
-                            <div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px;">
+                            <div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px; margin-bottom: 8px;">
                                 <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
                                     <span style="font-weight: 700; font-size: 13px; color: #0f766e;">สัปดาห์ที่ ${r.week}</span>
                                     <span class="status-badge badge-success" style="font-size: 10px;">บันทึกแล้ว</span>
                                 </div>
-                                <div style="font-size: 11px; color: #475569; margin-bottom: 4px;">
+                                <div style="font-size: 11px; color: #475569; margin-bottom: 6px; line-height: 1.4;">
                                     <strong>บันทึกงาน / ปัญหา:</strong> ${r.issues || '-'}
                                 </div>
-                                <div style="font-size: 10px; color: #94a3b8; text-align: right;">อัปเดตเมื่อ: ${r.dateStr}</div>
+                                ${r.file ? `
+                                    <div style="margin: 6px 0; padding: 6px 10px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 6px; display: inline-flex; align-items: center; gap: 6px; font-size: 11px;">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                                        <span style="color: #1e3a8a; font-weight: 600;">ไฟล์แนบ: ${r.file.name}</span>
+                                        <a href="${r.file.dataUrl}" download="${r.file.name}" style="color: #2563eb; font-weight: 700; text-decoration: underline; margin-left: 6px;">ดาวน์โหลด / เปิดดู</a>
+                                    </div>
+                                ` : ''}
+                                ${r.images && r.images.length > 0 ? `
+                                    <div style="margin-top: 6px;">
+                                        <div style="font-size: 10.5px; font-weight: 600; color: #64748b; margin-bottom: 4px;">รูปภาพประกอบ (${r.images.length} รูป):</div>
+                                        <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                                            ${r.images.map((imgSrc, idx) => `
+                                                <div style="width: 58px; height: 58px; border-radius: 6px; overflow: hidden; border: 1px solid #cbd5e1; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.06);" onclick="viewImagePreviewModal('${typeof imgSrc === 'string' ? imgSrc : imgSrc.dataUrl}', 'รูปภาพสัปดาห์ที่ ${r.week} - นิสิต ${stdName}')" title="คลิกเพื่อดูรูปภาพขนาดใหญ่">
+                                                    <img src="${typeof imgSrc === 'string' ? imgSrc : imgSrc.dataUrl}" style="width: 100%; height: 100%; object-fit: cover;" alt="รูปภาพสัปดาห์ที่ ${r.week}">
+                                                </div>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+                                ` : ''}
+                                <div style="font-size: 10px; color: #94a3b8; text-align: right; margin-top: 6px;">บันทึกเมื่อ: ${r.dateStr}</div>
                             </div>
                         `).join('');
                     }
@@ -8582,15 +8789,34 @@
 
             const sorted = [...data.weeklyReports].sort((a, b) => b.week - a.week);
             container.innerHTML = sorted.map(r => `
-                <div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px;">
+                <div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 14px;">
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
                         <span style="font-weight: 700; font-size: 13px; color: #0f766e;">สัปดาห์ที่ ${r.week}</span>
                         <span class="status-badge badge-success" style="font-size: 10px;">บันทึกแล้ว</span>
                     </div>
-                    <div style="font-size: 11px; color: #475569; margin-bottom: 4px;">
+                    <div style="font-size: 11.5px; color: #475569; margin-bottom: 6px; line-height: 1.4;">
                         <strong>บันทึกงาน / ปัญหา:</strong> ${r.issues || '-'}
                     </div>
-                    <div style="font-size: 10px; color: #94a3b8; text-align: right;">อัปเดตเมื่อ: ${r.dateStr}</div>
+                    ${r.file ? `
+                        <div style="margin: 6px 0; padding: 6px 10px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 6px; display: inline-flex; align-items: center; gap: 6px; font-size: 11px;">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                            <span style="color: #1e3a8a; font-weight: 600;">ไฟล์แนบ: ${r.file.name}</span>
+                            <a href="${r.file.dataUrl}" download="${r.file.name}" style="color: #2563eb; font-weight: 700; text-decoration: underline; margin-left: 6px;">ดาวน์โหลด / เปิดดู</a>
+                        </div>
+                    ` : ''}
+                    ${r.images && r.images.length > 0 ? `
+                        <div style="margin-top: 6px;">
+                            <div style="font-size: 10.5px; font-weight: 600; color: #64748b; margin-bottom: 4px;">รูปภาพประกอบ (${r.images.length} รูป):</div>
+                            <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                                ${r.images.map((imgSrc, idx) => `
+                                    <div style="width: 58px; height: 58px; border-radius: 6px; overflow: hidden; border: 1px solid #cbd5e1; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.06);" onclick="viewImagePreviewModal('${typeof imgSrc === 'string' ? imgSrc : imgSrc.dataUrl}', 'รูปภาพสัปดาห์ที่ ${r.week}')" title="คลิกเพื่อดูรูปภาพขนาดใหญ่">
+                                        <img src="${typeof imgSrc === 'string' ? imgSrc : imgSrc.dataUrl}" style="width: 100%; height: 100%; object-fit: cover;" alt="รูปภาพสัปดาห์ที่ ${r.week}">
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                    <div style="font-size: 10px; color: #94a3b8; text-align: right; margin-top: 6px;">บันทึกเมื่อ: ${r.dateStr}</div>
                 </div>
             `).join('');
         }
@@ -8609,6 +8835,7 @@
                     pWeek.value = '16';
                 }
             }
+            onStudentReportWeekChange();
             renderStudentProjectHistory(stdId, data);
         }
 
@@ -8636,6 +8863,8 @@
             const newReport = {
                 week: wNum,
                 issues: issuesText,
+                file: studentPtSelectedFile ? { ...studentPtSelectedFile } : null,
+                images: studentPtSelectedImages.map(img => img.dataUrl || img),
                 dateStr: nowStr
             };
 
