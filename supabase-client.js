@@ -211,6 +211,80 @@ async function dispatchOtpEmail(targetEmail, targetName, otpCode, role) {
     return { success: true, otp: otpCode };
 }
 
+/**
+ * Dispatch In-App & Email Notification for:
+ * 1. New Assignment (การสั่งงาน)
+ * 2. New Appointment (การนัดหมาย)
+ * 3. Document Review Result (การตรวจเอกสารงาน)
+ */
+async function dispatchNotificationEmail(options) {
+    const {
+        toEmail,
+        studentName,
+        studentId,
+        advisorName,
+        type = 'general',
+        badgeText = 'แจ้งเตือนระบบ',
+        badgeColor = '#16a34a',
+        subject,
+        notificationTitle,
+        detailsHtml,
+        actionUrl,
+        actionText = 'เข้าสู่ระบบเพื่อตรวจสอบ'
+    } = options;
+
+    const origin = (window.location.origin && window.location.origin !== 'null' && !window.location.origin.startsWith('file')) ? window.location.origin : 'http://localhost:8080';
+    let defaultActionUrl = `${origin}/dashboard.html`;
+    const finalActionUrl = actionUrl || defaultActionUrl;
+
+    console.log(`[Notification Dispatch] Sending ${type} notification to:`, toEmail, { studentName, studentId, subject });
+
+    const apiEndpoints = [
+        `${origin}/api/send-notification`,
+        'http://localhost:8080/api/send-notification',
+        'http://127.0.0.1:8080/api/send-notification'
+    ];
+    const uniqueEndpoints = [...new Set(apiEndpoints)];
+
+    for (const endpoint of uniqueEndpoints) {
+        try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 8000);
+            const res = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    toEmail: toEmail || '',
+                    studentName: studentName || 'นิสิต',
+                    studentId: studentId || '',
+                    advisorName: advisorName || 'อาจารย์นิเทศ',
+                    type: type,
+                    badgeText: badgeText,
+                    badgeColor: badgeColor,
+                    subject: subject || `แจ้งเตือนจากระบบนิเทศสหกิจศึกษา KU - ${studentName || ''}`,
+                    notificationTitle: notificationTitle || subject,
+                    detailsHtml: detailsHtml || '<p>มีรายการแจ้งเตือนใหม่ในระบบ</p>',
+                    actionUrl: finalActionUrl,
+                    actionText: actionText
+                }),
+                signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+            if (res.ok) {
+                const data = await res.json().catch(() => ({ success: true }));
+                if (data.success) {
+                    console.log(`[Notification Dispatch] Successfully sent email notification via ${endpoint}`);
+                    return { success: true, recipients: data.recipients };
+                }
+            }
+        } catch (e) {
+            console.warn(`[Notification Dispatch] Failed endpoint ${endpoint}:`, e.message);
+        }
+    }
+
+    return { success: false, error: 'Cannot connect to email notification service' };
+}
+
 async function dbDeleteStudent(studentId, email) {
     if (supabaseClient) {
         try {

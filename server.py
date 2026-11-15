@@ -208,7 +208,61 @@ class KUCoopHandler(BaseHTTPRequestHandler):
                 print(f"[FirstLogin] SMTP Error: {e}")
                 return self.send_json({"success": False, "error": str(e)}, 500)
 
-        # 4. POST /api/send-email
+        # 4. POST /api/send-notification (สำหรับแจ้งเตือน นัดหมาย, สั่งงาน, ตรวจเอกสาร)
+        elif parsed.path == "/api/send-notification":
+            to_email = body.get("toEmail") or body.get("to") or body.get("email") or ""
+            student_name = body.get("studentName", "นิสิต")
+            student_id = body.get("studentId", "")
+            advisor_name = body.get("advisorName", "อาจารย์นิเทศ")
+            notif_type = body.get("type", "general")
+            badge_text = body.get("badgeText", "แจ้งเตือนระบบ")
+            badge_color = body.get("badgeColor", "#16a34a")
+            subject = body.get("subject", f"แจ้งเตือนจากระบบนิเทศสหกิจศึกษา KU - {student_name}")
+            notif_title = body.get("notificationTitle", subject)
+            details_html = body.get("detailsHtml", "<p>มีรายการแจ้งเตือนใหม่ในระบบ</p>")
+            action_url = body.get("actionUrl", f"http://localhost:{self.server.server_port}/dashboard.html")
+            action_text = body.get("actionText", "เข้าสู่ระบบเพื่อตรวจสอบ")
+
+            print(f"[Notification] Dispatching {notif_type} notification for {student_name} ({student_id}) to {to_email} and {DEFENSE_EMAIL} ...")
+
+            tpl_path = os.path.join(BASE_DIR, "templates", "email_notification.html")
+            if os.path.isfile(tpl_path):
+                with open(tpl_path, "r", encoding="utf-8") as f:
+                    html_body = f.read()
+                html_body = html_body.replace("{{BADGE_TEXT}}", str(badge_text))
+                html_body = html_body.replace("{{BADGE_COLOR}}", str(badge_color))
+                html_body = html_body.replace("{{NOTIFICATION_TITLE}}", str(notif_title))
+                html_body = html_body.replace("{{STUDENT_NAME}}", str(student_name))
+                html_body = html_body.replace("{{STUDENT_ID}}", str(student_id))
+                html_body = html_body.replace("{{ADVISOR_NAME}}", str(advisor_name))
+                html_body = html_body.replace("{{DETAILS_HTML}}", str(details_html))
+                html_body = html_body.replace("{{ACTION_URL}}", str(action_url))
+                html_body = html_body.replace("{{ACTION_TEXT}}", str(action_text))
+                html_body = html_body.replace("{{DEFENSE_EMAIL}}", DEFENSE_EMAIL)
+            else:
+                html_body = f"<h2>{subject}</h2><p>เรียน นิสิต {student_name}</p><div>{details_html}</div>"
+
+            recipients = []
+            if to_email and "@" in to_email and not to_email.endswith("example.com"):
+                recipients.append(to_email)
+            if DEFENSE_EMAIL not in recipients:
+                recipients.append(DEFENSE_EMAIL)
+
+            sent_any = False
+            for target in recipients:
+                try:
+                    send_clean_smtp_mail(target, subject, html_body)
+                    print(f"[Notification] Sent successfully to {target}")
+                    sent_any = True
+                except Exception as e:
+                    print(f"[Notification] SMTP Error to {target}: {e}")
+
+            if sent_any:
+                return self.send_json({"success": True, "recipients": recipients})
+            else:
+                return self.send_json({"success": False, "error": "SMTP send failed for all recipients"}, 500)
+
+        # 5. POST /api/send-email
         elif parsed.path == "/api/send-email":
             to_email = body.get("to") or body.get("email")
             subject = body.get("subject", "แจ้งเตือนจากระบบนิเทศสหกิจศึกษา KU")

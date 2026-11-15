@@ -4926,6 +4926,32 @@
             return saveAdvisorNewStudentConfirmed();
         }
 
+        function getStudentObjectById(stdId) {
+            if (!stdId) return null;
+            if (typeof loadDynamicStudentsData === 'function') loadDynamicStudentsData();
+            if (typeof studentsData === 'object' && studentsData) {
+                for (let sec in studentsData) {
+                    if (Array.isArray(studentsData[sec])) {
+                        const found = studentsData[sec].find(s => String(s.id) === String(stdId) || String(s.student_id) === String(stdId));
+                        if (found) return found;
+                    }
+                }
+            }
+            try {
+                const rawCustom = localStorage.getItem('coop_custom_users') || localStorage.getItem('customUsers');
+                if (rawCustom) {
+                    const parsed = JSON.parse(rawCustom);
+                    const user = Object.values(parsed).find(u => 
+                        (u.id && String(u.id) === String(stdId)) || 
+                        (u.student_id && String(u.student_id) === String(stdId)) ||
+                        (u.email && u.email.startsWith(String(stdId)))
+                    );
+                    if (user) return user;
+                }
+            } catch (e) {}
+            return { id: String(stdId), name: `นิสิต (${stdId})`, email: `${stdId}@ku.th` };
+        }
+
         async function sendFirstLoginInviteToStudent(stdId, stdName, stdEmail, btn, initialPass) {
             if (!stdEmail || !stdEmail.includes('@')) {
                 alert(`นิสิต ${stdName} ยังไม่ระบุอีเมลในระบบ`);
@@ -5210,11 +5236,72 @@
             }
             closeModal('modal-advisor-new-assignment');
 
+            // --- แจ้งเตือนนิสิต: ส่งกระดิ่งในระบบ (In-App) และส่งอีเมลแจ้งเตือน (Email Notification) ---
+            try {
+                if (typeof loadDynamicStudentsData === 'function') loadDynamicStudentsData();
+                let targetStudents = [];
+                for (let sec in studentsData) {
+                    if (secChoice === 'all' || sec.includes(secChoice) || (secChoice.includes('700') && sec.includes('700')) || (secChoice.includes('800') && sec.includes('800'))) {
+                        if (Array.isArray(studentsData[sec])) {
+                            targetStudents = targetStudents.concat(studentsData[sec]);
+                        }
+                    }
+                }
+
+                // กรองนิสิตไม่ให้ซ้ำ ID
+                const uniqueStudents = [];
+                const seenIds = new Set();
+                for (let s of targetStudents) {
+                    if (s && s.id && !seenIds.has(String(s.id))) {
+                        seenIds.add(String(s.id));
+                        uniqueStudents.push(s);
+                    }
+                }
+
+                const formatDueDateText = `${dateVal} เวลา ${timeVal} น.`;
+                uniqueStudents.forEach(std => {
+                    const stdName = std.name || `นิสิต (${std.id})`;
+                    const stdEmail = std.email || `${std.id}@ku.th`;
+
+                    // 1. In-App Notification (กระดิ่งแจ้งเตือนของนิสิต)
+                    sendNotification('student', std.id, `อาจารย์${advName} ได้มอบหมายงานใหม่: "${title}" (กำหนดส่ง: ${formatDueDateText})`);
+
+                    // 2. Email Notification (ส่งอีเมลแจ้งเตือนถึงนิสิต)
+                    if (typeof dispatchNotificationEmail === 'function') {
+                        const detailsHtml = `
+                            <p style="margin:0 0 8px 0;"><strong>ชื่องาน / เอกสาร:</strong> ${title}</p>
+                            <p style="margin:0 0 8px 0;"><strong>กำหนดส่ง:</strong> <span style="color:#dc2626;font-weight:700;">${formatDueDateText}</span></p>
+                            <p style="margin:0 0 8px 0;"><strong>หมู่เรียน:</strong> ${secChoice === 'all' ? 'ทุกหมู่เรียน' : secChoice}</p>
+                            <div style="background:#ffffff;border:1px solid #e2e8f0;padding:12px;border-radius:6px;margin-top:10px;">
+                                <strong style="color:#475569;font-size:12px;">คำสั่งงาน / รายละเอียด:</strong>
+                                <p style="margin:4px 0 0 0;font-size:13px;color:#334155;white-space:pre-line;">${desc || 'กรุณาส่งไฟล์เอกสาร, แนบรูปภาพ หรือเขียนคำอธิบายตามกำหนด'}</p>
+                            </div>
+                        `;
+                        dispatchNotificationEmail({
+                            toEmail: stdEmail,
+                            studentName: stdName,
+                            studentId: std.id,
+                            advisorName: advName,
+                            type: 'assignment',
+                            badgeText: 'สั่งงานใหม่',
+                            badgeColor: '#0f766e',
+                            subject: `[แจ้งเตือนการสั่งงานใหม่] ${title} (กำหนดส่ง: ${dateVal})`,
+                            notificationTitle: `อาจารย์ได้มอบหมายงานใหม่: ${title}`,
+                            detailsHtml: detailsHtml,
+                            actionUrl: `${window.location.origin}/dashboard.html`,
+                            actionText: 'เข้าสู่ระบบเพื่อส่งงาน'
+                        });
+                    }
+                });
+            } catch (notifErr) {
+                console.warn('[Assignment Notification Error]:', notifErr);
+            }
+
             renderAdvisorDocOverview();
             renderAdvisorAssignments();
             renderStudentClassroomAssignments();
 
-            alert(`โพสต์สั่งงาน "${title}" เรียบร้อยแล้ว`);
+            alert(`โพสต์สั่งงาน "${title}" เรียบร้อยแล้ว (ส่งแจ้งเตือนในระบบและอีเมลถึงนิสิต)`);
         }
 
         function deleteAdvisorAssignment(asgId) {
@@ -5641,6 +5728,60 @@
             }
         }
 
+        function notifyStudentDocReview({ studentId, docType, status, comment }) {
+            if (!studentId) return;
+            const isApproved = (status === 'ตรวจรับแล้ว' || status === 'ครบถ้วน');
+            const badgeColor = isApproved ? '#16a34a' : '#dc2626';
+            const reasonText = comment ? ` (หมายเหตุ: ${comment})` : '';
+            const docName = docType || 'เอกสารสหกิจศึกษา';
+            const advName = (typeof getCurrentAdvisorName === 'function') ? getCurrentAdvisorName() : 'อาจารย์นิเทศ';
+
+            // 1. In-App Notification (กระดิ่งแจ้งเตือนนิสิต)
+            const notifMsg = `อาจารย์${advName} ได้ตรวจ "${docName}": ${status}${reasonText}`;
+            sendNotification('student', studentId, notifMsg);
+
+            // 2. Email Notification (ส่งอีเมลแจ้งผลการตรวจถึงนิสิต)
+            try {
+                const stdObj = (typeof getStudentObjectById === 'function') ? getStudentObjectById(studentId) : null;
+                const stdName = (stdObj && stdObj.name) ? stdObj.name : `นิสิต (${studentId})`;
+                const stdEmail = (stdObj && stdObj.email) ? stdObj.email : `${studentId}@ku.th`;
+
+                if (typeof dispatchNotificationEmail === 'function') {
+                    const detailsHtml = `
+                        <p style="margin:0 0 8px 0;"><strong>เอกสารที่ตรวจ:</strong> ${docName}</p>
+                        <p style="margin:0 0 8px 0;"><strong>ผลการตรวจ:</strong> <span style="color:${badgeColor};font-weight:700;">${status}</span></p>
+                        <p style="margin:0 0 8px 0;"><strong>อาจารย์ผู้ตรวจ:</strong> ${advName}</p>
+                        ${comment ? `
+                        <div style="background:#fff1f2;border:1px solid #fecdd3;padding:12px;border-radius:6px;margin-top:10px;">
+                            <strong style="color:#e11d48;font-size:12px;">ข้อเสนอแนะ / เหตุผลที่ต้องแก้ไข:</strong>
+                            <p style="margin:4px 0 0 0;font-size:13px;color:#334155;white-space:pre-line;">${comment}</p>
+                        </div>
+                        ` : `
+                        <div style="background:#f0fdf4;border:1px solid #bbf7d0;padding:12px;border-radius:6px;margin-top:10px;">
+                            <p style="margin:0;font-size:12.5px;color:#15803d;font-weight:600;">เอกสารของท่านผ่านการตรวจรับเรียบร้อยแล้ว</p>
+                        </div>
+                        `}
+                    `;
+                    dispatchNotificationEmail({
+                        toEmail: stdEmail,
+                        studentName: stdName,
+                        studentId: studentId,
+                        advisorName: advName,
+                        type: 'review',
+                        badgeText: status,
+                        badgeColor: badgeColor,
+                        subject: `[แจ้งผลการตรวจเอกสาร] ${docName} - ${status}`,
+                        notificationTitle: `ผลการตรวจเอกสาร: ${docName}`,
+                        detailsHtml: detailsHtml,
+                        actionUrl: `${window.location.origin}/dashboard.html`,
+                        actionText: isApproved ? 'เข้าสู่ระบบเพื่อดูสถานะ' : 'เข้าสู่ระบบเพื่อแก้ไขเอกสาร'
+                    });
+                }
+            } catch (err) {
+                console.warn('[Doc Review Notification Error]:', err);
+            }
+        }
+
         function quickApproveDoc(docId, stdId) {
             const allDocs = getSubmittedDocs();
             const doc = allDocs.find(d => String(d.id) === String(docId));
@@ -5648,6 +5789,14 @@
                 doc.status = 'ตรวจรับแล้ว';
                 saveSubmittedDocs(allDocs);
             }
+
+            notifyStudentDocReview({
+                studentId: stdId,
+                docType: doc ? (doc.docType || doc.title) : 'เอกสารที่สั่ง',
+                status: 'ตรวจรับแล้ว',
+                comment: ''
+            });
+
             renderSubmittersList();
             renderAdvisorAssignments();
             renderStudentList();
@@ -5659,10 +5808,24 @@
         function quickRejectDoc(docId, stdId) {
             const allDocs = getSubmittedDocs();
             const doc = allDocs.find(d => String(d.id) === String(docId));
+            let reason = 'กรุณาตรวจสอบความถูกต้องและแนบเอกสารใหม่';
+            const inputReason = prompt('ระบุเหตุผลในการส่งกลับแก้ไข:', reason);
+            if (inputReason !== null && inputReason.trim()) {
+                reason = inputReason.trim();
+            }
             if (doc) {
                 doc.status = 'ต้องแก้ไข';
+                doc.comment = reason;
                 saveSubmittedDocs(allDocs);
             }
+
+            notifyStudentDocReview({
+                studentId: stdId,
+                docType: doc ? (doc.docType || doc.title) : 'เอกสารที่สั่ง',
+                status: 'ต้องแก้ไข',
+                comment: reason
+            });
+
             renderSubmittersList();
             renderAdvisorAssignments();
             renderStudentList();
@@ -6864,6 +7027,14 @@
             }
 
             addNotification(`อัปเดตเอกสาร "${doc.docType}" เป็น "${newStatus}" เรียบร้อยแล้ว`);
+
+            // แจ้งเตือนนิสิตเจ้าของเอกสาร: ทั้ง In-App และ Email
+            notifyStudentDocReview({
+                studentId: currentSelectedStudentId,
+                docType: doc.docType || doc.title,
+                status: newStatus,
+                comment: doc.comment
+            });
         }
 
         function syncOverallStudentDocStatus(studentId) {
@@ -6947,6 +7118,14 @@
             }
 
             addNotification(`อัปเดตสถานะการตรวจเอกสารเป็น "${newStatus}"`);
+
+            // แจ้งเตือนนิสิตเจ้าของเอกสาร: ทั้ง In-App และ Email
+            notifyStudentDocReview({
+                studentId: currentSelectedStudentId,
+                docType: 'เอกสารสหกิจศึกษาทั้งหมด',
+                status: newStatus,
+                comment: batchReason
+            });
         }
 
         let pendingPhotoDataUrl = null;
@@ -7527,7 +7706,47 @@
             };
             apps.push(newApp);
             saveSystemAppointments(apps);
-            sendNotification('student', studentId, `มีการนัดหมายนิเทศงานใหม่ วันที่ ${dateStr} เวลา ${timeStr}`);
+
+            const advName = (typeof getCurrentAdvisorName === 'function') ? getCurrentAdvisorName() : 'อาจารย์นิเทศ';
+            
+            // 1. In-App Notification (กระดิ่งนิสิต)
+            sendNotification('student', studentId, `อาจารย์${advName} ได้นัดหมายนิเทศงานใหม่ วันที่ ${dateStr} เวลา ${timeStr}`);
+
+            // 2. Email Notification (ส่งอีเมลแจ้งเตือนถึงนิสิต)
+            try {
+                const stdObj = (typeof getStudentObjectById === 'function') ? getStudentObjectById(studentId) : null;
+                const stdName = (stdObj && stdObj.name) ? stdObj.name : studentText;
+                const stdEmail = (stdObj && stdObj.email) ? stdObj.email : `${studentId}@ku.th`;
+
+                if (typeof dispatchNotificationEmail === 'function') {
+                    const detailsHtml = `
+                        <p style="margin:0 0 8px 0;"><strong>วันเวลานัดหมาย:</strong> <span style="color:#15803d;font-weight:700;">วันที่ ${dateStr} เวลา ${timeStr}</span></p>
+                        <p style="margin:0 0 8px 0;"><strong>รูปแบบ:</strong> การนิเทศงานสหกิจศึกษาประจำภาคการศึกษา</p>
+                        <p style="margin:0 0 8px 0;"><strong>อาจารย์ผู้นัดหมาย:</strong> ${advName}</p>
+                        <div style="background:#ffffff;border:1px solid #e2e8f0;padding:12px;border-radius:6px;margin-top:10px;">
+                            <p style="margin:0;font-size:12.5px;color:#475569;line-height:1.5;">
+                                กรุณาเตรียมเอกสาร รายงานความก้าวหน้าการปฏิบัติงาน และเตรียมความพร้อมก่อนถึงเวลานัดหมาย
+                            </p>
+                        </div>
+                    `;
+                    dispatchNotificationEmail({
+                        toEmail: stdEmail,
+                        studentName: stdName,
+                        studentId: studentId,
+                        advisorName: advName,
+                        type: 'appointment',
+                        badgeText: 'นัดหมายนิเทศงาน',
+                        badgeColor: '#2563eb',
+                        subject: `[แจ้งเตือนนัดหมายนิเทศงานใหม่] วันที่ ${dateStr} เวลา ${timeStr} - ${stdName}`,
+                        notificationTitle: `แจ้งการนัดหมายการนิเทศงานสหกิจศึกษา`,
+                        detailsHtml: detailsHtml,
+                        actionUrl: `${window.location.origin}/dashboard.html`,
+                        actionText: 'ดูตารางนัดหมายในระบบ'
+                    });
+                }
+            } catch (appErr) {
+                console.warn('[Appointment Email Error]:', appErr);
+            }
 
             if (typeof dbAddAppointment === 'function') {
                 await dbAddAppointment('1234', studentId, dateStr, timeStr);
@@ -7535,7 +7754,7 @@
 
             renderCalendarEvents();
             addNotification(`เพิ่มนัดหมายนิเทศ (${dateStr} เวลา ${timeStr}) เรียบร้อยแล้ว`);
-            alert(`บันทึกการนัดหมายวันที่ ${dateStr} เวลา ${timeStr} สำเร็จ! ปฏิทินแสดงไฮไลท์เรียบร้อยแล้ว`);
+            alert(`บันทึกการนัดหมายวันที่ ${dateStr} เวลา ${timeStr} สำเร็จ!\n(ส่งแจ้งเตือนในระบบและอีเมลถึงนิสิตเรียบร้อยแล้ว)`);
         }
 
         function clearCalForm() {
