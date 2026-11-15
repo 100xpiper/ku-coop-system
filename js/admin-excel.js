@@ -95,7 +95,7 @@ function clearAdminStudentFile() {
 
     const label = document.getElementById('excel-student-file-name-label');
     if (label) {
-        label.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg> คลิกเพื่อเลือกไฟล์ Excel รายชื่อนิสิต หรือ อาจารย์ (.xlsx / .csv)`;
+        label.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg> คลิกเพื่อเลือกไฟล์ Excel รายชื่อนิสิต, อาจารย์ (.xlsx / .csv)`;
         const parentBox = label.closest('div');
         if (parentBox) {
             parentBox.style.backgroundColor = '#ffffff';
@@ -182,7 +182,7 @@ function renderAdminStudentPreImportPreview(isPostImport = false, postImportList
         if (titleText) {
             titleText.textContent = (currentImportedFileType === 'advisor')
                 ? 'พรีวิวผลลัพธ์รายชื่ออาจารย์ที่นำเข้าล่าสุด:'
-                : 'พรีวิวผลลัพธ์รายชื่อนิสิตที่นำเข้าล่าสุด:';
+                : 'พรีวิวผลลัพธ์รายชื่อนิสิต, อาจารย์ที่นำเข้าล่าสุด:';
         }
         if (statusTag) {
             statusTag.textContent = 'นำเข้าสำเร็จแล้ว (พร้อมใช้งาน)';
@@ -203,7 +203,7 @@ function renderAdminStudentPreImportPreview(isPostImport = false, postImportList
                 postNotice.innerHTML = `
                             <div style="font-weight: 700; margin-bottom: 3px; display: flex; align-items: center; gap: 6px; font-size: 13px;">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                                นำเข้ารายชื่อนิสิตสำเร็จและบันทึกเข้าสู่ระบบเรียบร้อยแล้ว
+                                นำเข้ารายชื่อนิสิต, อาจารย์สำเร็จและบันทึกเข้าสู่ระบบเรียบร้อยแล้ว
                             </div>
                             <div style="line-height: 1.4;">ข้อมูลทั้งหมดถูกบันทึกลงในระบบเรียบร้อย สามารถตรวจสอบข้อมูลบัญชีผู้ใช้ (รหัสผ่านแรกเข้า: 123456) และพิกัดสถานประกอบการที่นำเข้าได้จากตารางด้านบนนี้ทันที</div>
                         `;
@@ -396,7 +396,7 @@ function renderAdminStudentPreImportPreview(isPostImport = false, postImportList
                 if (importBtnText) {
                     importBtnText.textContent = (currentImportedFileType === 'advisor')
                         ? `ยืนยันนำเข้ารายชื่ออาจารย์ (${rowsToDisplay.length} ท่าน) เข้าสู่ระบบ`
-                        : `ยืนยันนำเข้ารายชื่อนิสิต (${rowsToDisplay.length} รายการ) เข้าสู่ระบบ`;
+                        : `ยืนยันนำเข้ารายชื่อนิสิต, อาจารย์ (${rowsToDisplay.length} รายการ) เข้าสู่ระบบ`;
                 }
             }
         }
@@ -625,7 +625,7 @@ let postAddPreviewStudentsList = [];
 
 function showPostAddPreviewModal(options = {}) {
     const {
-        title = 'เพิ่ม / นำเข้ารายชื่อนิสิตสำเร็จเรียบร้อย',
+        title = 'เพิ่ม / นำเข้ารายชื่อนิสิต, อาจารย์สำเร็จเรียบร้อย',
         roleTitle = 'ผู้ดูแลระบบ',
         source = 'admin_file',
         students = [],
@@ -769,7 +769,7 @@ function goToStudentList() {
 
 function importStudentExcelFile() {
     if (!selectedStudentExcelFile) {
-        alert('กรุณาคลิกเลือกไฟล์ Excel รายชื่อนิสิต (.xlsx / .csv) ก่อนกดนำเข้าข้อมูล');
+        alert('กรุณาคลิกเลือกไฟล์ Excel รายชื่อนิสิต, อาจารย์ (.xlsx / .csv) ก่อนกดนำเข้าข้อมูล');
         return;
     }
 
@@ -1068,7 +1068,7 @@ function importStudentExcelFile() {
 
         // Open Post-Addition Preview Modal!
         showPostAddPreviewModal({
-            title: 'นำเข้ารายชื่อนิสิตเข้าสู่ระบบสำเร็จ',
+            title: 'นำเข้ารายชื่อนิสิต, อาจารย์เข้าสู่ระบบสำเร็จ',
             roleTitle: 'ผู้ดูแลระบบ (Admin)',
             source: 'admin_file',
             students: importedStudentsList,
@@ -1078,7 +1078,7 @@ function importStudentExcelFile() {
 
     } catch (err) {
         console.error("Student Excel import error:", err);
-        alert('เกิดข้อผิดพลาดในการอ่านไฟล์ Excel รายชื่อนิสิต กรุณาตรวจสอบรูปแบบไฟล์แล้วลองใหม่อีกครั้ง');
+        alert('เกิดข้อผิดพลาดในการอ่านไฟล์ Excel รายชื่อนิสิต, อาจารย์ กรุณาตรวจสอบรูปแบบไฟล์แล้วลองใหม่อีกครั้ง');
     }
 };
 reader.readAsArrayBuffer(selectedStudentExcelFile);

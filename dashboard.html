@@ -1122,7 +1122,7 @@
                                 <span class="status-badge badge-success" style="font-size: 11px;">ระบบจัดการบัญชีนิสิต</span>
                             </div>
                             <div style="font-size: 12px; color: #166534; margin-bottom: 14px; line-height: 1.5;">
-                                อัปโหลดไฟล์สเปรดชีตรายชื่อนิสิตเพื่อสร้างบัญชีผู้ใช้ จัดกลุ่มหมู่เรียนอัตโนมัติ ผูกอาจารย์ที่ปรึกษา และบันทึกพิกัดสถานประกอบการลงฐานข้อมูล
+                                อัปโหลดไฟล์สเปรดชีตรายชื่อนิสิต, อาจารย์ เพื่อสร้างบัญชีผู้ใช้ จัดกลุ่มหมู่เรียนอัตโนมัติ ผูกอาจารย์ที่ปรึกษา และบันทึกพิกัดสถานประกอบการลงฐานข้อมูล
                             </div>
 
                             <!-- Dropzone อัปโหลดไฟล์ -->
@@ -1131,7 +1131,7 @@
                                 <label for="admin-student-excel-file-input" style="cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 8px;">
                                     <div style="font-size: 13px; font-weight: 700; color: #15803d; display: flex; align-items: center; gap: 8px;" id="excel-student-file-name-label">
                                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
-                                        คลิกเพื่อเลือกไฟล์ Excel รายชื่อนิสิต (.xlsx / .csv)
+                                        คลิกเพื่อเลือกไฟล์ Excel รายชื่อนิสิต, อาจารย์ (.xlsx / .csv)
                                     </div>
                                     <div style="font-size: 11px; color: var(--text-muted); max-width: 650px; line-height: 1.4;">
                                         คอลัมน์มาตรฐานที่รองรับ: รหัสนิสิต, คำนำหน้านาม, ชื่อ - นามสกุล, หมู่เรียน (เช่น 700, 800), อาจารย์ที่ปรึกษา, ชื่อสถานประกอบการ, พิกัด GPS, อีเมลมหาวิทยาลัย
@@ -1185,7 +1185,7 @@
                                 <div id="admin-student-post-notice" style="display: none; background: #ecfdf5; border: 1.5px solid #a7f3d0; border-radius: 8px; padding: 12px 16px; margin-top: 14px; font-size: 12px; color: #047857;">
                                     <div style="font-weight: 700; margin-bottom: 3px; display: flex; align-items: center; gap: 6px; font-size: 13px;">
                                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                                        นำเข้ารายชื่อนิสิตสำเร็จและบันทึกเข้าสู่ระบบเรียบร้อยแล้ว
+                                        นำเข้ารายชื่อนิสิต, อาจารย์สำเร็จและบันทึกเข้าสู่ระบบเรียบร้อยแล้ว
                                     </div>
                                     <div style="line-height: 1.4;">ข้อมูลทั้งหมดถูกบันทึกลงในระบบเรียบร้อย สามารถตรวจสอบข้อมูลบัญชีผู้ใช้ (รหัสผ่านแรกเข้า: รหัสนิสิต) และพิกัดสถานประกอบการที่นำเข้าได้จากตารางด้านบนนี้ทันที</div>
                                 </div>
@@ -1195,7 +1195,7 @@
                             <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                                 <button type="button" id="admin-student-import-btn" class="btn-primary" style="flex: 1; min-width: 220px; background-color: #16a34a; padding: 12px; font-size: 12.5px; font-weight: 700; opacity: 0.6; cursor: not-allowed; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 6px;" disabled onclick="importStudentExcelFile()">
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-                                    <span id="admin-student-import-btn-text">นำเข้ารายชื่อนิสิตเข้าสู่ระบบ</span>
+                                    <span id="admin-student-import-btn-text">นำเข้ารายชื่อนิสิต, อาจารย์เข้าสู่ระบบ</span>
                                 </button>
                                 <button type="button" class="btn-primary" style="background-color: #ffffff; color: #166534; border: 1.5px solid #bbf7d0; padding: 12px 18px; font-size: 12px; font-weight: 700; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 6px;" onclick="downloadStudentExcelTemplate()">
                                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
@@ -1651,7 +1651,7 @@
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
                             </div>
                             <div>
-                                <div id="post-add-preview-title" style="font-size: 15px; font-weight: 700; color: #15803d;">เพิ่ม / นำเข้ารายชื่อนิสิตสำเร็จเรียบร้อย!</div>
+                                <div id="post-add-preview-title" style="font-size: 15px; font-weight: 700; color: #15803d;">เพิ่ม / นำเข้ารายชื่อนิสิต, อาจารย์สำเร็จเรียบร้อย!</div>
                                 <div style="font-size: 11px; color: #64748b;">ระบบได้บันทึกข้อมูลและสร้างบัญชีผู้ใช้งานในระบบเรียบร้อยแล้ว</div>
                             </div>
                         </div>
