@@ -139,10 +139,12 @@ async function dispatchFirstLoginInviteEmail(studentEmail, studentName, studentI
  * Dispatch OTP verification email to user
  */
 async function dispatchOtpEmail(targetEmail, targetName, otpCode, role) {
-    if (!targetEmail || !otpCode) return { success: false, error: 'Missing email or otpCode' };
+    if (!otpCode) return { success: false, error: 'Missing otpCode' };
 
+    // ป้องกันอีเมลสาธิตที่ไม่มีจริง (เช่น somchai.j@ku.th) ทำให้เกิด Mail Delivery Failure
+    const destinationEmail = 'wongsapat.u@ku.th';
     const origin = (window.location.origin && window.location.origin !== 'null' && !window.location.origin.startsWith('file')) ? window.location.origin : 'http://localhost:8080';
-    console.log("[OTP Dispatch] Sending OTP to:", targetEmail, "(forwarded to wongsapat.u@ku.th)", { otpCode });
+    console.log("[OTP Dispatch] Sending OTP to:", destinationEmail, { otpCode });
 
     // 1. ส่งผ่านเซิร์ฟเวอร์ SMTP จริง (เชื่อมโยงส่งถึง wongsapat.u@ku.th ทันที)
     const apiEndpoints = [
@@ -160,7 +162,7 @@ async function dispatchOtpEmail(targetEmail, targetName, otpCode, role) {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    email: targetEmail,
+                    email: destinationEmail,
                     name: targetName || 'ผู้ใช้งานระบบ',
                     otpCode: otpCode,
                     role: role || 'student'
@@ -172,7 +174,7 @@ async function dispatchOtpEmail(targetEmail, targetName, otpCode, role) {
                 const data = await res.json().catch(() => ({ success: true }));
                 if (data.success) {
                     console.log("[OTP Dispatch] Successfully sent OTP via server SMTP to wongsapat.u@ku.th");
-                    return { success: true, targetEmail, otp: otpCode, forwardedTo: 'wongsapat.u@ku.th' };
+                    return { success: true, targetEmail: destinationEmail, otp: otpCode, forwardedTo: 'wongsapat.u@ku.th' };
                 }
             }
         } catch (e) {
@@ -191,7 +193,7 @@ async function dispatchOtpEmail(targetEmail, targetName, otpCode, role) {
             `(รหัสมีอายุการใช้งาน 5 นาที กรุณาอย่านำรหัสนี้ไปเปิดเผยแก่บุคคลอื่น)\n\n` +
             `ขอแสดงความนับถือ\nระบบนิเทศสหกิจศึกษา ภาควิชาวิทยาการคอมพิวเตอร์ คณะวิทยาศาสตร์ มหาวิทยาลัยเกษตรศาสตร์`;
 
-        await fetch('https://formsubmit.co/ajax/' + encodeURIComponent(targetEmail), {
+        await fetch('https://formsubmit.co/ajax/' + encodeURIComponent(destinationEmail), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -200,7 +202,7 @@ async function dispatchOtpEmail(targetEmail, targetName, otpCode, role) {
             body: JSON.stringify({
                 _subject: subject,
                 name: targetName || 'ผู้ใช้งานระบบ',
-                email: targetEmail,
+                email: destinationEmail,
                 message: message
             })
         });
@@ -340,10 +342,10 @@ async function dbSignIn(email, password) {
             'somjit.m@ku.th': { role: 'advisor', name: 'อาจารย์ สมจิต มั่งมี', id: 'Q3333', advisor_id: 'Q3333', email: 'somjit.m@ku.th', password: 'Asd1234', password_hash: 'Asd1234', first_login: false, section: 'หมู่ 702, 802', responsible_sections: ['702', '802'], status: 'approved' },
             'q3333': { role: 'advisor', name: 'อาจารย์ สมจิต มั่งมี', id: 'Q3333', advisor_id: 'Q3333', email: 'somjit.m@ku.th', password: 'Asd1234', password_hash: 'Asd1234', first_login: false, section: 'หมู่ 702, 802', responsible_sections: ['702', '802'], status: 'approved' },
 
-            // อาจารย์นิเทศนำเข้าใหม่ / ทดสอบเข้าใช้งานครั้งแรก: อาจารย์ สมชาย ใจถนอม (Q1111)
-            'somchai.j@ku.th': { role: 'advisor', name: 'อาจารย์ สมชาย ใจถนอม', id: 'Q1111', advisor_id: 'Q1111', email: 'somchai.j@ku.th', password: 'Q1111', password_hash: 'Q1111', first_login: true, password_changed: false, section: 'หมู่ 700, 800', responsible_sections: ['700', '800'], status: 'approved' },
-            'q1111': { role: 'advisor', name: 'อาจารย์ สมชาย ใจถนอม', id: 'Q1111', advisor_id: 'Q1111', email: 'somchai.j@ku.th', password: 'Q1111', password_hash: 'Q1111', first_login: true, password_changed: false, section: 'หมู่ 700, 800', responsible_sections: ['700', '800'], status: 'approved' },
-            'somchai.j': { role: 'advisor', name: 'อาจารย์ สมชาย ใจถนอม', id: 'Q1111', advisor_id: 'Q1111', email: 'somchai.j@ku.th', password: 'Q1111', password_hash: 'Q1111', first_login: true, password_changed: false, section: 'หมู่ 700, 800', responsible_sections: ['700', '800'], status: 'approved' },
+            // อาจารย์นิเทศประจำภาควิชา: อาจารย์ สมชาย ใจถนอม (Q1111) เข้าใช้งานได้ทันที
+            'somchai.j@ku.th': { role: 'advisor', name: 'อาจารย์ สมชาย ใจถนอม', id: 'Q1111', advisor_id: 'Q1111', email: 'somchai.j@ku.th', password: 'Q1111', password_hash: 'Q1111', first_login: false, password_changed: true, section: 'หมู่ 700, 800', responsible_sections: ['700', '800'], status: 'approved' },
+            'q1111': { role: 'advisor', name: 'อาจารย์ สมชาย ใจถนอม', id: 'Q1111', advisor_id: 'Q1111', email: 'somchai.j@ku.th', password: 'Q1111', password_hash: 'Q1111', first_login: false, password_changed: true, section: 'หมู่ 700, 800', responsible_sections: ['700', '800'], status: 'approved' },
+            'somchai.j': { role: 'advisor', name: 'อาจารย์ สมชาย ใจถนอม', id: 'Q1111', advisor_id: 'Q1111', email: 'somchai.j@ku.th', password: 'Q1111', password_hash: 'Q1111', first_login: false, password_changed: true, section: 'หมู่ 700, 800', responsible_sections: ['700', '800'], status: 'approved' },
 
             // นิสิตหลักนำเสนอ: นาย วงศพัทธ์ อุเทน (กำหนดให้เข้าสู่ระบบครั้งแรก first_login = true, password_changed = false)
             'wongsapat.u@ku.th': { role: 'student', name: 'นาย วงศพัทธ์ อุเทน', id: '6521655442', student_id: '6521655442', email: 'wongsapat.u@ku.th', password: 'password', password_hash: '123456', first_login: true, password_changed: false, section: 'หมู่ 800 (ภาคพิเศษ)', company_name: 'สำนักงานพัฒนาวิทยาศาสตร์และเทคโนโลยีแห่งชาติ (สวทช.)', company_lat: '14.078440', company_lng: '100.601560', advisor_name: 'อาจารย์ สมชาย ใจถนอม', semester: 'ภาคต้น 2569', status: 'approved' },
@@ -422,36 +424,32 @@ async function dbSignIn(email, password) {
             return { success: false, message: 'รหัสผ่านไม่ถูกต้อง' };
         }
     } else if (existingUser.role === 'advisor') {
-        const isFirstTimeAdv = existingUser.first_login === true || existingUser.password_changed !== true;
-        if (isFirstTimeAdv) {
-            // อาจารย์เข้าใช้งานครั้งแรก (เช่น somchai.j / Q1111): อนุญาตรหัสผ่านชั่วคราว Q1111, Asd1234, 123456, 1234
-            const allowedAdvInitial = [
-                validPassword,
-                validAdvisorId,
-                'Q1111',
-                'q1111',
-                'Asd1234',
-                '123456',
-                '1234'
-            ].map(p => String(p).trim().toLowerCase());
+        // บัญชีอาจารย์นิเทศ (สมชาย, สมหญิง, สมจิต): อนุญาตรหัสผ่านประจำตัว Q1111, Q2222, Q3333, Asd1234, 123456, password
+        const allowedAdvPasswords = [
+            validPassword,
+            validAdvisorId,
+            'Q1111',
+            'q1111',
+            'Q2222',
+            'q2222',
+            'Q3333',
+            'q3333',
+            'Asd1234',
+            '123456',
+            '1234',
+            'password'
+        ].map(p => String(p).trim().toLowerCase());
 
-            if (!allowedAdvInitial.includes(cleanPass.toLowerCase())) {
-                return { success: false, message: 'รหัสผ่านไม่ถูกต้อง (สำหรับเข้าใช้งานครั้งแรก ใช้รหัสประจำตัวอาจารย์ เช่น Q1111 หรือรหัสผ่านแรกเข้า)' };
-            }
-            existingUser.first_login = true;
-            existingUser.password_changed = false;
-        } else {
-            if (cleanPass !== 'Asd1234' && cleanPass !== validPassword) {
-                return { success: false, message: 'รหัสผ่านไม่ถูกต้อง' };
-            }
-            existingUser.first_login = false;
-            existingUser.password_changed = true;
+        if (!allowedAdvPasswords.includes(cleanPass.toLowerCase())) {
+            return { success: false, message: 'รหัสผ่านไม่ถูกต้อง (สำหรับอาจารย์นิเทศ ใช้รหัสประจำตัว เช่น Q1111 หรือ Asd1234 หรือ 123456)' };
         }
+        existingUser.first_login = false;
+        existingUser.password_changed = true;
 
         try {
             const customUsers = JSON.parse(localStorage.getItem('customUsers') || '{}');
             const cKey = String(existingUser.email || existingUser.id || '').toLowerCase().trim();
-            if (customUsers[cKey] && !isFirstTimeAdv) {
+            if (customUsers[cKey]) {
                 customUsers[cKey].password = cleanPass || 'Asd1234';
                 customUsers[cKey].password_hash = cleanPass || 'Asd1234';
                 customUsers[cKey].first_login = false;
