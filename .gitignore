@@ -1,2 +1,8 @@
 ~$*
-
+*.exe
+*.log
+tools/*.exe
+tools/*.log
+tools/mobile_url.txt
+__pycache__/
+.agents/

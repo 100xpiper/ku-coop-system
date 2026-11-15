@@ -1,3 +1,19 @@
+$customPy = "$env:USERPROFILE\AppData\Roaming\uv\python\cpython-3.12.16-windows-x86_64-none\ku_coop_server.exe"
+if (Test-Path $customPy) {
+    & $customPy (Join-Path $PSScriptRoot "server.py")
+    exit 0
+}
+$pyExe = "$env:USERPROFILE\.local\bin\python3.12.exe"
+if (Test-Path $pyExe) {
+    & $pyExe (Join-Path $PSScriptRoot "server.py")
+    exit 0
+}
+$pyCmd = Get-Command python, python3 -ErrorAction SilentlyContinue | Select-Object -First 1
+if ($pyCmd) {
+    & $pyCmd.Source (Join-Path $PSScriptRoot "server.py")
+    exit 0
+}
+
 ﻿$preferredPorts = @(8080, 8081, 8082, 3000)
 $listener = $null
 $port = $null
@@ -46,7 +62,26 @@ $baseDir = $PSScriptRoot
 # --- SMTP Config ---
 $SMTP_USER = "per.300846@gmail.com"
 $SMTP_PASS = "bpbvozebtiqmmslk"
-$SMTP_FROM_NAME = "ระบบนิเทศสหกิจศึกษา KU"
+$SMTP_FROM_NAME = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String("4Lij4Liw4Lia4Lia4LiZ4Li04LmA4LiX4Lio4Liq4Lir4LiB4Li04LiI4Lio4Li24LiB4Lip4LiyIEtV"))
+
+function Send-CleanSmtpMail($toEmail, $subject, $htmlBody) {
+    $mail = New-Object System.Net.Mail.MailMessage
+    $fromAddr = New-Object System.Net.Mail.MailAddress($SMTP_USER, $SMTP_FROM_NAME, [System.Text.Encoding]::UTF8)
+    $mail.From = $fromAddr
+    $mail.To.Add($toEmail)
+    $mail.Subject = $subject
+    $mail.SubjectEncoding = [System.Text.Encoding]::UTF8
+    $mail.Body = $htmlBody
+    $mail.BodyEncoding = [System.Text.Encoding]::UTF8
+    $mail.IsBodyHtml = $true
+
+    $smtpClient = New-Object System.Net.Mail.SmtpClient("smtp.gmail.com", 587)
+    $smtpClient.EnableSsl = $true
+    $smtpClient.Credentials = New-Object System.Net.NetworkCredential($SMTP_USER, $SMTP_PASS)
+    $smtpClient.Send($mail)
+    $mail.Dispose()
+    $smtpClient.Dispose()
+}
 
 $mimeTypes = @{
     ".html" = "text/html; charset=utf-8"
@@ -91,7 +126,7 @@ try {
                 continue
             }
 
-            # --- POST /api/send-otp : ส่ง OTP Email ผ่าน Gmail SMTP ---
+            # --- POST /api/send-otp : Send OTP Email via Gmail SMTP ---
             if ($urlPath -eq "/api/send-otp" -and $request.HttpMethod -eq "POST") {
                 try {
                     $reader   = New-Object System.IO.StreamReader($request.InputStream, [System.Text.Encoding]::UTF8)
@@ -108,48 +143,22 @@ try {
                         continue
                     }
 
-                    # ปลายทางจัดส่งจริงสำหรับการสอบโปรเจค: เชื่อมโยง OTP ทุกบัญชีเข้าสู่ wongsapat.u@ku.th
                     $DEFENSE_EMAIL = "wongsapat.u@ku.th"
                     Write-Host "[OTP] Sending OTP $otpCode for $toEmail ($toName) -> to $DEFENSE_EMAIL ..." -ForegroundColor Cyan
 
-                    $credential = New-Object System.Management.Automation.PSCredential(
-                        $SMTP_USER,
-                        (ConvertTo-SecureString $SMTP_PASS -AsPlainText -Force)
-                    )
+                    $subject = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String("4Lij4Lir4Lix4LiqIE9UUCDguYDguILguYnguLLguKrguLnguYjguKPguLDguJrguJrguJnguLTguYDguJfguKjguKrguKvguIHguLTguIjguKjguLbguIHguKnguLIgS1U6IA==")) + $otpCode
+                    $templatePath = Join-Path $PSScriptRoot "templates\email_otp.html"
+                    if (Test-Path $templatePath) {
+                        $htmlBody = [System.IO.File]::ReadAllText($templatePath, [System.Text.Encoding]::UTF8)
+                        $htmlBody = $htmlBody.Replace("{{TO_NAME}}", [string]$toName)
+                        $htmlBody = $htmlBody.Replace("{{TO_EMAIL}}", [string]$toEmail)
+                        $htmlBody = $htmlBody.Replace("{{OTP_CODE}}", [string]$otpCode)
+                        $htmlBody = $htmlBody.Replace("{{DEFENSE_EMAIL}}", [string]$DEFENSE_EMAIL)
+                    } else {
+                        $htmlBody = "<h2>OTP Code: $otpCode</h2><p>For $toName ($toEmail)</p>"
+                    }
 
-                    $subject = "รหัส OTP เข้าสู่ระบบนิเทศสหกิจศึกษา KU: $otpCode"
-                    $htmlBody = @"
-<div style="font-family:'Segoe UI',Tahoma,Arial,sans-serif;max-width:520px;margin:0 auto;padding:24px;background:#ffffff;border:1px solid #e2e8f0;border-radius:12px;">
-  <div style="text-align:center;margin-bottom:20px;">
-    <h2 style="color:#15803d;margin:0;">ระบบนิเทศสหกิจศึกษา</h2>
-    <p style="color:#64748b;margin:4px 0;">มหาวิทยาลัยเกษตรศาสตร์</p>
-  </div>
-  <div style="background:#f8fafc;border-left:4px solid #16a34a;padding:12px 16px;border-radius:6px;margin-bottom:16px;">
-    <p style="margin:0 0 4px;font-size:13.5px;color:#334155;">ผู้ใช้งาน: <strong>$toName</strong></p>
-    <p style="margin:0;font-size:13.5px;color:#334155;">อีเมลระบบ: <code style="color:#0f766e;font-weight:bold;">$toEmail</code></p>
-  </div>
-  <p style="font-size:14px;color:#334155;">รหัสยืนยัน OTP สำหรับเข้าสู่ระบบของท่านคือ:</p>
-  <div style="background:#f0fdf4;border:2px solid #16a34a;border-radius:12px;padding:24px;text-align:center;margin:18px 0;">
-    <div style="font-size:42px;font-weight:bold;letter-spacing:10px;color:#15803d;font-family:monospace;">$otpCode</div>
-  </div>
-  <p style="font-size:13px;color:#64748b;margin:6px 0;">• รหัสนี้มีอายุ <strong>5 นาที</strong> และใช้ได้ครั้งเดียว</p>
-  <p style="font-size:13px;color:#64748b;margin:6px 0;">• กรุณาอย่าเปิดเผยรหัสนี้แก่บุคคลอื่น</p>
-  <hr style="border:none;border-top:1px solid #e2e8f0;margin:20px 0;">
-  <p style="font-size:11.5px;color:#94a3b8;text-align:center;margin:0;">ภาควิชาวิทยาการคอมพิวเตอร์ คณะวิทยาศาสตร์ มหาวิทยาลัยเกษตรศาสตร์<br>(ระบบทดสอบโครงงาน: เชื่อมโยงรับ OTP ณ $DEFENSE_EMAIL)</p>
-</div>
-"@
-
-                    Send-MailMessage `
-                        -SmtpServer "smtp.gmail.com" `
-                        -Port 587 `
-                        -UseSsl `
-                        -Credential $credential `
-                        -From "$SMTP_FROM_NAME <$SMTP_USER>" `
-                        -To $DEFENSE_EMAIL `
-                        -Subject $subject `
-                        -Body $htmlBody `
-                        -BodyAsHtml `
-                        -Encoding UTF8
+                    Send-CleanSmtpMail $DEFENSE_EMAIL $subject $htmlBody
 
                     Write-Host "[OTP] Email sent successfully to $DEFENSE_EMAIL (for $toEmail)" -ForegroundColor Green
                     Write-JsonResponse $response @{ success = $true; forwardedTo = $DEFENSE_EMAIL }
@@ -162,100 +171,93 @@ try {
                 continue
             }
 
+            # --- POST /api/send-reminder : Send reminder email ---
+            if ($urlPath -eq "/api/send-reminder" -and $request.HttpMethod -eq "POST") {
+                try {
+                    $reader   = New-Object System.IO.StreamReader($request.InputStream, [System.Text.Encoding]::UTF8)
+                    $bodyText = $reader.ReadToEnd()
+                    $body     = $bodyText | ConvertFrom-Json
 
+                    $toEmail     = $body.studentEmail
+                    $toName      = $body.studentName
+                    $studentId   = $body.studentId
+                    $advisorName = $body.advisorName
+                    $title       = $body.title
+                    $detail      = $body.detail
+                    $dueDate     = $body.dueDate
+                    $loginUrl    = $body.loginUrl
 
-            # --- POST /api/send-first-login : ส่งอีเมลแจ้งแรกเข้าใช้งาน ผ่าน Gmail SMTP ---
+                    $DEFENSE_EMAIL = "wongsapat.u@ku.th"
+                    Write-Host "[Reminder] Sending reminder to $DEFENSE_EMAIL (for $toEmail - $toName) ..." -ForegroundColor Cyan
+
+                    $subjectPrefix = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String("W+C5geC4iOC5ieC4h+C5gOC4leC4t+C4reC4meC4quC5iOC4h+C5gOC4reC4geC4quC4suC4o+C4quC4q+C4geC4tOC4iOC4qOC4tuC4geC4qeC4siBLVV0g"))
+                    $subject = "$subjectPrefix $title"
+                    $templatePath = Join-Path $PSScriptRoot "templates\email_reminder.html"
+                    if (Test-Path $templatePath) {
+                        $htmlBody = [System.IO.File]::ReadAllText($templatePath, [System.Text.Encoding]::UTF8)
+                        $htmlBody = $htmlBody.Replace("{{TO_NAME}}", [string]$toName)
+                        $htmlBody = $htmlBody.Replace("{{TO_EMAIL}}", [string]$toEmail)
+                        $htmlBody = $htmlBody.Replace("{{STUDENT_ID}}", [string]$studentId)
+                        $htmlBody = $htmlBody.Replace("{{ADVISOR_NAME}}", [string]$advisorName)
+                        $htmlBody = $htmlBody.Replace("{{TITLE}}", [string]$title)
+                        $htmlBody = $htmlBody.Replace("{{DETAIL}}", [string]$detail)
+                        $htmlBody = $htmlBody.Replace("{{DUE_DATE}}", [string]$dueDate)
+                        $htmlBody = $htmlBody.Replace("{{LOGIN_URL}}", [string]$loginUrl)
+                        $htmlBody = $htmlBody.Replace("{{DEFENSE_EMAIL}}", [string]$DEFENSE_EMAIL)
+                    } else {
+                        $htmlBody = "<h2>Reminder: $title</h2><p>$detail</p><p>Due: $dueDate</p>"
+                    }
+
+                    Send-CleanSmtpMail $DEFENSE_EMAIL $subject $htmlBody
+
+                    Write-Host "[Reminder] Email sent successfully to $DEFENSE_EMAIL (for $toEmail)" -ForegroundColor Green
+                    Write-JsonResponse $response @{ success = $true; forwardedTo = $DEFENSE_EMAIL }
+                } catch {
+                    $errMsg = $_.Exception.Message
+                    Write-Host "[Reminder] SMTP Error: $errMsg" -ForegroundColor Red
+                    Write-JsonResponse $response @{ success = $false; error = $errMsg } 500
+                }
+                $response.Close()
+                continue
+            }
+
+            # --- POST /api/send-first-login : Send first login invite email ---
             if ($urlPath -eq "/api/send-first-login" -and $request.HttpMethod -eq "POST") {
                 try {
                     $reader   = New-Object System.IO.StreamReader($request.InputStream, [System.Text.Encoding]::UTF8)
                     $bodyText = $reader.ReadToEnd()
                     $body     = $bodyText | ConvertFrom-Json
 
-                    $toEmail     = $body.email
-                    $toName      = $body.name
+                    $toEmail     = $body.studentEmail
+                    $toName      = $body.studentName
                     $studentId   = $body.studentId
                     $advisorName = $body.advisorName
                     $initialPassword = $body.initialPassword
-                    if (-not $initialPassword) { $initialPassword = $studentId }
-                    $loginUrl    = $body.loginUrl
-                    if (-not $loginUrl) { $loginUrl = "http://localhost:8080/index.html" }
-
-                    if (-not $toEmail) {
-                        Write-JsonResponse $response @{ success = $false; error = "Missing email" } 400
-                        $response.Close()
-                        continue
+                    if (-not $initialPassword -or $initialPassword -eq $studentId) {
+                        $initialPassword = "123456"
                     }
+                    $loginUrl    = $body.loginUrl
 
-                    # ปลายทางจัดส่งจริงสำหรับการสอบโปรเจค: เชื่อมโยงรับที่ wongsapat.u@ku.th
                     $DEFENSE_EMAIL = "wongsapat.u@ku.th"
                     Write-Host "[FirstLogin] Sending first login email to $DEFENSE_EMAIL (for $toEmail - $toName) ..." -ForegroundColor Cyan
 
-                    $credential = New-Object System.Management.Automation.PSCredential(
-                        $SMTP_USER,
-                        (ConvertTo-SecureString $SMTP_PASS -AsPlainText -Force)
-                    )
+                    $subjectPrefix = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String("4LmB4LiI4LmJ4LiH4LiC4LmJ4Lit4Lih4Li54Lil4LiB4Liy4Lij4LmA4LiC4LmJ4Liy4LmD4LiK4LmJ4LiH4Liy4LiZ4Lij4Liw4Lia4Lia4LiZ4Li04LmA4LiX4Lio4Liq4Lir4LiB4Li04LiI4Lio4Li24LiB4Lip4LiyIEtVICjguKrguLPguKvguKPguLHguJrguJnguLTguKrguLTguJXguYHguKPguIHguYDguILguYnguLIpIC0g"))
+                    $subject = "$subjectPrefix $toName ($studentId)"
+                    $templatePath = Join-Path $PSScriptRoot "templates\email_first_login.html"
+                    if (Test-Path $templatePath) {
+                        $htmlBody = [System.IO.File]::ReadAllText($templatePath, [System.Text.Encoding]::UTF8)
+                        $htmlBody = $htmlBody.Replace("{{TO_NAME}}", [string]$toName)
+                        $htmlBody = $htmlBody.Replace("{{STUDENT_ID}}", [string]$studentId)
+                        $htmlBody = $htmlBody.Replace("{{ADVISOR_NAME}}", [string]$advisorName)
+                        $htmlBody = $htmlBody.Replace("{{TO_EMAIL}}", [string]$toEmail)
+                        $htmlBody = $htmlBody.Replace("{{INITIAL_PASSWORD}}", [string]$initialPassword)
+                        $htmlBody = $htmlBody.Replace("{{LOGIN_URL}}", [string]$loginUrl)
+                        $htmlBody = $htmlBody.Replace("{{DEFENSE_EMAIL}}", [string]$DEFENSE_EMAIL)
+                    } else {
+                        $htmlBody = "<h2>First Login Info</h2><p>Password: $initialPassword</p>"
+                    }
 
-                    $subject = "แจ้งข้อมูลการเข้าใช้งานระบบนิเทศสหกิจศึกษา KU (สำหรับนิสิตแรกเข้า) - $toName ($studentId)"
-                    $htmlBody = @"
-<div style="font-family:'Prompt','Segoe UI',Arial,sans-serif;max-width:600px;margin:0 auto;padding:24px;background:#ffffff;border:1px solid #e2e8f0;border-radius:12px;">
-  <div style="background:#15803d;padding:24px;border-radius:8px 8px 0 0;text-align:center;color:#ffffff;">
-    <h2 style="margin:0 0 6px 0;font-size:22px;">ระบบนิเทศสหกิจศึกษา</h2>
-    <p style="margin:0;font-size:14px;opacity:0.9;">มหาวิทยาลัยเกษตรศาสตร์</p>
-  </div>
-  <div style="padding:24px;">
-    <p style="font-size:16px;color:#1e293b;margin-top:0;">เรียน <strong>$toName</strong> (รหัสนิสิต: <strong>$studentId</strong>)</p>
-    <p style="font-size:14px;color:#475569;line-height:1.6;">
-      อาจารย์นิเทศ (<strong>$advisorName</strong>) ได้เพิ่มข้อมูลของท่านเข้าสู่ระบบนิเทศสหกิจศึกษา เรียบร้อยแล้ว ท่านสามารถเข้าใช้งานระบบเพื่อส่งเอกสารสหกิจศึกษา ตรวจสอบการนัดหมาย และติดตามความคืบหน้าได้ทันที
-    </p>
-
-    <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:16px;margin:20px 0;">
-      <h3 style="margin:0 0 10px 0;font-size:15px;color:#166534;">ข้อมูลสำหรับการเข้าสู่ระบบครั้งแรก</h3>
-      <table style="width:100%;font-size:14px;color:#334155;border-collapse:collapse;">
-        <tr>
-          <td style="padding:6px 0;width:170px;font-weight:600;color:#15803d;">ชื่อผู้ใช้งาน (Username):</td>
-          <td style="padding:6px 0;"><code>$toEmail</code> หรือ <code>$studentId</code></td>
-        </tr>
-        <tr>
-          <td style="padding:6px 0;font-weight:600;color:#15803d;">รหัสผ่านแรกเข้า:</td>
-          <td style="padding:6px 0;"><code style="background:#dcfce7;color:#166534;padding:2px 8px;border-radius:4px;font-weight:700;">$initialPassword</code></td>
-        </tr>
-      </table>
-    </div>
-
-    <div style="background:#f8fafc;border-left:4px solid #0284c7;padding:12px 16px;margin:20px 0;font-size:13.5px;color:#334155;">
-      <strong>ขั้นตอนการเข้าสู่ระบบครั้งแรก:</strong>
-      <ol style="margin:8px 0 0 0;padding-left:20px;line-height:1.7;">
-        <li>กดปุ่มเข้าสู่ระบบด้านล่าง หรือเข้าผ่านลิงก์ของระบบ</li>
-        <li>กรอกอีเมล (@ku.th) หรือรหัสนิสิต และรหัสผ่านแรกเข้า ($initialPassword)</li>
-        <li>ระบบจะส่งรหัส OTP 8 หลักไปยังอีเมลนี้ เพื่อยืนยันตัวตน</li>
-        <li>ตั้งรหัสผ่านใหม่สำหรับการใช้งานประจำตัว</li>
-      </ol>
-    </div>
-
-    <div style="text-align:center;margin:28px 0;">
-      <a href="$loginUrl" style="display:inline-block;background:#15803d;color:#ffffff;text-decoration:none;font-size:15px;font-weight:600;padding:12px 32px;border-radius:8px;">เข้าสู่ระบบนิเทศสหกิจศึกษา</a>
-    </div>
-
-    <hr style="border:none;border-top:1px solid #e2e8f0;margin:24px 0;">
-    <p style="font-size:12px;color:#94a3b8;text-align:center;margin:0;line-height:1.5;">
-      ระบบนิเทศสหกิจศึกษา ภาควิชาวิทยาการคอมพิวเตอร์ คณะวิทยาศาสตร์ มหาวิทยาลัยเกษตรศาสตร์<br>
-      (ระบบทดสอบโครงงาน: เชื่อมโยงจัดส่ง ณ $DEFENSE_EMAIL)
-    </p>
-  </div>
-</div>
-"@
-
-                    Send-MailMessage `
-                        -SmtpServer "smtp.gmail.com" `
-                        -Port 587 `
-                        -UseSsl `
-                        -Credential $credential `
-                        -From "$SMTP_FROM_NAME <$SMTP_USER>" `
-                        -To $DEFENSE_EMAIL `
-                        -Subject $subject `
-                        -Body $htmlBody `
-                        -BodyAsHtml `
-                        -Encoding UTF8
+                    Send-CleanSmtpMail $DEFENSE_EMAIL $subject $htmlBody
 
                     Write-Host "[FirstLogin] Email sent successfully to $DEFENSE_EMAIL (for $toEmail)" -ForegroundColor Green
                     Write-JsonResponse $response @{ success = $true; forwardedTo = $DEFENSE_EMAIL }
@@ -268,8 +270,7 @@ try {
                 continue
             }
 
-
-            # --- POST /api/send-email : ส่งอีเมลทั่วไป ผ่าน Gmail SMTP ---
+            # --- POST /api/send-email : Generic email sender ---
             if ($urlPath -eq "/api/send-email" -and $request.HttpMethod -eq "POST") {
                 try {
                     $reader   = New-Object System.IO.StreamReader($request.InputStream, [System.Text.Encoding]::UTF8)
@@ -290,22 +291,7 @@ try {
 
                     Write-Host "[SendEmail] Sending email to $toEmail" -ForegroundColor Cyan
 
-                    $credential = New-Object System.Management.Automation.PSCredential(
-                        $SMTP_USER,
-                        (ConvertTo-SecureString $SMTP_PASS -AsPlainText -Force)
-                    )
-
-                    Send-MailMessage `
-                        -SmtpServer "smtp.gmail.com" `
-                        -Port 587 `
-                        -UseSsl `
-                        -Credential $credential `
-                        -From "$SMTP_FROM_NAME <$SMTP_USER>" `
-                        -To $toEmail `
-                        -Subject $subject `
-                        -Body $htmlBody `
-                        -BodyAsHtml `
-                        -Encoding UTF8
+                    Send-CleanSmtpMail $toEmail $subject $htmlBody
 
                     Write-Host "[SendEmail] Email sent successfully to $toEmail" -ForegroundColor Green
                     Write-JsonResponse $response @{ success = $true }

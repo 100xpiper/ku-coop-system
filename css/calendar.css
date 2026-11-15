@@ -1,0 +1,48 @@
+/* ==========================================================================
+   calendar.css - สไตล์ปฏิทินนัดหมายแบบ Grid และการแสดงผลวัน (Calendar UI)
+   โครงการ: KU Science Smart Internship Supervision Platform (01418499)
+   ผู้จัดทำ: นาย วงศพัทธ์ อุเทน (รหัสนิสิต 6521655442)
+   ========================================================================== */
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    background: #e2e8f0;
+    padding: 6px;
+    border-radius: 8px;
+}
+
+.calendar-day-header {
+    text-align: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: #475569;
+    padding: 6px 0;
+}
+
+.calendar-day-cell {
+    background: #ffffff;
+    min-height: 52px;
+    padding: 4px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: background 0.15s ease;
+}
+
+.calendar-day-cell:hover {
+    background: #f1f5f9;
+}
+
+.calendar-day-cell.today {
+    border: 1.5px solid var(--primary-color);
+    background: #f0fdf4;
+}
+
+.calendar-day-cell.selected {
+    background: #dcfce7;
+    border: 1.5px solid #16a34a;
+}

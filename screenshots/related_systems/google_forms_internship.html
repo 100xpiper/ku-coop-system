@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>แบบบันทึกการตรวจนิเทศงานสหกิจศึกษา - Google Forms</title>
+<style>
+  * { box-sizing: border-box; font-family: 'Google Sans', Roboto, Arial, sans-serif; }
+  body { background-color: #f0ebf8; margin: 0; padding: 20px; display: flex; justify-content: center; }
+  .form-container { width: 100%; max-width: 680px; }
+  .form-header {
+    background: #fff;
+    border-top: 10px solid #673ab7;
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+  }
+  .form-title { font-size: 26px; font-weight: 500; color: #202124; margin: 0 0 10px 0; }
+  .form-desc { font-size: 14px; color: #5f6368; line-height: 1.5; margin: 0; }
+  .form-card {
+    background: #fff;
+    border-radius: 8px;
+    padding: 22px 24px;
+    margin-bottom: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+  }
+  .q-title { font-size: 15px; font-weight: 500; color: #202124; margin-bottom: 14px; }
+  .q-title .required { color: #d93025; }
+  .text-input {
+    width: 60%;
+    border: none;
+    border-bottom: 1px solid #dadce0;
+    padding: 8px 0;
+    font-size: 14px;
+    outline: none;
+    color: #3c4043;
+  }
+  .radio-group { display: flex; flex-direction: column; gap: 12px; }
+  .radio-item { display: flex; align-items: center; gap: 10px; font-size: 14px; color: #202124; cursor: pointer; }
+  .radio-circle {
+    width: 18px; height: 18px; border-radius: 50%; border: 2px solid #5f6368;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .radio-item.selected .radio-circle { border-color: #673ab7; }
+  .radio-item.selected .radio-circle::after {
+    content: ''; width: 10px; height: 10px; border-radius: 50%; background: #673ab7;
+  }
+  .scale-table { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
+  .scale-point { display: flex; flex-direction: column; align-items: center; gap: 8px; font-size: 13px; color: #5f6368; }
+  .submit-btn {
+    background: #673ab7; color: #fff; border: none; border-radius: 4px;
+    padding: 10px 24px; font-size: 14px; font-weight: 500; cursor: pointer;
+  }
+  .form-footer { display: flex; justify-content: space-between; align-items: center; padding-top: 10px; }
+</style>
+</head>
+<body>
+<div class="form-container">
+  <div class="form-header">
+    <h1 class="form-title">แบบประเมินและบันทึกการนิเทศงานสหกิจศึกษา (FORM-09)</h1>
+    <p class="form-desc">โครงการสหกิจศึกษา คณะวิทยาศาสตร์ มหาวิทยาลัยเกษตรศาสตร์<br>สำหรับอาจารย์นิเทศใช้บันทึกผลการตรวจเยี่ยมนิสิต ณ สถานประกอบการ</p>
+  </div>
+
+  <div class="form-card">
+    <div class="q-title">ชื่อ-นามสกุล นิสิตสหกิจศึกษา และรหัสประจำตัวนิสิต <span class="required">*</span></div>
+    <input type="text" class="text-input" value="นาย วงศพัทธ์ อุเทน (6510402280)" readonly>
+  </div>
+
+  <div class="form-card">
+    <div class="q-title">ชื่อสถานประกอบการที่เข้ารับการฝึกปฏิบัติงาน <span class="required">*</span></div>
+    <input type="text" class="text-input" value="บริษัท ดิจิทัล โซลูชั่นส์ จำกัด (สำนักงานใหญ่)" readonly>
+  </div>
+
+  <div class="form-card">
+    <div class="q-title">การประเมินความก้าวหน้าและการปฏิบัติงานของนิสิต (คะแนนเต็ม 5) <span class="required">*</span></div>
+    <div class="scale-table">
+      <span style="font-size: 12px; color: #5f6368;">ต้องปรับปรุง (1)</span>
+      <div class="scale-point"><div class="radio-circle"></div><span>1</span></div>
+      <div class="scale-point"><div class="radio-circle"></div><span>2</span></div>
+      <div class="scale-point"><div class="radio-circle"></div><span>3</span></div>
+      <div class="scale-point"><div class="radio-circle"></div><span>4</span></div>
+      <div class="scale-point selected"><div class="radio-circle" style="border-color:#673ab7;"><div style="width:10px;height:10px;border-radius:50%;background:#673ab7;"></div></div><span>5</span></div>
+      <span style="font-size: 12px; color: #5f6368;">ดีเยี่ยม (5)</span>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <div class="q-title">ข้อคิดเห็นและข้อเสนอแนะของอาจารย์นิเทศต่อโครงงานสหกิจ <span class="required">*</span></div>
+    <input type="text" class="text-input" style="width: 100%;" value="นิสิตมีความก้าวหน้าตามแผนงาน ให้ติดตามการเขียนรายงานฉบับสมบูรณ์ FORM-11" readonly>
+  </div>
+
+  <div class="form-footer">
+    <button class="submit-btn" type="button">ส่งข้อมูล (Submit)</button>
+    <span style="font-size: 12px; color: #70757a;">Google Forms ไม่มีการบันทึกพิกัด GPS อัตโนมัติ</span>
+  </div>
+</div>
+</body>
+</html>
+

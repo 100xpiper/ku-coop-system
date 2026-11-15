@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>แบบติดตามสถานะเอกสารสหกิจศึกษา ภาคปลาย 2568 - Google ชีต</title>
+<style>
+  * { box-sizing: border-box; font-family: Roboto, Arial, sans-serif; }
+  body { margin: 0; padding: 0; background: #fff; font-size: 13px; color: #202124; }
+  .header { display: flex; align-items: center; padding: 8px 12px; border-bottom: 1px solid #dadce0; background: #fff; }
+  .sheets-icon { width: 36px; height: 36px; margin-right: 12px; }
+  .title-area { display: flex; flex-direction: column; }
+  .doc-title { font-size: 18px; font-weight: 500; color: #202124; display: flex; align-items: center; gap: 8px; }
+  .star { color: #5f6368; font-size: 14px; }
+  .menu-bar { display: flex; gap: 14px; font-size: 13px; color: #3c4043; margin-top: 4px; }
+  .toolbar { display: flex; gap: 8px; padding: 6px 12px; background: #edf2fa; border-bottom: 1px solid #dadce0; align-items: center; }
+  .tool-btn { padding: 4px 8px; border-radius: 4px; background: transparent; border: none; font-size: 12px; color: #444746; cursor: pointer; }
+  .formula-bar { display: flex; align-items: center; padding: 4px 12px; background: #fff; border-bottom: 1px solid #dadce0; font-family: monospace; font-size: 12px; }
+  .fx-label { font-weight: bold; color: #5f6368; margin-right: 8px; }
+  .fx-input { flex: 1; border: none; outline: none; font-family: monospace; font-size: 12px; color: #1e8e3e; }
+  .grid-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  .grid-table th { background: #f8f9fa; border: 1px solid #dadce0; padding: 6px 8px; font-weight: 500; font-size: 12px; color: #5f6368; text-align: center; }
+  .grid-table td { border: 1px solid #dadce0; padding: 6px 8px; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .col-num { width: 40px; background: #f8f9fa; text-align: center; color: #5f6368; font-weight: 500; }
+  .status-tag { padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 500; display: inline-block; }
+  .tag-done { background: #ceead6; color: #0d652d; }
+  .tag-pending { background: #feefc3; color: #b06000; }
+  .tag-none { background: #f1f3f4; color: #5f6368; }
+</style>
+</head>
+<body>
+  <div class="header">
+    <svg class="sheets-icon" viewBox="0 0 48 48"><path fill="#0F9D58" d="M29 6H13c-2.2 0-4 1.8-4 4v28c0 2.2 1.8 4 4 4h22c2.2 0 4-1.8 4-4V16L29 6z"/><path fill="#87CEAC" d="M29 6v10h10L29 6z"/><path fill="#FFF" d="M15 22h18v2H15zm0 6h18v2H15zm0 6h18v2H15z"/></svg>
+    <div class="title-area">
+      <div class="doc-title">แบบติดตามสถานะการปฏิบัติงานและการส่งเอกสารสหกิจศึกษา_68 <span class="star">★</span></div>
+      <div class="menu-bar">
+        <span>ไฟล์</span><span>แก้ไข</span><span>มุมมอง</span><span>แทรก</span><span>รูปแบบ</span><span>ข้อมูล</span><span>เครื่องมือ</span><span>ส่วนขยาย</span><span>ช่วยเหลือ</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <button class="tool-btn">↩</button><button class="tool-btn">↪</button><button class="tool-btn">🖨️</button><button class="tool-btn">100%</button>
+    <span style="color:#dadce0">|</span>
+    <button class="tool-btn"><b>B</b></button><button class="tool-btn"><i>I</i></button><button class="tool-btn"><u>U</u></button>
+    <span style="color:#dadce0">|</span>
+    <button class="tool-btn" style="color:#0F9D58">■ สีเติม</button>
+    <button class="tool-btn">田 เส้นขอบ</button>
+  </div>
+
+  <div class="formula-bar">
+    <span class="fx-label">fx</span>
+    <input type="text" class="fx-input" value="=COUNTIF(H3:H7, &quot;นิเทศแล้ว&quot;)" readonly>
+  </div>
+
+  <table class="grid-table">
+    <thead>
+      <tr>
+        <th class="col-num"></th>
+        <th style="width: 50px;">A</th>
+        <th style="width: 110px;">B</th>
+        <th style="width: 170px;">C</th>
+        <th style="width: 220px;">D</th>
+        <th style="width: 170px;">E</th>
+        <th style="width: 90px;">F</th>
+        <th style="width: 90px;">G</th>
+        <th style="width: 110px;">H</th>
+      </tr>
+      <tr style="background:#e6f4ea; font-weight:bold;">
+        <th class="col-num">1</th>
+        <td style="text-align:center; font-weight:bold;">ลำดับ</td>
+        <td style="font-weight:bold;">รหัสนิสิต</td>
+        <td style="font-weight:bold;">ชื่อ-นามสกุล</td>
+        <td style="font-weight:bold;">สถานประกอบการ</td>
+        <td style="font-weight:bold;">อาจารย์นิเทศ</td>
+        <td style="text-align:center; font-weight:bold;">FORM-01</td>
+        <td style="text-align:center; font-weight:bold;">FORM-02</td>
+        <td style="text-align:center; font-weight:bold;">สถานะนิเทศ</td>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="col-num">2</td>
+        <td style="text-align:center;">1</td>
+        <td>6510402280</td>
+        <td>นาย วงศพัทธ์ อุเทน</td>
+        <td>บริษัท ดิจิทัล โซลูชั่นส์ จำกัด</td>
+        <td>อ.ปรวี วงศ์สวัสดิ์สุริยะ</td>
+        <td style="text-align:center;"><span class="status-tag tag-done">✓ ส่งแล้ว</span></td>
+        <td style="text-align:center;"><span class="status-tag tag-done">✓ ส่งแล้ว</span></td>
+        <td style="text-align:center;"><span class="status-tag tag-done">นิเทศแล้ว</span></td>
+      </tr>
+      <tr>
+        <td class="col-num">3</td>
+        <td style="text-align:center;">2</td>
+        <td>6510402301</td>
+        <td>นางสาว กัญญาภัค มีสุข</td>
+        <td>บมจ. ปตท. สำนักงานใหญ่</td>
+        <td>อ.ปรวี วงศ์สวัสดิ์สุริยะ</td>
+        <td style="text-align:center;"><span class="status-tag tag-done">✓ ส่งแล้ว</span></td>
+        <td style="text-align:center;"><span class="status-tag tag-pending">◷ รอตรวจ</span></td>
+        <td style="text-align:center;"><span class="status-tag tag-pending">รอนัดหมาย</span></td>
+      </tr>
+      <tr>
+        <td class="col-num">4</td>
+        <td style="text-align:center;">3</td>
+        <td>6510402328</td>
+        <td>นาย ธนกฤต ชัยชนะ</td>
+        <td>ธนาคารกสิกรไทย สนง.ใหญ่</td>
+        <td>รศ.ดร.สมชาย ทรัพย์มั่นคง</td>
+        <td style="text-align:center;"><span class="status-tag tag-done">✓ ส่งแล้ว</span></td>
+        <td style="text-align:center;"><span class="status-tag tag-done">✓ ส่งแล้ว</span></td>
+        <td style="text-align:center;"><span class="status-tag tag-done">นิเทศแล้ว</span></td>
+      </tr>
+      <tr>
+        <td class="col-num">5</td>
+        <td style="text-align:center;">4</td>
+        <td>6510402344</td>
+        <td>นางสาว รัตนาพร ศรีสมบูรณ์</td>
+        <td>บริษัท แอดวานซ์ อินโฟร์ เซอร์วิส จำกัด</td>
+        <td>ผศ.ดร.นฤมล เจริญจิตต์</td>
+        <td style="text-align:center;"><span class="status-tag tag-none">✕ ยังไม่ส่ง</span></td>
+        <td style="text-align:center;"><span class="status-tag tag-none">✕ ยังไม่ส่ง</span></td>
+        <td style="text-align:center;"><span class="status-tag tag-pending">ยังไม่นัดหมาย</span></td>
+      </tr>
+      <tr>
+        <td class="col-num">6</td>
+        <td style="text-align:center;">5</td>
+        <td>6510402361</td>
+        <td>นาย ชยพล อัครเมธากุล</td>
+        <td>บริษัท ไลน์ คอมพานี (ประเทศไทย)</td>
+        <td>อ.ปรวี วงศ์สวัสดิ์สุริยะ</td>
+        <td style="text-align:center;"><span class="status-tag tag-done">✓ ส่งแล้ว</span></td>
+        <td style="text-align:center;"><span class="status-tag tag-done">✓ ส่งแล้ว</span></td>
+        <td style="text-align:center;"><span class="status-tag tag-done">นิเทศแล้ว</span></td>
+      </tr>
+    </tbody>
+  </table>
+</body>
+</html>
