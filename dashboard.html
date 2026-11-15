@@ -672,31 +672,6 @@
                             </div>
 
                             <div style="border-top: 1px dashed var(--border-color); padding-top: 10px; margin-top: 4px;">
-                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 6px;">
-                                    <label style="font-size: 11.5px; font-weight: 700; color: #1e293b; display: flex; align-items: center; gap: 6px;">
-                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></svg>
-                                        ระบบตรวจสอบพิกัด Geofencing (รัศมี 500 เมตร):
-                                    </label>
-                                    <button type="button" class="btn-primary" style="padding: 5px 10px; font-size: 11px; font-weight: 700; background-color: #0284c7; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px; cursor: pointer;" onclick="syncTargetCoordsWithCurrentGps()" title="บันทึกตำแหน่งของอุปกรณ์คุณขณะนี้เป็นพิกัดสถานประกอบการของนิสิตทันที">
-                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                                        <span>ซิงค์พิกัดสถานประกอบการกับตำแหน่งปัจจุบัน</span>
-                                    </button>
-                                </div>
-                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 6px; margin-bottom: 10px;">
-                                    <label style="display: flex; align-items: center; gap: 6px; padding: 7px 10px; background: #ecfdf5; border: 1.5px solid #10b981; border-radius: 6px; font-size: 11px; font-weight: 700; color: #065f46; cursor: pointer;">
-                                        <input type="radio" name="gps-mode" value="in_radius" checked onchange="setGpsSimulationMode('in_radius')">
-                                        <span>อยู่ในรัศมี (ผ่านเกณฑ์ ~45 ม.)</span>
-                                    </label>
-                                    <label style="display: flex; align-items: center; gap: 6px; padding: 7px 10px; background: #fff1f2; border: 1px solid #fecdd3; border-radius: 6px; font-size: 11px; font-weight: 600; color: #9f1239; cursor: pointer;">
-                                        <input type="radio" name="gps-mode" value="out_radius" onchange="setGpsSimulationMode('out_radius')">
-                                        <span>นอกรัศมี (ทดสอบบล็อก)</span>
-                                    </label>
-                                    <label style="display: flex; align-items: center; gap: 6px; padding: 7px 10px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 11px; font-weight: 600; color: #334155; cursor: pointer;">
-                                        <input type="radio" name="gps-mode" value="real_gps" onchange="setGpsSimulationMode('real_gps')">
-                                        <span>GPS ดาวเทียมสด</span>
-                                    </label>
-                                </div>
-
                                 <label style="font-size: 11.5px; font-weight: 700; color: #334155; display: flex; align-items: center; gap: 6px; margin-bottom: 6px;">
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                                     เลือกนิสิตเป้าหมาย หรือยืนยันรหัสนิสิตที่ตรวจพบ (แยกตามหมู่เรียน):
@@ -771,17 +746,6 @@
                                     ไม่อนุญาตให้ทำการเช็คอินและประเมินผล:
                                 </div>
                                 ตำแหน่งปัจจุบันของอาจารย์อยู่ห่างจากสถานประกอบการที่นิสิตลงทะเบียนไว้เกินกว่า <strong>500 เมตร</strong> กรุณาเดินทางไปยังสถานที่ฝึกงานจริงของนิสิตจึงจะสามารถดำเนินการเช็คอินได้
-                                
-                                <div style="margin-top: 10px; display: flex; gap: 6px; flex-wrap: wrap;">
-                                    <button type="button" class="btn-primary" style="flex: 1; min-width: 160px; padding: 8px 10px; font-size: 11.5px; font-weight: 700; background-color: #059669; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px;" onclick="syncTargetCoordsWithCurrentGps()">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                                        <span>ซิงค์พิกัดสถานประกอบการมาที่จุดนี้</span>
-                                    </button>
-                                    <button type="button" class="btn-primary" style="flex: 1; min-width: 160px; padding: 8px 10px; font-size: 11.5px; font-weight: 700; background-color: #d97706; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px;" onclick="bypassCheckinForDemo()">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-                                        <span>อนุโลมเช็คอินเพื่อเข้าสู่แบบประเมิน</span>
-                                    </button>
-                                </div>
                             </div>
 
                             <!-- ปุ่มดำเนินการ -->

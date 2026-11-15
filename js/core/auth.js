@@ -380,7 +380,30 @@ let notifications = [];
                 const qrImg = document.getElementById('std-qr-image');
                 const qrPlace = document.getElementById('std-qr-placeholder');
                 if (qrImg && qrPlace) {
-                    qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(stdIdVal)}`;
+                    let userLat = user.company_lat || user.lat;
+                    let userLng = user.company_lng || user.lng;
+                    if (!userLat || !userLng) {
+                        try {
+                            const customUsers = JSON.parse(localStorage.getItem('customUsers') || '{}');
+                            const u = customUsers[user.email] || customUsers[user.id] || customUsers[user.student_id];
+                            if (u && u.company_lat && u.company_lng) {
+                                userLat = u.company_lat;
+                                userLng = u.company_lng;
+                            }
+                        } catch (e) {}
+                    }
+
+                    // บรรจุรหัสนิสิตและพิกัดที่นิสิตตั้งไว้ลงใน QR Code
+                    let qrPayload = stdIdVal;
+                    if (userLat && userLng) {
+                        qrPayload = JSON.stringify({
+                            id: String(stdIdVal),
+                            lat: parseFloat(userLat),
+                            lng: parseFloat(userLng)
+                        });
+                    }
+
+                    qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(qrPayload)}`;
                     qrImg.onload = () => {
                         qrPlace.style.display = 'none';
                         qrImg.style.display = 'block';

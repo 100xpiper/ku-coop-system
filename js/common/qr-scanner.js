@@ -202,45 +202,87 @@ let activeCameraStream = null;
             const payloadStr = String(payload).trim();
             const studentSelect = document.getElementById('qr-scan-student-select');
             let matchedId = null;
+            let scannedTargetLat = null;
+            let scannedTargetLng = null;
 
-            if (studentSelect) {
-                // 1. Direct contains check
+            // 1. ถอดรหัสกรณี QR Code เป็น JSON ที่มีพิกัดสถานประกอบการที่นิสิตตั้งไว้
+            try {
+                if (payloadStr.startsWith('{') || payloadStr.includes('"id"')) {
+                    const parsed = JSON.parse(payloadStr);
+                    if (parsed.id) {
+                        matchedId = String(parsed.id);
+                        if (parsed.lat && parsed.lng) {
+                            scannedTargetLat = parseFloat(parsed.lat);
+                            scannedTargetLng = parseFloat(parsed.lng);
+                        }
+                    }
+                }
+            } catch (e) {}
+
+            // 2. ถอดรหัสกรณี QR Code ส่งมาในรูปแบบ Pipe (เช่น 6521655442|13.847621|100.569432)
+            if (!matchedId && payloadStr.includes('|')) {
+                const parts = payloadStr.split('|');
+                if (parts[0]) matchedId = parts[0].trim();
+                if (parts[1] && parts[2]) {
+                    scannedTargetLat = parseFloat(parts[1]);
+                    scannedTargetLng = parseFloat(parts[2]);
+                }
+            }
+
+            // 3. กรณี QR Code เป็นรหัสนิสิตทั่วไป 10 หลัก หรือข้อความ
+            if (!matchedId && studentSelect) {
                 for (let opt of studentSelect.options) {
                     if (opt.value && payloadStr.includes(opt.value)) {
                         matchedId = opt.value;
-                        studentSelect.value = opt.value;
                         break;
                     }
                 }
 
-                // 2. 10-digit ID pattern
                 if (!matchedId) {
                     const idMatch = payloadStr.match(/\b\d{10}\b/);
                     if (idMatch) {
                         for (let opt of studentSelect.options) {
                             if (opt.value === idMatch[0]) {
                                 matchedId = opt.value;
-                                studentSelect.value = opt.value;
                                 break;
                             }
                         }
                     }
                 }
 
-                // 3. Name pattern
                 if (!matchedId) {
                     for (let opt of studentSelect.options) {
                         const namePart = opt.text.split(' - ')[1] || '';
                         if (namePart && payloadStr.includes(namePart.trim())) {
                             matchedId = opt.value;
-                            studentSelect.value = opt.value;
                             break;
                         }
                     }
                 }
             }
 
-            // Beep sound confirmation
+            if (matchedId && studentSelect) {
+                studentSelect.value = matchedId;
+            }
+
+            // บันทึกพิกัดที่ดึงได้จาก QR Code เข้าสู่เครื่องอาจารย์ทันที
+            if (matchedId && scannedTargetLat && scannedTargetLng) {
+                const allStds = getAllSystemStudents();
+                const sObj = allStds.find(s => String(s.id) === String(matchedId));
+                if (sObj) {
+                    sObj.company_lat = scannedTargetLat;
+                    sObj.company_lng = scannedTargetLng;
+                }
+                try {
+                    const customUsers = JSON.parse(localStorage.getItem('customUsers') || '{}');
+                    if (!customUsers[matchedId]) customUsers[matchedId] = {};
+                    customUsers[matchedId].company_lat = scannedTargetLat;
+                    customUsers[matchedId].company_lng = scannedTargetLng;
+                    localStorage.setItem('customUsers', JSON.stringify(customUsers));
+                } catch (e) {}
+            }
+
+            // เสียงปี๊บตอบรับเมื่อสแกนพบ QR Code
             try {
                 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 const osc = audioCtx.createOscillator();
@@ -256,107 +298,12 @@ let activeCameraStream = null;
                 }, 150);
             } catch (e) {}
 
-            processCheckinAndEval(matchedId);
+            processCheckinAndEval(matchedId, scannedTargetLat, scannedTargetLng);
         }
         
-        // ตัวแปรควบคุมโหมดจำลองพิกัด GPS สำหรับสาธิตและทดสอบ (ค่าเริ่มต้น: in_radius เพื่อให้เช็คอินผ่านและเข้าสู่แบบประเมินได้ทันที)
-        let currentGpsMode = 'in_radius';
-
-        function setGpsSimulationMode(mode) {
-            currentGpsMode = mode;
-            console.log("[GPS Mode] เปลี่ยนโหมดพิกัดเป็น:", mode);
-            const radio = document.querySelector(`input[name="gps-mode"][value="${mode}"]`);
-            if (radio) radio.checked = true;
-
-            const studentSelect = document.getElementById('qr-scan-student-select');
-            const studentId = currentSelectedStudentId || (studentSelect ? studentSelect.value : '');
-            if (studentId) {
-                processCheckinAndEval(studentId);
-            }
-        }
-
-        async function syncTargetCoordsWithCurrentGps() {
-            const studentSelect = document.getElementById('qr-scan-student-select');
-            let studentId = currentSelectedStudentId || (studentSelect ? studentSelect.value : '');
-            if (!studentId && studentSelect && studentSelect.options.length > 0) {
-                for (let opt of studentSelect.options) {
-                    if (opt.value) { studentId = opt.value; break; }
-                }
-            }
-            if (!studentId) {
-                alert('กรุณาเลือกรหัสนิสิตที่ต้องการซิงค์พิกัดสถานประกอบการ');
-                return;
-            }
-
-            const allStds = getAllSystemStudents();
-            const stdObj = allStds.find(s => String(s.id) === String(studentId));
-            const stdName = stdObj ? stdObj.name : `รหัสนิสิต ${studentId}`;
-
-            const updateAndSave = (lat, lng) => {
-                const latStr = parseFloat(lat).toFixed(6);
-                const lngStr = parseFloat(lng).toFixed(6);
-
-                if (stdObj) {
-                    stdObj.company_lat = latStr;
-                    stdObj.company_lng = lngStr;
-                }
-
-                try {
-                    let customUsers = JSON.parse(localStorage.getItem('customUsers') || '{}');
-                    const userKeys = [studentId];
-                    if (stdObj && stdObj.email) userKeys.push(stdObj.email.toLowerCase().trim());
-                    userKeys.forEach(k => {
-                        if (!customUsers[k]) customUsers[k] = { id: studentId, name: stdName };
-                        customUsers[k].company_lat = latStr;
-                        customUsers[k].company_lng = lngStr;
-                    });
-                    localStorage.setItem('customUsers', JSON.stringify(customUsers));
-
-                    let companyGps = JSON.parse(localStorage.getItem('companyGpsData') || '{}');
-                    companyGps[studentId] = {
-                        company: (stdObj ? stdObj.company || stdObj.company_name : 'สถานประกอบการ'),
-                        lat: parseFloat(latStr),
-                        lng: parseFloat(lngStr),
-                        updatedAt: new Date().toLocaleString('th-TH')
-                    };
-                    localStorage.setItem('companyGpsData', JSON.stringify(companyGps));
-                } catch (e) {
-                    console.warn("Storage sync error:", e);
-                }
-
-                alert(`ซิงค์พิกัดสถานประกอบการสำเร็จ!\n\nนิสิต: ${stdName}\nพิกัดใหม่: Lat ${latStr}, Lng ${lngStr}\n\nระบบจะทำการเช็คอินยืนยันพิกัด ณ ตำแหน่งนี้ทันที`);
-                processCheckinAndEval(studentId);
-            };
-
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    (pos) => updateAndSave(pos.coords.latitude, pos.coords.longitude),
-                    (err) => {
-                        console.warn("GPS sync error, using approximate device location:", err);
-                        updateAndSave(13.847621, 100.569432);
-                    },
-                    { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
-                );
-            } else {
-                updateAndSave(13.847621, 100.569432);
-            }
-        }
-
-        function bypassCheckinForDemo() {
-            const studentSelect = document.getElementById('qr-scan-student-select');
-            let studentId = currentSelectedStudentId || (studentSelect ? studentSelect.value : '');
-            if (!studentId) return;
-
-            currentGpsMode = 'in_radius';
-            const radioIn = document.querySelector('input[name="gps-mode"][value="in_radius"]');
-            if (radioIn) radioIn.checked = true;
-
-            processCheckinAndEval(studentId);
-        }
-
-        // Haversine Distance Calculation Formula (Returns distance in meters)
+        // Haversine Distance Calculation Formula (คำนวณระยะทางบนผิวโลก หน่วยเป็นเมตร)
         function calculateHaversineDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371e3; // Earth radius in meters
+            const R = 6371e3; // รัศมีโลกเฉลี่ย 6,371,000 เมตร
             const phi1 = (lat1 * Math.PI) / 180;
             const phi2 = (lat2 * Math.PI) / 180;
             const deltaPhi = ((lat2 - lat1) * Math.PI) / 180;
@@ -367,10 +314,10 @@ let activeCameraStream = null;
                       Math.sin(deltaLambda / 2) * Math.sin(deltaLambda / 2);
             const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
-            return Math.round(R * c); // Distance in meters
+            return Math.round(R * c); // ระยะทางจริงเป็นเมตร
         }
 
-        function processCheckinAndEval(explicitStudentId) {
+        function processCheckinAndEval(explicitStudentId, explicitTargetLat, explicitTargetLng) {
             const studentSelect = document.getElementById('qr-scan-student-select');
             let studentId = explicitStudentId || (studentSelect ? studentSelect.value : '');
 
@@ -397,28 +344,30 @@ let activeCameraStream = null;
                 stdCompany = stdObj.company && stdObj.company !== '-' ? stdObj.company : (stdObj.company_name || 'สถานประกอบการ (พิกัด GPS)');
             }
 
-            // 1. Retrieve Target Workplace Coordinates set by Student, Admin, or seed
-            let targetLat = null;
-            let targetLng = null;
+            // 1. ดึงพิกัดสถานประกอบการตามที่นิสิตตั้งไว้จริง (Target Workplace Coordinates)
+            let targetLat = explicitTargetLat || null;
+            let targetLng = explicitTargetLng || null;
 
-            try {
-                const customUsers = JSON.parse(localStorage.getItem('customUsers') || '{}');
-                const u = Object.values(customUsers).find(user => 
-                    String(user.student_id || user.id) === String(studentId) || 
-                    (user.email && stdObj && String(user.email).toLowerCase() === String(stdObj.email).toLowerCase())
-                );
-                if (u && u.company_lat && u.company_lng) {
-                    targetLat = parseFloat(u.company_lat);
-                    targetLng = parseFloat(u.company_lng);
-                }
-            } catch (e) {}
+            if (!targetLat || !targetLng) {
+                try {
+                    const customUsers = JSON.parse(localStorage.getItem('customUsers') || '{}');
+                    const u = Object.values(customUsers).find(user => 
+                        String(user.student_id || user.id) === String(studentId) || 
+                        (user.email && stdObj && String(user.email).toLowerCase() === String(stdObj.email).toLowerCase())
+                    );
+                    if (u && u.company_lat && u.company_lng) {
+                        targetLat = parseFloat(u.company_lat);
+                        targetLng = parseFloat(u.company_lng);
+                    }
+                } catch (e) {}
+            }
 
             if ((!targetLat || !targetLng) && stdObj && stdObj.company_lat && stdObj.company_lng) {
                 targetLat = parseFloat(stdObj.company_lat);
                 targetLng = parseFloat(stdObj.company_lng);
             }
 
-            // ตรวจสอบจาก companyGpsData ที่บันทึกโดย Admin
+            // ตรวจสอบจาก companyGpsData (ถ้าแอดมินตั้งไว้)
             if (!targetLat || !targetLng) {
                 try {
                     const companyGps = JSON.parse(localStorage.getItem('companyGpsData') || '{}');
@@ -429,7 +378,7 @@ let activeCameraStream = null;
                 } catch (e) {}
             }
 
-            // Default fallback workplace coordinate if student hasn't set one yet
+            // พิกัดเริ่มต้นตามข้อมูลนิสิต
             if (!targetLat || !targetLng) {
                 if (studentId === '6521655442') {
                     // นาย วงศพัทธ์ อุเทน (สวทช. อุทยานวิทยาศาสตร์ประเทศไทย)
@@ -455,28 +404,8 @@ let activeCameraStream = null;
 
             // Main Verification Function (500 Meters Geo-Fence Rule)
             const evaluateDistanceAndDisplay = (advLat, advLng, accuracyMeters) => {
-                let actualTargetLat = targetLat;
-                let actualTargetLng = targetLng;
-
-                // ปรับพิกัดเป้าหมายตามโหมดที่เลือก (Adaptive Simulation Modes)
-                if (currentGpsMode === 'in_radius') {
-                    // จำลองว่าอาจารย์เดินทางมาถึงสถานประกอบการแล้ว (ห่างเพียง ~42-48 เมตร)
-                    actualTargetLat = parseFloat((advLat + 0.00028).toFixed(6));
-                    actualTargetLng = parseFloat((advLng + 0.00025).toFixed(6));
-                } else if (currentGpsMode === 'out_radius') {
-                    // จำลองว่าอยู่นอกพื้นที่ (> 15 กิโลเมตร) สำหรับทดสอบระบบความปลอดภัย Geofencing
-                    actualTargetLat = parseFloat((advLat + 0.1350).toFixed(6));
-                    actualTargetLng = parseFloat((advLng + 0.1200).toFixed(6));
-                } else {
-                    // real_gps: ใช้พิกัดจริงที่บันทึกไว้ในฐานข้อมูล
-                    if (!actualTargetLat || !actualTargetLng) {
-                        actualTargetLat = targetLat;
-                        actualTargetLng = targetLng;
-                    }
-                }
-
-                const MAX_ALLOWED_RADIUS = MAX_CHECKIN_RADIUS_METERS; // อิงตามค่าคงที่รัศมีปลอดภัย 500 เมตร
-                const distanceMeters = calculateHaversineDistance(advLat, advLng, actualTargetLat, actualTargetLng);
+                const MAX_ALLOWED_RADIUS = MAX_CHECKIN_RADIUS_METERS; // อิงตามเกณฑ์ปลอดภัย 500 เมตร
+                const distanceMeters = calculateHaversineDistance(advLat, advLng, targetLat, targetLng);
                 const isWithinRadius = (distanceMeters <= MAX_ALLOWED_RADIUS);
 
                 const card = document.getElementById('qr-checkin-result-card');
@@ -497,11 +426,11 @@ let activeCameraStream = null;
                 if (infoEl) infoEl.textContent = `${stdName} (รหัสนิสิต: ${studentId})`;
                 if (locEl) locEl.textContent = stdCompany;
                 if (gpsEl) gpsEl.textContent = `Lat ${advLat.toFixed(6)}, Lng ${advLng.toFixed(6)} (±${accuracyMeters || 5} ม.)`;
-                if (targetGpsEl) targetGpsEl.textContent = `Lat ${actualTargetLat.toFixed(6)}, Lng ${actualTargetLng.toFixed(6)}`;
+                if (targetGpsEl) targetGpsEl.textContent = `Lat ${targetLat.toFixed(6)}, Lng ${targetLng.toFixed(6)}`;
                 if (timeEl) timeEl.textContent = fullTimeStr;
 
                 if (mapLink) {
-                    mapLink.href = `https://www.google.com/maps/dir/?api=1&origin=${advLat},${advLng}&destination=${actualTargetLat},${actualTargetLng}`;
+                    mapLink.href = `https://www.google.com/maps/dir/?api=1&origin=${advLat},${advLng}&destination=${targetLat},${targetLng}`;
                     mapLink.title = `เปิดดูเส้นทางและระยะห่างบน Google Maps`;
                 }
 
@@ -592,10 +521,10 @@ let activeCameraStream = null;
                         distEl.style.color = '#dc2626';
                     }
                     if (warningBox) warningBox.style.display = 'block';
-                    if (evalBtn) evalBtn.style.display = 'none'; // DO NOT allow evaluation!
+                    if (evalBtn) evalBtn.style.display = 'none'; // ไม่อนุญาตให้ประเมินหากเกิน 500 เมตร
                     if (disabledNotice) disabledNotice.style.display = 'block';
 
-                    // Audio warning buzzer
+                    // Audio warning tone
                     try {
                         if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
                         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -603,7 +532,7 @@ let activeCameraStream = null;
                         const gain = audioCtx.createGain();
                         osc.connect(gain); gain.connect(audioCtx.destination);
                         osc.type = 'sawtooth';
-                        osc.frequency.value = 160; // Low warning tone
+                        osc.frequency.value = 160;
                         gain.gain.value = 0.25;
                         osc.start();
                         osc.stop(audioCtx.currentTime + 0.35);
@@ -618,7 +547,7 @@ let activeCameraStream = null;
                 restoreBtnText();
             };
 
-            // Retrieve Live Advisor GPS Coordinates
+            // ดึงพิกัดจริงของอาจารย์จากดาวเทียมในโทรศัพท์ (Live Device GPS)
             const highAccuracyOptions = {
                 enableHighAccuracy: true,
                 timeout: 8000,
@@ -634,7 +563,7 @@ let activeCameraStream = null;
                         evaluateDistanceAndDisplay(advLat, advLng, acc);
                     },
                     (err) => {
-                        console.warn("High-accuracy GPS error, trying fallback:", err.message);
+                        console.warn("High-accuracy GPS error, trying fallback to network location:", err.message);
                         navigator.geolocation.getCurrentPosition(
                             (pos2) => {
                                 evaluateDistanceAndDisplay(pos2.coords.latitude, pos2.coords.longitude, pos2.coords.accuracy ? pos2.coords.accuracy.toFixed(1) : '15.0');

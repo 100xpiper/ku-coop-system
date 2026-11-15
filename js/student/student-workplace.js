@@ -208,6 +208,17 @@ function renderStudentGpsSettings(user) {
                 mapLink.style.display = 'inline-flex';
             }
 
+            // อัปเดต QR Code ประจำตัวนิสิตให้บรรจุพิกัดล่าสุดที่ตั้งไว้ทันที
+            const qrImg = document.getElementById('std-qr-image');
+            if (qrImg) {
+                const qrPayload = JSON.stringify({
+                    id: String(std.id || std.student_id),
+                    lat: parseFloat(latStr),
+                    lng: parseFloat(lngStr)
+                });
+                qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(qrPayload)}`;
+            }
+
             // Beep sound confirmation
             try {
                 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
