@@ -65,6 +65,29 @@ function renderAdminGpsSection() {
             gpsData[select.value || 'default'] = { company: compText, lat: parseFloat(lat), lng: parseFloat(lng), updatedAt: new Date().toLocaleString('th-TH') };
             localStorage.setItem('companyGpsData', JSON.stringify(gpsData));
 
+            if (select && select.value) {
+                const sId = String(select.value);
+                const allStds = (typeof getAllSystemStudents === 'function') ? getAllSystemStudents() : [];
+                const sObj = allStds.find(s => String(s.id) === sId);
+                if (sObj) {
+                    sObj.company_lat = lat;
+                    sObj.company_lng = lng;
+                }
+                try {
+                    const customUsers = JSON.parse(localStorage.getItem('customUsers') || '{}');
+                    if (!customUsers[sId]) customUsers[sId] = {};
+                    customUsers[sId].company_lat = lat;
+                    customUsers[sId].company_lng = lng;
+                    if (sObj && sObj.email) {
+                        const em = sObj.email.toLowerCase().trim();
+                        if (!customUsers[em]) customUsers[em] = {};
+                        customUsers[em].company_lat = lat;
+                        customUsers[em].company_lng = lng;
+                    }
+                    localStorage.setItem('customUsers', JSON.stringify(customUsers));
+                } catch (e) {}
+            }
+
             alert(`บันทึกตั้งค่าพิกัด GPS สำหรับ ${compText} สำเร็จ!\n\nพิกัดอ้างอิง: Lat ${lat}, Lng ${lng}`);
             renderSavedGpsList();
         }
@@ -192,6 +215,29 @@ function renderAdminGpsSection() {
             const gpsData = JSON.parse(localStorage.getItem('companyGpsData') || '{}');
             gpsData[select.value || 'default'] = { company: compText, lat: parseFloat(lat), lng: parseFloat(lng), updatedAt: new Date().toISOString() };
             localStorage.setItem('companyGpsData', JSON.stringify(gpsData));
+
+            if (select && select.value) {
+                const sId = String(select.value);
+                const allStds = (typeof getAllSystemStudents === 'function') ? getAllSystemStudents() : [];
+                const sObj = allStds.find(s => String(s.id) === sId);
+                if (sObj) {
+                    sObj.company_lat = lat;
+                    sObj.company_lng = lng;
+                }
+                try {
+                    const customUsers = JSON.parse(localStorage.getItem('customUsers') || '{}');
+                    if (!customUsers[sId]) customUsers[sId] = {};
+                    customUsers[sId].company_lat = lat;
+                    customUsers[sId].company_lng = lng;
+                    if (sObj && sObj.email) {
+                        const em = sObj.email.toLowerCase().trim();
+                        if (!customUsers[em]) customUsers[em] = {};
+                        customUsers[em].company_lat = lat;
+                        customUsers[em].company_lng = lng;
+                    }
+                    localStorage.setItem('customUsers', JSON.stringify(customUsers));
+                } catch (e) {}
+            }
 
             alert(`บันทึกตั้งค่าพิกัด GPS สำหรับ ${compText} เรียบร้อยแล้ว!\n\nพิกัดอ้างอิง: Lat ${lat}, Lng ${lng}`);
             closeModal('modal-gps-setup');

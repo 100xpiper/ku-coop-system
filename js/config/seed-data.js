@@ -176,6 +176,8 @@ function ensureSeedUsers() {
                 password_changed: false,
                 section: 'หมู่ 800 (ภาคพิเศษ)',
                 company_name: 'สำนักงานพัฒนาวิทยาศาสตร์และเทคโนโลยีแห่งชาติ (สวทช.)',
+                company_lat: '14.078440',
+                company_lng: '100.601560',
                 advisor_name: 'อาจารย์ สมชาย ใจถนอม',
                 semester: 'ภาคต้น 2569',
                 status: 'approved'

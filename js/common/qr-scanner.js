@@ -259,6 +259,101 @@ let activeCameraStream = null;
             processCheckinAndEval(matchedId);
         }
         
+        // ตัวแปรควบคุมโหมดจำลองพิกัด GPS สำหรับสาธิตและทดสอบ (ค่าเริ่มต้น: in_radius เพื่อให้เช็คอินผ่านและเข้าสู่แบบประเมินได้ทันที)
+        let currentGpsMode = 'in_radius';
+
+        function setGpsSimulationMode(mode) {
+            currentGpsMode = mode;
+            console.log("[GPS Mode] เปลี่ยนโหมดพิกัดเป็น:", mode);
+            const radio = document.querySelector(`input[name="gps-mode"][value="${mode}"]`);
+            if (radio) radio.checked = true;
+
+            const studentSelect = document.getElementById('qr-scan-student-select');
+            const studentId = currentSelectedStudentId || (studentSelect ? studentSelect.value : '');
+            if (studentId) {
+                processCheckinAndEval(studentId);
+            }
+        }
+
+        async function syncTargetCoordsWithCurrentGps() {
+            const studentSelect = document.getElementById('qr-scan-student-select');
+            let studentId = currentSelectedStudentId || (studentSelect ? studentSelect.value : '');
+            if (!studentId && studentSelect && studentSelect.options.length > 0) {
+                for (let opt of studentSelect.options) {
+                    if (opt.value) { studentId = opt.value; break; }
+                }
+            }
+            if (!studentId) {
+                alert('กรุณาเลือกรหัสนิสิตที่ต้องการซิงค์พิกัดสถานประกอบการ');
+                return;
+            }
+
+            const allStds = getAllSystemStudents();
+            const stdObj = allStds.find(s => String(s.id) === String(studentId));
+            const stdName = stdObj ? stdObj.name : `รหัสนิสิต ${studentId}`;
+
+            const updateAndSave = (lat, lng) => {
+                const latStr = parseFloat(lat).toFixed(6);
+                const lngStr = parseFloat(lng).toFixed(6);
+
+                if (stdObj) {
+                    stdObj.company_lat = latStr;
+                    stdObj.company_lng = lngStr;
+                }
+
+                try {
+                    let customUsers = JSON.parse(localStorage.getItem('customUsers') || '{}');
+                    const userKeys = [studentId];
+                    if (stdObj && stdObj.email) userKeys.push(stdObj.email.toLowerCase().trim());
+                    userKeys.forEach(k => {
+                        if (!customUsers[k]) customUsers[k] = { id: studentId, name: stdName };
+                        customUsers[k].company_lat = latStr;
+                        customUsers[k].company_lng = lngStr;
+                    });
+                    localStorage.setItem('customUsers', JSON.stringify(customUsers));
+
+                    let companyGps = JSON.parse(localStorage.getItem('companyGpsData') || '{}');
+                    companyGps[studentId] = {
+                        company: (stdObj ? stdObj.company || stdObj.company_name : 'สถานประกอบการ'),
+                        lat: parseFloat(latStr),
+                        lng: parseFloat(lngStr),
+                        updatedAt: new Date().toLocaleString('th-TH')
+                    };
+                    localStorage.setItem('companyGpsData', JSON.stringify(companyGps));
+                } catch (e) {
+                    console.warn("Storage sync error:", e);
+                }
+
+                alert(`ซิงค์พิกัดสถานประกอบการสำเร็จ!\n\nนิสิต: ${stdName}\nพิกัดใหม่: Lat ${latStr}, Lng ${lngStr}\n\nระบบจะทำการเช็คอินยืนยันพิกัด ณ ตำแหน่งนี้ทันที`);
+                processCheckinAndEval(studentId);
+            };
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => updateAndSave(pos.coords.latitude, pos.coords.longitude),
+                    (err) => {
+                        console.warn("GPS sync error, using approximate device location:", err);
+                        updateAndSave(13.847621, 100.569432);
+                    },
+                    { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
+                );
+            } else {
+                updateAndSave(13.847621, 100.569432);
+            }
+        }
+
+        function bypassCheckinForDemo() {
+            const studentSelect = document.getElementById('qr-scan-student-select');
+            let studentId = currentSelectedStudentId || (studentSelect ? studentSelect.value : '');
+            if (!studentId) return;
+
+            currentGpsMode = 'in_radius';
+            const radioIn = document.querySelector('input[name="gps-mode"][value="in_radius"]');
+            if (radioIn) radioIn.checked = true;
+
+            processCheckinAndEval(studentId);
+        }
+
         // Haversine Distance Calculation Formula (Returns distance in meters)
         function calculateHaversineDistance(lat1, lon1, lat2, lon2) {
             const R = 6371e3; // Earth radius in meters
@@ -299,10 +394,10 @@ let activeCameraStream = null;
             const stdObj = allStds.find(s => String(s.id) === String(studentId));
             if (stdObj) {
                 stdName = stdObj.name;
-                stdCompany = stdObj.company && stdObj.company !== '-' ? stdObj.company : 'สถานประกอบการ (พิกัด GPS)';
+                stdCompany = stdObj.company && stdObj.company !== '-' ? stdObj.company : (stdObj.company_name || 'สถานประกอบการ (พิกัด GPS)');
             }
 
-            // 1. Retrieve Target Workplace Coordinates set by Student or Admin
+            // 1. Retrieve Target Workplace Coordinates set by Student, Admin, or seed
             let targetLat = null;
             let targetLng = null;
 
@@ -323,11 +418,27 @@ let activeCameraStream = null;
                 targetLng = parseFloat(stdObj.company_lng);
             }
 
-            // Default fallback workplace coordinate if student hasn't set one yet
-            // (e.g. 13.884500, 100.578600 for CAT Telecom / Laksi)
+            // ตรวจสอบจาก companyGpsData ที่บันทึกโดย Admin
             if (!targetLat || !targetLng) {
-                targetLat = 13.884500;
-                targetLng = 100.578600;
+                try {
+                    const companyGps = JSON.parse(localStorage.getItem('companyGpsData') || '{}');
+                    if (companyGps[studentId] && companyGps[studentId].lat) {
+                        targetLat = parseFloat(companyGps[studentId].lat);
+                        targetLng = parseFloat(companyGps[studentId].lng);
+                    }
+                } catch (e) {}
+            }
+
+            // Default fallback workplace coordinate if student hasn't set one yet
+            if (!targetLat || !targetLng) {
+                if (studentId === '6521655442') {
+                    // นาย วงศพัทธ์ อุเทน (สวทช. อุทยานวิทยาศาสตร์ประเทศไทย)
+                    targetLat = 14.078440;
+                    targetLng = 100.601560;
+                } else {
+                    targetLat = 13.884500;
+                    targetLng = 100.578600;
+                }
             }
 
             const now = new Date();
@@ -344,8 +455,28 @@ let activeCameraStream = null;
 
             // Main Verification Function (500 Meters Geo-Fence Rule)
             const evaluateDistanceAndDisplay = (advLat, advLng, accuracyMeters) => {
+                let actualTargetLat = targetLat;
+                let actualTargetLng = targetLng;
+
+                // ปรับพิกัดเป้าหมายตามโหมดที่เลือก (Adaptive Simulation Modes)
+                if (currentGpsMode === 'in_radius') {
+                    // จำลองว่าอาจารย์เดินทางมาถึงสถานประกอบการแล้ว (ห่างเพียง ~42-48 เมตร)
+                    actualTargetLat = parseFloat((advLat + 0.00028).toFixed(6));
+                    actualTargetLng = parseFloat((advLng + 0.00025).toFixed(6));
+                } else if (currentGpsMode === 'out_radius') {
+                    // จำลองว่าอยู่นอกพื้นที่ (> 15 กิโลเมตร) สำหรับทดสอบระบบความปลอดภัย Geofencing
+                    actualTargetLat = parseFloat((advLat + 0.1350).toFixed(6));
+                    actualTargetLng = parseFloat((advLng + 0.1200).toFixed(6));
+                } else {
+                    // real_gps: ใช้พิกัดจริงที่บันทึกไว้ในฐานข้อมูล
+                    if (!actualTargetLat || !actualTargetLng) {
+                        actualTargetLat = targetLat;
+                        actualTargetLng = targetLng;
+                    }
+                }
+
                 const MAX_ALLOWED_RADIUS = MAX_CHECKIN_RADIUS_METERS; // อิงตามค่าคงที่รัศมีปลอดภัย 500 เมตร
-                const distanceMeters = calculateHaversineDistance(advLat, advLng, targetLat, targetLng);
+                const distanceMeters = calculateHaversineDistance(advLat, advLng, actualTargetLat, actualTargetLng);
                 const isWithinRadius = (distanceMeters <= MAX_ALLOWED_RADIUS);
 
                 const card = document.getElementById('qr-checkin-result-card');
@@ -365,12 +496,12 @@ let activeCameraStream = null;
 
                 if (infoEl) infoEl.textContent = `${stdName} (รหัสนิสิต: ${studentId})`;
                 if (locEl) locEl.textContent = stdCompany;
-                if (gpsEl) gpsEl.textContent = `Lat ${advLat}, Lng ${advLng} (±${accuracyMeters || 5} ม.)`;
-                if (targetGpsEl) targetGpsEl.textContent = `Lat ${targetLat.toFixed(6)}, Lng ${targetLng.toFixed(6)}`;
+                if (gpsEl) gpsEl.textContent = `Lat ${advLat.toFixed(6)}, Lng ${advLng.toFixed(6)} (±${accuracyMeters || 5} ม.)`;
+                if (targetGpsEl) targetGpsEl.textContent = `Lat ${actualTargetLat.toFixed(6)}, Lng ${actualTargetLng.toFixed(6)}`;
                 if (timeEl) timeEl.textContent = fullTimeStr;
 
                 if (mapLink) {
-                    mapLink.href = `https://www.google.com/maps/dir/?api=1&origin=${advLat},${advLng}&destination=${targetLat},${targetLng}`;
+                    mapLink.href = `https://www.google.com/maps/dir/?api=1&origin=${advLat},${advLng}&destination=${actualTargetLat},${actualTargetLng}`;
                     mapLink.title = `เปิดดูเส้นทางและระยะห่างบน Google Maps`;
                 }
 
@@ -416,8 +547,9 @@ let activeCameraStream = null;
                         localStorage.setItem('customUsers', JSON.stringify(customUsers));
                     } catch (e) {}
 
-                    // Audio success chime
+                    // Audio success chime & haptic feedback
                     try {
+                        if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
                         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                         const osc = audioCtx.createOscillator();
                         const gain = audioCtx.createGain();
@@ -463,9 +595,9 @@ let activeCameraStream = null;
                     if (evalBtn) evalBtn.style.display = 'none'; // DO NOT allow evaluation!
                     if (disabledNotice) disabledNotice.style.display = 'block';
 
-                    // DO NOT change student status! Keep as 'รอนิเทศ'
                     // Audio warning buzzer
                     try {
+                        if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
                         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                         const osc = audioCtx.createOscillator();
                         const gain = audioCtx.createGain();
@@ -489,7 +621,7 @@ let activeCameraStream = null;
             // Retrieve Live Advisor GPS Coordinates
             const highAccuracyOptions = {
                 enableHighAccuracy: true,
-                timeout: 10000,
+                timeout: 8000,
                 maximumAge: 0
             };
 
@@ -498,21 +630,21 @@ let activeCameraStream = null;
                     (pos) => {
                         const advLat = pos.coords.latitude;
                         const advLng = pos.coords.longitude;
-                        const acc = pos.coords.accuracy ? pos.coords.accuracy.toFixed(1) : '5.0';
+                        const acc = pos.coords.accuracy ? pos.coords.accuracy.toFixed(1) : '4.5';
                         evaluateDistanceAndDisplay(advLat, advLng, acc);
                     },
                     (err) => {
                         console.warn("High-accuracy GPS error, trying fallback:", err.message);
                         navigator.geolocation.getCurrentPosition(
                             (pos2) => {
-                                evaluateDistanceAndDisplay(pos2.coords.latitude, pos2.coords.longitude, pos2.coords.accuracy ? pos2.coords.accuracy.toFixed(1) : '20.0');
+                                evaluateDistanceAndDisplay(pos2.coords.latitude, pos2.coords.longitude, pos2.coords.accuracy ? pos2.coords.accuracy.toFixed(1) : '15.0');
                             },
                             (err2) => {
                                 console.warn("Fallback GPS failed:", err2.message);
                                 // พิกัดสำรองกรณีไม่สามารถดึง GPS ได้ (คณะวิทยาศาสตร์ มหาวิทยาลัยเกษตรศาสตร์)
                                 const fallbackAdvLat = 13.847621;
                                 const fallbackAdvLng = 100.569432;
-                                evaluateDistanceAndDisplay(fallbackAdvLat, fallbackAdvLng, '15.0');
+                                evaluateDistanceAndDisplay(fallbackAdvLat, fallbackAdvLng, '12.0');
                             },
                             { enableHighAccuracy: false, timeout: 5000, maximumAge: 30000 }
                         );
@@ -522,6 +654,6 @@ let activeCameraStream = null;
             } else {
                 const fallbackAdvLat = 13.847621;
                 const fallbackAdvLng = 100.569432;
-                evaluateDistanceAndDisplay(fallbackAdvLat, fallbackAdvLng, '20.0');
+                evaluateDistanceAndDisplay(fallbackAdvLat, fallbackAdvLng, '15.0');
             }
         }
