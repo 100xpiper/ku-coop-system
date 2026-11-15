@@ -576,18 +576,49 @@
                                         <input type="text" id="cal-date-input" placeholder="เลือกวันที่จากปฏิทินด้านบน" style="width: 100%; padding: 6px; font-size: 12px; border-radius: 6px; border: 1px solid var(--border-color);">
                                     </div>
                                     <div>
-                                        <label style="font-size: 11px; font-weight: 600; color: var(--text-muted);">ช่วงเวลา (Dropdown)</label>
-                                        <select id="cal-time-select" style="width: 100%; padding: 6px; font-size: 12px; border-radius: 6px; border: 1px solid var(--border-color);">
+                                        <label style="font-size: 11px; font-weight: 600; color: var(--text-muted);">ช่วงเวลา (เลือกได้ทุกเวลา)</label>
+                                        <select id="cal-time-select" onchange="onCalTimeSelectChange(this.value)" style="width: 100%; padding: 6px; font-size: 12px; border-radius: 6px; border: 1px solid var(--border-color); background: #ffffff;">
+                                            <option value="06:00 น.">06:00 น.</option>
+                                            <option value="06:30 น.">06:30 น.</option>
+                                            <option value="07:00 น.">07:00 น.</option>
+                                            <option value="07:30 น.">07:30 น.</option>
+                                            <option value="08:00 น.">08:00 น.</option>
+                                            <option value="08:30 น.">08:30 น.</option>
                                             <option value="09:00 น.">09:00 น.</option>
                                             <option value="09:30 น.">09:30 น.</option>
                                             <option value="10:00 น.">10:00 น.</option>
                                             <option value="10:30 น.">10:30 น.</option>
                                             <option value="11:00 น.">11:00 น.</option>
+                                            <option value="11:30 น.">11:30 น.</option>
+                                            <option value="12:00 น.">12:00 น.</option>
+                                            <option value="12:30 น.">12:30 น.</option>
                                             <option value="13:00 น." selected>13:00 น.</option>
                                             <option value="13:30 น.">13:30 น.</option>
                                             <option value="14:00 น.">14:00 น.</option>
+                                            <option value="14:30 น.">14:30 น.</option>
                                             <option value="15:00 น.">15:00 น.</option>
+                                            <option value="15:30 น.">15:30 น.</option>
+                                            <option value="16:00 น.">16:00 น.</option>
+                                            <option value="16:30 น.">16:30 น.</option>
+                                            <option value="17:00 น.">17:00 น.</option>
+                                            <option value="17:30 น.">17:30 น.</option>
+                                            <option value="18:00 น.">18:00 น.</option>
+                                            <option value="18:30 น.">18:30 น.</option>
+                                            <option value="19:00 น.">19:00 น.</option>
+                                            <option value="19:30 น.">19:30 น.</option>
+                                            <option value="20:00 น.">20:00 น.</option>
+                                            <option value="20:30 น.">20:30 น.</option>
+                                            <option value="21:00 น.">21:00 น.</option>
+                                            <option value="21:30 น.">21:30 น.</option>
+                                            <option value="22:00 น.">22:00 น.</option>
+                                            <option value="22:30 น.">22:30 น.</option>
+                                            <option value="23:00 น.">23:00 น.</option>
+                                            <option value="custom">กำหนดเวลาเอง (ระบุเวลาอิสระ)...</option>
                                         </select>
+                                        <div id="cal-custom-time-box" style="display: none; margin-top: 6px;">
+                                            <label style="font-size: 10.5px; font-weight: 600; color: #1e40af; display: block; margin-bottom: 2px;">ระบุเวลาที่ต้องการ (ชั่วโมง:นาที):</label>
+                                            <input type="time" id="cal-custom-time-input" value="13:00" style="width: 100%; padding: 5px 8px; font-size: 11.5px; border-radius: 6px; border: 1px solid #93c5fd; background: #eff6ff;">
+                                        </div>
                                     </div>
                                 </div>
                                 <div style="display: flex; gap: 8px; margin-top: 4px;">
@@ -7375,6 +7406,19 @@
             renderStudentScheduleList();
         }
 
+        function onCalTimeSelectChange(val) {
+            const customBox = document.getElementById('cal-custom-time-box');
+            if (customBox) {
+                if (val === 'custom') {
+                    customBox.style.display = 'block';
+                    const customInput = document.getElementById('cal-custom-time-input');
+                    if (customInput) customInput.focus();
+                } else {
+                    customBox.style.display = 'none';
+                }
+            }
+        }
+
         async function addAppointment() {
             const studentSelect = document.getElementById('cal-student-select');
             const studentId = studentSelect ? studentSelect.value : '';
@@ -7384,7 +7428,15 @@
             }
             const studentText = studentSelect && studentSelect.options[studentSelect.selectedIndex] ? studentSelect.options[studentSelect.selectedIndex].text : 'นิสิตทั่วไป';
             const dateStr = document.getElementById('cal-date-input').value;
-            const timeStr = document.getElementById('cal-time-select').value;
+            let timeStr = document.getElementById('cal-time-select').value;
+            if (timeStr === 'custom') {
+                const customInput = document.getElementById('cal-custom-time-input');
+                if (customInput && customInput.value) {
+                    timeStr = customInput.value + ' น.';
+                } else {
+                    timeStr = '13:00 น.';
+                }
+            }
 
             if (!dateStr) {
                 alert('กรุณาเลือกวันที่จากปฏิทินก่อน');
@@ -7415,6 +7467,10 @@
 
         function clearCalForm() {
             document.getElementById('cal-date-input').value = '';
+            const timeSelect = document.getElementById('cal-time-select');
+            if (timeSelect) timeSelect.value = '13:00 น.';
+            const customBox = document.getElementById('cal-custom-time-box');
+            if (customBox) customBox.style.display = 'none';
             document.querySelectorAll('.calendar-cell').forEach(cell => cell.classList.remove('selected-day'));
         }
 
