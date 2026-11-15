@@ -5239,39 +5239,83 @@
             // --- แจ้งเตือนนิสิต: ส่งกระดิ่งในระบบ (In-App) และส่งอีเมลแจ้งเตือน (Email Notification) ---
             try {
                 if (typeof loadDynamicStudentsData === 'function') loadDynamicStudentsData();
-                let targetStudents = [];
-                for (let sec in studentsData) {
-                    if (secChoice === 'all' || sec.includes(secChoice) || (secChoice.includes('700') && sec.includes('700')) || (secChoice.includes('800') && sec.includes('800'))) {
-                        if (Array.isArray(studentsData[sec])) {
-                            targetStudents = targetStudents.concat(studentsData[sec]);
+                let allAvailableStudents = [];
+                if (typeof getAllSystemStudents === 'function') {
+                    allAvailableStudents = getAllSystemStudents();
+                }
+                if (typeof studentsData === 'object' && studentsData) {
+                    for (let k in studentsData) {
+                        if (Array.isArray(studentsData[k])) {
+                            allAvailableStudents = allAvailableStudents.concat(studentsData[k]);
                         }
                     }
                 }
+                try {
+                    const customUsers = JSON.parse(localStorage.getItem('customUsers') || '{}');
+                    for (let em in customUsers) {
+                        if (customUsers[em].role === 'student') {
+                            allAvailableStudents.push(customUsers[em]);
+                        }
+                    }
+                } catch (e) {}
 
-                // กรองนิสิตไม่ให้ซ้ำ ID
+                // กรองตามหมู่เรียนที่เลือก: 'all', 'normal', 'special'
+                let targetStudents = allAvailableStudents.filter(std => {
+                    if (!std || (!std.id && !std.student_id)) return false;
+                    if (secChoice === 'all') return true;
+
+                    const secStr = String(std.section || std.classroom || '').toLowerCase();
+                    if (secChoice === 'normal') {
+                        return secStr.includes('700') || secStr.includes('ปกติ') || secStr.includes('normal');
+                    } else if (secChoice === 'special') {
+                        return secStr.includes('800') || secStr.includes('พิเศษ') || secStr.includes('special');
+                    }
+                    return secStr.includes(secChoice);
+                });
+
+                // หากยังไม่พบนิสิต และเลือก all ให้ดึงทั้งหมดที่มี
+                if (targetStudents.length === 0 && secChoice === 'all') {
+                    targetStudents = allAvailableStudents;
+                }
+
+                // กรองไม่ให้ซ้ำ ID
                 const uniqueStudents = [];
                 const seenIds = new Set();
                 for (let s of targetStudents) {
-                    if (s && s.id && !seenIds.has(String(s.id))) {
-                        seenIds.add(String(s.id));
-                        uniqueStudents.push(s);
+                    const sId = String(s.id || s.student_id || '');
+                    if (sId && !seenIds.has(sId)) {
+                        seenIds.add(sId);
+                        uniqueStudents.push({
+                            id: sId,
+                            name: s.name || s.full_name || `นิสิต (${sId})`,
+                            email: s.email || `${sId}@ku.th`,
+                            section: s.section || s.classroom || ''
+                        });
                     }
                 }
 
                 const formatDueDateText = `${dateVal} เวลา ${timeVal} น.`;
-                uniqueStudents.forEach(std => {
-                    const stdName = std.name || `นิสิต (${std.id})`;
-                    const stdEmail = std.email || `${std.id}@ku.th`;
 
-                    // 1. In-App Notification (กระดิ่งแจ้งเตือนของนิสิต)
+                // 1. In-App Notification รวม (สำหรับนิสิตทุกคนเมื่อสั่ง all)
+                if (secChoice === 'all') {
+                    sendNotification('student', 'all', `อาจารย์${advName} ได้มอบหมายงานใหม่: "${title}" (กำหนดส่ง: ${formatDueDateText})`);
+                }
+
+                // 2. In-App Notification รายคน และส่ง Email แจ้งเตือน
+                uniqueStudents.forEach(std => {
+                    const stdName = std.name;
+                    const stdEmail = std.email;
+
+                    // ส่งกระดิ่งนิสิตรายบุคคล
                     sendNotification('student', std.id, `อาจารย์${advName} ได้มอบหมายงานใหม่: "${title}" (กำหนดส่ง: ${formatDueDateText})`);
 
-                    // 2. Email Notification (ส่งอีเมลแจ้งเตือนถึงนิสิต)
+                    // ส่งอีเมลแจ้งเตือนถึงนิสิต
                     if (typeof dispatchNotificationEmail === 'function') {
+                        const secLabel = secChoice === 'all' ? 'ทุกหมู่เรียน' : (secChoice === 'normal' ? 'หมู่ 700 (ภาคปกติ)' : 'หมู่ 800 (ภาคพิเศษ)');
                         const detailsHtml = `
                             <p style="margin:0 0 8px 0;"><strong>ชื่องาน / เอกสาร:</strong> ${title}</p>
                             <p style="margin:0 0 8px 0;"><strong>กำหนดส่ง:</strong> <span style="color:#dc2626;font-weight:700;">${formatDueDateText}</span></p>
-                            <p style="margin:0 0 8px 0;"><strong>หมู่เรียน:</strong> ${secChoice === 'all' ? 'ทุกหมู่เรียน' : secChoice}</p>
+                            <p style="margin:0 0 8px 0;"><strong>หมู่เรียน:</strong> ${secLabel}</p>
                             <div style="background:#ffffff;border:1px solid #e2e8f0;padding:12px;border-radius:6px;margin-top:10px;">
                                 <strong style="color:#475569;font-size:12px;">คำสั่งงาน / รายละเอียด:</strong>
                                 <p style="margin:4px 0 0 0;font-size:13px;color:#334155;white-space:pre-line;">${desc || 'กรุณาส่งไฟล์เอกสาร, แนบรูปภาพ หรือเขียนคำอธิบายตามกำหนด'}</p>
@@ -5293,6 +5337,8 @@
                         });
                     }
                 });
+
+                console.log(`[Assignment Notification Sent] Notified ${uniqueStudents.length} students.`, uniqueStudents);
             } catch (notifErr) {
                 console.warn('[Assignment Notification Error]:', notifErr);
             }

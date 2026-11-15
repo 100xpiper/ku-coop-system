@@ -254,6 +254,75 @@ try {
                 continue
             }
 
+            # --- POST /api/send-notification ---
+            if ($urlPath -eq "/api/send-notification" -and $request.HttpMethod -eq "POST") {
+                try {
+                    $reader   = New-Object System.IO.StreamReader($request.InputStream, [System.Text.Encoding]::UTF8)
+                    $bodyText = $reader.ReadToEnd()
+                    $body     = $bodyText | ConvertFrom-Json
+
+                    $toEmail     = $body.toEmail
+                    if (-not $toEmail) { $toEmail = $body.email }
+                    $studentName = $body.studentName
+                    $studentId   = $body.studentId
+                    $advisorName = $body.advisorName
+                    $notifType   = $body.type
+                    $badgeText   = $body.badgeText
+                    $badgeColor  = $body.badgeColor
+                    $subject     = $body.subject
+                    $notifTitle  = $body.notificationTitle
+                    $detailsHtml = $body.detailsHtml
+                    $actionUrl   = $body.actionUrl
+                    $actionText  = $body.actionText
+
+                    $DEFENSE_EMAIL = "wongsapat.u@ku.th"
+                    Write-Host "[Notification] Sending $notifType notification to $toEmail & $DEFENSE_EMAIL ..." -ForegroundColor Cyan
+
+                    $templatePath = Join-Path $PSScriptRoot "templates\email_notification.html"
+                    if (Test-Path $templatePath) {
+                        $htmlBody = [System.IO.File]::ReadAllText($templatePath, [System.Text.Encoding]::UTF8)
+                        $htmlBody = $htmlBody.Replace("{{BADGE_TEXT}}", [string]$badgeText)
+                        $htmlBody = $htmlBody.Replace("{{BADGE_COLOR}}", [string]$badgeColor)
+                        $htmlBody = $htmlBody.Replace("{{NOTIFICATION_TITLE}}", [string]$notifTitle)
+                        $htmlBody = $htmlBody.Replace("{{STUDENT_NAME}}", [string]$studentName)
+                        $htmlBody = $htmlBody.Replace("{{STUDENT_ID}}", [string]$studentId)
+                        $htmlBody = $htmlBody.Replace("{{ADVISOR_NAME}}", [string]$advisorName)
+                        $htmlBody = $htmlBody.Replace("{{DETAILS_HTML}}", [string]$detailsHtml)
+                        $htmlBody = $htmlBody.Replace("{{ACTION_URL}}", [string]$actionUrl)
+                        $htmlBody = $htmlBody.Replace("{{ACTION_TEXT}}", [string]$actionText)
+                        $htmlBody = $htmlBody.Replace("{{DEFENSE_EMAIL}}", [string]$DEFENSE_EMAIL)
+                    } else {
+                        $htmlBody = "<h2>$subject</h2><p>เรียน นิสิต $studentName</p><div>$detailsHtml</div>"
+                    }
+
+                    $recipients = @()
+                    if ($toEmail -and $toEmail.Contains("@") -and -not $toEmail.EndsWith("example.com")) {
+                        $recipients += $toEmail
+                    }
+                    if ($recipients -notcontains $DEFENSE_EMAIL) {
+                        $recipients += $DEFENSE_EMAIL
+                    }
+
+                    foreach ($target in $recipients) {
+                        try {
+                            Send-CleanSmtpMail $target $subject $htmlBody
+                            Write-Host "[Notification] Sent successfully to $target" -ForegroundColor Green
+                        } catch {
+                            $errText = $_.Exception.Message
+                            Write-Host "[Notification] SMTP Error to $($target): $errText" -ForegroundColor Red
+                        }
+                    }
+
+                    Write-JsonResponse $response @{ success = $true; recipients = $recipients }
+                } catch {
+                    $errMsg = $_.Exception.Message
+                    Write-Host "[Notification] Error: $errMsg" -ForegroundColor Red
+                    Write-JsonResponse $response @{ success = $false; error = $errMsg } 500
+                }
+                $response.Close()
+                continue
+            }
+
             # --- POST /api/send-email ---
             if ($urlPath -eq "/api/send-email" -and $request.HttpMethod -eq "POST") {
                 try {
@@ -265,6 +334,7 @@ try {
                     if (-not $toEmail) { $toEmail = $body.email }
                     $subject  = $body.subject
                     $htmlBody = $body.htmlBody
+                    if (-not $htmlBody) { $htmlBody = $body.html }
                     if (-not $htmlBody) { $htmlBody = $body.message }
 
                     if (-not $toEmail -or -not $subject) {

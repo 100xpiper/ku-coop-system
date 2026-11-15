@@ -282,6 +282,78 @@ async function dispatchNotificationEmail(options) {
         }
     }
 
+    // 2. Fallback to /api/send-email (General SMTP endpoint)
+    const fallbackEndpoints = [
+        `${origin}/api/send-email`,
+        'http://localhost:8080/api/send-email',
+        'http://127.0.0.1:8080/api/send-email'
+    ];
+    const uniqueFallback = [...new Set(fallbackEndpoints)];
+
+    const fullHtmlBody = `
+    <div style="font-family:'Segoe UI',Tahoma,Arial,sans-serif;max-width:540px;margin:0 auto;padding:24px;background:#ffffff;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 4px 6px -1px rgba(0,0,0,0.05);">
+      <div style="text-align:center;margin-bottom:20px;padding-bottom:14px;border-bottom:2px solid #f1f5f9;">
+        <h2 style="color:#15803d;margin:0 0 6px 0;font-size:20px;">ระบบนิเทศสหกิจศึกษา KU</h2>
+        <p style="color:#64748b;margin:0;font-size:13px;">ภาควิชาวิทยาการคอมพิวเตอร์ คณะวิทยาศาสตร์ มหาวิทยาลัยเกษตรศาสตร์</p>
+      </div>
+
+      <div style="margin-bottom:16px;">
+        <span style="display:inline-block;padding:4px 10px;font-size:12px;font-weight:700;color:#ffffff;background-color:${badgeColor};border-radius:9999px;margin-bottom:8px;">
+          ${badgeText}
+        </span>
+        <h3 style="margin:0;font-size:16px;color:#1e293b;">${notificationTitle || subject}</h3>
+      </div>
+
+      <div style="background:#f8fafc;border-left:4px solid ${badgeColor};padding:12px 16px;border-radius:6px;margin-bottom:16px;">
+        <p style="margin:0 0 4px;font-size:13px;color:#334155;"><strong>เรียน:</strong> นิสิต ${studentName} (รหัส ${studentId})</p>
+        <p style="margin:0;font-size:13px;color:#334155;"><strong>อาจารย์นิเทศ:</strong> ${advisorName}</p>
+      </div>
+
+      <div style="font-size:13.5px;color:#334155;line-height:1.6;margin-bottom:20px;">
+        ${detailsHtml}
+      </div>
+
+      <div style="text-align:center;margin:24px 0;">
+        <a href="${finalActionUrl}" style="display:inline-block;padding:10px 24px;font-size:13px;font-weight:700;color:#ffffff;background-color:#16a34a;text-decoration:none;border-radius:8px;box-shadow:0 2px 4px rgba(22,163,74,0.3);">
+          ${actionText}
+        </a>
+      </div>
+
+      <hr style="border:none;border-top:1px solid #e2e8f0;margin:20px 0;">
+      <p style="font-size:11px;color:#94a3b8;text-align:center;margin:0;line-height:1.4;">
+        อีเมลฉบับนี้ส่งโดยอัตโนมัติจากระบบนิเทศสหกิจศึกษา มหาวิทยาลัยเกษตรศาสตร์
+      </p>
+    </div>
+    `;
+
+    for (const endpoint of uniqueFallback) {
+        try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 8000);
+            const res = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    to: toEmail || '',
+                    email: toEmail || '',
+                    subject: subject || `แจ้งเตือนจากระบบนิเทศสหกิจศึกษา KU - ${studentName || ''}`,
+                    html: fullHtmlBody
+                }),
+                signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+            if (res.ok) {
+                const data = await res.json().catch(() => ({ success: true }));
+                if (data.success) {
+                    console.log(`[Notification Dispatch] Successfully sent email via fallback ${endpoint}`);
+                    return { success: true, forwardedTo: data.forwardedTo };
+                }
+            }
+        } catch (e) {
+            console.warn(`[Notification Dispatch] Failed fallback ${endpoint}:`, e.message);
+        }
+    }
+
     return { success: false, error: 'Cannot connect to email notification service' };
 }
 
