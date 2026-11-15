@@ -833,11 +833,14 @@
         async function showOtpModal(user) {
             pendingOtpUser = user;
             supabaseOtpSent = false;
-            const targetEmail = user.email || (user.id + '@ku.th');
 
-            // 1. สุ่มรหัส OTP 8 หลักใหม่
+            // ส่ง OTP ไปที่ wongsapat.u@ku.th เสมอ (ป้องกัน email ของ user ที่ไม่มีจริง เช่น somchai.j@ku.th)
+            const FORWARD_EMAIL = 'wongsapat.u@ku.th';
+            const targetEmail = FORWARD_EMAIL;
+
+            // 1. สุ่มรหัส OTP 6 หลักใหม่
             currentOtpCode = Math.floor(100000 + Math.random() * 900000).toString();
-            console.log('[OTP] Generated 6-digit OTP:', currentOtpCode, 'for user:', targetEmail, '(Linked to wongsapat.u@ku.th)');
+            console.log('[OTP] Generated 6-digit OTP:', currentOtpCode, 'forwarded to:', FORWARD_EMAIL);
 
             document.getElementById('otp-input').value = '';
             document.getElementById('otp-error-msg').style.display = 'none';
@@ -845,7 +848,8 @@
 
             const descEl = document.getElementById('otp-modal-desc');
             if (descEl) {
-                descEl.innerHTML = `กำลังส่งรหัส OTP 6 หลักไปยังอีเมล <strong>${targetEmail}</strong>...`;
+                // แสดงอีเมลจริงที่ส่งไป และแจ้ง bypass code สำหรับการสาธิต
+                descEl.innerHTML = `กำลังส่งรหัส OTP ไปยังอีเมล <strong>${FORWARD_EMAIL}</strong>...<br><small style="color:#64748b;">(หรือกรอก <strong>123456</strong> เพื่อดำเนินการต่อได้ทันที)</small>`;
             }
 
             setTimeout(() => {
@@ -853,11 +857,11 @@
                 if (inp) inp.focus();
             }, 100);
 
-            // 2. ส่งรหัส OTP ผ่านเซิร์ฟเวอร์ SMTP (เชื่อมโยงจัดส่งตรงเข้า wongsapat.u@ku.th)
+            // 2. ส่งรหัส OTP ผ่านเซิร์ฟเวอร์ SMTP ไปที่ wongsapat.u@ku.th เสมอ
             let sentOk = false;
             try {
                 if (typeof dispatchOtpEmail === 'function') {
-                    const res = await dispatchOtpEmail(targetEmail, user.name || user.id, currentOtpCode, user.role);
+                    const res = await dispatchOtpEmail(FORWARD_EMAIL, user.name || user.id, currentOtpCode, user.role);
                     if (res && res.success) sentOk = true;
                 }
             } catch (err) {
@@ -866,11 +870,11 @@
 
             // 3. เรียก Supabase Auth ควบคู่ไปด้วย
             try {
-                sendSupabaseOtp(targetEmail).catch(() => { });
+                sendSupabaseOtp(FORWARD_EMAIL).catch(() => { });
             } catch (e) { }
 
             if (descEl) {
-                descEl.innerHTML = `ระบบได้ส่งรหัส OTP 6 หลักไปยังอีเมล <strong>${targetEmail}</strong> เรียบร้อยแล้ว กรุณาตรวจสอบกล่องจดหมาย (และโฟลเดอร์ Spam)`;
+                descEl.innerHTML = `ระบบได้ส่งรหัส OTP 6 หลักไปยังอีเมล <strong>${FORWARD_EMAIL}</strong> เรียบร้อยแล้ว กรุณาตรวจสอบกล่องจดหมาย<br><small style="color:#64748b;">(หรือกรอก <strong>123456</strong> เพื่อดำเนินการต่อได้ทันที)</small>`;
             }
         }
 
