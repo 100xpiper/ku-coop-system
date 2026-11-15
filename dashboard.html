@@ -175,20 +175,26 @@
                             <div>
                                 <div class="section-title" style="display: flex; align-items: center; gap: 8px;">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--primary-color);"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-                                    <span>ภาพรวมการส่งเอกสารของนิสิต 2 หมู่เรียนในความดูแล</span>
+                                    <span>ภาพรวมงานและเอกสารที่สั่ง (โพสต์มอบหมายงาน)</span>
                                 </div>
                                 <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;" id="adv-doc-overview-subtitle">
-                                    ติดตามสถานะการส่งเอกสารสหกิจศึกษาของนิสิตทั้ง 2 หมู่เรียน
+                                    รายการงานและเอกสารที่ท่านสั่งและโพสต์ไว้แก่นิสิตในความดูแล
                                 </div>
                             </div>
-                            <!-- Switcher Tabs -->
-                            <div style="display: flex; gap: 6px; background: #f1f5f9; padding: 3px; border-radius: 8px;">
-                                <button type="button" id="adv-doc-tab-summary-btn" onclick="switchAdvisorDocOverviewTab('summary')" style="border: none; background: #ffffff; color: var(--primary-color); font-weight: 700; font-size: 11px; padding: 6px 12px; border-radius: 6px; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: all 0.2s ease;">
-                                    สรุปรายฉบับ
+                            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                                <button type="button" class="btn-primary" style="padding: 7px 14px; font-size: 11.5px; background-color: #2563eb; display: flex; align-items: center; gap: 6px; font-weight: 700; border-radius: 6px; cursor: pointer;" onclick="openNewAssignmentModal()">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                                    <span>+ สั่งงาน / มอบหมายงานใหม่</span>
                                 </button>
-                                <button type="button" id="adv-doc-tab-matrix-btn" onclick="switchAdvisorDocOverviewTab('matrix')" style="border: none; background: transparent; color: #64748b; font-weight: 600; font-size: 11px; padding: 6px 12px; border-radius: 6px; cursor: pointer; transition: all 0.2s ease;">
-                                    ตารางสถานะรายบุคคล
-                                </button>
+                                <!-- Switcher Tabs -->
+                                <div style="display: flex; gap: 4px; background: #f1f5f9; padding: 3px; border-radius: 8px;">
+                                    <button type="button" id="adv-doc-tab-summary-btn" onclick="switchAdvisorDocOverviewTab('summary')" style="border: none; background: #ffffff; color: var(--primary-color); font-weight: 700; font-size: 11px; padding: 6px 12px; border-radius: 6px; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: all 0.2s ease;">
+                                        รายการงานที่สั่ง
+                                    </button>
+                                    <button type="button" id="adv-doc-tab-matrix-btn" onclick="switchAdvisorDocOverviewTab('matrix')" style="border: none; background: transparent; color: #64748b; font-weight: 600; font-size: 11px; padding: 6px 12px; border-radius: 6px; cursor: pointer; transition: all 0.2s ease;">
+                                        ตารางสถานะรายบุคคล
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
@@ -1739,58 +1745,72 @@
 
             <!-- Modal: สร้างการมอบหมายงาน / กำหนดส่งเอกสารใหม่ (Google Classroom Style) -->
             <div id="modal-advisor-new-assignment" class="modal-overlay" style="display: none;">
-                <div class="modal-card" style="max-width: 500px;">
+                <div class="modal-card" style="max-width: 530px; width: 95%;">
                     <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
-                        <div style="font-size: 14px; font-weight: 700; color: #1e40af;">มอบหมายงาน / กำหนดส่งเอกสารใหม่</div>
-                        <button type="button" style="border:none; background:none; font-size: 16px; cursor:pointer;" onclick="closeModal('modal-advisor-new-assignment')">✕</button>
+                        <div style="font-size: 14.5px; font-weight: 700; color: #1e40af; display: flex; align-items: center; gap: 6px;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                            <span>สั่งงาน / มอบหมายงานใหม่ (Classroom Post)</span>
+                        </div>
+                        <button type="button" style="border:none; background:none; font-size: 16px; cursor:pointer; color: #64748b;" onclick="closeModal('modal-advisor-new-assignment')">✕</button>
                     </div>
 
                     <div style="font-size: 11px; color: var(--text-muted); margin-top: 6px; margin-bottom: 10px;">
-                        สร้างหัวข้องานและกำหนดส่งเหมือน Google Classroom นิสิตจะเห็นกำหนดส่งและส่งไฟล์ตามหัวข้อนี้
+                        อาจารย์สามารถสั่งงานอะไรก็ได้ หรือเลือกแบบฟอร์มเอกสารสหกิจศึกษาที่ต้องการให้นิสิตส่ง
                     </div>
 
-                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <div style="display: flex; flex-direction: column; gap: 9px;">
                         <div>
-                            <label style="font-size: 11px; font-weight: 600; color: #1e40af;">เลือกแบบฟอร์มอ้างอิง (หรือเลือกหัวข้อกำหนดเอง): *</label>
-                            <select id="new-asg-doctype" onchange="onNewAsgDocTypeChange(this.value)" style="width: 100%; padding: 7px; font-size: 12px; border-radius: 6px; border: 1px solid var(--border-color); background: #f8fafc;">
-                                <option value="แบบฟอร์มยืนยันสัดส่วนการทำงานร่วมกัน (Contribution Distribution)">แบบฟอร์มยืนยันสัดส่วนการทำงานร่วมกัน (Contribution Distribution)</option>
-                                <option value="Form 02 - แบบแจ้งยืนยันการนิเทศงานนิสิตสหกิจศึกษา">Form 02 - แบบแจ้งยืนยันการนิเทศงานนิสิตสหกิจศึกษา</option>
-                                <option value="Form 04 - แบบแจ้งรายละเอียดที่พักระหว่างการปฏิบัติงานสหกิจศึกษา">Form 04 - แบบแจ้งรายละเอียดที่พักระหว่างการปฏิบัติงานสหกิจศึกษา</option>
-                                <option value="Form 05 - แบบแจ้งรายละเอียดงาน ตำแหน่งงาน พนักงานที่ปรึกษา">Form 05 - แบบแจ้งรายละเอียดงาน ตำแหน่งงาน พนักงานที่ปรึกษา</option>
-                                <option value="Form 06 - รายงานการปฏิบัติงานประจำสัปดาห์ (Weekly Report)">Form 06 - รายงานการปฏิบัติงานประจำสัปดาห์ (Weekly Report)</option>
-                                <option value="Form 07 - แบบบันทึกการนิเทศงานสหกิจศึกษา (Supervision Record)">Form 07 - แบบบันทึกการนิเทศงานสหกิจศึกษา (Supervision Record)</option>
-                                <option value="Form 10 - แบบประเมินผลการปฏิบัติงานของนิสิต (Student Evaluation)">Form 10 - แบบประเมินผลการปฏิบัติงานของนิสิต (Student Evaluation)</option>
-                                <option value="Form 11 - รายงานสรุปผลการปฏิบัติงานสหกิจศึกษา (Final Report)">Form 11 - รายงานสรุปผลการปฏิบัติงานสหกิจศึกษา (Final Report)</option>
-                                <option value="custom">หัวข้อเอกสารอื่นๆ (กำหนดเอง)</option>
+                            <label style="font-size: 11px; font-weight: 700; color: #1e40af;">รูปแบบงาน / รายการเอกสารอ้างอิง: *</label>
+                            <select id="new-asg-doctype" onchange="onNewAsgDocTypeChange(this.value)" style="width: 100%; padding: 7px 10px; font-size: 11.5px; border-radius: 6px; border: 1px solid var(--border-color); background: #f8fafc; font-weight: 600;">
+                                <option value="custom" selected>✏️ สั่งงานอิสระ / งานทั่วไป (กำหนดหัวข้องานเอง)</option>
+                                <optgroup label="📋 รายการแบบฟอร์มเอกสารสหกิจศึกษา (แบบฟอร์มมาตรฐาน)">
+                                    <option value="แบบฟอร์มยืนยันสัดส่วนการทำงานร่วมกัน (Contribution Distribution)">แบบฟอร์มยืนยันสัดส่วนการทำงานร่วมกัน (Contribution Distribution)</option>
+                                    <option value="Form 01 - แบบแจ้งรายละเอียดการปฏิบัติงานสหกิจศึกษา">Form 01 - แบบแจ้งรายละเอียดการปฏิบัติงานสหกิจศึกษา</option>
+                                    <option value="Form 02 - แบบแจ้งยืนยันการนิเทศงานนิสิตสหกิจศึกษา">Form 02 - แบบแจ้งยืนยันการนิเทศงานนิสิตสหกิจศึกษา</option>
+                                    <option value="Form 03 - แบบประเมินผลการเรียนรู้ของนิสิตสหกิจศึกษา">Form 03 - แบบประเมินผลการเรียนรู้ของนิสิตสหกิจศึกษา</option>
+                                    <option value="Form 04 - แบบแจ้งรายละเอียดที่พักระหว่างการปฏิบัติงานสหกิจศึกษา">Form 04 - แบบแจ้งรายละเอียดที่พักระหว่างการปฏิบัติงานสหกิจศึกษา</option>
+                                    <option value="Form 05 - แบบแจ้งรายละเอียดงาน ตำแหน่งงาน พนักงานที่ปรึกษา">Form 05 - แบบแจ้งรายละเอียดงาน ตำแหน่งงาน พนักงานที่ปรึกษา</option>
+                                    <option value="Form 06 - รายงานการปฏิบัติงานประจำสัปดาห์ (Weekly Report)">Form 06 - รายงานการปฏิบัติงานประจำสัปดาห์ (Weekly Report)</option>
+                                    <option value="Form 07 - แบบบันทึกการนิเทศงานสหกิจศึกษา (Supervision Record)">Form 07 - แบบบันทึกการนิเทศงานสหกิจศึกษา (Supervision Record)</option>
+                                    <option value="Form 10 - แบบประเมินผลการปฏิบัติงานของนิสิต (Student Evaluation)">Form 10 - แบบประเมินผลการปฏิบัติงานของนิสิต (Student Evaluation)</option>
+                                    <option value="Form 11 - รายงานสรุปผลการปฏิบัติงานสหกิจศึกษา (Final Report)">Form 11 - รายงานสรุปผลการปฏิบัติงานสหกิจศึกษา (Final Report)</option>
+                                </optgroup>
+                                <optgroup label="📂 งานและเอกสารอื่นๆ">
+                                    <option value="สไลด์นำเสนอผลงาน (Presentation Slides)">สไลด์นำเสนอผลงาน (Presentation Slides)</option>
+                                    <option value="วิดีโอคลิปสรุปการฝึกงาน / การนำเสนอ">วิดีโอคลิปสรุปการฝึกงาน / การนำเสนอ</option>
+                                    <option value="ภาพถ่ายสถานที่ฝึกงานและบรรยากาศการทำงาน">ภาพถ่ายสถานที่ฝึกงานและบรรยากาศการทำงาน</option>
+                                    <option value="เอกสารสรุปผลงานโปรเจค (Project Summary)">เอกสารสรุปผลงานโปรเจค (Project Summary)</option>
+                                </optgroup>
                             </select>
                         </div>
                         <div>
-                            <label style="font-size: 11px; font-weight: 600; color: #1e40af;">ชื่อการมอบหมายงาน: *</label>
-                            <input type="text" id="new-asg-title" placeholder="ชื่อการมอบหมายงาน" style="width: 100%; padding: 7px; font-size: 12px; border-radius: 6px; border: 1px solid var(--border-color);">
+                            <label style="font-size: 11px; font-weight: 700; color: #1e40af;">ชื่อการมอบหมายงาน / หัวข้องานที่สั่ง: *</label>
+                            <input type="text" id="new-asg-title" placeholder="เช่น รายงานความก้าวหน้าโครงการสัปดาห์ที่ 3, ภาพถ่ายคู่กับพี่เลี้ยง..." style="width: 100%; padding: 7px 10px; font-size: 12px; border-radius: 6px; border: 1px solid var(--border-color);">
                         </div>
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
                             <div>
-                                <label style="font-size: 11px; font-weight: 600; color: #1e40af;">กำหนดส่ง (Due Date): *</label>
-                                <input type="date" id="new-asg-duedate" style="width: 100%; padding: 7px; font-size: 12px; border-radius: 6px; border: 1px solid var(--border-color);">
+                                <label style="font-size: 11px; font-weight: 700; color: #1e40af;">กำหนดส่ง (Due Date): *</label>
+                                <input type="date" id="new-asg-duedate" style="width: 100%; padding: 7px 10px; font-size: 12px; border-radius: 6px; border: 1px solid var(--border-color);">
                             </div>
                             <div>
-                                <label style="font-size: 11px; font-weight: 600; color: #1e40af;">เวลาครบกำหนด: *</label>
-                                <input type="time" id="new-asg-duetime" value="23:59" style="width: 100%; padding: 7px; font-size: 12px; border-radius: 6px; border: 1px solid var(--border-color);">
+                                <label style="font-size: 11px; font-weight: 700; color: #1e40af;">เวลาครบกำหนด: *</label>
+                                <input type="time" id="new-asg-duetime" value="23:59" style="width: 100%; padding: 7px 10px; font-size: 12px; border-radius: 6px; border: 1px solid var(--border-color);">
                             </div>
                         </div>
                         <div>
-                            <label style="font-size: 11px; font-weight: 600; color: #1e40af;">มอบหมายให้หมู่เรียน:</label>
-                            <select id="new-asg-section" style="width: 100%; padding: 7px; font-size: 12px; border-radius: 6px; border: 1px solid var(--border-color); background: #f8fafc;">
-                                <option value="current">เฉพาะหมู่เรียนที่เปิดอยู่นี้</option>
-                                <option value="all">ทั้งสองหมู่เรียน (700 และ 800)</option>
+                            <label style="font-size: 11px; font-weight: 700; color: #1e40af;">มอบหมายให้หมู่เรียน:</label>
+                            <select id="new-asg-section" style="width: 100%; padding: 7px 10px; font-size: 12px; border-radius: 6px; border: 1px solid var(--border-color); background: #f8fafc;">
+                                <option value="all">ทั้ง 2 หมู่เรียนในความดูแล</option>
+                                <option value="normal">เฉพาะหมู่เรียนภาคปกติ</option>
+                                <option value="special">เฉพาะหมู่เรียนภาคพิเศษ</option>
                             </select>
                         </div>
                         <div>
-                            <label style="font-size: 11px; font-weight: 600; color: #1e40af;">คำอธิบาย / ข้อแนะนำเพิ่มเติม:</label>
-                            <textarea id="new-asg-desc" placeholder="เช่น ให้นิสิตส่งแบบฟอร์มที่มีลายเซ็นพี่เลี้ยงลงนามแล้ว โดยสแกนเป็นไฟล์ PDF" style="width: 100%; height: 60px; padding: 7px; font-size: 11px; border-radius: 6px; border: 1px solid var(--border-color);"></textarea>
+                            <label style="font-size: 11px; font-weight: 700; color: #1e40af;">คำอธิบาย / รายละเอียดคำสั่งงาน:</label>
+                            <textarea id="new-asg-desc" placeholder="เช่น ให้นิสิตส่งเล่มรายงานความก้าวหน้า พร้อมแนบภาพถ่ายขณะปฏิบัติงาน และเขียนอธิบายสิ่งที่ได้เรียนรู้ในสัปดาห์นี้..." style="width: 100%; height: 65px; padding: 7px 10px; font-size: 11.5px; border-radius: 6px; border: 1px solid var(--border-color); box-sizing: border-box; resize: vertical;"></textarea>
                         </div>
                         <div style="display: flex; gap: 8px; margin-top: 10px;">
-                            <button type="button" class="btn-primary" style="flex: 1; background-color: #2563eb;" onclick="saveNewAdvisorAssignment()">สร้างการมอบหมายงาน</button>
+                            <button type="button" class="btn-primary" style="flex: 1; background-color: #2563eb; font-weight: 700; padding: 9px;" onclick="saveNewAdvisorAssignment()">ยืนยันโพสต์สั่งงาน</button>
                             <button type="button" class="btn-primary btn-secondary" onclick="closeModal('modal-advisor-new-assignment')">ยกเลิก</button>
                         </div>
                     </div>
@@ -4850,6 +4870,53 @@
             }
         }
 
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function viewPhotoInModal(imgUrl) {
+            if (!imgUrl) return;
+            let modal = document.getElementById('modal-photo-lightbox');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'modal-photo-lightbox';
+                modal.className = 'modal-overlay';
+                modal.style.display = 'none';
+                modal.style.zIndex = '99999';
+                modal.style.alignItems = 'center';
+                modal.style.justifyContent = 'center';
+                modal.style.background = 'rgba(15, 23, 42, 0.75)';
+                modal.innerHTML = `
+                    <div class="modal-card" style="max-width: 640px; width: 95%; text-align: center; background: #ffffff; padding: 14px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px;">
+                            <span style="font-size: 13px; font-weight: 700; color: #1e293b;">รูปภาพหลักฐานแนบ</span>
+                            <button type="button" style="border: none; background: none; font-size: 20px; cursor: pointer; color: #64748b; line-height: 1;" onclick="document.getElementById('modal-photo-lightbox').style.display='none'">✕</button>
+                        </div>
+                        <img id="lightbox-img" src="" style="max-width: 100%; max-height: 72vh; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); object-fit: contain;">
+                    </div>
+                `;
+                document.body.appendChild(modal);
+            }
+            const imgEl = document.getElementById('lightbox-img');
+            if (imgEl) imgEl.src = imgUrl;
+            modal.style.display = 'flex';
+        }
+
+        function readFileAsDataURL(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = e => resolve(e.target.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
         // ----------------------------------------------------
         // CLASSROOM-LIKE ASSIGNMENTS & DUE DATES
         // ----------------------------------------------------
@@ -4869,6 +4936,8 @@
                         section: 'all',
                         desc: 'ให้นิสิตส่งแบบฟอร์มยืนยันสัดส่วนการทำงานร่วมกันที่มีลายมือชื่อของหัวหน้างาน',
                         required: true,
+                        advisorId: 'Q1111',
+                        advisorName: 'อาจารย์ สมชาย แจ่มใส',
                         createdAt: '2026-10-01'
                     },
                     {
@@ -4879,6 +4948,8 @@
                         section: 'all',
                         desc: 'แจ้งยืนยันกำหนดการ วันและเวลาที่พร้อมให้อาจารย์นิเทศเข้าพบ ณ สถานประกอบการ',
                         required: true,
+                        advisorId: 'Q1111',
+                        advisorName: 'อาจารย์ สมชาย แจ่มใส',
                         createdAt: '2026-10-01'
                     },
                     {
@@ -4889,6 +4960,8 @@
                         section: 'all',
                         desc: 'ระบุที่อยู่ แผนที่ และเบอร์ติดต่อฉุกเฉินระหว่างฝึกงาน',
                         required: true,
+                        advisorId: 'Q1111',
+                        advisorName: 'อาจารย์ สมชาย แจ่มใส',
                         createdAt: '2026-10-01'
                     },
                     {
@@ -4899,6 +4972,8 @@
                         section: 'all',
                         desc: 'รายละเอียดขอบเขตงาน Job Description และข้อมูล Mentor ในสถานประกอบการ',
                         required: true,
+                        advisorId: 'Q1111',
+                        advisorName: 'อาจารย์ สมชาย แจ่มใส',
                         createdAt: '2026-10-01'
                     },
                     {
@@ -4909,6 +4984,8 @@
                         section: 'all',
                         desc: 'สรุปผลงานความก้าวหน้ารายสัปดาห์ พร้อมลายมือชื่อ Mentor',
                         required: true,
+                        advisorId: 'Q1111',
+                        advisorName: 'อาจารย์ สมชาย แจ่มใส',
                         createdAt: '2026-10-01'
                     },
                     {
@@ -4919,6 +4996,8 @@
                         section: 'all',
                         desc: 'เล่มรายงานสหกิจศึกษาฉบับสมบูรณ์ (PDF)',
                         required: true,
+                        advisorId: 'Q1111',
+                        advisorName: 'อาจารย์ สมชาย แจ่มใส',
                         createdAt: '2026-10-01'
                     }
                 ];
@@ -4942,11 +5021,26 @@
         }
 
         function openNewAssignmentModal() {
+            const { mySecNormal, mySecSpecial, loggedInUser } = getAdvisorSections();
+            const secSel = document.getElementById('new-asg-section');
+            if (secSel) {
+                secSel.innerHTML = `
+                    <option value="all" selected>ทั้ง 2 หมู่เรียน (${mySecNormal} และ ${mySecSpecial})</option>
+                    <option value="${mySecNormal}">เฉพาะ ${mySecNormal} (ภาคปกติ)</option>
+                    <option value="${mySecSpecial}">เฉพาะ ${mySecSpecial} (ภาคพิเศษ)</option>
+                `;
+            }
+
             const sel = document.getElementById('new-asg-doctype');
             if (sel) {
-                sel.value = 'Form 02 - แบบแจ้งยืนยันการนิเทศงานนิสิตสหกิจศึกษา';
-                onNewAsgDocTypeChange(sel.value);
+                sel.value = 'custom';
             }
+            const titleInput = document.getElementById('new-asg-title');
+            if (titleInput) {
+                titleInput.value = '';
+                titleInput.focus();
+            }
+
             const twoWeeksLater = new Date(Date.now() + 14 * 86400000);
             const dateStr = twoWeeksLater.toISOString().split('T')[0];
             const dateInput = document.getElementById('new-asg-duedate');
@@ -4968,7 +5062,7 @@
             const desc = document.getElementById('new-asg-desc').value.trim();
 
             if (!title) {
-                alert('โปรดระบุชื่อการมอบหมายงาน');
+                alert('โปรดระบุชื่อการมอบหมายงาน หรือเลือกรายการฟอร์มเอกสาร');
                 return;
             }
             if (!dateVal) {
@@ -4976,25 +5070,33 @@
                 return;
             }
 
-            const targetSection = secChoice === 'all' ? 'all' : (currentSelectedClassroom || 'หมู่ 700');
+            const { mySecNormal, mySecSpecial, loggedInUser } = getAdvisorSections();
+            const advId = loggedInUser ? String(loggedInUser.id || loggedInUser.advisor_id || 'Q1111').trim() : 'Q1111';
+            const advName = loggedInUser ? (loggedInUser.name || 'อาจารย์ สมชาย แจ่มใส') : 'อาจารย์ สมชาย แจ่มใส';
+
             const asgs = getCoopAssignments();
             const newAsg = {
                 id: 'asg-' + Date.now(),
                 title: title,
                 docType: docType === 'custom' ? title : docType,
                 dueDate: `${dateVal}T${timeVal}`,
-                section: targetSection,
-                desc: desc || 'กรุณาส่งไฟล์เอกสารตามกำหนด',
+                section: secChoice,
+                desc: desc || 'กรุณาส่งไฟล์เอกสาร, แนบรูปภาพ หรือเขียนคำอธิบายตามกำหนด',
                 required: true,
+                advisorId: advId,
+                advisorName: advName,
                 createdAt: new Date().toISOString()
             };
 
             asgs.unshift(newAsg);
             saveCoopAssignments(asgs);
             closeModal('modal-advisor-new-assignment');
+
+            renderAdvisorDocOverview();
             renderAdvisorAssignments();
             renderStudentClassroomAssignments();
-            alert(`สร้างการมอบหมายงาน "${title}" เรียบร้อยแล้ว`);
+
+            alert(`โพสต์สั่งงาน "${title}" เรียบร้อยแล้ว`);
         }
 
         function deleteAdvisorAssignment(asgId) {
@@ -5002,10 +5104,11 @@
             const target = asgs.find(a => a.id === asgId);
             if (!target) return;
 
-            if (!confirm(`คุณต้องการลบการมอบหมายงาน "${target.title}" ใช่หรือไม่?`)) return;
+            if (!confirm(`คุณต้องการลบงานที่สั่ง "${target.title}" ใช่หรือไม่?`)) return;
 
             const filtered = asgs.filter(a => a.id !== asgId);
             saveCoopAssignments(filtered);
+            renderAdvisorDocOverview();
             renderAdvisorAssignments();
             renderStudentClassroomAssignments();
         }
@@ -5322,24 +5425,57 @@
                     div.style.alignItems = 'center';
                     div.style.flexWrap = 'wrap';
                     div.style.gap = '8px';
+                    const hasDocFile = !!doc.fileDataUrl || (doc.fileName && doc.fileName !== 'ข้อความอธิบายการส่งงาน');
+                    const hasPhoto = !!doc.photoDataUrl;
+                    const hasComment = !!(doc.comment || doc.description);
+
                     div.innerHTML = `
-                        <div>
-                            <div style="font-weight: 700; color: #1e3a8a; font-size: 12px;">
-                                ${std.id} - ${std.name} ${secTag}
+                        <div style="flex: 1; min-width: 250px;">
+                            <div style="font-weight: 700; color: #1e3a8a; font-size: 12.5px; display: flex; align-items: center; gap: 6px;">
+                                <span>${std.id} - ${std.name}</span>
+                                ${secTag}
                             </div>
-                            <div style="font-size: 10.5px; color: #64748b; margin-top: 2px;">
-                                สถานประกอบการ: <strong>${std.company_name || std.company || '-'}</strong> | ไฟล์: <strong style="color: #0f172a;">${doc.fileName}</strong> | ส่งเมื่อ: ${doc.uploadDate}
+                            <div style="font-size: 10.5px; color: #64748b; margin-top: 3px;">
+                                สถานประกอบการ: <strong>${std.company_name || std.company || '-'}</strong> | ส่งเมื่อ: ${doc.uploadDate}
                             </div>
-                            <div style="margin-top: 4px;">
+                            
+                            <div style="margin-top: 6px; display: flex; flex-direction: column; gap: 6px;">
+                                ${hasDocFile ? `
+                                    <div style="display: flex; align-items: center; gap: 6px; font-size: 11px; background: #ffffff; padding: 5px 8px; border-radius: 5px; border: 1px solid #e2e8f0;">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                                        <span>ไฟล์เอกสาร: <strong style="color: #1e3a8a;">${doc.fileName}</strong></span>
+                                    </div>
+                                ` : ''}
+
+                                ${hasPhoto ? `
+                                    <div style="display: flex; align-items: center; gap: 8px; background: #ffffff; padding: 5px 8px; border-radius: 5px; border: 1px solid #e2e8f0;">
+                                        <img src="${doc.photoDataUrl}" alt="หลักฐาน" style="width: 38px; height: 38px; object-fit: cover; border-radius: 4px; border: 1px solid #cbd5e1; cursor: pointer;" onclick="viewPhotoInModal('${doc.photoDataUrl}')" title="คลิกเพื่อดูรูปภาพใหญ่">
+                                        <div style="font-size: 11px; color: #0284c7; cursor: pointer; text-decoration: underline;" onclick="viewPhotoInModal('${doc.photoDataUrl}')">
+                                            คลิกดูรูปภาพหลักฐานแนบ (${doc.photoName || 'รูปภาพ'})
+                                        </div>
+                                    </div>
+                                ` : ''}
+
+                                ${hasComment ? `
+                                    <div style="background: #ffffff; padding: 6px 9px; border-radius: 5px; border-left: 3px solid #0f766e; border: 1px solid #e2e8f0; font-size: 11px; color: #334155;">
+                                        <strong style="color: #0f766e;">คำอธิบายจากนิสิต:</strong>
+                                        <div style="margin-top: 2px; color: #475569; white-space: pre-wrap;">${escapeHtml(doc.comment || doc.description)}</div>
+                                    </div>
+                                ` : ''}
+                            </div>
+
+                            <div style="margin-top: 6px;">
                                 <span class="status-badge ${badgeClass}">${doc.status}</span>
                             </div>
                         </div>
-                        <div style="display: flex; gap: 6px;">
-                            <button type="button" class="btn-primary" style="padding: 5px 10px; font-size: 10.5px; background-color: #2563eb;" onclick="downloadDocFile('${doc.id}')">
-                                ดาวน์โหลด/ดูไฟล์
-                            </button>
+                        <div style="display: flex; gap: 6px; align-items: center; margin-top: 6px;">
+                            ${hasDocFile ? `
+                                <button type="button" class="btn-primary" style="padding: 5px 10px; font-size: 10.5px; background-color: #2563eb;" onclick="downloadDocFile('${doc.id}')">
+                                    ดาวน์โหลด/ดูไฟล์
+                                </button>
+                            ` : ''}
                             <button type="button" class="btn-primary" style="padding: 5px 10px; font-size: 10.5px; background-color: #059669;" onclick="quickApproveDoc('${doc.id}', '${std.id}')">
-                                ตรวจรับเอกสาร
+                                ตรวจรับ
                             </button>
                             <button type="button" class="btn-primary btn-danger" style="padding: 5px 8px; font-size: 10.5px;" onclick="quickRejectDoc('${doc.id}', '${std.id}')">
                                 ตีกลับ
@@ -5492,8 +5628,19 @@
 
             loadDynamicStudentsData();
             const { mySecNormal, mySecSpecial, loggedInUser } = getAdvisorSections();
+            const currentAdvId = loggedInUser ? String(loggedInUser.id || loggedInUser.advisor_id || '').trim() : 'Q1111';
             const allAsgs = getCoopAssignments();
             const allDocs = getSubmittedDocs();
+
+            // Filter assignments that THIS specific advisor ordered and posted
+            const advisorAsgs = allAsgs.filter(a => {
+                if (a.advisorId) {
+                    return String(a.advisorId).trim() === currentAdvId;
+                }
+                if (a.section === mySecNormal || a.section === mySecSpecial) return true;
+                if ((!a.section || a.section === 'all') && (currentAdvId === 'Q1111' || !currentAdvId)) return true;
+                return false;
+            });
 
             let normStds = studentsData[mySecNormal] || [];
             let specStds = studentsData[mySecSpecial] || [];
@@ -5511,6 +5658,11 @@
             const btnAll = document.getElementById('adv-doc-sec-filter-all');
             if (btnAll) btnAll.textContent = `ทั้ง 2 หมู่เรียน (${normStds.length + specStds.length})`;
 
+            const btnSummaryTab = document.getElementById('adv-doc-tab-summary-btn');
+            if (btnSummaryTab) {
+                btnSummaryTab.textContent = `รายการงานที่สั่ง (${advisorAsgs.length})`;
+            }
+
             // Active list based on filter
             let activeStds = [];
             if (currentAdvisorDocSectionFilter === 'normal') {
@@ -5526,18 +5678,18 @@
             if (subtitleEl) {
                 const semText = advisorSelectedSemester === 'all' ? 'ทุกภาคการศึกษา' : (advisorSelectedSemester || 'ภาคต้น 2569');
                 const filterDesc = currentAdvisorDocSectionFilter === 'normal' ? ` (${mySecNormal})` : (currentAdvisorDocSectionFilter === 'special' ? ` (${mySecSpecial})` : '');
-                subtitleEl.textContent = `อาจารย์: ${loggedInUser ? loggedInUser.name : 'อาจารย์'} | ดูแล ${mySecNormal} และ ${mySecSpecial} | ภาคการศึกษา: ${semText} (นิสิต ${totalStudents} คน${filterDesc})`;
+                subtitleEl.textContent = `อาจารย์: ${loggedInUser ? loggedInUser.name : 'อาจารย์'} | ดูแล ${mySecNormal} และ ${mySecSpecial} | โพสต์สั่งงานแล้ว ${advisorAsgs.length} รายการ (นิสิต ${totalStudents} คน${filterDesc})`;
             }
 
-            // Calculate total submissions across all assignments
-            const totalRequiredSubmissions = totalStudents * allAsgs.length;
+            // Calculate total submissions across this advisor's assignments
+            const totalRequiredSubmissions = totalStudents * advisorAsgs.length;
             let actualSubmissions = 0;
 
-            allAsgs.forEach(asg => {
+            advisorAsgs.forEach(asg => {
                 activeStds.forEach(std => {
                     const hasSubmitted = allDocs.some(d => 
                         (String(d.studentId) === String(std.id) || (std.email && d.email === std.email)) &&
-                        (d.docType === asg.docType || d.docType === asg.title)
+                        (d.asgId === asg.id || d.docType === asg.docType || d.docType === asg.title)
                     );
                     if (hasSubmitted) actualSubmissions++;
                 });
@@ -5546,7 +5698,7 @@
             const overallPercent = totalRequiredSubmissions > 0 ? Math.round((actualSubmissions / totalRequiredSubmissions) * 100) : 0;
             const overallStatPill = document.getElementById('adv-doc-overall-stat-pill');
             if (overallStatPill) {
-                overallStatPill.innerHTML = `ภาพรวมการส่งเอกสาร: <strong style="color: #047857;">${actualSubmissions}/${totalRequiredSubmissions} รายการ</strong> (${overallPercent}%)`;
+                overallStatPill.innerHTML = `ภาพรวมการส่งงาน: <strong style="color: #047857;">${actualSubmissions}/${totalRequiredSubmissions} รายการ</strong> (${overallPercent}%)`;
             }
 
             container.innerHTML = '';
@@ -5559,20 +5711,32 @@
                 return;
             }
 
-            allAsgs.forEach((asg, index) => {
-                // Count submitted, approved, pending for active students
+            if (advisorAsgs.length === 0) {
+                container.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); font-size: 12px; padding: 36px 20px; background: #f8fafc; border-radius: 10px; border: 1.5px dashed var(--border-color);">
+                        <div style="font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 6px;">ยังไม่มีรายการสั่งงานหรือโพสต์ของท่านในขณะนี้</div>
+                        <div style="font-size: 11.5px; color: #64748b; margin-bottom: 14px;">อาจารย์สามารถกดปุ่ม "+ สั่งงาน / มอบหมายงานใหม่" ด้านบนเพื่อสั่งงาน มอบหมายงาน หรือกำหนดส่งแบบฟอร์มเอกสารให้นิสิตได้ทันที</div>
+                        <button type="button" class="btn-primary" style="padding: 7px 16px; font-size: 12px; background: #2563eb; display: inline-flex; align-items: center; gap: 6px; font-weight: 700; border-radius: 6px; cursor: pointer;" onclick="openNewAssignmentModal()">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                            <span>+ สั่งงาน / มอบหมายงานใหม่</span>
+                        </button>
+                    </div>`;
+                renderAdvisorDocMatrixTable();
+                return;
+            }
+
+            advisorAsgs.forEach((asg, index) => {
                 let submittedCount = 0;
                 let approvedCount = 0;
                 let pendingCount = 0;
 
-                // Also count by normal and special for breakdown
                 let normSubCount = 0;
                 let specSubCount = 0;
 
                 normStds.forEach(std => {
                     const hasSubmitted = allDocs.some(d => 
                         (String(d.studentId) === String(std.id) || (std.email && d.email === std.email)) &&
-                        (d.docType === asg.docType || d.docType === asg.title)
+                        (d.asgId === asg.id || d.docType === asg.docType || d.docType === asg.title)
                     );
                     if (hasSubmitted) normSubCount++;
                 });
@@ -5580,7 +5744,7 @@
                 specStds.forEach(std => {
                     const hasSubmitted = allDocs.some(d => 
                         (String(d.studentId) === String(std.id) || (std.email && d.email === std.email)) &&
-                        (d.docType === asg.docType || d.docType === asg.title)
+                        (d.asgId === asg.id || d.docType === asg.docType || d.docType === asg.title)
                     );
                     if (hasSubmitted) specSubCount++;
                 });
@@ -5588,7 +5752,7 @@
                 activeStds.forEach(std => {
                     const matchDocs = allDocs.filter(d => 
                         (String(d.studentId) === String(std.id) || (std.email && d.email === std.email)) &&
-                        (d.docType === asg.docType || d.docType === asg.title)
+                        (d.asgId === asg.id || d.docType === asg.docType || d.docType === asg.title)
                     );
                     if (matchDocs.length > 0) {
                         submittedCount++;
@@ -5615,13 +5779,20 @@
                     } catch (e) {}
                 }
 
-                let docCode = `Doc ${index + 1}`;
-                if (asg.title.includes('สัดส่วนการทำงานร่วมกัน')) docCode = 'คู-01 (สัดส่วนงาน)';
-                else if (asg.title.includes('Form 02')) docCode = 'Form 02 (นิเทศ)';
-                else if (asg.title.includes('Form 04')) docCode = 'Form 04 (ที่พัก)';
-                else if (asg.title.includes('Form 05')) docCode = 'Form 05 (ตำแหน่ง/Mentor)';
-                else if (asg.title.includes('Form 06')) docCode = 'Form 06 (Weekly)';
-                else if (asg.title.includes('Form 11')) docCode = 'Form 11 (Final)';
+                let docCode = '✏️ งานที่สั่ง';
+                if (asg.title.includes('สัดส่วนการทำงานร่วมกัน')) docCode = '📋 คู-01 (สัดส่วนงาน)';
+                else if (asg.title.includes('Form 01')) docCode = '📋 Form 01';
+                else if (asg.title.includes('Form 02')) docCode = '📋 Form 02 (นิเทศ)';
+                else if (asg.title.includes('Form 03')) docCode = '📋 Form 03';
+                else if (asg.title.includes('Form 04')) docCode = '📋 Form 04 (ที่พัก)';
+                else if (asg.title.includes('Form 05')) docCode = '📋 Form 05 (ตำแหน่ง/Mentor)';
+                else if (asg.title.includes('Form 06')) docCode = '📋 Form 06 (Weekly)';
+                else if (asg.title.includes('Form 07')) docCode = '📋 Form 07';
+                else if (asg.title.includes('Form 10')) docCode = '📋 Form 10';
+                else if (asg.title.includes('Form 11')) docCode = '📋 Form 11 (Final)';
+                else if (asg.title.includes('สไลด์') || asg.title.includes('Slide')) docCode = '📂 สไลด์นำเสนอ';
+
+                const targetSecLabel = (!asg.section || asg.section === 'all') ? `${mySecNormal}, ${mySecSpecial}` : asg.section;
 
                 const card = document.createElement('div');
                 card.style.background = '#ffffff';
@@ -5648,9 +5819,19 @@
                             </span>
                         </div>
 
-                        <div style="font-size: 12.5px; font-weight: 700; color: #1e293b; line-height: 1.35; margin-bottom: 10px; min-height: 34px;">
-                            ${asg.title}
+                        <div style="font-size: 13px; font-weight: 700; color: #1e293b; line-height: 1.35; margin-bottom: 6px;">
+                            ${escapeHtml(asg.title)}
                         </div>
+
+                        <div style="font-size: 10.5px; color: #64748b; margin-bottom: 8px; display: flex; align-items: center; gap: 4px;">
+                            <span style="background: #eff6ff; color: #1d4ed8; padding: 1px 6px; border-radius: 4px; font-weight: 600;">หมู่เรียน: ${targetSecLabel}</span>
+                        </div>
+
+                        ${asg.desc ? `
+                            <div style="font-size: 11px; color: #475569; background: #f8fafc; border-left: 2.5px solid #2563eb; padding: 5px 8px; border-radius: 4px; margin-bottom: 10px; line-height: 1.4;">
+                                <strong>คำสั่งงาน:</strong> ${escapeHtml(asg.desc)}
+                            </div>
+                        ` : ''}
 
                         <!-- Progress Bar & Count -->
                         <div style="margin-bottom: 10px;">
@@ -5698,11 +5879,16 @@
                         `)}
                     </div>
 
-                    <!-- Action Button -->
-                    <button type="button" class="btn-primary" onclick="openAssignmentSubmittersModal('${asg.id}', '${currentAdvisorDocSectionFilter === 'normal' ? mySecNormal : (currentAdvisorDocSectionFilter === 'special' ? mySecSpecial : 'all_my_sections')}')" style="width: 100%; padding: 7px 12px; font-size: 11px; background: #1e40af; display: flex; align-items: center; justify-content: center; gap: 6px; border-radius: 6px; cursor: pointer;">
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-                        <span>ดูรายชื่อนิสิต / ตรวจเอกสาร (${submittedCount}/${totalStudents})</span>
-                    </button>
+                    <!-- Action Buttons -->
+                    <div style="display: flex; gap: 6px; margin-top: 6px;">
+                        <button type="button" class="btn-primary" onclick="openAssignmentSubmittersModal('${asg.id}', '${currentAdvisorDocSectionFilter === 'normal' ? mySecNormal : (currentAdvisorDocSectionFilter === 'special' ? mySecSpecial : 'all_my_sections')}')" style="flex: 1; padding: 7px 10px; font-size: 11px; background: #1e40af; display: flex; align-items: center; justify-content: center; gap: 5px; border-radius: 6px; cursor: pointer;">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                            <span>ตรวจงาน (${submittedCount}/${totalStudents})</span>
+                        </button>
+                        <button type="button" class="btn-primary btn-danger" onclick="deleteAdvisorAssignment('${asg.id}')" title="ลบงานที่สั่งนี้" style="padding: 7px 10px; font-size: 11px; border-radius: 6px; cursor: pointer;">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                        </button>
+                    </div>
                 `;
                 container.appendChild(card);
             });
@@ -5839,27 +6025,62 @@
         // ----------------------------------------------------
         // STUDENT CLASSROOM ASSIGNMENTS TRACKER & DIRECT UPLOAD
         // ----------------------------------------------------
-        function onAsgFileSelected(asgId) {
-            const fileInput = document.getElementById(`asg-file-${asgId}`);
-            const nameDisplay = document.getElementById(`asg-filename-display-${asgId}`);
-            const submitBtn = document.getElementById(`asg-submit-btn-${asgId}`);
-            if (fileInput && fileInput.files && fileInput.files.length > 0) {
-                const file = fileInput.files[0];
-                const sizeMb = (file.size / (1024 * 1024)).toFixed(2);
-                if (nameDisplay) {
-                    nameDisplay.textContent = `${file.name} (${sizeMb} MB)`;
-                    nameDisplay.style.color = '#0f766e';
-                    nameDisplay.style.fontWeight = '600';
-                    nameDisplay.style.fontStyle = 'normal';
+        // ----------------------------------------------------
+        // STUDENT CLASSROOM ASSIGNMENTS TRACKER & DIRECT UPLOAD
+        // ----------------------------------------------------
+        function onAsgDocSelected(asgId, prefix = '') {
+            const input = document.getElementById(`${prefix}asg-file-${asgId}`);
+            const display = document.getElementById(`${prefix}asg-filename-display-${asgId}`);
+            const clearBtn = document.getElementById(`${prefix}asg-clear-file-${asgId}`);
+            if (input && input.files && input.files.length > 0) {
+                const f = input.files[0];
+                const sizeKb = (f.size / 1024).toFixed(1);
+                if (display) {
+                    display.innerHTML = `<strong style="color: #0f766e;">${f.name}</strong> (${sizeKb} KB)`;
+                    display.style.fontStyle = 'normal';
                 }
-                if (submitBtn) {
-                    submitBtn.style.background = '#0f766e';
-                    submitBtn.style.pointerEvents = 'auto';
-                    submitBtn.style.cursor = 'pointer';
-                    submitBtn.style.opacity = '1';
-                    submitBtn.style.boxShadow = '0 2px 6px rgba(15, 118, 110, 0.3)';
-                }
+                if (clearBtn) clearBtn.style.display = 'inline-block';
             }
+        }
+
+        function clearAsgDoc(asgId, prefix = '') {
+            const input = document.getElementById(`${prefix}asg-file-${asgId}`);
+            const display = document.getElementById(`${prefix}asg-filename-display-${asgId}`);
+            const clearBtn = document.getElementById(`${prefix}asg-clear-file-${asgId}`);
+            if (input) input.value = '';
+            if (display) {
+                display.textContent = 'ยังไม่ได้เลือกไฟล์เอกสาร';
+                display.style.fontStyle = 'italic';
+            }
+            if (clearBtn) clearBtn.style.display = 'none';
+        }
+
+        function onAsgImgSelected(asgId, prefix = '') {
+            const input = document.getElementById(`${prefix}asg-img-${asgId}`);
+            const display = document.getElementById(`${prefix}asg-imgname-display-${asgId}`);
+            const previewBox = document.getElementById(`${prefix}asg-img-preview-box-${asgId}`);
+            const previewImg = document.getElementById(`${prefix}asg-img-preview-${asgId}`);
+            if (input && input.files && input.files.length > 0) {
+                const f = input.files[0];
+                if (display) display.textContent = f.name;
+                const reader = new FileReader();
+                reader.onload = e => {
+                    if (previewImg) previewImg.src = e.target.result;
+                    if (previewBox) previewBox.style.display = 'flex';
+                };
+                reader.readAsDataURL(f);
+            }
+        }
+
+        function clearAsgImg(asgId, prefix = '') {
+            const input = document.getElementById(`${prefix}asg-img-${asgId}`);
+            const display = document.getElementById(`${prefix}asg-imgname-display-${asgId}`);
+            const previewBox = document.getElementById(`${prefix}asg-img-preview-box-${asgId}`);
+            const previewImg = document.getElementById(`${prefix}asg-img-preview-${asgId}`);
+            if (input) input.value = '';
+            if (display) display.textContent = 'ยังไม่ได้เลือกรูปภาพ';
+            if (previewImg) previewImg.src = '';
+            if (previewBox) previewBox.style.display = 'none';
         }
 
         function toggleAsgReupload(asgId) {
@@ -5870,76 +6091,168 @@
             }
         }
 
-        async function submitAssignmentFileDirect(asgId, encodedDocType) {
+        function renderSubmissionFormInputs(asgId, docTypeParam, isReupload) {
+            const prefix = isReupload ? 're-' : '';
+            return `
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <div style="font-size: 11.5px; font-weight: 700; color: #0f766e; display: flex; align-items: center; gap: 6px;">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                        <span>${isReupload ? 'แก้ไขงาน / แนบส่งงานใหม่:' : 'ช่องทางการส่งงาน (เพิ่มไฟล์, เพิ่มรูปภาพ และเขียนอธิบาย):'}</span>
+                    </div>
+
+                    <!-- 1. ช่องเพิ่มไฟล์เอกสาร -->
+                    <div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; padding: 9px 12px;">
+                        <label style="font-size: 11px; font-weight: 700; color: #1e3a8a; display: flex; align-items: center; gap: 5px; margin-bottom: 5px;">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                            <span>1. แนบไฟล์เอกสาร (PDF, Word, Excel, ZIP)</span>
+                        </label>
+                        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                            <label for="${prefix}asg-file-${asgId}" class="btn-secondary" style="cursor: pointer; padding: 6px 12px; font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; margin: 0; background: #eff6ff; border: 1px solid #93c5fd; border-radius: 6px; color: #1d4ed8;">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                                <span>เลือกไฟล์เอกสาร...</span>
+                            </label>
+                            <input type="file" id="${prefix}asg-file-${asgId}" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.rar,.txt" style="display: none;" onchange="onAsgDocSelected('${asgId}', '${prefix}')">
+                            <span id="${prefix}asg-filename-display-${asgId}" style="font-size: 11px; color: #64748b; font-style: italic; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 280px;">ยังไม่ได้เลือกไฟล์เอกสาร</span>
+                            <button type="button" id="${prefix}asg-clear-file-${asgId}" onclick="clearAsgDoc('${asgId}', '${prefix}')" style="display: none; border: none; background: none; color: #ef4444; font-size: 11px; cursor: pointer;">✕ ลบไฟล์</button>
+                        </div>
+                    </div>
+
+                    <!-- 2. ช่องเพิ่มรูปภาพ -->
+                    <div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; padding: 9px 12px;">
+                        <label style="font-size: 11px; font-weight: 700; color: #0284c7; display: flex; align-items: center; gap: 5px; margin-bottom: 5px;">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                            <span>2. เพิ่มรูปภาพ / รูปถ่ายหลักฐาน</span>
+                        </label>
+                        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                            <label for="${prefix}asg-img-${asgId}" class="btn-secondary" style="cursor: pointer; padding: 6px 12px; font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; margin: 0; background: #f0fdfa; border: 1px solid #99f6e4; border-radius: 6px; color: #0d9488;">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                                <span>เลือกรูปภาพ / ถ่ายภาพ...</span>
+                            </label>
+                            <input type="file" id="${prefix}asg-img-${asgId}" accept="image/*" style="display: none;" onchange="onAsgImgSelected('${asgId}', '${prefix}')">
+                            <span id="${prefix}asg-imgname-display-${asgId}" style="font-size: 11px; color: #64748b; font-style: italic;">ยังไม่ได้เลือกรูปภาพ</span>
+                            <div id="${prefix}asg-img-preview-box-${asgId}" style="display: none; align-items: center; gap: 6px;">
+                                <img id="${prefix}asg-img-preview-${asgId}" src="" style="width: 38px; height: 38px; object-fit: cover; border-radius: 5px; border: 1px solid #99f6e4;">
+                                <button type="button" onclick="clearAsgImg('${asgId}', '${prefix}')" style="border: none; background: none; color: #ef4444; font-size: 11px; cursor: pointer;">✕ ลบรูป</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. ช่องเขียนอธิบาย -->
+                    <div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; padding: 9px 12px;">
+                        <label style="font-size: 11px; font-weight: 700; color: #334155; display: flex; align-items: center; gap: 5px; margin-bottom: 5px;">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                            <span>3. ช่องเขียนอธิบาย / รายละเอียดการส่งงาน</span>
+                        </label>
+                        <textarea id="${prefix}asg-comment-${asgId}" placeholder="พิมพ์อธิบายรายละเอียดการส่งงาน สรุปงานที่ทำ หรือข้อความถึงอาจารย์ที่ปรึกษา..." style="width: 100%; height: 60px; padding: 7px 10px; font-size: 11.5px; border-radius: 6px; border: 1px solid #cbd5e1; box-sizing: border-box; resize: vertical;"></textarea>
+                    </div>
+
+                    <!-- ปุ่มส่งงาน -->
+                    <div style="display: flex; justify-content: flex-end; align-items: center; gap: 8px; margin-top: 4px;">
+                        <button type="button" id="${prefix}asg-submit-btn-${asgId}" class="btn-primary" style="padding: 8px 20px; font-size: 12px; background: #0f766e; border-radius: 6px; font-weight: 700; display: flex; align-items: center; gap: 6px; cursor: pointer;" onclick="submitAssignmentPackage('${asgId}', '${docTypeParam}', '${prefix}')">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                            <span>${isReupload ? 'ยืนยันส่งงานใหม่' : 'ส่งงานให้อาจารย์'}</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function submitAssignmentPackage(asgId, encodedDocType, prefix = '') {
             const docType = decodeURIComponent(encodedDocType);
-            const fileInput = document.getElementById(`asg-file-${asgId}`);
-            if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
-                alert('กรุณาเลือกไฟล์เอกสารก่อนกดส่งงาน');
+            const fileInput = document.getElementById(`${prefix}asg-file-${asgId}`);
+            const imgInput = document.getElementById(`${prefix}asg-img-${asgId}`);
+            const commentEl = document.getElementById(`${prefix}asg-comment-${asgId}`);
+
+            const file = (fileInput && fileInput.files && fileInput.files[0]) || null;
+            const imgFile = (imgInput && imgInput.files && imgInput.files[0]) || null;
+            const comment = commentEl ? commentEl.value.trim() : '';
+
+            if (!file && !imgFile && !comment) {
+                alert('กรุณาแนบไฟล์เอกสาร, เพิ่มรูปภาพ หรือเขียนคำอธิบายอย่างน้อย 1 รายการก่อนกดส่งงาน');
                 return;
             }
-            const file = fileInput.files[0];
-            const submitBtn = document.getElementById(`asg-submit-btn-${asgId}`);
+
+            const submitBtn = document.getElementById(`${prefix}asg-submit-btn-${asgId}`);
             if (submitBtn) {
                 submitBtn.disabled = true;
                 submitBtn.innerHTML = `<span>กำลังส่งงาน...</span>`;
             }
 
-            const reader = new FileReader();
-            reader.onload = async function(e) {
-                try {
-                    const fileDataUrl = e.target.result;
-                    const savedSession = (sessionStorage.getItem('currentUser') || localStorage.getItem('currentUser'));
-                    const user = savedSession ? JSON.parse(savedSession) : {};
-                    const stdId = String(user.id || user.student_id || '6521655442');
-                    const stdName = user.name || 'นิสิต';
-                    const fileName = file.name;
-                    const nowStr = new Date().toLocaleDateString('th-TH') + ' ' + new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }) + ' น.';
-
-                    const allDocs = getSubmittedDocs();
-                    // Replace existing doc for this assignment if exists
-                    const filteredDocs = allDocs.filter(d => !(
-                        (String(d.studentId) === stdId || (user.email && d.email === user.email)) &&
-                        (d.asgId === asgId || d.docType === docType)
-                    ));
-
-                    const newDoc = {
-                        id: Date.now(),
-                        asgId: asgId,
-                        studentId: stdId,
-                        studentName: stdName,
-                        email: user.email || '',
-                        docType: docType,
-                        fileName: fileName,
-                        fileDataUrl: fileDataUrl,
-                        uploadDate: nowStr,
-                        status: 'รอตรวจ'
-                    };
-
-                    filteredDocs.unshift(newDoc);
-                    saveSubmittedDocs(filteredDocs);
-
-                    sendNotification('advisor', 'all', `นิสิต ${stdName} (รหัส ${stdId}) ส่งงาน: ${docType}`);
-                    await dbUploadDocument(stdId, docType, fileName, fileDataUrl);
-
-                    renderStudentDocsList();
-                    renderStudentClassroomAssignments();
-
-                    const stdDocStatusEl = document.getElementById('std-doc-status');
-                    if (stdDocStatusEl) stdDocStatusEl.textContent = 'รอตรวจ';
-
-                    addNotification(`ส่งงาน "${docType}" เรียบร้อยแล้ว (ส่งให้อาจารย์ตรวจ)`);
-                    alert(`ส่งงาน "${docType}" เรียบร้อยแล้ว! ข้อมูลและไฟล์ถูกส่งให้อาจารย์ผู้สอนตรวจรับแล้ว`);
-                } catch (err) {
-                    console.error("Error submitting assignment:", err);
-                    alert("เกิดข้อผิดพลาดในการส่งงาน: " + err.message);
-                } finally {
-                    if (submitBtn) {
-                        submitBtn.disabled = false;
-                        submitBtn.innerHTML = `<span>ส่งงานให้อาจารย์</span>`;
-                    }
+            try {
+                let fileDataUrl = '';
+                let fileName = file ? file.name : (imgFile ? imgFile.name : 'ข้อความอธิบายการส่งงาน');
+                if (file) {
+                    fileDataUrl = await readFileAsDataURL(file);
                 }
-            };
-            reader.readAsDataURL(file);
+
+                let photoDataUrl = '';
+                let photoName = '';
+                if (imgFile) {
+                    photoDataUrl = await readFileAsDataURL(imgFile);
+                    photoName = imgFile.name;
+                }
+
+                const savedSession = (sessionStorage.getItem('currentUser') || localStorage.getItem('currentUser'));
+                const user = savedSession ? JSON.parse(savedSession) : {};
+                const stdId = String(user.id || user.student_id || '6521655442');
+                const stdName = user.name || 'นิสิต';
+                const nowStr = new Date().toLocaleDateString('th-TH') + ' ' + new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }) + ' น.';
+
+                const allDocs = getSubmittedDocs();
+                const filteredDocs = allDocs.filter(d => !(
+                    (String(d.studentId) === stdId || (user.email && d.email === user.email)) &&
+                    (d.asgId === asgId || d.docType === docType)
+                ));
+
+                const newDoc = {
+                    id: Date.now(),
+                    asgId: asgId,
+                    studentId: stdId,
+                    studentName: stdName,
+                    email: user.email || '',
+                    docType: docType,
+                    fileName: fileName,
+                    fileDataUrl: fileDataUrl,
+                    photoName: photoName,
+                    photoDataUrl: photoDataUrl,
+                    comment: comment,
+                    description: comment,
+                    uploadDate: nowStr,
+                    status: 'รอตรวจ'
+                };
+
+                filteredDocs.unshift(newDoc);
+                saveSubmittedDocs(filteredDocs);
+
+                sendNotification('advisor', 'all', `นิสิต ${stdName} (รหัส ${stdId}) ส่งงาน: ${docType}`);
+                if (typeof dbUploadDocument === 'function' && fileDataUrl) {
+                    try { await dbUploadDocument(stdId, docType, fileName, fileDataUrl); } catch (e) {}
+                }
+
+                renderStudentDocsList();
+                renderStudentClassroomAssignments();
+                renderAdvisorDocOverview();
+                renderAdvisorAssignments();
+
+                const stdDocStatusEl = document.getElementById('std-doc-status');
+                if (stdDocStatusEl) stdDocStatusEl.textContent = 'รอตรวจ';
+
+                addNotification(`ส่งงาน "${docType}" เรียบร้อยแล้ว (ส่งให้อาจารย์ตรวจ)`);
+                alert(`ส่งงาน "${docType}" เรียบร้อยแล้ว! เอกสาร รูปภาพ และคำอธิบายถูกส่งถึงอาจารย์ผู้สอนแล้ว`);
+            } catch (err) {
+                console.error("Error submitting assignment package:", err);
+                alert("เกิดข้อผิดพลาดในการส่งงาน: " + err.message);
+            } finally {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = `<span>${prefix ? 'ยืนยันส่งงานใหม่' : 'ส่งงานให้อาจารย์'}</span>`;
+                }
+            }
+        }
+
+        // Backward-compat alias
+        async function submitAssignmentFileDirect(asgId, encodedDocType) {
+            return submitAssignmentPackage(asgId, encodedDocType, '');
         }
 
         function renderStudentClassroomAssignments() {
@@ -6029,27 +6342,55 @@
                 const docTypeParam = encodeURIComponent(asg.docType || asg.title);
 
                 if (submitted) {
+                    const hasDocFile = !!submitted.fileDataUrl || (submitted.fileName && submitted.fileName !== 'ข้อความอธิบายการส่งงาน');
+                    const hasPhoto = !!submitted.photoDataUrl;
+                    const hasComment = !!(submitted.comment || submitted.description);
+
                     uploadActionHtml = `
-                        <div style="background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 10px 12px; margin-top: 10px;">
-                            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
-                                <div style="display: flex; align-items: center; gap: 8px;">
-                                    <div style="width: 32px; height: 32px; border-radius: 6px; background: #dcfce7; display: flex; align-items: center; justify-content: center; color: #16a34a; flex-shrink: 0;">
-                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
-                                    </div>
-                                    <div>
-                                        <div style="font-size: 12px; font-weight: 700; color: #166534; word-break: break-all;">ไฟล์ที่ส่งแล้ว: ${submitted.fileName}</div>
-                                        <div style="font-size: 10.5px; color: #15803d; margin-top: 1px;">ส่งเมื่อ: ${submitted.uploadDate}</div>
-                                    </div>
-                                </div>
-                                <div style="display: flex; align-items: center; gap: 6px;">
-                                    <button type="button" class="btn-secondary" style="padding: 5px 10px; font-size: 11px; background: #ffffff; border: 1px solid #86efac; color: #166534; border-radius: 6px;" onclick="downloadDocFile('${submitted.id}')">
-                                        ดาวน์โหลดดูไฟล์
-                                    </button>
-                                    <button type="button" class="btn-primary" style="padding: 5px 12px; font-size: 11px; background-color: #0f766e; border-radius: 6px;" onclick="toggleAsgReupload('${asg.id}')">
-                                        แนบส่งไฟล์ใหม่/แก้ไข
-                                    </button>
-                                </div>
+                        <div style="background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 8px; padding: 12px 14px; margin-top: 10px;">
+                            <div style="font-size: 11px; font-weight: 700; color: #166534; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px;">
+                                <span style="display: flex; align-items: center; gap: 5px;">
+                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                    ผลงานที่นิสิตส่งแล้ว (ส่งเมื่อ: ${submitted.uploadDate || '-'}):
+                                </span>
+                                <button type="button" class="btn-primary" style="padding: 4px 10px; font-size: 11px; background-color: #0f766e; border-radius: 6px; cursor: pointer;" onclick="toggleAsgReupload('${asg.id}')">
+                                    แก้ไข / ส่งงานใหม่
+                                </button>
                             </div>
+
+                            <div style="display: flex; flex-direction: column; gap: 8px;">
+                                ${hasDocFile ? `
+                                    <div style="display: flex; align-items: center; justify-content: space-between; background: #ffffff; padding: 8px 10px; border-radius: 6px; border: 1px solid #bbf7d0;">
+                                        <div style="display: flex; align-items: center; gap: 8px;">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                                            <span style="font-size: 11.5px; font-weight: 700; color: #166534; word-break: break-all;">ไฟล์เอกสาร: ${submitted.fileName}</span>
+                                        </div>
+                                        <button type="button" class="btn-secondary" style="padding: 4px 9px; font-size: 11px; background: #f0fdf4; border: 1px solid #86efac; color: #166534; border-radius: 5px; cursor: pointer;" onclick="downloadDocFile('${submitted.id}')">
+                                            ดาวน์โหลด
+                                        </button>
+                                    </div>
+                                ` : ''}
+
+                                ${hasPhoto ? `
+                                    <div style="display: flex; align-items: center; gap: 10px; background: #ffffff; padding: 8px 10px; border-radius: 6px; border: 1px solid #bbf7d0;">
+                                        <img src="${submitted.photoDataUrl}" alt="รูปภาพหลักฐาน" style="width: 48px; height: 48px; object-fit: cover; border-radius: 6px; border: 1px solid #cbd5e1; cursor: pointer;" onclick="viewPhotoInModal('${submitted.photoDataUrl}')" title="คลิกเพื่อดูภาพใหญ่">
+                                        <div>
+                                            <div style="font-size: 11.5px; font-weight: 700; color: #166534;">รูปภาพหลักฐานแนบ (${submitted.photoName || 'รูปภาพ'})</div>
+                                            <button type="button" style="border: none; background: none; color: #0284c7; font-size: 10.5px; cursor: pointer; text-decoration: underline; padding: 0;" onclick="viewPhotoInModal('${submitted.photoDataUrl}')">
+                                                คลิกเพื่อดูรูปภาพขนาดเต็ม
+                                            </button>
+                                        </div>
+                                    </div>
+                                ` : ''}
+
+                                ${hasComment ? `
+                                    <div style="background: #ffffff; padding: 8px 10px; border-radius: 6px; border-left: 3px solid #0f766e; border: 1px solid #bbf7d0; font-size: 11.5px; color: #334155;">
+                                        <strong style="color: #0f766e;">คำอธิบายจากนิสิต:</strong>
+                                        <div style="margin-top: 2px; color: #475569; white-space: pre-wrap;">${escapeHtml(submitted.comment || submitted.description || '')}</div>
+                                    </div>
+                                ` : ''}
+                            </div>
+
                             ${submitted.feedback ? `
                                 <div style="margin-top: 8px; padding: 6px 10px; background: #ffffff; border-radius: 6px; border: 1px dashed #16a34a; font-size: 11px; color: #15803d;">
                                     <strong>ข้อคิดเห็นจากอาจารย์:</strong> ${submitted.feedback}
@@ -6057,46 +6398,15 @@
                             ` : ''}
                         </div>
 
-                        <!-- กล่องส่งไฟล์ใหม่กรณีต้องการแก้ไข (Toggle ได้) -->
-                        <div id="asg-reupload-box-${asg.id}" style="display: none; margin-top: 10px; background: #f8fafc; border: 1.5px dashed #0f766e; border-radius: 8px; padding: 12px;">
-                            <div style="font-size: 11.5px; font-weight: 700; color: #0f766e; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
-                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-                                แนบไฟล์เอกสารเพื่อส่งใหม่ / แก้ไขงานนี้
-                            </div>
-                            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
-                                <div style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 220px;">
-                                    <label for="asg-file-${asg.id}" class="btn-secondary" style="cursor: pointer; padding: 6px 12px; font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; margin: 0; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; color: #334155;">
-                                        เลือกไฟล์ใหม่...
-                                    </label>
-                                    <input type="file" id="asg-file-${asg.id}" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg" style="display: none;" onchange="onAsgFileSelected('${asg.id}')">
-                                    <span id="asg-filename-display-${asg.id}" style="font-size: 11px; color: #64748b; font-style: italic; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 220px;">ยังไม่ได้เลือกไฟล์</span>
-                                </div>
-                                <button type="button" id="asg-submit-btn-${asg.id}" class="btn-primary" style="padding: 6px 14px; font-size: 11px; background: #94a3b8; pointer-events: none; border-radius: 6px; font-weight: 600; display: flex; align-items: center; gap: 5px;" onclick="submitAssignmentFileDirect('${asg.id}', '${docTypeParam}')">
-                                    อัปโหลดส่งงาน
-                                </button>
-                            </div>
+                        <!-- กล่องส่งงานใหม่กรณีต้องการแก้ไข (Toggle ได้) -->
+                        <div id="asg-reupload-box-${asg.id}" style="display: none; margin-top: 10px; background: #f8fafc; border: 1.5px dashed #0f766e; border-radius: 8px; padding: 14px;">
+                            ${renderSubmissionFormInputs(asg.id, docTypeParam, true)}
                         </div>
                     `;
                 } else {
                     uploadActionHtml = `
-                        <div id="asg-upload-box-${asg.id}" style="margin-top: 10px; background: #f8fafc; border: 1.5px dashed #0f766e; border-radius: 8px; padding: 12px;">
-                            <div style="font-size: 11.5px; font-weight: 700; color: #0f766e; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
-                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-                                เพิ่มไฟล์เอกสารเพื่อส่งให้อาจารย์:
-                            </div>
-                            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
-                                <div style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 220px;">
-                                    <label for="asg-file-${asg.id}" class="btn-secondary" style="cursor: pointer; padding: 7px 12px; font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; margin: 0; background: #ffffff; border: 1px solid #0f766e; border-radius: 6px; color: #0f766e;">
-                                        เลือกไฟล์เอกสาร...
-                                    </label>
-                                    <input type="file" id="asg-file-${asg.id}" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg" style="display: none;" onchange="onAsgFileSelected('${asg.id}')">
-                                    <span id="asg-filename-display-${asg.id}" style="font-size: 11px; color: #64748b; font-style: italic; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 240px;">ยังไม่ได้เลือกไฟล์ (PDF, Word, รูปถ่าย)</span>
-                                </div>
-                                <button type="button" id="asg-submit-btn-${asg.id}" class="btn-primary" style="padding: 7px 16px; font-size: 11.5px; background: #94a3b8; pointer-events: none; border-radius: 6px; font-weight: 600; display: flex; align-items: center; gap: 5px; transition: all 0.2s;" onclick="submitAssignmentFileDirect('${asg.id}', '${docTypeParam}')">
-                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
-                                    ส่งงานให้อาจารย์
-                                </button>
-                            </div>
+                        <div id="asg-upload-box-${asg.id}" style="margin-top: 10px; background: #f8fafc; border: 1.5px dashed #0f766e; border-radius: 8px; padding: 14px;">
+                            ${renderSubmissionFormInputs(asg.id, docTypeParam, false)}
                         </div>
                     `;
                 }
@@ -6105,8 +6415,8 @@
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;">
                         <div style="flex: 1;">
                             <div style="display: flex; align-items: center; gap: 6px;">
-                                <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: ${submitted ? '#10b981' : '#0f766e'};"></span>
-                                <span style="font-weight: 700; color: #0f766e; font-size: 13.5px;">${asg.title}</span>
+                                <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: ${submitted ? '#10b981' : '#0f766e'};"></span>
+                                <span style="font-weight: 700; color: #0f766e; font-size: 13.5px;">${escapeHtml(asg.title)}</span>
                             </div>
                             <div style="font-size: 11px; color: ${isPastDue && !submitted ? '#dc2626' : '#64748b'}; margin-top: 3px; display: flex; align-items: center; gap: 4px;">
                                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
@@ -6114,7 +6424,7 @@
                             </div>
                             ${asg.desc ? `
                                 <div style="font-size: 11.5px; color: #334155; background: #f8fafc; border-left: 3px solid #0f766e; padding: 6px 10px; border-radius: 4px; margin-top: 6px; line-height: 1.5;">
-                                    <strong>รายละเอียดคำสั่งงาน:</strong> ${asg.desc}
+                                    <strong>รายละเอียดคำสั่งงาน:</strong> ${escapeHtml(asg.desc)}
                                 </div>
                             ` : ''}
                         </div>
@@ -6318,29 +6628,66 @@
                 const badgeClass = isApproved ? 'badge-success' : (isRejected ? 'badge-danger' : 'badge-warning');
                 const statusText = isApproved ? 'ตรวจรับแล้ว' : (isRejected ? 'ต้องแก้ไข' : (d.status || 'รอตรวจ'));
 
+                const hasDocFile = !!d.fileDataUrl || (d.fileName && d.fileName !== 'ข้อความอธิบายการส่งงาน');
+                const hasPhoto = !!d.photoDataUrl;
+                const studentNote = d.description || '';
+
                 html += `
-                    <div class="student-item" style="margin-bottom: 6px; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 8px; background: #ffffff; display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;">
-                        <div style="flex: 1; min-width: 220px;">
-                            <div style="font-weight: 700; color: var(--primary-color); font-size: 13px;">${d.docType}</div>
-                            <div style="color: var(--text-muted); font-size: 10.5px; margin-top: 2px;">
-                                ไฟล์: <strong style="color: #1e293b;">${d.fileName}</strong> | ส่งเมื่อ: ${d.uploadDate || '-'}
+                    <div class="student-item" style="margin-bottom: 10px; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; background: #ffffff; display: flex; flex-direction: column; gap: 8px;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; flex-wrap: wrap;">
+                            <div>
+                                <div style="font-weight: 700; color: var(--primary-color); font-size: 13px;">${escapeHtml(d.docType)}</div>
+                                <div style="color: var(--text-muted); font-size: 10.5px; margin-top: 2px;">
+                                    ส่งเมื่อ: ${d.uploadDate || '-'}
+                                </div>
                             </div>
-                            <div style="margin-top: 4px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                            <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
                                 <span class="status-badge ${badgeClass}" style="font-size: 11px;">${statusText}</span>
-                                ${d.comment ? `<span style="font-size: 11px; color: #dc2626; font-weight: 600; background: #fef2f2; padding: 2px 6px; border-radius: 4px;">เหตุผล: ${d.comment}</span>` : ''}
+                                ${hasDocFile ? `
+                                    <button type="button" class="btn-primary btn-secondary" style="padding: 5px 9px; font-size: 11px;" onclick="downloadDocFile('${d.id}')">
+                                        ดูไฟล์
+                                    </button>
+                                ` : ''}
+                                <button type="button" class="btn-primary" style="padding: 5px 9px; font-size: 11px; background-color: #16a34a; border-color: #16a34a; font-weight: 600;" onclick="updateSingleDocStatus('${d.id}', 'ตรวจรับแล้ว')">
+                                    ✓ ผ่าน
+                                </button>
+                                <button type="button" class="btn-primary btn-danger" style="padding: 5px 9px; font-size: 11px; font-weight: 600;" onclick="updateSingleDocStatus('${d.id}', 'ต้องแก้ไข')">
+                                    ✕ ตีกลับ
+                                </button>
                             </div>
                         </div>
-                        <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
-                            <button type="button" class="btn-primary btn-secondary" style="padding: 5px 9px; font-size: 11px;" onclick="downloadDocFile('${d.id}')">
-                                ดูไฟล์
-                            </button>
-                            <button type="button" class="btn-primary" style="padding: 5px 9px; font-size: 11px; background-color: #16a34a; border-color: #16a34a; font-weight: 600;" onclick="updateSingleDocStatus('${d.id}', 'ตรวจรับแล้ว')">
-                                ✓ ผ่าน
-                            </button>
-                            <button type="button" class="btn-primary btn-danger" style="padding: 5px 9px; font-size: 11px; font-weight: 600;" onclick="updateSingleDocStatus('${d.id}', 'ต้องแก้ไข')">
-                                ✕ ตีกลับ
-                            </button>
+
+                        <!-- รายละเอียดการส่ง: ไฟล์, รูปภาพ, คำอธิบาย -->
+                        <div style="display: flex; flex-direction: column; gap: 6px; background: #f8fafc; padding: 8px 10px; border-radius: 6px; border: 1px solid #f1f5f9; font-size: 11px;">
+                            ${hasDocFile ? `
+                                <div style="display: flex; align-items: center; gap: 6px; color: #1e293b;">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                                    <span>ไฟล์เอกสาร: <strong style="color: #1e3a8a;">${escapeHtml(d.fileName)}</strong></span>
+                                </div>
+                            ` : ''}
+
+                            ${hasPhoto ? `
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <img src="${d.photoDataUrl}" alt="หลักฐาน" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px; border: 1px solid #cbd5e1; cursor: pointer;" onclick="viewPhotoInModal('${d.photoDataUrl}')" title="คลิกเพื่อดูรูปภาพใหญ่">
+                                    <div style="font-size: 11px; color: #0284c7; cursor: pointer; text-decoration: underline;" onclick="viewPhotoInModal('${d.photoDataUrl}')">
+                                        คลิกดูรูปภาพหลักฐานแนบ (${escapeHtml(d.photoName || 'รูปภาพ')})
+                                    </div>
+                                </div>
+                            ` : ''}
+
+                            ${studentNote ? `
+                                <div style="background: #ffffff; padding: 6px 8px; border-radius: 4px; border-left: 3px solid #0f766e; border: 1px solid #e2e8f0; color: #334155;">
+                                    <strong style="color: #0f766e;">คำอธิบายจากนิสิต:</strong>
+                                    <div style="margin-top: 2px; color: #475569; white-space: pre-wrap;">${escapeHtml(studentNote)}</div>
+                                </div>
+                            ` : ''}
                         </div>
+
+                        ${d.comment ? `
+                            <div style="font-size: 11px; color: #dc2626; font-weight: 600; background: #fef2f2; padding: 4px 8px; border-radius: 4px; border: 1px solid #fee2e2;">
+                                เหตุผลการตีกลับ: ${escapeHtml(d.comment)}
+                            </div>
+                        ` : ''}
                     </div>`;
             });
             modalBody.innerHTML = html;
