@@ -2451,43 +2451,68 @@
             if (typeof supabaseClient !== 'undefined' && supabaseClient) {
                 try {
                     const customUsers = JSON.parse(localStorage.getItem('customUsers') || '{}');
-                    // Sync real students from Supabase
+                    // Sync real students from Supabase (Cloud Master Source of Truth)
                     const { data: stds, error: sErr } = await supabaseClient.from('students').select('*');
                     if (!sErr && stds && stds.length > 0) {
                         stds.forEach(s => {
-                            if (!customUsers[s.email]) {
-                                customUsers[s.email] = {
-                                    id: s.student_id,
-                                    student_id: s.student_id,
-                                    name: s.full_name,
-                                    email: s.email,
-                                    role: 'student',
-                                    section: s.section,
-                                    company_name: s.company_name,
-                                    docs: s.doc_status || 'รอตรวจ',
-                                    status: s.supervision_status || 'รอนิเทศ',
-                                    photo: s.photo_url || ''
-                                };
-                            }
+                            const existing = customUsers[s.email] || {};
+                            customUsers[s.email] = {
+                                ...existing,
+                                id: s.student_id,
+                                student_id: s.student_id,
+                                name: s.full_name,
+                                email: s.email,
+                                role: 'student',
+                                section: s.section,
+                                company_name: s.company_name,
+                                company: s.company_name,
+                                docs: s.doc_status || existing.docs || 'รอตรวจ',
+                                status: s.supervision_status || existing.status || 'รอนิเทศ',
+                                photo: s.photo_url || existing.photo || '',
+                                advisor_name: s.advisor_name || existing.advisor_name || '',
+                                company_lat: s.company_lat || existing.company_lat || '',
+                                company_lng: s.company_lng || existing.company_lng || '',
+                                semester: s.semester || existing.semester || 'ภาคต้น 2569'
+                            };
                         });
                     }
                     // Sync real advisors from Supabase
                     const { data: advs, error: aErr } = await supabaseClient.from('advisors').select('*');
                     if (!aErr && advs && advs.length > 0) {
                         advs.forEach(a => {
-                            if (!customUsers[a.email]) {
-                                customUsers[a.email] = {
-                                    id: a.advisor_id,
-                                    advisor_id: a.advisor_id,
-                                    name: a.full_name,
-                                    email: a.email,
-                                    role: 'advisor',
-                                    section: a.section
-                                };
-                            }
+                            const existing = customUsers[a.email] || {};
+                            customUsers[a.email] = {
+                                ...existing,
+                                id: a.advisor_id,
+                                advisor_id: a.advisor_id,
+                                name: a.full_name,
+                                email: a.email,
+                                role: 'advisor',
+                                section: a.section,
+                                responsible_sections: a.responsible_sections || existing.responsible_sections || []
+                            };
                         });
                     }
                     localStorage.setItem('customUsers', JSON.stringify(customUsers));
+
+                    // Sync real coop_documents from Supabase
+                    const { data: cloudDocs, error: dErr } = await supabaseClient.from('coop_documents').select('*');
+                    if (!dErr && cloudDocs && cloudDocs.length > 0) {
+                        const localDocs = JSON.parse(localStorage.getItem('submittedDocs') || '[]');
+                        const docMap = {};
+                        localDocs.forEach(d => { if (d && d.studentId && d.docType) docMap[`${d.studentId}_${d.docType}`] = d; });
+                        cloudDocs.forEach(cd => {
+                            docMap[`${cd.student_id}_${cd.doc_type}`] = {
+                                studentId: cd.student_id,
+                                docType: cd.doc_type,
+                                fileName: cd.file_name,
+                                fileDataUrl: cd.file_url,
+                                status: cd.status || 'รออาจารย์ตรวจ',
+                                uploadedAt: cd.uploaded_at
+                            };
+                        });
+                        localStorage.setItem('submittedDocs', JSON.stringify(Object.values(docMap)));
+                    }
 
                     // Sync real assignments from Supabase
                     if (typeof dbFetchAssignments === 'function') {
@@ -6293,7 +6318,22 @@
 
                 sendNotification('advisor', 'all', `นิสิต ${stdName} (รหัส ${stdId}) ส่งงาน: ${docType}`);
                 if (typeof dbUploadDocument === 'function' && fileDataUrl) {
-                    try { await dbUploadDocument(stdId, docType, fileName, fileDataUrl); } catch (e) {}
+                    try { 
+                        const uploadRes = await dbUploadDocument(stdId, docType, fileName, fileDataUrl); 
+                        if (uploadRes && uploadRes.fileUrl) {
+                            newDoc.fileDataUrl = uploadRes.fileUrl;
+                            saveSubmittedDocs(filteredDocs);
+                        }
+                    } catch (e) {}
+                }
+                if (typeof dbUploadPhoto === 'function' && photoDataUrl) {
+                    try { 
+                        const photoRes = await dbUploadPhoto(stdId, photoDataUrl);
+                        if (photoRes && photoRes.photoUrl) {
+                            newDoc.photoDataUrl = photoRes.photoUrl;
+                            saveSubmittedDocs(filteredDocs);
+                        }
+                    } catch (e) {}
                 }
 
                 renderStudentDocsList();

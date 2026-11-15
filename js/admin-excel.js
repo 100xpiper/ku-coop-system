@@ -1156,11 +1156,13 @@ function importAdvisorExcelFile() {
                         }], { onConflict: 'email' });
 
                         if (advisorId) {
+                            const secArr = section.replace(/หมู่/g, '').split(/[,/]/).map(s => s.trim()).filter(Boolean);
                             await supabaseClient.from('advisors').upsert([{
                                 advisor_id: advisorId,
                                 email: email,
                                 full_name: fullName,
-                                section: section
+                                section: section,
+                                responsible_sections: secArr
                             }], { onConflict: 'advisor_id' });
                         }
                     } catch (err) {

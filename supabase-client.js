@@ -236,20 +236,23 @@ async function dbSaveStudent(std) {
                 await supabaseClient.from('users').upsert({
                     email: std.email,
                     role: 'student',
-                    full_name: std.name,
+                    full_name: std.name || std.full_name,
+                    status: 'approved',
                     first_login: true
                 }, { onConflict: 'email' });
             }
             await supabaseClient.from('students').upsert({
-                student_id: String(std.id),
+                student_id: String(std.id || std.student_id),
                 email: std.email,
-                full_name: std.name,
-                company_name: std.company,
+                full_name: std.name || std.full_name,
+                company_name: std.company || std.company_name,
                 section: std.section,
-                doc_status: std.docs || 'รอตรวจ',
-                supervision_status: std.status || 'รอนิเทศ',
+                doc_status: std.docs || std.doc_status || 'รอตรวจ',
+                supervision_status: std.status || std.supervision_status || 'รอนิเทศ',
                 advisor_name: std.advisor_name || '',
-                semester: std.semester || 'ภาคต้น 2569'
+                semester: std.semester || 'ภาคต้น 2569',
+                company_lat: std.lat || std.company_lat || '',
+                company_lng: std.lng || std.company_lng || ''
             }, { onConflict: 'student_id' });
         } catch (e) {
             console.warn("Supabase student upsert notice:", e.message);
@@ -498,25 +501,101 @@ async function dbSignIn(email, password) {
 }
 
 
+// ----------------------------------------------------
+// SUPABASE STORAGE & FILE CLOUD ENGINE
+// ----------------------------------------------------
+
 /**
- * Fetch Students List by Section
+ * Convert Base64 Data URL to Blob for binary storage upload
+ */
+async function dataUrlToBlob(dataUrl) {
+    if (!dataUrl || typeof dataUrl !== 'string' || !dataUrl.startsWith('data:')) return null;
+    try {
+        const res = await fetch(dataUrl);
+        return await res.blob();
+    } catch (e) {
+        try {
+            const arr = dataUrl.split(',');
+            const mimeMatch = arr[0].match(/:(.*?);/);
+            const mime = mimeMatch ? mimeMatch[1] : 'application/octet-stream';
+            const bstr = atob(arr[1]);
+            let n = bstr.length;
+            const u8arr = new Uint8Array(n);
+            while (n--) {
+                u8arr[n] = bstr.charCodeAt(n);
+            }
+            return new Blob([u8arr], { type: mime });
+        } catch (err) {
+            console.warn("dataUrlToBlob conversion error:", err.message);
+            return null;
+        }
+    }
+}
+
+/**
+ * Upload File or Blob directly to Supabase Storage Bucket
+ * @param {string} bucketName - e.g. 'coop-storage'
+ * @param {string} filePath - destination path
+ * @param {Blob|File} fileOrBlob - the binary file or blob
+ */
+async function uploadToSupabaseStorage(bucketName, filePath, fileOrBlob) {
+    if (!supabaseClient) return { success: false, error: 'Supabase client not initialized' };
+    try {
+        const { data, error } = await supabaseClient.storage
+            .from(bucketName)
+            .upload(filePath, fileOrBlob, {
+                cacheControl: '3600',
+                upsert: true
+            });
+
+        if (error) throw error;
+
+        const { data: publicData } = supabaseClient.storage
+            .from(bucketName)
+            .getPublicUrl(data.path);
+
+        console.log(`[Supabase Storage] Uploaded to ${bucketName}/${filePath}:`, publicData?.publicUrl);
+        return { success: true, url: publicData?.publicUrl, path: data.path };
+    } catch (err) {
+        console.warn(`[Supabase Storage] Upload notice (${filePath}):`, err.message);
+        return { success: false, error: err.message };
+    }
+}
+
+/**
+ * Fetch Students List by Section or All
  */
 async function dbFetchStudents(section) {
     if (supabaseClient) {
         try {
-            const { data, error } = await supabaseClient
-                .from('students')
-                .select('*')
-                .eq('section', section);
+            let query = supabaseClient.from('students').select('*');
+            if (section && typeof section === 'string' && !section.includes(',')) {
+                query = query.eq('section', section);
+            }
+            const { data, error } = await query;
 
             if (!error && data && data.length > 0) {
                 return data.map(s => ({
                     id: s.student_id,
+                    student_id: s.student_id,
                     name: s.full_name,
+                    full_name: s.full_name,
+                    email: s.email,
                     company: s.company_name,
-                    docs: s.doc_status,
-                    status: s.supervision_status,
-                    photo: s.photo_url
+                    company_name: s.company_name,
+                    section: s.section,
+                    docs: s.doc_status || 'รอตรวจ',
+                    doc_status: s.doc_status || 'รอตรวจ',
+                    status: s.supervision_status || 'รอนิเทศ',
+                    supervision_status: s.supervision_status || 'รอนิเทศ',
+                    photo: s.photo_url || '',
+                    photo_url: s.photo_url || '',
+                    score: s.score || 0,
+                    feedback: s.feedback || '',
+                    advisor_name: s.advisor_name || '',
+                    company_lat: s.company_lat || '',
+                    company_lng: s.company_lng || '',
+                    semester: s.semester || 'ภาคต้น 2569'
                 }));
             }
         } catch (e) {
@@ -527,55 +606,91 @@ async function dbFetchStudents(section) {
 }
 
 /**
- * Save Document Record to Database
+ * Save Document Record to Database and upload real binary file to Supabase Storage
  */
 async function dbUploadDocument(studentId, docType, fileName, fileDataUrl) {
-    if (supabaseClient) {
-        try {
-            await supabaseClient
-                .from('coop_documents')
-                .insert([
-                    {
-                        student_id: studentId,
-                        doc_type: docType,
-                        file_name: fileName,
-                        file_url: fileDataUrl,
-                        status: 'รออาจารย์ตรวจ'
-                    }
-                ]);
+    if (!supabaseClient) return { success: false, error: 'No Supabase client' };
+    try {
+        let finalFileUrl = fileDataUrl;
 
-            await supabaseClient
-                .from('students')
-                .update({ doc_status: 'รอตรวจ' })
-                .eq('student_id', studentId);
-        } catch (e) {
-            console.warn("Supabase doc upload fallback:", e.message);
+        // ถ้าเป็น Base64 Data URL ให้ทำการอัปโหลดขึ้น Supabase Storage Bucket จริง
+        if (fileDataUrl && fileDataUrl.startsWith('data:')) {
+            const blob = await dataUrlToBlob(fileDataUrl);
+            if (blob) {
+                const safeName = (fileName || 'document').replace(/[^a-zA-Z0-9._-]/g, '_');
+                const path = `documents/${studentId}/${Date.now()}_${safeName}`;
+                const uploadRes = await uploadToSupabaseStorage('coop-storage', path, blob);
+                if (uploadRes.success && uploadRes.url) {
+                    finalFileUrl = uploadRes.url;
+                }
+            }
         }
+
+        const { error: insErr } = await supabaseClient
+            .from('coop_documents')
+            .insert([
+                {
+                    student_id: studentId,
+                    doc_type: docType,
+                    file_name: fileName,
+                    file_url: finalFileUrl,
+                    status: 'รออาจารย์ตรวจ'
+                }
+            ]);
+
+        if (insErr) {
+            console.warn("Supabase coop_documents insert error:", insErr.message);
+        }
+
+        await supabaseClient
+            .from('students')
+            .update({ doc_status: 'รอตรวจ' })
+            .eq('student_id', studentId);
+
+        return { success: true, fileUrl: finalFileUrl };
+    } catch (e) {
+        console.warn("Supabase doc upload fallback:", e.message);
+        return { success: false, error: e.message };
     }
 }
 
 /**
- * Save Evidence Photo to Database
+ * Save Evidence Photo to Database and Supabase Storage
  */
 async function dbUploadPhoto(studentId, photoDataUrl) {
-    if (supabaseClient) {
-        try {
-            await supabaseClient
-                .from('supervision_photos')
-                .insert([
-                    {
-                        student_id: studentId,
-                        photo_url: photoDataUrl
-                    }
-                ]);
+    if (!supabaseClient) return { success: false, error: 'No Supabase client' };
+    try {
+        let finalPhotoUrl = photoDataUrl;
 
-            await supabaseClient
-                .from('students')
-                .update({ photo_url: photoDataUrl })
-                .eq('student_id', studentId);
-        } catch (e) {
-            console.warn("Supabase photo upload fallback:", e.message);
+        if (photoDataUrl && photoDataUrl.startsWith('data:')) {
+            const blob = await dataUrlToBlob(photoDataUrl);
+            if (blob) {
+                const path = `photos/${studentId}/${Date.now()}_supervision.jpg`;
+                const uploadRes = await uploadToSupabaseStorage('coop-storage', path, blob);
+                if (uploadRes.success && uploadRes.url) {
+                    finalPhotoUrl = uploadRes.url;
+                }
+            }
         }
+
+        await supabaseClient
+            .from('supervision_photos')
+            .insert([
+                {
+                    student_id: studentId,
+                    photo_url: finalPhotoUrl
+                }
+            ]);
+
+        await supabaseClient
+            .from('students')
+            .update({ photo_url: finalPhotoUrl })
+            .eq('student_id', studentId);
+
+        return { success: true, photoUrl: finalPhotoUrl };
+    } catch (e) {
+        console.warn("Supabase photo upload fallback:", e.message);
+        return { success: false, error: e.message };
     }
 }
 
@@ -693,24 +808,64 @@ async function dbFetchAssignments() {
 }
 
 /**
- * Save or Upsert student weekly report to Supabase student_weekly_reports
+ * Save or Upsert student weekly report to Supabase student_weekly_reports (including real file/image upload)
  */
 async function dbSaveWeeklyReport(stdId, pName, report) {
     if (!supabaseClient || !stdId || !report) return;
     try {
-        const reportId = `${stdId}_w${report.week}`;
+        const cleanReport = JSON.parse(JSON.stringify(report));
+
+        // 1. อัปโหลดไฟล์เอกสารประจำสัปดาห์ขึ้น Supabase Storage จริง
+        if (cleanReport.file && cleanReport.file.dataUrl && cleanReport.file.dataUrl.startsWith('data:')) {
+            const blob = await dataUrlToBlob(cleanReport.file.dataUrl);
+            if (blob) {
+                const safeName = (cleanReport.file.name || 'file').replace(/[^a-zA-Z0-9._-]/g, '_');
+                const path = `weekly/${stdId}/w${cleanReport.week}_${Date.now()}_${safeName}`;
+                const uploadRes = await uploadToSupabaseStorage('coop-storage', path, blob);
+                if (uploadRes.success && uploadRes.url) {
+                    cleanReport.file.dataUrl = uploadRes.url;
+                    cleanReport.file.isCloudUrl = true;
+                }
+            }
+        }
+
+        // 2. อัปโหลดรูปภาพประจำสัปดาห์ขึ้น Supabase Storage จริง
+        if (Array.isArray(cleanReport.images) && cleanReport.images.length > 0) {
+            for (let i = 0; i < cleanReport.images.length; i++) {
+                const img = cleanReport.images[i];
+                const dUrl = (typeof img === 'string') ? img : (img?.dataUrl || '');
+                if (dUrl && dUrl.startsWith('data:')) {
+                    const blob = await dataUrlToBlob(dUrl);
+                    if (blob) {
+                        const path = `weekly/${stdId}/w${cleanReport.week}_img_${Date.now()}_${i}.jpg`;
+                        const uploadRes = await uploadToSupabaseStorage('coop-storage', path, blob);
+                        if (uploadRes.success && uploadRes.url) {
+                            if (typeof img === 'string') {
+                                cleanReport.images[i] = uploadRes.url;
+                            } else {
+                                cleanReport.images[i].dataUrl = uploadRes.url;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        const reportId = `${stdId}_w${cleanReport.week}`;
         await supabaseClient
             .from('student_weekly_reports')
             .upsert({
                 id: reportId,
                 student_id: String(stdId),
                 project_name: pName || '',
-                week: parseInt(report.week),
-                issues: report.issues || '',
-                file_info: report.file || null,
-                images: report.images || [],
-                date_str: report.dateStr || ''
+                week: parseInt(cleanReport.week),
+                issues: cleanReport.issues || '',
+                file_info: cleanReport.file || null,
+                images: cleanReport.images || [],
+                date_str: cleanReport.dateStr || ''
             }, { onConflict: 'id' });
+
+        console.log(`[Supabase DB] Successfully synced weekly report week ${cleanReport.week} for student ${stdId}`);
     } catch (e) {
         console.warn("Supabase dbSaveWeeklyReport fallback:", e.message);
     }
@@ -742,6 +897,7 @@ async function dbFetchWeeklyReports(stdId) {
     }
     return null;
 }
+
 
 
 
