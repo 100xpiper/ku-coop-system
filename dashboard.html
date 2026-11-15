@@ -6871,7 +6871,9 @@
                 saveSubmittedDocs(allDocs);
                 sendNotification('advisor', 'all', `นิสิต ${stdName} (รหัส ${stdId}) ส่งเอกสารใหม่: ${docType}`);
 
-                await dbUploadDocument(stdId, docType, fileName, fileDataUrl);
+                if (typeof dbUploadDocument === 'function') {
+                    await dbUploadDocument(stdId, docType, fileName, fileDataUrl);
+                }
 
                 renderStudentDocsList();
                 renderStudentClassroomAssignments();
