@@ -1044,6 +1044,24 @@ async function dbFetchWeeklyReports(stdId) {
     return null;
 }
 
+/**
+ * Delete a specific weekly report from Supabase
+ */
+async function dbDeleteWeeklyReport(stdId, weekNum) {
+    if (!supabaseClient || !stdId || !weekNum) return;
+    try {
+        await supabaseClient
+            .from('student_weekly_reports')
+            .delete()
+            .eq('student_id', String(stdId))
+            .eq('week', parseInt(weekNum));
+        console.log(`[Supabase] Deleted weekly report week ${weekNum} for student ${stdId}`);
+    } catch (e) {
+        console.warn("Supabase dbDeleteWeeklyReport fallback:", e.message);
+    }
+}
+
+
 
 
 
