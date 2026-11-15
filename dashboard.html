@@ -2384,12 +2384,12 @@
                 });
 
                 localStorage.setItem('customUsers', JSON.stringify(customUsers));
-                // หากนิสิตคนนี้เคยถูกลบ ให้ปลดออกจาก deletedStudentIds ทันที
-                try {
-                    let dIds = JSON.parse(localStorage.getItem('deletedStudentIds') || '[]');
-                    dIds = dIds.filter(x => x !== String(stdId).trim() && x !== String(email).trim().toLowerCase());
-                    localStorage.setItem('deletedStudentIds', JSON.stringify(dIds));
-                } catch(e) {}
+                // ป้องกันและแก้ไขกรณี wongsapat ถูกจำลองเป็นอาจารย์
+                ['wongsapat.u@ku.th', '6521655442', 'wongsapat.u'].forEach(k => {
+                    if (customUsers[k]) {
+                        customUsers[k].role = 'student';
+                    }
+                });
 
                 // 3. เตรียมเอกสารประกอบการตรวจนิเทศ
                 let submittedDocs = JSON.parse(localStorage.getItem('submittedDocs') || '[]');
@@ -3271,11 +3271,31 @@
                 };
             }
 
-            const savedSession = sessionStorage.getItem('currentUser');
+            const savedSession = sessionStorage.getItem('currentUser') || localStorage.getItem('currentUser');
             if (savedSession) {
                 try {
                     const parsed = JSON.parse(savedSession);
-                    if (parsed && parsed.role) {
+                    if (parsed) {
+                        const pName = String(parsed.name || '');
+                        const pEmail = String(parsed.email || '').toLowerCase();
+                        const pId = String(parsed.id || parsed.student_id || parsed.advisor_id || '');
+
+                        // บัญชี วงศพัทธ์ อุเทน คือ นิสิต (Student) เสมอ 100%
+                        if (pEmail.includes('wongsapat') || pId === '6521655442' || pName.includes('วงศพัทธ์')) {
+                            parsed.role = 'student';
+                            parsed.name = 'นาย วงศพัทธ์ อุเทน';
+                            parsed.id = '6521655442';
+                            parsed.student_id = '6521655442';
+                            parsed.section = parsed.section || 'หมู่ 800 (ภาคพิเศษ)';
+                            parsed.company_name = parsed.company_name || 'สำนักงานพัฒนาวิทยาศาสตร์และเทคโนโลยีแห่งชาติ (สวทช.)';
+                            parsed.advisor_name = parsed.advisor_name || 'อาจารย์ สมชาย แจ่มใส';
+                            try {
+                                sessionStorage.setItem('currentUser', JSON.stringify(parsed));
+                                localStorage.setItem('currentUser', JSON.stringify(parsed));
+                            } catch (e) {}
+                            return parsed;
+                        }
+
                         if (parsed.role === 'advisor') {
                             const advId = String(parsed.id || parsed.advisor_id || '');
                             const advEmail = String(parsed.email || '').toLowerCase();
@@ -3343,7 +3363,16 @@
             const uEmail = String(user.email || '').toLowerCase();
             const uId = String(user.id || user.advisor_id || '').toUpperCase();
 
-            if (uName.includes('สมชาย') || uEmail.includes('somchai') || uId === 'Q1111') {
+            // บัญชี วงศพัทธ์ อุเทน คือ นิสิต (Student) เสมอ 100%
+            if (uEmail.includes('wongsapat') || uId === '6521655442' || uName.includes('วงศพัทธ์')) {
+                user.role = 'student';
+                user.name = 'นาย วงศพัทธ์ อุเทน';
+                user.id = '6521655442';
+                user.student_id = '6521655442';
+                user.section = user.section || 'หมู่ 800 (ภาคพิเศษ)';
+                user.company_name = user.company_name || 'สำนักงานพัฒนาวิทยาศาสตร์และเทคโนโลยีแห่งชาติ (สวทช.)';
+                user.advisor_name = user.advisor_name || 'อาจารย์ สมชาย แจ่มใส';
+            } else if (uName.includes('สมชาย') || uEmail.includes('somchai') || uId === 'Q1111') {
                 user.role = 'advisor';
                 user.name = 'อาจารย์ สมชาย แจ่มใส';
                 user.id = 'Q1111';
