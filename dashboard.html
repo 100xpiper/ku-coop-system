@@ -6923,9 +6923,10 @@
         let pendingPhotoDataUrl = null;
 
         function openPhotoModal(id, name, sec) {
-            currentSelectedStudentId = id;
+            currentSelectedStudentId = String(id || '');
             if (sec) currentSelectedClassroom = sec;
-            document.getElementById('photo-student-name').textContent = `${name} (${id})`;
+            const nameEl = document.getElementById('photo-student-name');
+            if (nameEl) nameEl.textContent = `${name || 'นิสิต'} (${id})`;
             
             pendingPhotoDataUrl = null;
             const confirmBtn = document.getElementById('btn-confirm-upload-photo');
@@ -6947,28 +6948,40 @@
                     }
                 }
             }
+            if (!std) {
+                const allStds = getAllSystemStudents();
+                std = allStds.find(s => String(s.id) === String(id));
+            }
+            if (!std) {
+                const customUsers = JSON.parse(localStorage.getItem('customUsers') || '{}');
+                std = Object.values(customUsers).find(u => String(u.id || u.student_id) === String(id));
+            }
             
             const img = document.getElementById('photo-preview-img');
             const emptyText = document.getElementById('photo-empty-text');
             const delBtn = document.getElementById('btn-delete-photo');
 
             if (std && std.photo) {
-                img.src = std.photo;
-                img.style.display = 'block';
-                emptyText.style.display = 'none';
-                delBtn.style.display = 'block';
+                if (img) {
+                    img.src = std.photo;
+                    img.style.display = 'block';
+                }
+                if (emptyText) emptyText.style.display = 'none';
+                if (delBtn) delBtn.style.display = 'block';
             } else {
-                img.src = '';
-                img.style.display = 'none';
-                emptyText.style.display = 'block';
-                delBtn.style.display = 'none';
+                if (img) {
+                    img.src = '';
+                    img.style.display = 'none';
+                }
+                if (emptyText) emptyText.style.display = 'block';
+                if (delBtn) delBtn.style.display = 'none';
             }
 
-            openModal('modal-photo-evidence');
+            openModal('modal-photo-mgmt');
         }
 
         function handlePhotoSelected(event) {
-            const file = event.target.files[0];
+            const file = event.target.files && event.target.files[0];
             if (!file) return;
 
             const reader = new FileReader();
@@ -7005,6 +7018,14 @@
                 std = (studentsData[sSec] || []).find(s => String(s.id) === String(currentSelectedStudentId));
                 if (std) break;
             }
+            if (!std) {
+                const allStds = getAllSystemStudents();
+                std = allStds.find(s => String(s.id) === String(currentSelectedStudentId));
+            }
+            if (!std) {
+                const customUsers = JSON.parse(localStorage.getItem('customUsers') || '{}');
+                std = Object.values(customUsers).find(u => String(u.id || u.student_id) === String(currentSelectedStudentId));
+            }
 
             if (std) {
                 std.photo = pendingPhotoDataUrl;
@@ -7033,6 +7054,9 @@
                 openPhotoModal(std.id, std.name);
                 if (typeof renderAdvisorPhotosPage === 'function') renderAdvisorPhotosPage();
                 if (typeof renderStudentList === 'function') renderStudentList();
+            } else {
+                alert('บันทึกรูปภาพเรียบร้อยแล้ว');
+                closeModal('modal-photo-mgmt');
             }
         }
 
@@ -7043,6 +7067,10 @@
             for (let sSec in studentsData) {
                 std = (studentsData[sSec] || []).find(s => String(s.id) === String(currentSelectedStudentId));
                 if (std) break;
+            }
+            if (!std) {
+                const allStds = getAllSystemStudents();
+                std = allStds.find(s => String(s.id) === String(currentSelectedStudentId));
             }
             if (std) {
                 std.photo = '';
@@ -7862,12 +7890,16 @@
         }
 
         function openModal(modalId) {
-            const el = document.getElementById(modalId);
+            let el = document.getElementById(modalId);
+            if (!el && modalId === 'modal-photo-evidence') el = document.getElementById('modal-photo-mgmt');
+            if (!el && modalId === 'modal-photo-mgmt') el = document.getElementById('modal-photo-evidence');
             if (el) el.style.display = 'flex';
         }
 
         function closeModal(modalId) {
-            const el = document.getElementById(modalId);
+            let el = document.getElementById(modalId);
+            if (!el && modalId === 'modal-photo-evidence') el = document.getElementById('modal-photo-mgmt');
+            if (!el && modalId === 'modal-photo-mgmt') el = document.getElementById('modal-photo-evidence');
             if (el) el.style.display = 'none';
         }
 
