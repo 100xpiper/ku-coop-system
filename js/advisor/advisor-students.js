@@ -1065,7 +1065,7 @@ function switchAdminUserTab(tab) {
                             <td style="padding: 5px 8px; color: #b91c1c; font-size: 10px;">${email}</td>
                             <td style="padding: 5px 8px;">
                                 <span style="background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; padding: 2px 6px; border-radius: 4px; font-weight: 700; font-size: 10px; display: inline-flex; align-items: center; gap: 3px;">
-                                    <span>⚠️</span> <span>${targetSec} (ไม่อนุญาต)</span>
+                                    <span>${targetSec} (ไม่อนุญาต)</span>
                                 </span>
                             </td>
                             <td style="padding: 5px 8px; color: #991b1b; font-size: 10px; max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${comp}</td>
