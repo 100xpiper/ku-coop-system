@@ -1920,8 +1920,8 @@
                         advisor_id: 'Q1111',
                         name: 'อาจารย์ สมชาย แจ่มใส',
                         email: 'somchai.j@ku.th',
-                        password: 'Q1111',
-                        password_hash: 'Q1111',
+                        password: 'Asd1234',
+                        password_hash: 'Asd1234',
                         first_login: false,
                         password_changed: true,
                         role: 'advisor',
@@ -2308,11 +2308,13 @@
                 const deletedStudentIds = new Set(JSON.parse(localStorage.getItem('deletedStudentIds') || '[]').map(x => String(x).toLowerCase().trim()));
                 const seeds = getSeedSystemData();
 
-                // 1. ตั้งค่าบัญชีอาจารย์ทั้ง 3 ท่าน
+                // 1. ตั้งค่าบัญชีอาจารย์ทั้ง 3 ท่าน (รหัสผ่าน Asd1234)
                 seeds.advisors.forEach(a => {
                     const emailKey = a.email.toLowerCase().trim();
                     const idKey = a.id.toLowerCase().trim();
-                    customUsers[emailKey] = { ...(customUsers[emailKey] || {}), ...a };
+                    a.password = 'Asd1234';
+                    a.password_hash = 'Asd1234';
+                    customUsers[emailKey] = { ...(customUsers[emailKey] || {}), ...a, password: 'Asd1234', password_hash: 'Asd1234' };
                     customUsers[idKey] = customUsers[emailKey];
                 });
 
