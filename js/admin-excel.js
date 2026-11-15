@@ -994,6 +994,13 @@ function importStudentExcelFile() {
             };
 
             customUsers[email] = userObj;
+                // ปลดล็อกออกจาก deletedStudentIds เมื่อมีการนำเข้าใหม่
+                try {
+                    let dIds = JSON.parse(localStorage.getItem('deletedStudentIds') || '[]');
+                    const sid = String(userObj.student_id || userObj.id || '').trim();
+                    dIds = dIds.filter(x => x !== sid && x !== email.toLowerCase());
+                    localStorage.setItem('deletedStudentIds', JSON.stringify(dIds));
+                } catch(e) {}
 
             if (typeof supabaseClient !== 'undefined' && supabaseClient) {
                 try {
@@ -1130,6 +1137,13 @@ function importAdvisorExcelFile() {
                 };
 
                 customUsers[email] = userObj;
+                // ปลดล็อกออกจาก deletedStudentIds เมื่อมีการนำเข้าใหม่
+                try {
+                    let dIds = JSON.parse(localStorage.getItem('deletedStudentIds') || '[]');
+                    const sid = String(userObj.student_id || userObj.id || '').trim();
+                    dIds = dIds.filter(x => x !== sid && x !== email.toLowerCase());
+                    localStorage.setItem('deletedStudentIds', JSON.stringify(dIds));
+                } catch(e) {}
 
                 if (typeof supabaseClient !== 'undefined' && supabaseClient) {
                     try {

@@ -342,15 +342,15 @@ async function dbSignIn(email, password) {
             'somjit.m@ku.th': { role: 'advisor', name: 'อาจารย์ สมจิต มั่งมี', id: 'Q3333', advisor_id: 'Q3333', email: 'somjit.m@ku.th', password: 'Asd1234', password_hash: 'Asd1234', first_login: false, section: 'หมู่ 702, 802', responsible_sections: ['702', '802'], status: 'approved' },
             'q3333': { role: 'advisor', name: 'อาจารย์ สมจิต มั่งมี', id: 'Q3333', advisor_id: 'Q3333', email: 'somjit.m@ku.th', password: 'Asd1234', password_hash: 'Asd1234', first_login: false, section: 'หมู่ 702, 802', responsible_sections: ['702', '802'], status: 'approved' },
 
-            // อาจารย์นิเทศประจำภาควิชา: อาจารย์ สมชาย ใจถนอม (Q1111) เข้าใช้งานได้ทันที
-            'somchai.j@ku.th': { role: 'advisor', name: 'อาจารย์ สมชาย ใจถนอม', id: 'Q1111', advisor_id: 'Q1111', email: 'somchai.j@ku.th', password: 'Q1111', password_hash: 'Q1111', first_login: false, password_changed: true, section: 'หมู่ 700, 800', responsible_sections: ['700', '800'], status: 'approved' },
-            'q1111': { role: 'advisor', name: 'อาจารย์ สมชาย ใจถนอม', id: 'Q1111', advisor_id: 'Q1111', email: 'somchai.j@ku.th', password: 'Q1111', password_hash: 'Q1111', first_login: false, password_changed: true, section: 'หมู่ 700, 800', responsible_sections: ['700', '800'], status: 'approved' },
-            'somchai.j': { role: 'advisor', name: 'อาจารย์ สมชาย ใจถนอม', id: 'Q1111', advisor_id: 'Q1111', email: 'somchai.j@ku.th', password: 'Q1111', password_hash: 'Q1111', first_login: false, password_changed: true, section: 'หมู่ 700, 800', responsible_sections: ['700', '800'], status: 'approved' },
+            // อาจารย์นิเทศประจำภาควิชา: อาจารย์ สมชาย แจ่มใส (Q1111) เข้าใช้งานได้ทันที
+            'somchai.j@ku.th': { role: 'advisor', name: 'อาจารย์ สมชาย แจ่มใส', id: 'Q1111', advisor_id: 'Q1111', email: 'somchai.j@ku.th', password: 'Q1111', password_hash: 'Q1111', first_login: false, password_changed: true, section: 'หมู่ 700, 800', responsible_sections: ['700', '800'], status: 'approved' },
+            'q1111': { role: 'advisor', name: 'อาจารย์ สมชาย แจ่มใส', id: 'Q1111', advisor_id: 'Q1111', email: 'somchai.j@ku.th', password: 'Q1111', password_hash: 'Q1111', first_login: false, password_changed: true, section: 'หมู่ 700, 800', responsible_sections: ['700', '800'], status: 'approved' },
+            'somchai.j': { role: 'advisor', name: 'อาจารย์ สมชาย แจ่มใส', id: 'Q1111', advisor_id: 'Q1111', email: 'somchai.j@ku.th', password: 'Q1111', password_hash: 'Q1111', first_login: false, password_changed: true, section: 'หมู่ 700, 800', responsible_sections: ['700', '800'], status: 'approved' },
 
             // นิสิตหลักนำเสนอ: นาย วงศพัทธ์ อุเทน (กำหนดให้เข้าสู่ระบบครั้งแรก first_login = true, password_changed = false)
-            'wongsapat.u@ku.th': { role: 'student', name: 'นาย วงศพัทธ์ อุเทน', id: '6521655442', student_id: '6521655442', email: 'wongsapat.u@ku.th', password: 'password', password_hash: '123456', first_login: true, password_changed: false, section: 'หมู่ 800 (ภาคพิเศษ)', company_name: 'สำนักงานพัฒนาวิทยาศาสตร์และเทคโนโลยีแห่งชาติ (สวทช.)', company_lat: '14.078440', company_lng: '100.601560', advisor_name: 'อาจารย์ สมชาย ใจถนอม', semester: 'ภาคต้น 2569', status: 'approved' },
-            '6521655442': { role: 'student', name: 'นาย วงศพัทธ์ อุเทน', id: '6521655442', student_id: '6521655442', email: 'wongsapat.u@ku.th', password: 'password', password_hash: '123456', first_login: true, password_changed: false, section: 'หมู่ 800 (ภาคพิเศษ)', company_name: 'สำนักงานพัฒนาวิทยาศาสตร์และเทคโนโลยีแห่งชาติ (สวทช.)', company_lat: '14.078440', company_lng: '100.601560', advisor_name: 'อาจารย์ สมชาย ใจถนอม', semester: 'ภาคต้น 2569', status: 'approved' },
-            'wongsapat.u': { role: 'student', name: 'นาย วงศพัทธ์ อุเทน', id: '6521655442', student_id: '6521655442', email: 'wongsapat.u@ku.th', password: 'password', password_hash: '123456', first_login: true, password_changed: false, section: 'หมู่ 800 (ภาคพิเศษ)', company_name: 'สำนักงานพัฒนาวิทยาศาสตร์และเทคโนโลยีแห่งชาติ (สวทช.)', company_lat: '14.078440', company_lng: '100.601560', advisor_name: 'อาจารย์ สมชาย ใจถนอม', semester: 'ภาคต้น 2569', status: 'approved' }
+            'wongsapat.u@ku.th': { role: 'student', name: 'นาย วงศพัทธ์ อุเทน', id: '6521655442', student_id: '6521655442', email: 'wongsapat.u@ku.th', password: 'password', password_hash: '123456', first_login: true, password_changed: false, section: 'หมู่ 800 (ภาคพิเศษ)', company_name: 'สำนักงานพัฒนาวิทยาศาสตร์และเทคโนโลยีแห่งชาติ (สวทช.)', company_lat: '14.078440', company_lng: '100.601560', advisor_name: 'อาจารย์ สมชาย แจ่มใส', semester: 'ภาคต้น 2569', status: 'approved' },
+            '6521655442': { role: 'student', name: 'นาย วงศพัทธ์ อุเทน', id: '6521655442', student_id: '6521655442', email: 'wongsapat.u@ku.th', password: 'password', password_hash: '123456', first_login: true, password_changed: false, section: 'หมู่ 800 (ภาคพิเศษ)', company_name: 'สำนักงานพัฒนาวิทยาศาสตร์และเทคโนโลยีแห่งชาติ (สวทช.)', company_lat: '14.078440', company_lng: '100.601560', advisor_name: 'อาจารย์ สมชาย แจ่มใส', semester: 'ภาคต้น 2569', status: 'approved' },
+            'wongsapat.u': { role: 'student', name: 'นาย วงศพัทธ์ อุเทน', id: '6521655442', student_id: '6521655442', email: 'wongsapat.u@ku.th', password: 'password', password_hash: '123456', first_login: true, password_changed: false, section: 'หมู่ 800 (ภาคพิเศษ)', company_name: 'สำนักงานพัฒนาวิทยาศาสตร์และเทคโนโลยีแห่งชาติ (สวทช.)', company_lat: '14.078440', company_lng: '100.601560', advisor_name: 'อาจารย์ สมชาย แจ่มใส', semester: 'ภาคต้น 2569', status: 'approved' }
         };
 
         // ตรวจสอบข้อมูลผู้ใช้: หากมีการตั้งรหัสผ่านใหม่ใน customUsers ให้ใช้ข้อมูลล่าสุด
@@ -376,6 +376,14 @@ async function dbSignIn(email, password) {
             existingUser = { ...customMatch };
         }
     }
+
+    // ตรวจสอบว่าบัญชีนี้ถูกลบออกจากระบบไปแล้วหรือไม่
+    try {
+        const deletedIds = JSON.parse(localStorage.getItem('deletedStudentIds') || '[]');
+        if (deletedIds.includes(cleanId) || (existingUser && (deletedIds.includes(String(existingUser.id)) || (existingUser.email && deletedIds.includes(String(existingUser.email).toLowerCase()))))) {
+            return { success: false, message: 'ไม่พบอีเมลหรือรหัสประจำตัวนี้ในระบบ (รายชื่อนี้ถูกลบออกจากระบบแล้ว)' };
+        }
+    } catch(e) {}
 
     // Step 1: If email is NOT registered in system
     if (!existingUser) {
