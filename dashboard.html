@@ -2488,6 +2488,22 @@
                         });
                     }
                     localStorage.setItem('customUsers', JSON.stringify(customUsers));
+
+                    // Sync real assignments from Supabase
+                    if (typeof dbFetchAssignments === 'function') {
+                        dbFetchAssignments().then(cloudAsgs => {
+                            if (cloudAsgs && Array.isArray(cloudAsgs) && cloudAsgs.length > 0) {
+                                const localAsgs = JSON.parse(localStorage.getItem('coopAssignments') || '[]');
+                                const map = {};
+                                localAsgs.forEach(a => { if (a && a.id) map[a.id] = a; });
+                                cloudAsgs.forEach(a => { if (a && a.id) map[a.id] = a; });
+                                const merged = Object.values(map);
+                                localStorage.setItem('coopAssignments', JSON.stringify(merged));
+                                if (typeof renderAdvisorAssignments === 'function') renderAdvisorAssignments();
+                                if (typeof renderStudentClassroomAssignments === 'function') renderStudentClassroomAssignments();
+                            }
+                        }).catch(() => {});
+                    }
                 } catch (e) {
                     console.warn("Database sync notice:", e);
                 }
@@ -5050,6 +5066,9 @@
 
         function saveCoopAssignments(asgs) {
             localStorage.setItem('coopAssignments', JSON.stringify(asgs));
+            if (typeof dbSaveAssignment === 'function' && Array.isArray(asgs)) {
+                asgs.forEach(a => dbSaveAssignment(a));
+            }
         }
 
         function onNewAsgDocTypeChange(val) {
@@ -5132,6 +5151,9 @@
 
             asgs.unshift(newAsg);
             saveCoopAssignments(asgs);
+            if (typeof dbSaveAssignment === 'function') {
+                dbSaveAssignment(newAsg);
+            }
             closeModal('modal-advisor-new-assignment');
 
             renderAdvisorDocOverview();
@@ -5150,6 +5172,9 @@
 
             const filtered = asgs.filter(a => a.id !== asgId);
             saveCoopAssignments(filtered);
+            if (typeof dbDeleteAssignment === 'function') {
+                dbDeleteAssignment(asgId);
+            }
             renderAdvisorDocOverview();
             renderAdvisorAssignments();
             renderStudentClassroomAssignments();
@@ -8672,49 +8697,61 @@
             if (modal) {
                 document.getElementById('project-tracking-std-name').textContent = `${stdId} - ${stdName}`;
                 
-                // Load data from localStorage
-                const data = JSON.parse(localStorage.getItem('projectTracking_' + stdId) || '{}');
-                document.getElementById('pt-project-name').value = data.projectName || '';
-                
-                // Render history
-                const histContainer = document.getElementById('advisor-pt-history');
-                if (histContainer) {
-                    if (!data.weeklyReports || data.weeklyReports.length === 0) {
-                        histContainer.innerHTML = '<div style="font-size: 11px; color: var(--text-muted); text-align: center; padding: 16px; background: #f8fafc; border-radius: 8px;">ยังไม่มีการบันทึกงานจากนิสิต</div>';
-                    } else {
-                        const sorted = [...data.weeklyReports].sort((a, b) => b.week - a.week);
-                        histContainer.innerHTML = sorted.map(r => `
-                            <div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px; margin-bottom: 8px;">
-                                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
-                                    <span style="font-weight: 700; font-size: 13px; color: #0f766e;">สัปดาห์ที่ ${r.week}</span>
-                                    <span class="status-badge badge-success" style="font-size: 10px;">บันทึกแล้ว</span>
-                                </div>
-                                <div style="font-size: 11px; color: #475569; margin-bottom: 6px; line-height: 1.4;">
-                                    <strong>บันทึกงาน / ปัญหา:</strong> ${r.issues || '-'}
-                                </div>
-                                ${r.file ? `
-                                    <div style="margin: 6px 0; padding: 6px 10px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 6px; display: inline-flex; align-items: center; gap: 6px; font-size: 11px;">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
-                                        <span style="color: #1e3a8a; font-weight: 600;">ไฟล์แนบ: ${r.file.name}</span>
-                                        <a href="${r.file.dataUrl}" download="${r.file.name}" style="color: #2563eb; font-weight: 700; text-decoration: underline; margin-left: 6px;">ดาวน์โหลด / เปิดดู</a>
+                const renderModalContent = (data) => {
+                    document.getElementById('pt-project-name').value = data.projectName || '';
+                    const histContainer = document.getElementById('advisor-pt-history');
+                    if (histContainer) {
+                        if (!data.weeklyReports || data.weeklyReports.length === 0) {
+                            histContainer.innerHTML = '<div style="font-size: 11px; color: var(--text-muted); text-align: center; padding: 16px; background: #f8fafc; border-radius: 8px;">ยังไม่มีการบันทึกงานจากนิสิต</div>';
+                        } else {
+                            const sorted = [...data.weeklyReports].sort((a, b) => b.week - a.week);
+                            histContainer.innerHTML = sorted.map(r => `
+                                <div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px; margin-bottom: 8px;">
+                                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
+                                        <span style="font-weight: 700; font-size: 13px; color: #0f766e;">สัปดาห์ที่ ${r.week}</span>
+                                        <span class="status-badge badge-success" style="font-size: 10px;">บันทึกแล้ว</span>
                                     </div>
-                                ` : ''}
-                                ${r.images && r.images.length > 0 ? `
-                                    <div style="margin-top: 6px;">
-                                        <div style="font-size: 10.5px; font-weight: 600; color: #64748b; margin-bottom: 4px;">รูปภาพประกอบ (${r.images.length} รูป):</div>
-                                        <div style="display: flex; flex-wrap: wrap; gap: 6px;">
-                                            ${r.images.map((imgSrc, idx) => `
-                                                <div style="width: 58px; height: 58px; border-radius: 6px; overflow: hidden; border: 1px solid #cbd5e1; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.06);" onclick="viewImagePreviewModal('${typeof imgSrc === 'string' ? imgSrc : imgSrc.dataUrl}', 'รูปภาพสัปดาห์ที่ ${r.week} - นิสิต ${stdName}')" title="คลิกเพื่อดูรูปภาพขนาดใหญ่">
-                                                    <img src="${typeof imgSrc === 'string' ? imgSrc : imgSrc.dataUrl}" style="width: 100%; height: 100%; object-fit: cover;" alt="รูปภาพสัปดาห์ที่ ${r.week}">
-                                                </div>
-                                            `).join('')}
+                                    <div style="font-size: 11px; color: #475569; margin-bottom: 6px; line-height: 1.4;">
+                                        <strong>บันทึกงาน / ปัญหา:</strong> ${r.issues || '-'}
+                                    </div>
+                                    ${r.file ? `
+                                        <div style="margin: 6px 0; padding: 6px 10px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 6px; display: inline-flex; align-items: center; gap: 6px; font-size: 11px;">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                                            <span style="color: #1e3a8a; font-weight: 600;">ไฟล์แนบ: ${r.file.name}</span>
+                                            <a href="${r.file.dataUrl}" download="${r.file.name}" style="color: #2563eb; font-weight: 700; text-decoration: underline; margin-left: 6px;">ดาวน์โหลด / เปิดดู</a>
                                         </div>
-                                    </div>
-                                ` : ''}
-                                <div style="font-size: 10px; color: #94a3b8; text-align: right; margin-top: 6px;">บันทึกเมื่อ: ${r.dateStr}</div>
-                            </div>
-                        `).join('');
+                                    ` : ''}
+                                    ${r.images && r.images.length > 0 ? `
+                                        <div style="margin-top: 6px;">
+                                            <div style="font-size: 10.5px; font-weight: 600; color: #64748b; margin-bottom: 4px;">รูปภาพประกอบ (${r.images.length} รูป):</div>
+                                            <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                                                ${r.images.map((imgSrc, idx) => `
+                                                    <div style="width: 58px; height: 58px; border-radius: 6px; overflow: hidden; border: 1px solid #cbd5e1; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.06);" onclick="viewImagePreviewModal('${typeof imgSrc === 'string' ? imgSrc : imgSrc.dataUrl}', 'รูปภาพสัปดาห์ที่ ${r.week} - นิสิต ${stdName}')" title="คลิกเพื่อดูรูปภาพขนาดใหญ่">
+                                                        <img src="${typeof imgSrc === 'string' ? imgSrc : imgSrc.dataUrl}" style="width: 100%; height: 100%; object-fit: cover;" alt="รูปภาพสัปดาห์ที่ ${r.week}">
+                                                    </div>
+                                                `).join('')}
+                                            </div>
+                                        </div>
+                                    ` : ''}
+                                    <div style="font-size: 10px; color: #94a3b8; text-align: right; margin-top: 6px;">บันทึกเมื่อ: ${r.dateStr}</div>
+                                </div>
+                            `).join('');
+                        }
                     }
+                };
+
+                const localData = JSON.parse(localStorage.getItem('projectTracking_' + stdId) || '{}');
+                renderModalContent(localData);
+
+                if (typeof dbFetchWeeklyReports === 'function') {
+                    dbFetchWeeklyReports(stdId).then(cloudData => {
+                        if (cloudData && cloudData.weeklyReports && cloudData.weeklyReports.length > 0) {
+                            localData.projectName = cloudData.projectName || localData.projectName;
+                            localData.weeklyReports = cloudData.weeklyReports;
+                            localStorage.setItem('projectTracking_' + stdId, JSON.stringify(localData));
+                            renderModalContent(localData);
+                        }
+                    }).catch(() => {});
                 }
                 
                 modal.style.display = 'flex';
@@ -8800,6 +8837,28 @@
         }
 
         function loadStudentProjectTracking(stdId) {
+            // โหลดจาก Cloud Supabase ถ้ามี
+            if (typeof dbFetchWeeklyReports === 'function') {
+                dbFetchWeeklyReports(stdId).then(cloudData => {
+                    if (cloudData && cloudData.weeklyReports && cloudData.weeklyReports.length > 0) {
+                        const localData = JSON.parse(localStorage.getItem('projectTracking_' + stdId) || '{}');
+                        const mergedReports = [...(localData.weeklyReports || [])];
+                        cloudData.weeklyReports.forEach(cr => {
+                            const idx = mergedReports.findIndex(r => r.week === cr.week);
+                            if (idx >= 0) {
+                                mergedReports[idx] = cr;
+                            } else {
+                                mergedReports.push(cr);
+                            }
+                        });
+                        localData.projectName = cloudData.projectName || localData.projectName;
+                        localData.weeklyReports = mergedReports;
+                        localStorage.setItem('projectTracking_' + stdId, JSON.stringify(localData));
+                        renderStudentProjectHistory(stdId, localData);
+                    }
+                }).catch(() => {});
+            }
+
             const data = JSON.parse(localStorage.getItem('projectTracking_' + stdId) || '{}');
             const pName = document.getElementById('student-pt-name');
             if (pName && data.projectName) pName.value = data.projectName;
@@ -8857,6 +8916,12 @@
             }
 
             localStorage.setItem('projectTracking_' + stdId, JSON.stringify(data));
+
+            // Sync to Supabase
+            if (typeof dbSaveWeeklyReport === 'function') {
+                dbSaveWeeklyReport(stdId, pName, newReport);
+            }
+
             addNotification(`บันทึกงาน สัปดาห์ที่ ${wNum} สำเร็จ`);
             alert('บันทึกข้อมูลประจำสัปดาห์เรียบร้อยแล้ว');
             

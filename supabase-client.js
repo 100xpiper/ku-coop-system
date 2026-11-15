@@ -622,4 +622,126 @@ async function dbAddAppointment(advisorId, studentId, dateStr, timeStr) {
     }
 }
 
+// ----------------------------------------------------
+// CLOUD SYNC FOR ASSIGNMENTS & WEEKLY TRACKING
+// ----------------------------------------------------
+
+/**
+ * Save or Upsert an assignment to Supabase coop_assignments
+ */
+async function dbSaveAssignment(asg) {
+    if (!supabaseClient || !asg || !asg.id) return;
+    try {
+        await supabaseClient
+            .from('coop_assignments')
+            .upsert({
+                id: String(asg.id),
+                title: asg.title || '',
+                doc_type: asg.docType || '',
+                section: asg.section || '',
+                semester: asg.semester || '',
+                due_date: asg.dueDate || '',
+                detail: asg.detail || '',
+                advisor_name: asg.advisorName || '',
+                payload: asg
+            }, { onConflict: 'id' });
+    } catch (e) {
+        console.warn("Supabase dbSaveAssignment fallback:", e.message);
+    }
+}
+
+/**
+ * Delete an assignment from Supabase coop_assignments
+ */
+async function dbDeleteAssignment(asgId) {
+    if (!supabaseClient || !asgId) return;
+    try {
+        await supabaseClient
+            .from('coop_assignments')
+            .delete()
+            .eq('id', String(asgId));
+    } catch (e) {
+        console.warn("Supabase dbDeleteAssignment fallback:", e.message);
+    }
+}
+
+/**
+ * Fetch all assignments from Supabase coop_assignments
+ */
+async function dbFetchAssignments() {
+    if (!supabaseClient) return null;
+    try {
+        const { data, error } = await supabaseClient
+            .from('coop_assignments')
+            .select('*');
+        if (!error && data && Array.isArray(data)) {
+            return data.map(item => item.payload || {
+                id: item.id,
+                title: item.title,
+                docType: item.doc_type,
+                section: item.section,
+                semester: item.semester,
+                dueDate: item.due_date,
+                detail: item.detail,
+                advisorName: item.advisor_name
+            });
+        }
+    } catch (e) {
+        console.warn("Supabase dbFetchAssignments fallback:", e.message);
+    }
+    return null;
+}
+
+/**
+ * Save or Upsert student weekly report to Supabase student_weekly_reports
+ */
+async function dbSaveWeeklyReport(stdId, pName, report) {
+    if (!supabaseClient || !stdId || !report) return;
+    try {
+        const reportId = `${stdId}_w${report.week}`;
+        await supabaseClient
+            .from('student_weekly_reports')
+            .upsert({
+                id: reportId,
+                student_id: String(stdId),
+                project_name: pName || '',
+                week: parseInt(report.week),
+                issues: report.issues || '',
+                file_info: report.file || null,
+                images: report.images || [],
+                date_str: report.dateStr || ''
+            }, { onConflict: 'id' });
+    } catch (e) {
+        console.warn("Supabase dbSaveWeeklyReport fallback:", e.message);
+    }
+}
+
+/**
+ * Fetch all weekly reports for a student from Supabase
+ */
+async function dbFetchWeeklyReports(stdId) {
+    if (!supabaseClient || !stdId) return null;
+    try {
+        const { data, error } = await supabaseClient
+            .from('student_weekly_reports')
+            .select('*')
+            .eq('student_id', String(stdId));
+        if (!error && data && Array.isArray(data) && data.length > 0) {
+            const projectName = data[0]?.project_name || '';
+            const weeklyReports = data.map(item => ({
+                week: item.week,
+                issues: item.issues,
+                file: item.file_info,
+                images: item.images,
+                dateStr: item.date_str
+            }));
+            return { projectName, weeklyReports };
+        }
+    } catch (e) {
+        console.warn("Supabase dbFetchWeeklyReports fallback:", e.message);
+    }
+    return null;
+}
+
+
 
