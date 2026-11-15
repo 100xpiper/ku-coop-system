@@ -465,7 +465,7 @@
                                 <span id="adv-asg-overall-percent" style="font-size: 13px; font-weight: 800; color: #047857;">0%</span>
                             </div>
                             <div style="width: 100%; height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; margin-bottom: 6px;">
-                                <div id="adv-asg-overall-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #3b82f6, #10b981); transition: width 0.4s ease;"></div>
+                                <div id="adv-asg-overall-bar" style="width: 0%; height: 100%; background: #2563eb; transition: width 0.4s ease;"></div>
                             </div>
                             <div id="adv-asg-overall-desc" style="font-size: 11px; color: #475569;">
                                 กำลังคำนวณสถิติภาพรวม...
@@ -843,7 +843,7 @@
 
                         <!-- Progress Bar -->
                         <div style="width: 100%; height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; margin-bottom: 14px;">
-                            <div id="std-asg-progress-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #14b8a6, #0f766e); transition: width 0.4s ease;"></div>
+                            <div id="std-asg-progress-bar" style="width: 0%; height: 100%; background: #0f766e; transition: width 0.4s ease;"></div>
                         </div>
 
                         <!-- List of Student Assignment Cards -->
@@ -5890,7 +5890,7 @@
 
                 const badgeBg = percent === 100 ? '#dcfce7' : (percent >= 50 ? '#dbeafe' : '#fef3c7');
                 const badgeColor = percent === 100 ? '#15803d' : (percent >= 50 ? '#1e40af' : '#b45309');
-                const progressBarColor = percent === 100 ? 'linear-gradient(90deg, #10b981, #059669)' : (percent >= 50 ? 'linear-gradient(90deg, #3b82f6, #2563eb)' : 'linear-gradient(90deg, #f59e0b, #d97706)');
+                const progressBarColor = percent === 100 ? '#10b981' : (percent >= 50 ? '#2563eb' : '#f59e0b');
 
                 let dueFormatted = asg.dueDate || '-';
                 if (asg.dueDate) {
