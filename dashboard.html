@@ -6560,6 +6560,46 @@
             if (std && std.photo) {
                 img.src = std.photo;
                 img.style.display = 'block';
+                emptyText.style.display = 'none';
+                delBtn.style.display = 'block';
+            } else {
+                img.src = '';
+                img.style.display = 'none';
+                emptyText.style.display = 'block';
+                delBtn.style.display = 'none';
+            }
+
+            openModal('modal-photo-evidence');
+        }
+
+        function handlePhotoSelected(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                pendingPhotoDataUrl = e.target.result;
+                const img = document.getElementById('photo-preview-img');
+                const emptyText = document.getElementById('photo-empty-text');
+                const delBtn = document.getElementById('btn-delete-photo');
+                const confirmBtn = document.getElementById('btn-confirm-upload-photo');
+                const noticeEl = document.getElementById('photo-pending-notice');
+
+                if (img) {
+                    img.src = pendingPhotoDataUrl;
+                    img.style.display = 'block';
+                }
+                if (emptyText) emptyText.style.display = 'none';
+                if (delBtn) delBtn.style.display = 'none';
+                if (confirmBtn) confirmBtn.style.display = 'flex';
+                if (noticeEl) noticeEl.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+            event.target.value = '';
+        }
+
+        async function confirmPhotoUpload() {
+            if (!pendingPhotoDataUrl) {
                 alert('โปรดเลือกรูปภาพหรือถ่ายรูปก่อนกดยืนยันการอัปโหลด');
                 return;
             }
