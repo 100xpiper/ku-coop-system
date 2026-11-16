@@ -106,12 +106,24 @@ function clearAdminStudentFile() {
     const previewContainer = document.getElementById('admin-student-preview-container');
     if (previewContainer) previewContainer.style.display = 'none';
 
+    const dupAlert = document.getElementById('admin-student-preview-dup-alert');
+    if (dupAlert) {
+        dupAlert.style.display = 'none';
+        dupAlert.innerHTML = '';
+    }
+
     const importBtn = document.getElementById('admin-student-import-btn');
     if (importBtn) {
         importBtn.disabled = true;
         importBtn.style.opacity = '0.6';
         importBtn.style.cursor = 'not-allowed';
-        importBtn.textContent = 'นำเข้ารายชื่อเข้าสู่ระบบ';
+        importBtn.style.backgroundColor = '#16a34a';
+        const importBtnText = document.getElementById('admin-student-import-btn-text');
+        if (importBtnText) {
+            importBtnText.textContent = 'นำเข้ารายชื่อนิสิต, อาจารย์เข้าสู่ระบบ';
+        } else {
+            importBtn.textContent = 'นำเข้ารายชื่อเข้าสู่ระบบ';
+        }
     }
 }
 
@@ -121,6 +133,7 @@ function renderAdminStudentPreImportPreview(isPostImport = false, postImportList
     const statusTag = document.getElementById('admin-student-preview-status-tag');
     const titleText = document.getElementById('admin-student-preview-title-text');
     const secPills = document.getElementById('admin-student-preview-sec-pills');
+    const dupAlertBox = document.getElementById('admin-student-preview-dup-alert');
     const tbody = document.getElementById('admin-student-preview-tbody');
     const importBtn = document.getElementById('admin-student-import-btn');
     const importBtnText = document.getElementById('admin-student-import-btn-text');
@@ -322,72 +335,192 @@ function renderAdminStudentPreImportPreview(isPostImport = false, postImportList
         }
         if (postNotice) postNotice.style.display = 'none';
 
-        // ตรวจสอบข้อมูลซ้ำในขั้นตอนพรีวิวก่อนยืนยัน
+        // ==============================================================
+        // ตรวจสอบข้อมูลซ้ำในขั้นตอนพรีวิวก่อนยืนยัน (ระบุตัวบุคคลและสาเหตุชัดเจน)
+        // ==============================================================
         const customUsersCheckPre = JSON.parse(localStorage.getItem('customUsers') || '{}');
-        const existingStudentKeysPre = new Set();
+        const existingStudentKeysPre = new Map(); // key -> { id, name, email, role }
         const existingStudentsPre = (typeof getAllSystemStudents === 'function') ? getAllSystemStudents() : [];
         existingStudentsPre.forEach(s => {
-            if (s.id) existingStudentKeysPre.add(String(s.id).trim().toLowerCase());
-            if (s.student_id) existingStudentKeysPre.add(String(s.student_id).trim().toLowerCase());
-            if (s.email) existingStudentKeysPre.add(String(s.email).trim().toLowerCase());
+            const entry = {
+                id: s.id || s.student_id || '',
+                name: s.name || s.fullname || 'นิสิตในระบบ',
+                email: s.email || '',
+                role: 'student'
+            };
+            if (s.id) existingStudentKeysPre.set(String(s.id).trim().toLowerCase(), entry);
+            if (s.student_id) existingStudentKeysPre.set(String(s.student_id).trim().toLowerCase(), entry);
+            if (s.email) existingStudentKeysPre.set(String(s.email).trim().toLowerCase(), entry);
         });
         Object.values(customUsersCheckPre).forEach(u => {
             if (u && u.role === 'student') {
-                if (u.id) existingStudentKeysPre.add(String(u.id).trim().toLowerCase());
-                if (u.student_id) existingStudentKeysPre.add(String(u.student_id).trim().toLowerCase());
-                if (u.email) existingStudentKeysPre.add(String(u.email).trim().toLowerCase());
+                const entry = {
+                    id: u.id || u.student_id || '',
+                    name: u.name || 'นิสิตในระบบ',
+                    email: u.email || '',
+                    role: 'student'
+                };
+                if (u.id) existingStudentKeysPre.set(String(u.id).trim().toLowerCase(), entry);
+                if (u.student_id) existingStudentKeysPre.set(String(u.student_id).trim().toLowerCase(), entry);
+                if (u.email) existingStudentKeysPre.set(String(u.email).trim().toLowerCase(), entry);
             }
         });
-        const existingAdvisorKeysPre = new Set();
+
+        const existingAdvisorKeysPre = new Map();
+        const defaultAdvisors = [
+            { id: 'ADV001', name: 'อาจารย์ สมชาย แจ่มใส', email: 'somchai.j@ku.th' },
+            { id: 'ADV002', name: 'อาจารย์ สมหญิง รักเรียน', email: 'somying.r@ku.th' },
+            { id: 'ADV003', name: 'อาจารย์ สมจิต มั่งมี', email: 'somjit.m@ku.th' }
+        ];
+        defaultAdvisors.forEach(a => {
+            const entry = { id: a.id, name: a.name, email: a.email, role: 'advisor' };
+            existingAdvisorKeysPre.set(String(a.id).trim().toLowerCase(), entry);
+            existingAdvisorKeysPre.set(String(a.email).trim().toLowerCase(), entry);
+        });
         Object.values(customUsersCheckPre).forEach(u => {
             if (u && u.role === 'advisor') {
-                if (u.id) existingAdvisorKeysPre.add(String(u.id).trim().toLowerCase());
-                if (u.advisor_id) existingAdvisorKeysPre.add(String(u.advisor_id).trim().toLowerCase());
-                if (u.email) existingAdvisorKeysPre.add(String(u.email).trim().toLowerCase());
+                const entry = {
+                    id: u.id || u.advisor_id || '',
+                    name: u.name || 'อาจารย์ในระบบ',
+                    email: u.email || '',
+                    role: 'advisor'
+                };
+                if (u.id) existingAdvisorKeysPre.set(String(u.id).trim().toLowerCase(), entry);
+                if (u.advisor_id) existingAdvisorKeysPre.set(String(u.advisor_id).trim().toLowerCase(), entry);
+                if (u.email) existingAdvisorKeysPre.set(String(u.email).trim().toLowerCase(), entry);
             }
         });
 
-        const previewDups = [];
-        const seenKeysPre = new Set();
-        rowsToDisplay.forEach(row => {
+        const rowAnalysis = [];
+        const duplicateItems = [];
+        const seenKeysPre = new Map(); // key -> row index (1-based)
+
+        rowsToDisplay.forEach((row, idx) => {
+            const rowIdx = idx + 1;
             const emailRaw = findRowEmail(row, ['อีเมลมหาวิทยาลัย', 'อีเมล', 'อีเมล์', 'Email', 'email', 'E-mail', 'KU-Mail', 'KU Mail', 'เมล']);
             const email = emailRaw ? String(emailRaw).trim().toLowerCase() : '';
+
+            let isDup = false;
+            let dupReason = '';
+            let targetId = '';
+            let targetName = '';
+
             if (currentImportedFileType === 'advisor') {
-                const advId = findRowValue(row, ['รหัสประจำตัว', 'รหัสอาจารย์', 'รหัส', 'ID', 'advisor_id']);
+                const advId = findRowValue(row, ['รหัสประจำตัว', 'รหัสอาจารย์', 'รหัส', 'ID', 'advisor_id']) || `ADV_${rowIdx}`;
+                const name = findRowValue(row, ['ชื่อ - นามสกุล', 'ชื่อ-นามสกุล', 'ชื่อนามสกุล', 'ชื่อ', 'Name']);
+                const title = findRowValue(row, ['คำนำหน้านาม', 'คำนำหน้า', 'Prefix', 'title']);
+                targetName = title ? `${title} ${name}`.trim() : (name || 'อาจารย์นิเทศ');
+                targetId = advId;
                 const keyId = advId ? String(advId).trim().toLowerCase() : '';
-                if (keyId && (existingAdvisorKeysPre.has(keyId) || seenKeysPre.has(keyId))) previewDups.push(advId);
-                else if (email && (existingAdvisorKeysPre.has(email) || seenKeysPre.has(email))) previewDups.push(email);
-                if (keyId) seenKeysPre.add(keyId);
-                if (email) seenKeysPre.add(email);
+
+                if (keyId && existingAdvisorKeysPre.has(keyId)) {
+                    isDup = true;
+                    dupReason = `รหัสอาจารย์ "${advId}" มีอยู่ในระบบแล้ว`;
+                } else if (email && existingAdvisorKeysPre.has(email)) {
+                    isDup = true;
+                    dupReason = `อีเมล "${email}" มีอยู่ในระบบแล้ว`;
+                } else if (keyId && seenKeysPre.has(keyId)) {
+                    isDup = true;
+                    dupReason = `รหัสซ้ำกับแถวที่ ${seenKeysPre.get(keyId)} ในไฟล์นี้`;
+                } else if (email && seenKeysPre.has(email)) {
+                    isDup = true;
+                    dupReason = `อีเมลซ้ำกับแถวที่ ${seenKeysPre.get(email)} ในไฟล์นี้`;
+                }
+
+                if (keyId && !seenKeysPre.has(keyId)) seenKeysPre.set(keyId, rowIdx);
+                if (email && !seenKeysPre.has(email)) seenKeysPre.set(email, rowIdx);
             } else {
-                const stdId = findRowValue(row, ['รหัสนิสิต', 'รหัสประจำตัว', 'รหัสนักศึกษา', 'รหัส', 'ID', 'Student ID', 'student_id']);
+                const stdId = findRowValue(row, ['รหัสนิสิต', 'รหัสประจำตัว', 'รหัสนักศึกษา', 'รหัส', 'ID', 'Student ID', 'student_id']) || `STD_${rowIdx}`;
+                const name = findRowValue(row, ['ชื่อ - นามสกุล', 'ชื่อ-นามสกุล', 'ชื่อนามสกุล', 'ชื่อ', 'Name', 'fullname']);
+                const title = findRowValue(row, ['คำนำหน้านาม', 'คำนำหน้า', 'Prefix', 'title']);
+                targetName = title ? `${title} ${name}`.trim() : (name || 'นิสิต');
+                targetId = stdId;
                 const keyId = stdId ? String(stdId).trim().toLowerCase() : '';
-                if (keyId && (existingStudentKeysPre.has(keyId) || seenKeysPre.has(keyId))) previewDups.push(stdId);
-                else if (email && (existingStudentKeysPre.has(email) || seenKeysPre.has(email))) previewDups.push(email);
-                if (keyId) seenKeysPre.add(keyId);
-                if (email) seenKeysPre.add(email);
+
+                if (keyId && existingStudentKeysPre.has(keyId)) {
+                    isDup = true;
+                    dupReason = `รหัสนิสิต "${stdId}" มีอยู่ในระบบแล้ว`;
+                } else if (email && existingStudentKeysPre.has(email)) {
+                    isDup = true;
+                    dupReason = `อีเมล "${email}" มีอยู่ในระบบแล้ว`;
+                } else if (keyId && seenKeysPre.has(keyId)) {
+                    isDup = true;
+                    dupReason = `รหัสนิสิตซ้ำกับแถวที่ ${seenKeysPre.get(keyId)} ในไฟล์นี้`;
+                } else if (email && seenKeysPre.has(email)) {
+                    isDup = true;
+                    dupReason = `อีเมลซ้ำกับแถวที่ ${seenKeysPre.get(email)} ในไฟล์นี้`;
+                }
+
+                if (keyId && !seenKeysPre.has(keyId)) seenKeysPre.set(keyId, rowIdx);
+                if (email && !seenKeysPre.has(email)) seenKeysPre.set(email, rowIdx);
             }
+
+            if (isDup) {
+                duplicateItems.push({
+                    index: rowIdx,
+                    id: targetId,
+                    name: targetName,
+                    email: email || '-',
+                    reason: dupReason
+                });
+            }
+
+            rowAnalysis.push({
+                index: rowIdx,
+                isDup: isDup,
+                dupReason: dupReason
+            });
         });
 
-        if (previewDups.length > 0) {
+        // จัดการสถานะปุ่มนำเข้า และกล่องแจ้งเตือนรายการซ้ำ
+        if (duplicateItems.length > 0) {
             if (importBtn) {
                 importBtn.disabled = true;
-                importBtn.style.opacity = '0.7';
+                importBtn.style.opacity = '0.75';
                 importBtn.style.cursor = 'not-allowed';
                 importBtn.style.backgroundColor = '#dc2626';
                 if (importBtnText) {
-                    importBtnText.textContent = `ไม่สามารถนำเข้าได้: พบข้อมูลซ้ำกับในระบบ (${previewDups.length} รายการ)`;
+                    if (duplicateItems.length === 1) {
+                        importBtnText.textContent = `↑ ไม่สามารถนำเข้าได้: พบข้อมูลซ้ำ (${duplicateItems[0].name})`;
+                    } else if (duplicateItems.length === 2) {
+                        importBtnText.textContent = `↑ ไม่สามารถนำเข้าได้: พบข้อมูลซ้ำ (${duplicateItems[0].name}, ${duplicateItems[1].name})`;
+                    } else {
+                        importBtnText.textContent = `↑ ไม่สามารถนำเข้าได้: พบข้อมูลซ้ำกับในระบบ (${duplicateItems.length} รายการ)`;
+                    }
                 }
             }
-            if (secPills) {
-                secPills.innerHTML = `
-                            <span style="background: #fee2e2; color: #dc2626; border: 1.5px solid #fca5a5; padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-                                คำเตือน: พบข้อมูลซ้ำกับในระบบ ${previewDups.length} รายการ (เช่น ${previewDups.slice(0, 3).join(', ')}) ระบบไม่อนุญาตให้นำเข้าข้อมูลซ้ำ กรุณาเลือกไฟล์ใหม่
-                            </span>
-                        `;
+
+            if (dupAlertBox) {
+                dupAlertBox.style.display = 'block';
+                dupAlertBox.innerHTML = `
+                    <div style="background: #fef2f2; border: 1.5px solid #f87171; border-radius: 8px; padding: 12px 16px; color: #991b1b; box-shadow: 0 2px 6px rgba(220, 38, 38, 0.08);">
+                        <div style="font-weight: 700; font-size: 13px; display: flex; align-items: center; gap: 8px; margin-bottom: 6px; color: #b91c1c;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                            <span>ไม่สามารถนำเข้าได้: พบข้อมูลซ้ำกับในระบบทั้งหมด ${duplicateItems.length} รายการ (แถวสีแดงในตาราง)</span>
+                        </div>
+                        <div style="font-size: 12px; line-height: 1.6; margin-left: 26px;">
+                            <div style="font-weight: 600; margin-bottom: 4px; color: #7f1d1d;">รายชื่อและเหตุผลที่พบข้อมูลซ้ำ:</div>
+                            <ul style="margin: 0; padding-left: 20px;">
+                                ${duplicateItems.map(d => `
+                                    <li style="margin-bottom: 4px;">
+                                        <strong>แถวที่ ${d.index}: ${d.name}</strong> 
+                                        (รหัส: <code style="background: #fee2e2; padding: 1px 4px; border-radius: 3px; font-weight: 600;">${d.id}</code>, อีเมล: ${d.email})
+                                        &mdash; <span style="color: #dc2626; font-weight: 700;">${d.reason}</span>
+                                    </li>
+                                `).join('')}
+                            </ul>
+                            <div style="margin-top: 8px; color: #991b1b; font-size: 11.5px; border-top: 1px dashed #fca5a5; padding-top: 6px;">
+                                💡 <strong>คำแนะนำ:</strong> กรุณาลบแถวที่มีข้อมูลซ้ำออกจากไฟล์ Excel หรือแก้ไขรหัส/อีเมลให้ถูกต้อง จากนั้นกดปุ่ม "เปลี่ยนไฟล์ / ล้าง" แล้วเลือกไฟล์ใหม่อีกครั้ง
+                            </div>
+                        </div>
+                    </div>
+                `;
             }
         } else {
+            if (dupAlertBox) {
+                dupAlertBox.style.display = 'none';
+                dupAlertBox.innerHTML = '';
+            }
             if (importBtn) {
                 importBtn.disabled = false;
                 importBtn.style.opacity = '1';
@@ -441,6 +574,7 @@ function renderAdminStudentPreImportPreview(isPostImport = false, postImportList
             tbody.innerHTML = '';
             if (currentImportedFileType === 'advisor') {
                 rowsToDisplay.forEach((row, idx) => {
+                    const analysis = rowAnalysis[idx] || { isDup: false, dupReason: '' };
                     const advId = findRowValue(row, ['รหัสประจำตัว', 'รหัสอาจารย์', 'รหัส', 'ID', 'advisor_id']) || `ADV_${idx + 1}`;
                     const name = findRowValue(row, ['ชื่อ - นามสกุล', 'ชื่อ-นามสกุล', 'ชื่อนามสกุล', 'ชื่อ', 'Name']);
                     const title = findRowValue(row, ['คำนำหน้านาม', 'คำนำหน้า', 'Prefix', 'title']);
@@ -455,24 +589,53 @@ function renderAdminStudentPreImportPreview(isPostImport = false, postImportList
 
                     const tr = document.createElement('tr');
                     tr.style.borderBottom = '1px solid #e2e8f0';
-                    tr.style.backgroundColor = (idx % 2 === 0) ? '#ffffff' : '#f8fafc';
+                    if (analysis.isDup) {
+                        tr.style.backgroundColor = '#fef2f2';
+                        tr.style.borderLeft = '4px solid #ef4444';
+                    } else {
+                        tr.style.backgroundColor = (idx % 2 === 0) ? '#ffffff' : '#f8fafc';
+                        tr.style.borderLeft = '4px solid transparent';
+                    }
+
+                    const idDisplay = analysis.isDup
+                        ? `<div><span style="color: #dc2626; font-weight: 800;">${advId}</span> <span style="background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; padding: 1px 5px; border-radius: 4px; font-size: 9.5px; font-weight: 700;">ซ้ำ</span></div>`
+                        : `<span style="color: #1e40af; font-weight: 700;">${advId}</span>`;
+
+                    const dupBadgeOrReady = analysis.isDup
+                        ? `<div style="margin-top: 4px;">
+                                <span style="background: #fee2e2; color: #b91c1c; border: 1px solid #f87171; padding: 2px 8px; border-radius: 4px; font-size: 10.5px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                                    ซ้ำในระบบ: ${analysis.dupReason}
+                                </span>
+                           </div>`
+                        : `<div style="margin-top: 3px;">
+                                <span style="background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; padding: 1px 6px; border-radius: 4px; font-size: 9.5px; font-weight: 600; display: inline-flex; align-items: center; gap: 3px;">
+                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                                    พร้อมนำเข้า
+                                </span>
+                           </div>`;
+
                     tr.innerHTML = `
                                 <td style="padding: 10px 12px; text-align: center; color: #64748b; font-weight: 600;">${idx + 1}</td>
-                                <td style="padding: 10px 12px; font-weight: 700; color: #1e40af;">${advId}</td>
-                                <td style="padding: 10px 12px; font-weight: 600; color: #0f172a;">${fullName}</td>
+                                <td style="padding: 10px 12px;">${idDisplay}</td>
+                                <td style="padding: 10px 12px; font-weight: 600; color: #0f172a;">
+                                    <div>${fullName}</div>
+                                    ${dupBadgeOrReady}
+                                </td>
                                 <td style="padding: 10px 12px; text-align: center;">
                                     <span style="background: #e0f2fe; color: #0369a1; padding: 3px 8px; border-radius: 6px; font-weight: 700; font-size: 11px;">${secVal}</span>
                                 </td>
-                                <td style="padding: 10px 12px; color: #059669; font-weight: 600;">${emailVal}</td>
+                                <td style="padding: 10px 12px; color: ${analysis.isDup ? '#dc2626' : '#059669'}; font-weight: 600;">${emailVal}</td>
                                 <td style="padding: 10px 12px; text-align: center; color: #475569;">${phoneVal}</td>
                                 <td style="padding: 10px 12px; text-align: center;">
-                                    <span class="status-badge badge-success" style="font-size: 10.5px;">อาจารย์นิเทศ</span>
+                                    <span class="status-badge ${analysis.isDup ? 'badge-danger' : 'badge-success'}" style="font-size: 10.5px;">${analysis.isDup ? 'ข้อมูลซ้ำ' : 'อาจารย์นิเทศ'}</span>
                                 </td>
                             `;
                     tbody.appendChild(tr);
                 });
             } else {
                 rowsToDisplay.forEach((row, idx) => {
+                    const analysis = rowAnalysis[idx] || { isDup: false, dupReason: '' };
                     const studentId = findRowValue(row, ['รหัสนิสิต', 'รหัสประจำตัว', 'รหัสนักศึกษา', 'รหัส', 'ID', 'Student ID', 'student_id']) || `STD_${idx + 1}`;
                     const name = findRowValue(row, ['ชื่อ - นามสกุล', 'ชื่อ-นามสกุล', 'ชื่อนามสกุล', 'ชื่อ', 'Name', 'fullname']);
                     const title = findRowValue(row, ['คำนำหน้านาม', 'คำนำหน้า', 'Prefix', 'title']);
@@ -497,13 +660,39 @@ function renderAdminStudentPreImportPreview(isPostImport = false, postImportList
 
                     const tr = document.createElement('tr');
                     tr.style.borderBottom = '1px solid #e2e8f0';
-                    tr.style.backgroundColor = (idx % 2 === 0) ? '#ffffff' : '#f8fafc';
+                    if (analysis.isDup) {
+                        tr.style.backgroundColor = '#fef2f2';
+                        tr.style.borderLeft = '4px solid #ef4444';
+                    } else {
+                        tr.style.backgroundColor = (idx % 2 === 0) ? '#ffffff' : '#f8fafc';
+                        tr.style.borderLeft = '4px solid transparent';
+                    }
+
+                    const idDisplay = analysis.isDup
+                        ? `<div><span style="color: #dc2626; font-weight: 800;">${studentId}</span> <span style="background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; padding: 1px 5px; border-radius: 4px; font-size: 9.5px; font-weight: 700;">ซ้ำ</span></div>`
+                        : `<span style="color: #0f172a; font-weight: 700;">${studentId}</span>`;
+
+                    const dupBadgeOrReady = analysis.isDup
+                        ? `<div style="margin-top: 4px;">
+                                <span style="background: #fee2e2; color: #b91c1c; border: 1px solid #f87171; padding: 2px 8px; border-radius: 4px; font-size: 10.5px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                                    ซ้ำในระบบ: ${analysis.dupReason}
+                                </span>
+                           </div>`
+                        : `<div style="margin-top: 3px;">
+                                <span style="background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; padding: 1px 6px; border-radius: 4px; font-size: 9.5px; font-weight: 600; display: inline-flex; align-items: center; gap: 3px;">
+                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                                    พร้อมนำเข้า
+                                </span>
+                           </div>`;
+
                     tr.innerHTML = `
                                 <td style="padding: 10px 12px; text-align: center; color: #64748b; font-weight: 600;">${idx + 1}</td>
-                                <td style="padding: 10px 12px; font-weight: 700; color: #0f172a;">${studentId}</td>
+                                <td style="padding: 10px 12px;">${idDisplay}</td>
                                 <td style="padding: 10px 12px; font-weight: 600; color: #1e293b;">
                                     <div>${fullName}</div>
-                                    <div style="font-size: 10.5px; color: #64748b;">${emailVal}</div>
+                                    <div style="font-size: 10.5px; color: ${analysis.isDup ? '#dc2626' : '#64748b'};">${emailVal}</div>
+                                    ${dupBadgeOrReady}
                                 </td>
                                 <td style="padding: 10px 12px; text-align: center;">
                                     <div style="display: flex; flex-direction: column; gap: 3px; align-items: center;">
@@ -809,6 +998,15 @@ function importStudentExcelFile() {
             });
 
             const existingAdvisorKeys = new Set();
+            const defaultAdvisorsList = [
+                { id: 'ADV001', name: 'อาจารย์ สมชาย แจ่มใส', email: 'somchai.j@ku.th' },
+                { id: 'ADV002', name: 'อาจารย์ สมหญิง รักเรียน', email: 'somying.r@ku.th' },
+                { id: 'ADV003', name: 'อาจารย์ สมจิต มั่งมี', email: 'somjit.m@ku.th' }
+            ];
+            defaultAdvisorsList.forEach(a => {
+                existingAdvisorKeys.add(String(a.id).trim().toLowerCase());
+                existingAdvisorKeys.add(String(a.email).trim().toLowerCase());
+            });
             Object.values(customUsersCheck).forEach(u => {
                 if (u && u.role === 'advisor') {
                     if (u.id) existingAdvisorKeys.add(String(u.id).trim().toLowerCase());

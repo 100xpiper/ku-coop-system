@@ -1223,6 +1223,9 @@
                                 <!-- สรุปจำนวนคนตามหมู่เรียน -->
                                 <div id="admin-student-preview-sec-pills" style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px;"></div>
 
+                                <!-- กล่องแจ้งเตือนข้อมูลซ้ำ (ระบุชัดเจนว่าใครซ้ำบ้าง) -->
+                                <div id="admin-student-preview-dup-alert" style="display: none; margin-bottom: 12px;"></div>
+
                                 <!-- ตารางพรีวิวขนาดใหญ่ กว้างเต็มจอ ความสูง 420px เห็นข้อมูลชัดเจน -->
                                 <div style="max-height: 420px; overflow-y: auto; overflow-x: auto; border: 1.5px solid #cbd5e1; border-radius: 8px; background: #ffffff;">
                                     <table style="width: 100%; border-collapse: collapse; font-size: 12px; min-width: 860px;">
@@ -3670,6 +3673,57 @@
                 const lbl = document.getElementById('excel-student-file-name-label');
                 if (lbl) {
                     lbl.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg> เลือกไฟล์แล้ว: <strong>รายชื่อนิสิตสหกิจ_2569.xlsx</strong> (78.3 KB)`;
+                    if (lbl.parentElement) {
+                        lbl.parentElement.style.backgroundColor = '#dcfce7';
+                        lbl.parentElement.style.border = '1.5px solid #22c55e';
+                    }
+                }
+                renderAdminStudentPreImportPreview(false);
+                const elImport = document.getElementById('admin-card-import');
+                if (elImport) {
+                    elImport.scrollIntoView({ behavior: 'instant', block: 'start' });
+                    window.scrollTo(0, elImport.offsetTop - 40);
+                }
+            } else if (urlParams.get('test_dup_import') === '1') {
+                const mockCustom = JSON.parse(localStorage.getItem('customUsers') || '{}');
+                mockCustom['6512345678'] = {
+                    id: '6512345678',
+                    student_id: '6512345678',
+                    name: 'นาง สมหญิง แจ่มใส',
+                    email: 'somying.j@ku.th',
+                    role: 'student'
+                };
+                localStorage.setItem('customUsers', JSON.stringify(mockCustom));
+
+                adminParsedStudentRows = window.adminParsedStudentRows = [
+                    {
+                        'รหัสนิสิต': '6512345678',
+                        'คำนำหน้านาม': 'นาง',
+                        'ชื่อ - นามสกุล': 'สมหญิง แจ่มใส',
+                        'อีเมลมหาวิทยาลัย': 'somying.j@ku.th',
+                        'หมู่เรียน': '800',
+                        'อาจารย์ที่ปรึกษา': 'อ. สมชาย แจ่มใส',
+                        'ชื่อสถานประกอบการ': 'กสทช บิซิเนส เทคโนโลยี กรุ๊ป',
+                        'พิกัด GPS': '13.910637957342963, 100.55113384444448',
+                        'ภาคการศึกษา': 'ภาคปลาย',
+                        'ปีการศึกษา': '2569'
+                    },
+                    {
+                        'รหัสนิสิต': '6521650123',
+                        'คำนำหน้านาม': 'นาย',
+                        'ชื่อ - นามสกุล': 'กิตติศักดิ์ เจริญกิจ',
+                        'อีเมลมหาวิทยาลัย': 'kittisuk.j@ku.th',
+                        'หมู่เรียน': '800',
+                        'อาจารย์ที่ปรึกษา': 'สมชาย แจ่มใส',
+                        'ชื่อสถานประกอบการ': 'มณีรินทร์ เลค&ลากูน โซนบี',
+                        'พิกัด GPS': '13.99595076228757, 100.56338543316969',
+                        'ภาคการศึกษา': 'ภาคปลาย',
+                        'ปีการศึกษา': '2569'
+                    }
+                ];
+                const lbl = document.getElementById('excel-student-file-name-label');
+                if (lbl) {
+                    lbl.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg> เลือกไฟล์แล้ว: <strong>รายชื่อนิสิต(1) - Copy.xlsx</strong> (12.4 KB)`;
                     if (lbl.parentElement) {
                         lbl.parentElement.style.backgroundColor = '#dcfce7';
                         lbl.parentElement.style.border = '1.5px solid #22c55e';
