@@ -4006,35 +4006,14 @@
         function switchAdvisorClassroomTab(tab) {
             currentAdvisorClassroomTab = tab;
             const btnStd = document.getElementById('adv-subtab-btn-students');
-            const btnAsg = document.getElementById('adv-subtab-btn-assignments');
             const contentStd = document.getElementById('adv-content-students');
-            const contentAsg = document.getElementById('adv-content-assignments');
 
-            if (tab === 'students') {
-                if (btnStd) {
-                    btnStd.style.borderBottom = '3px solid var(--primary-color)';
-                    btnStd.style.color = 'var(--primary-color)';
-                }
-                if (btnAsg) {
-                    btnAsg.style.borderBottom = '3px solid transparent';
-                    btnAsg.style.color = '#64748b';
-                }
-                if (contentStd) contentStd.style.display = 'block';
-                if (contentAsg) contentAsg.style.display = 'none';
-                renderStudentList();
-            } else {
-                if (btnStd) {
-                    btnStd.style.borderBottom = '3px solid transparent';
-                    btnStd.style.color = '#64748b';
-                }
-                if (btnAsg) {
-                    btnAsg.style.borderBottom = '3px solid #2563eb';
-                    btnAsg.style.color = '#2563eb';
-                }
-                if (contentStd) contentStd.style.display = 'none';
-                if (contentAsg) contentAsg.style.display = 'block';
-                renderAdvisorAssignments();
+            if (btnStd) {
+                btnStd.style.borderBottom = '3px solid var(--primary-color)';
+                btnStd.style.color = 'var(--primary-color)';
             }
+            if (contentStd) contentStd.style.display = 'block';
+            renderStudentList();
         }
 
         function filterAdvisorStudentsList(query) {
@@ -5215,13 +5194,25 @@
             const advId = loggedInUser ? String(loggedInUser.id || loggedInUser.advisor_id || 'Q1111').trim() : 'Q1111';
             const advName = loggedInUser ? (loggedInUser.name || 'อาจารย์ สมชาย แจ่มใส') : 'อาจารย์ สมชาย แจ่มใส';
 
+            // คำนวณค่าหมู่เรียนที่จะบันทึกให้อิงตามหมู่เรียนจริงของอาจารย์
+            let savedSection = 'all';
+            let targetSecLabel = `${mySecNormal}, ${mySecSpecial}`;
+            if (secChoice === 'normal') {
+                savedSection = mySecNormal; // เช่น 'หมู่ 700', 'หมู่ 701', 'หมู่ 702'
+                targetSecLabel = `${mySecNormal} (ภาคปกติ)`;
+            } else if (secChoice === 'special') {
+                savedSection = mySecSpecial; // เช่น 'หมู่ 800', 'หมู่ 801', 'หมู่ 802'
+                targetSecLabel = `${mySecSpecial} (ภาคพิเศษ)`;
+            }
+
             const asgs = getCoopAssignments();
             const newAsg = {
                 id: 'asg-' + Date.now(),
                 title: title,
                 docType: docType === 'custom' ? title : docType,
                 dueDate: `${dateVal}T${timeVal}`,
-                section: secChoice,
+                section: savedSection,
+                sectionChoice: secChoice,
                 desc: desc || 'กรุณาส่งไฟล์เอกสาร, แนบรูปภาพ หรือเขียนคำอธิบายตามกำหนด',
                 required: true,
                 advisorId: advId,
@@ -5259,16 +5250,32 @@
                     }
                 } catch (e) {}
 
+                // ดึงหมายเลขหมู่เรียนของอาจารย์ท่านนี้ (เช่น 700/800, 701/801, 702/802)
+                const normDigits = mySecNormal.replace(/\D/g, '');
+                const specDigits = mySecSpecial.replace(/\D/g, '');
+
                 // กรองตามหมู่เรียนที่เลือก: 'all', 'normal', 'special'
                 let targetStudents = allAvailableStudents.filter(std => {
                     if (!std || (!std.id && !std.student_id)) return false;
-                    if (secChoice === 'all') return true;
 
                     const secStr = String(std.section || std.classroom || '').toLowerCase();
-                    if (secChoice === 'normal') {
-                        return secStr.includes('700') || secStr.includes('ปกติ') || secStr.includes('normal');
+                    const currStr = String(std.curriculum || '').toLowerCase();
+                    const advStr = String(std.advisor || std.advisor_name || '').toLowerCase();
+
+                    // ตรวจสอบความสอดคล้องกับอาจารย์ประจำกลุ่ม
+                    const isMyAdvisor = !advStr || advStr.includes(advName.toLowerCase()) || advStr.includes(advId.toLowerCase());
+
+                    if (secChoice === 'all') {
+                        const matchSec = (normDigits && secStr.includes(normDigits)) || (specDigits && secStr.includes(specDigits));
+                        return matchSec || isMyAdvisor;
+                    } else if (secChoice === 'normal') {
+                        const matchNum = normDigits && secStr.includes(normDigits);
+                        const matchNormalText = (secStr.includes('ปกติ') || currStr.includes('ปกติ') || secStr.includes('normal')) && isMyAdvisor;
+                        return matchNum || matchNormalText;
                     } else if (secChoice === 'special') {
-                        return secStr.includes('800') || secStr.includes('พิเศษ') || secStr.includes('special');
+                        const matchNum = specDigits && secStr.includes(specDigits);
+                        const matchSpecialText = (secStr.includes('พิเศษ') || currStr.includes('พิเศษ') || secStr.includes('special')) && isMyAdvisor;
+                        return matchNum || matchSpecialText;
                     }
                     return secStr.includes(secChoice);
                 });
@@ -5311,7 +5318,7 @@
 
                     // ส่งอีเมลแจ้งเตือนถึงนิสิต
                     if (typeof dispatchNotificationEmail === 'function') {
-                        const secLabel = secChoice === 'all' ? 'ทุกหมู่เรียน' : (secChoice === 'normal' ? 'หมู่ 700 (ภาคปกติ)' : 'หมู่ 800 (ภาคพิเศษ)');
+                        const secLabel = secChoice === 'all' ? `${mySecNormal} และ ${mySecSpecial}` : (secChoice === 'normal' ? `${mySecNormal} (ภาคปกติ)` : `${mySecSpecial} (ภาคพิเศษ)`);
                         const detailsHtml = `
                             <p style="margin:0 0 8px 0;"><strong>ชื่องาน / เอกสาร:</strong> ${title}</p>
                             <p style="margin:0 0 8px 0;"><strong>กำหนดส่ง:</strong> <span style="color:#dc2626;font-weight:700;">${formatDueDateText}</span></p>
@@ -5428,11 +5435,15 @@
 
             const allAsgs = getCoopAssignments();
             // Filter assignments that match active sections or are assigned to 'all'
-            const secAsgs = allAsgs.filter(a => 
-                a.section === 'all' || 
-                activeSections.includes(a.section) ||
-                (advisorAssignmentSectionFilter === 'all' && (a.section === mySecNormal || a.section === mySecSpecial))
-            );
+            const secAsgs = allAsgs.filter(a => {
+                if (!a.section || a.section === 'all') return true;
+                if (activeSections.includes(a.section)) return true;
+                if (advisorAssignmentSectionFilter === 'all' && (a.section === mySecNormal || a.section === mySecSpecial)) return true;
+                // รองรับข้อมูลเดิมที่เป็นคำว่า 'normal' หรือ 'special'
+                if (a.section === 'normal' && (activeSections.includes(mySecNormal) || advisorAssignmentSectionFilter === 'all')) return true;
+                if (a.section === 'special' && (activeSections.includes(mySecSpecial) || advisorAssignmentSectionFilter === 'all')) return true;
+                return false;
+            });
 
             const allDocs = getSubmittedDocs();
             const totalStudents = stdList.length;
@@ -6125,7 +6136,9 @@
                 else if (asg.title.includes('Form 11')) docCode = 'Form 11 (Final)';
                 else if (asg.title.includes('สไลด์') || asg.title.includes('Slide')) docCode = 'สไลด์นำเสนอ';
 
-                const targetSecLabel = (!asg.section || asg.section === 'all') ? `${mySecNormal}, ${mySecSpecial}` : asg.section;
+                let targetSecLabel = (!asg.section || asg.section === 'all') ? `${mySecNormal}, ${mySecSpecial}` : asg.section;
+                if (asg.section === 'normal') targetSecLabel = `${mySecNormal} (ภาคปกติ)`;
+                else if (asg.section === 'special') targetSecLabel = `${mySecSpecial} (ภาคพิเศษ)`;
 
                 const card = document.createElement('div');
                 card.style.background = '#ffffff';
@@ -6620,7 +6633,21 @@
                 if (!a.section || a.section === 'all') return true;
                 const asgSec = String(a.section).trim();
                 const curSec = stdSec.trim();
-                return asgSec === curSec || asgSec.includes(curSec) || curSec.includes(asgSec);
+
+                // 1. ตรงกันตรงๆ หรือมีข้อความคลุมถึงกัน
+                if (asgSec === curSec || asgSec.includes(curSec) || curSec.includes(asgSec)) return true;
+
+                // 2. จับคู่รหัสหมู่เรียนตัวเลข 3 หลัก (เช่น 700, 701, 702 หรือ 800, 801, 802)
+                const mAsg = asgSec.match(/\d{3}/);
+                const mStd = curSec.match(/\d{3}/);
+                if (mAsg && mStd && mAsg[0] === mStd[0]) return true;
+
+                // 3. รองรับคีย์ภาษาอังกฤษย้อนหลัง 'normal' หรือ 'special'
+                const isSpecialStudent = curSec.includes('พิเศษ') || curSec.includes('special') || (mStd && parseInt(mStd[0]) >= 800);
+                if (asgSec === 'special' && isSpecialStudent) return true;
+                if (asgSec === 'normal' && !isSpecialStudent) return true;
+
+                return false;
             });
 
             const allDocs = getSubmittedDocs();
@@ -7965,9 +7992,9 @@
 
         function updateNotifyBadge() {
             const hasUnread = notifications.some(n => n.unread);
-            const badge = document.getElementById('notify-badge');
+            const badge = document.getElementById('notify-badge') || document.getElementById('notification-badge');
             if (badge) {
-                badge.style.display = hasUnread ? 'block' : 'none';
+                badge.style.display = hasUnread ? 'flex' : 'none';
             }
         }
 
@@ -8029,8 +8056,10 @@
             }
             navigator.geolocation.getCurrentPosition(
                 (pos) => {
-                    document.getElementById('admin-gps-lat-input').value = pos.coords.latitude.toFixed(6);
-                    document.getElementById('admin-gps-lng-input').value = pos.coords.longitude.toFixed(6);
+                    const latEl = document.getElementById('admin-gps-lat-input');
+                    const lngEl = document.getElementById('admin-gps-lng-input');
+                    if (latEl) latEl.value = pos.coords.latitude.toFixed(6);
+                    if (lngEl) lngEl.value = pos.coords.longitude.toFixed(6);
                     alert('ดึงพิกัด GPS ปัจจุบันจากอุปกรณ์สำเร็จ!');
                 },
                 (err) => {
@@ -8042,8 +8071,12 @@
 
         function saveAdminGpsSetup() {
             const select = document.getElementById('admin-gps-company-select');
-            const lat = document.getElementById('admin-gps-lat-input').value;
-            const lng = document.getElementById('admin-gps-lng-input').value;
+            const latEl = document.getElementById('admin-gps-lat-input');
+            const lngEl = document.getElementById('admin-gps-lng-input');
+            if (!select || !latEl || !lngEl) return;
+
+            const lat = latEl.value;
+            const lng = lngEl.value;
             const compText = select && select.options[select.selectedIndex] ? select.options[select.selectedIndex].text : 'สถานประกอบการ';
 
             if (!lat || !lng) {
