@@ -2711,7 +2711,7 @@
         }
 
                 async function confirmDeleteStudent(studentId, studentName) {
-            const isConfirm = confirm(`คุณต้องการลบรายชื่อนิสิต "${studentName}" (รหัส ${studentId}) ออกจากระบบหรือไม่?\n\nเมื่อลบแล้ว รายชื่อจะถูกนำออกจากระบบอย่างถาวรเสมือนข้อมูลจริง`);
+            const isConfirm = confirm(`คุณต้องการลบรายชื่อนิสิต "${studentName}" (รหัส ${studentId}) ออกจากระบบหรือไม่?`);
             if (!isConfirm) return;
 
             const stdIdStr = String(studentId).trim();
