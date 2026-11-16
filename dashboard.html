@@ -10011,10 +10011,25 @@
                         scrollWheelZoom: true
                     }).setView([currentPickedLat, currentPickedLng], 16);
 
-                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                        maxZoom: 19,
-                        attribution: '© OpenStreetMap contributors'
-                    }).addTo(studentPickerMap);
+                    // ใช้ชั้นแผนที่ Google Maps ภาษาไทย (แสดงชื่อสถานที่ อาคาร และถนนแบบ Google Maps)
+                    const googleRoadmap = L.tileLayer('https://mt1.google.com/vt/lyrs=m&hl=th&gl=TH&x={x}&y={y}&z={z}', {
+                        maxZoom: 20,
+                        attribution: 'Google Maps'
+                    });
+
+                    // ภาพถ่ายดาวเทียม Google Maps Hybrid (คมชัดสูงพร้อมชื่อถนนภาษาไทย)
+                    const googleHybrid = L.tileLayer('https://mt1.google.com/vt/lyrs=y&hl=th&gl=TH&x={x}&y={y}&z={z}', {
+                        maxZoom: 20,
+                        attribution: 'Google Maps Satellite'
+                    });
+
+                    googleRoadmap.addTo(studentPickerMap);
+
+                    // กล่องควบคุมสลับโหมดแผนที่ (ถนน/สถานที่ VS ภาพถ่ายดาวเทียม)
+                    L.control.layers({
+                        "แผนที่ Google Maps (ถนน/สถานที่)": googleRoadmap,
+                        "ภาพถ่ายดาวเทียม Google Maps": googleHybrid
+                    }, null, { position: 'topright' }).addTo(studentPickerMap);
 
                     const redIcon = L.icon({
                         iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
@@ -10065,12 +10080,54 @@
             }
         }
 
-        async function searchLocationOnMap() {
+        function openSearchInGoogleMaps() {
             const input = document.getElementById('map-picker-search-input');
             const query = input ? input.value.trim() : '';
+            const gUrl = query
+                ? `https://www.google.com/maps/search/${encodeURIComponent(query)}`
+                : `https://www.google.com/maps/@${currentPickedLat},${currentPickedLng},17z`;
+            window.open(gUrl, '_blank');
+        }
+
+        async function searchLocationOnMap() {
+            const input = document.getElementById('map-picker-search-input');
+            const resultsBox = document.getElementById('map-picker-search-results');
+            const query = input ? input.value.trim() : '';
             if (!query) {
-                alert('กรุณากรอกชื่อสถานที่หรือบริษัทที่ต้องการค้นหา');
+                alert('กรุณากรอกชื่อสถานที่ บริษัท หรือตัวเลขพิกัดที่ต้องการค้นหา');
                 if (input) input.focus();
+                return;
+            }
+
+            // 1. ตรวจสอบกรณีผู้ใช้วางตัวเลขพิกัดตรงๆ จาก Google Maps เช่น "14.015646, 99.990596" หรือ "14.015646 99.990596"
+            const coordMatch = query.match(/([-+]?[0-9]+\.[0-9]+)[\s,]+([-+]?[0-9]+\.[0-9]+)/);
+            if (coordMatch) {
+                const lat = parseFloat(coordMatch[1]);
+                const lng = parseFloat(coordMatch[2]);
+                if (!isNaN(lat) && !isNaN(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+                    if (studentPickerMap && studentPickerMarker) {
+                        studentPickerMap.setView([lat, lng], 18);
+                        studentPickerMarker.setLatLng([lat, lng]);
+                        updatePickedCoordinates(lat, lng);
+                        studentPickerMarker.bindPopup(`<b>พิกัดจาก Google Maps</b><br>Lat: ${lat.toFixed(6)}, Lng: ${lng.toFixed(6)}`).openPopup();
+                    }
+                    if (resultsBox) resultsBox.style.display = 'none';
+                    return;
+                }
+            }
+
+            // 2. ตรวจสอบกรณีผู้ใช้วาง URL จาก Google Maps เช่น https://www.google.com/maps/@14.015646,99.990596...
+            const urlMatch = query.match(/@([-+]?[0-9]+\.[0-9]+),([-+]?[0-9]+\.[0-9]+)/) || query.match(/[?&]q=([-+]?[0-9]+\.[0-9]+),([-+]?[0-9]+\.[0-9]+)/);
+            if (urlMatch) {
+                const lat = parseFloat(urlMatch[1]);
+                const lng = parseFloat(urlMatch[2]);
+                if (studentPickerMap && studentPickerMarker) {
+                    studentPickerMap.setView([lat, lng], 18);
+                    studentPickerMarker.setLatLng([lat, lng]);
+                    updatePickedCoordinates(lat, lng);
+                    studentPickerMarker.bindPopup(`<b>พิกัดจากลิงก์ Google Maps</b><br>Lat: ${lat.toFixed(6)}, Lng: ${lng.toFixed(6)}`).openPopup();
+                }
+                if (resultsBox) resultsBox.style.display = 'none';
                 return;
             }
 
@@ -10081,51 +10138,89 @@
             }
 
             try {
-                const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1&countrycodes=th`;
-                const res = await fetch(url, {
-                    headers: { 'Accept-Language': 'th,en' }
-                });
-                const data = await res.json();
+                // ค้นหาผ่าน Photon Geocoding API (ดึงสถานที่และ POI ในไทยได้แม่นยำสูงมาก)
+                const photonUrl = `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=6`;
+                const pRes = await fetch(photonUrl);
+                const pData = await pRes.json();
+                let results = [];
+
+                if (pData && pData.features && pData.features.length > 0) {
+                    results = pData.features.map(f => {
+                        const props = f.properties || {};
+                        const name = props.name || props.street || query;
+                        const details = [props.street, props.district, props.city, props.state, props.country].filter(Boolean).join(', ');
+                        return {
+                            name: name,
+                            details: details || 'สถานที่ในประเทศไทย',
+                            lat: f.geometry.coordinates[1],
+                            lng: f.geometry.coordinates[0]
+                        };
+                    });
+                }
+
+                // Fallback: หาก Photon ไม่พบ ให้ค้นหาผ่าน OpenStreetMap Nominatim
+                if (results.length === 0) {
+                    const nomUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&countrycodes=th`;
+                    const nRes = await fetch(nomUrl, { headers: { 'Accept-Language': 'th,en' } });
+                    const nData = await nRes.json();
+                    if (nData && nData.length > 0) {
+                        results = nData.map(item => ({
+                            name: item.display_name.split(',')[0],
+                            details: item.display_name,
+                            lat: parseFloat(item.lat),
+                            lng: parseFloat(item.lon)
+                        }));
+                    }
+                }
 
                 if (statusEl) statusEl.style.display = 'none';
 
-                if (data && data.length > 0) {
-                    const first = data[0];
-                    const lat = parseFloat(first.lat);
-                    const lon = parseFloat(first.lon);
-
+                if (results.length > 0) {
+                    // ปักหมุดที่ผลลัพธ์แรกทันที
+                    const first = results[0];
                     if (studentPickerMap && studentPickerMarker) {
-                        studentPickerMap.setView([lat, lon], 17);
-                        studentPickerMarker.setLatLng([lat, lon]);
-                        updatePickedCoordinates(lat, lon);
-                        const placeShort = first.display_name.split(',')[0];
-                        studentPickerMarker.bindPopup(`<b>${placeShort}</b><br><span style="font-size:11px;color:#475569;">${first.display_name}</span>`).openPopup();
+                        studentPickerMap.setView([first.lat, first.lng], 17);
+                        studentPickerMarker.setLatLng([first.lat, first.lng]);
+                        updatePickedCoordinates(first.lat, first.lng);
+                        studentPickerMarker.bindPopup(`<b>${first.name}</b><br><span style="font-size:11px;color:#475569;">${first.details}</span>`).openPopup();
+                    }
+
+                    // แสดง Dropdown ผลการค้นหาให้ผู้ใช้เลือก
+                    if (resultsBox) {
+                        resultsBox.innerHTML = results.map(r => `
+                            <div style="padding: 8px 12px; border-bottom: 1px solid #f1f5f9; cursor: pointer; text-align: left; transition: background 0.15s;" 
+                                 onmouseover="this.style.background='#eff6ff'" 
+                                 onmouseout="this.style.background='#ffffff'"
+                                 onclick="selectMapSearchResult(${r.lat}, ${r.lng}, '${r.name.replace(/'/g, "\\'")}', '${r.details.replace(/'/g, "\\'")}')">
+                                <div style="font-size: 12px; font-weight: 700; color: #1e3a8a;">📍 ${r.name}</div>
+                                <div style="font-size: 10.5px; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${r.details}</div>
+                            </div>
+                        `).join('');
+                        resultsBox.style.display = 'block';
                     }
                 } else {
-                    // Try global search without country code restriction
-                    const urlGlobal = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`;
-                    const resG = await fetch(urlGlobal);
-                    const dataG = await resG.json();
-                    if (dataG && dataG.length > 0) {
-                        const first = dataG[0];
-                        const lat = parseFloat(first.lat);
-                        const lon = parseFloat(first.lon);
-                        if (studentPickerMap && studentPickerMarker) {
-                            studentPickerMap.setView([lat, lon], 17);
-                            studentPickerMarker.setLatLng([lat, lon]);
-                            updatePickedCoordinates(lat, lon);
-                            const placeShort = first.display_name.split(',')[0];
-                            studentPickerMarker.bindPopup(`<b>${placeShort}</b>`).openPopup();
-                        }
-                    } else {
-                        alert(`ไม่พบสถานที่ "${query}" บนแผนที่\n\nท่านสามารถเลื่อนแผนที่หรือคลิกปักหมุดด้วยตนเองได้ครับ`);
+                    if (resultsBox) resultsBox.style.display = 'none';
+                    const confirmGmaps = confirm(`ไม่พบสถานที่ "${query}" ในฐานข้อมูลด่วน\n\nต้องการเปิดค้นหาบน Google Maps โดยตรงหรือไม่? (คุณสามารถคัดลอกพิกัดจาก Google Maps มาวางได้ทันที)`);
+                    if (confirmGmaps) {
+                        openSearchInGoogleMaps();
                     }
                 }
             } catch (err) {
                 if (statusEl) statusEl.style.display = 'none';
-                console.warn("Nominatim search error:", err);
-                alert('เกิดข้อผิดพลาดในการค้นหา ท่านสามารถเลื่อนแผนที่และคลิกเพื่อปักหมุดตำแหน่งที่ต้องการได้โดยตรง');
+                console.warn("Search location error:", err);
+                openSearchInGoogleMaps();
             }
+        }
+
+        function selectMapSearchResult(lat, lng, name, details) {
+            if (studentPickerMap && studentPickerMarker) {
+                studentPickerMap.setView([lat, lng], 17);
+                studentPickerMarker.setLatLng([lat, lng]);
+                updatePickedCoordinates(lat, lng);
+                studentPickerMarker.bindPopup(`<b>${name}</b><br><span style="font-size:11px;color:#475569;">${details}</span>`).openPopup();
+            }
+            const resultsBox = document.getElementById('map-picker-search-results');
+            if (resultsBox) resultsBox.style.display = 'none';
         }
 
         function centerMapOnDeviceGps() {
@@ -10183,6 +10278,16 @@
             }
         }
 
+        document.addEventListener('click', (e) => {
+            const resultsBox = document.getElementById('map-picker-search-results');
+            const searchInput = document.getElementById('map-picker-search-input');
+            if (resultsBox && resultsBox.style.display !== 'none') {
+                if (e.target !== searchInput && !resultsBox.contains(e.target)) {
+                    resultsBox.style.display = 'none';
+                }
+            }
+        });
+
     </script>
 
     <!-- Modal: เลือกพิกัดจากแผนที่ (Interactive Map Picker) -->
@@ -10206,18 +10311,30 @@
             </div>
 
             <!-- Search Bar & Quick Geolocation Controls -->
-            <div style="display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap;">
-                <div style="flex: 1; min-width: 200px; display: flex; gap: 6px;">
-                    <input type="text" id="map-picker-search-input" placeholder="พิมพ์ชื่อบริษัท, อาคาร, สถานที่ หรือถนน..." style="flex: 1; padding: 8px 12px; font-size: 12px; border: 1.5px solid #cbd5e1; border-radius: 6px; outline: none;" onkeydown="if(event.key==='Enter') searchLocationOnMap()">
-                    <button type="button" class="btn-primary" style="background-color: #2563eb; font-size: 11.5px; padding: 8px 12px; font-weight: 600; display: flex; align-items: center; gap: 4px; white-space: nowrap;" onclick="searchLocationOnMap()">
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                        <span>ค้นหา</span>
+            <div style="margin-bottom: 10px;">
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 240px; display: flex; gap: 6px; position: relative;">
+                        <input type="text" id="map-picker-search-input" placeholder="พิมพ์ชื่อสถานที่, บริษัท, หรือวางพิกัด/ลิงก์จาก Google Maps..." style="flex: 1; padding: 8px 12px; font-size: 12px; border: 1.5px solid #cbd5e1; border-radius: 6px; outline: none;" onkeydown="if(event.key==='Enter') searchLocationOnMap()">
+                        <button type="button" class="btn-primary" style="background-color: #2563eb; font-size: 11.5px; padding: 8px 12px; font-weight: 600; display: flex; align-items: center; gap: 4px; white-space: nowrap;" onclick="searchLocationOnMap()">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                            <span>ค้นหา</span>
+                        </button>
+                        <!-- Search Suggestions Dropdown Card -->
+                        <div id="map-picker-search-results" style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 8px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); max-height: 220px; overflow-y: auto; z-index: 10001; margin-top: 4px;">
+                        </div>
+                    </div>
+                    <button type="button" class="btn-primary" style="background-color: #ea4335; font-size: 11.5px; padding: 8px 12px; font-weight: 600; display: flex; align-items: center; gap: 4px; white-space: nowrap;" onclick="openSearchInGoogleMaps()" title="เปิดค้นหาบน Google Maps โดยตรง แล้วคัดลอกพิกัดมาวาง">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+                        <span>เปิด Google Maps ↗</span>
+                    </button>
+                    <button type="button" class="btn-primary" style="background-color: #059669; font-size: 11.5px; padding: 8px 12px; font-weight: 600; display: flex; align-items: center; gap: 4px; white-space: nowrap;" onclick="centerMapOnDeviceGps()">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+                        <span>GPS ปัจจุบัน</span>
                     </button>
                 </div>
-                <button type="button" class="btn-primary" style="background-color: #059669; font-size: 11.5px; padding: 8px 12px; font-weight: 600; display: flex; align-items: center; gap: 4px; white-space: nowrap;" onclick="centerMapOnDeviceGps()">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
-                    <span>ตำแหน่งปัจจุบันของฉัน</span>
-                </button>
+                <div style="font-size: 10.5px; color: #64748b; margin-top: 4px; display: flex; justify-content: space-between; flex-wrap: wrap;">
+                    <span>เคล็ดลับ: สามารถพิมพ์ชื่อสถานที่ หรือคลิกขวาใน Google Maps แล้วคลิกตัวเลขพิกัด (เช่น 14.015646, 99.990596) มาวางในช่องนี้ได้ทันที</span>
+                </div>
             </div>
 
             <!-- Leaflet Map Container -->
