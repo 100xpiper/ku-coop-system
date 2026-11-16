@@ -214,9 +214,11 @@ function renderStudentGpsSettings(user) {
                 const qrPayload = JSON.stringify({
                     id: String(std.id || std.student_id),
                     lat: parseFloat(latStr),
-                    lng: parseFloat(lngStr)
+                    lng: parseFloat(lngStr),
+                    company: std.company_name || std.company || '',
+                    name: std.name || ''
                 });
-                qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(qrPayload)}`;
+                qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrPayload)}`;
             }
 
             // Beep sound confirmation

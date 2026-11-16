@@ -3592,14 +3592,19 @@
                 const qrName = document.getElementById('std-qr-name');
                 if (qrName) qrName.textContent = `${displayName}`;
                 
-                const qrImg = document.getElementById('std-qr-image');
-                const qrPlace = document.getElementById('std-qr-placeholder');
-                if (qrImg && qrPlace) {
-                    qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(stdIdVal)}`;
-                    qrImg.onload = () => {
-                        qrPlace.style.display = 'none';
-                        qrImg.style.display = 'block';
-                    };
+                // สร้าง QR Code บรรจุข้อมูลพิกัดสถานประกอบการ
+                if (typeof updateStudentQrCodeImage === 'function') {
+                    updateStudentQrCodeImage(user);
+                } else {
+                    const qrImg = document.getElementById('std-qr-image');
+                    const qrPlace = document.getElementById('std-qr-placeholder');
+                    if (qrImg && qrPlace) {
+                        qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(stdIdVal)}`;
+                        qrImg.onload = () => {
+                            qrPlace.style.display = 'none';
+                            qrImg.style.display = 'block';
+                        };
+                    }
                 }
 
                 loadStudentProjectTracking(stdIdVal);
@@ -9622,6 +9627,76 @@
 
         let currentStudentProfile = null;
 
+        function updateStudentQrCodeImage(user) {
+            const qrImg = document.getElementById('std-qr-image');
+            const qrPlace = document.getElementById('std-qr-placeholder');
+            if (!qrImg) return;
+
+            let std = user || currentStudentProfile;
+            if (!std) {
+                try {
+                    std = JSON.parse(sessionStorage.getItem('currentUser') || localStorage.getItem('currentUser') || '{}');
+                } catch (e) {}
+            }
+            if (!std || (!std.id && !std.student_id)) return;
+
+            const stdId = String(std.id || std.student_id);
+            const stdName = std.name || '';
+            let compName = std.company_name || std.company || '';
+
+            let lat = std.company_lat || std.lat;
+            let lng = std.company_lng || std.lng;
+
+            if (!lat || !lng) {
+                try {
+                    const customUsers = JSON.parse(localStorage.getItem('customUsers') || '{}');
+                    const u = customUsers[std.email] || customUsers[stdId];
+                    if (u) {
+                        if (u.company_lat && u.company_lng) {
+                            lat = u.company_lat;
+                            lng = u.company_lng;
+                        }
+                        if (!compName && (u.company_name || u.company)) {
+                            compName = u.company_name || u.company;
+                        }
+                    }
+                } catch (e) {}
+            }
+
+            if (!lat || !lng) {
+                const allStds = getAllSystemStudents();
+                const found = allStds.find(s => String(s.id) === stdId);
+                if (found) {
+                    if (found.company_lat && found.company_lng) {
+                        lat = found.company_lat;
+                        lng = found.company_lng;
+                    }
+                    if (!compName && (found.company_name || found.company)) {
+                        compName = found.company_name || found.company;
+                    }
+                }
+            }
+
+            // บรรจุพิกัดและข้อมูลสถานประกอบการลงใน QR Code Payload เพื่อให้อาจารย์สแกนจากเครื่องอื่นได้ถูกต้อง
+            let qrPayload = stdId;
+            if (lat && lng) {
+                const payloadObj = {
+                    id: stdId,
+                    lat: parseFloat(lat),
+                    lng: parseFloat(lng),
+                    company: compName || 'สถานประกอบการ',
+                    name: stdName
+                };
+                qrPayload = JSON.stringify(payloadObj);
+            }
+
+            qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrPayload)}`;
+            qrImg.onload = () => {
+                if (qrPlace) qrPlace.style.display = 'none';
+                qrImg.style.display = 'block';
+            };
+        }
+
         function renderStudentGpsSettings(user) {
             currentStudentProfile = user;
             if (!user) return;
@@ -9683,6 +9758,9 @@
                 }
                 if (mapLink) mapLink.style.display = 'none';
             }
+
+            // ซิงค์ QR Code ให้ตรงกับข้อมูลและพิกัดล่าสุด
+            updateStudentQrCodeImage(user);
         }
 
         function autoDetectStudentGps() {
@@ -9825,6 +9903,24 @@
                 mapLink.href = `https://www.google.com/maps?q=${latStr},${lngStr}&z=18`;
                 mapLink.style.display = 'inline-flex';
             }
+
+            // อัปเดตรูป QR Code ประจำตัวนิสิตให้บรรจุพิกัดล่าสุดทันที เพื่อให้อาจารย์สแกนได้ถูกต้อง
+            updateStudentQrCodeImage(std);
+
+            // ส่งข้อมูลพิกัดไปซิงค์ยัง Backend API
+            try {
+                fetch('/api/student-gps', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        id: String(std.id || std.student_id),
+                        lat: latStr,
+                        lng: lngStr,
+                        company: std.company_name || std.company || '',
+                        name: std.name || ''
+                    })
+                }).catch(() => {});
+            } catch (e) {}
 
             // Beep sound confirmation
             try {

@@ -202,45 +202,104 @@ let activeCameraStream = null;
             const payloadStr = String(payload).trim();
             const studentSelect = document.getElementById('qr-scan-student-select');
             let matchedId = null;
+            let scannedTargetLat = null;
+            let scannedTargetLng = null;
+            let scannedCompany = null;
+            let scannedName = null;
 
-            if (studentSelect) {
-                // 1. Direct contains check
+            // 1. ถอดรหัสกรณี QR Code เป็น JSON ที่มีพิกัดสถานประกอบการที่นิสิตตั้งไว้
+            try {
+                if (payloadStr.startsWith('{') || payloadStr.includes('"id"')) {
+                    const parsed = JSON.parse(payloadStr);
+                    if (parsed.id) {
+                        matchedId = String(parsed.id);
+                        if (parsed.lat && parsed.lng) {
+                            scannedTargetLat = parseFloat(parsed.lat);
+                            scannedTargetLng = parseFloat(parsed.lng);
+                        }
+                        if (parsed.company) scannedCompany = parsed.company;
+                        if (parsed.name) scannedName = parsed.name;
+                    }
+                }
+            } catch (e) {}
+
+            // 2. ถอดรหัสกรณี QR Code ส่งมาในรูปแบบ Pipe (เช่น 6521650123|14.015646|99.990596|มณเฑียรทร์ เทคโนโลยี)
+            if (!matchedId && payloadStr.includes('|')) {
+                const parts = payloadStr.split('|');
+                if (parts[0]) matchedId = parts[0].trim();
+                if (parts[1] && parts[2]) {
+                    scannedTargetLat = parseFloat(parts[1]);
+                    scannedTargetLng = parseFloat(parts[2]);
+                }
+                if (parts[3]) {
+                    scannedCompany = parts[3].trim();
+                }
+            }
+
+            // 3. กรณี QR Code เป็นรหัสนิสิตทั่วไป 10 หลัก หรือข้อความ
+            if (!matchedId && studentSelect) {
                 for (let opt of studentSelect.options) {
                     if (opt.value && payloadStr.includes(opt.value)) {
                         matchedId = opt.value;
-                        studentSelect.value = opt.value;
                         break;
                     }
                 }
 
-                // 2. 10-digit ID pattern
                 if (!matchedId) {
                     const idMatch = payloadStr.match(/\b\d{10}\b/);
                     if (idMatch) {
                         for (let opt of studentSelect.options) {
                             if (opt.value === idMatch[0]) {
                                 matchedId = opt.value;
-                                studentSelect.value = opt.value;
                                 break;
                             }
                         }
                     }
                 }
 
-                // 3. Name pattern
                 if (!matchedId) {
                     for (let opt of studentSelect.options) {
                         const namePart = opt.text.split(' - ')[1] || '';
                         if (namePart && payloadStr.includes(namePart.trim())) {
                             matchedId = opt.value;
-                            studentSelect.value = opt.value;
                             break;
                         }
                     }
                 }
             }
 
-            // Beep sound confirmation
+            if (matchedId && studentSelect) {
+                studentSelect.value = matchedId;
+            }
+
+            // บันทึกพิกัดและชื่อสถานประกอบการที่ดึงได้จาก QR Code เข้าสู่เครื่องอาจารย์ทันที
+            if (matchedId && scannedTargetLat && scannedTargetLng) {
+                const allStds = getAllSystemStudents();
+                const sObj = allStds.find(s => String(s.id) === String(matchedId));
+                if (sObj) {
+                    sObj.company_lat = scannedTargetLat;
+                    sObj.company_lng = scannedTargetLng;
+                    if (scannedCompany) {
+                        sObj.company = scannedCompany;
+                        sObj.company_name = scannedCompany;
+                    }
+                    if (scannedName) sObj.name = scannedName;
+                }
+                try {
+                    const customUsers = JSON.parse(localStorage.getItem('customUsers') || '{}');
+                    if (!customUsers[matchedId]) customUsers[matchedId] = {};
+                    customUsers[matchedId].company_lat = scannedTargetLat;
+                    customUsers[matchedId].company_lng = scannedTargetLng;
+                    if (scannedCompany) {
+                        customUsers[matchedId].company = scannedCompany;
+                        customUsers[matchedId].company_name = scannedCompany;
+                    }
+                    if (scannedName) customUsers[matchedId].name = scannedName;
+                    localStorage.setItem('customUsers', JSON.stringify(customUsers));
+                } catch (e) {}
+            }
+
+            // เสียงปี๊บตอบรับเมื่อสแกนพบ QR Code
             try {
                 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 const osc = audioCtx.createOscillator();
@@ -256,7 +315,7 @@ let activeCameraStream = null;
                 }, 150);
             } catch (e) {}
 
-            processCheckinAndEval(matchedId);
+            processCheckinAndEval(matchedId, scannedTargetLat, scannedTargetLng, scannedCompany, scannedName);
         }
         
         // Haversine Distance Calculation Formula (Returns distance in meters)
@@ -275,7 +334,7 @@ let activeCameraStream = null;
             return Math.round(R * c); // Distance in meters
         }
 
-        function processCheckinAndEval(explicitStudentId) {
+        function processCheckinAndEval(explicitStudentId, explicitTargetLat, explicitTargetLng, explicitCompanyName, explicitStudentName) {
             const studentSelect = document.getElementById('qr-scan-student-select');
             let studentId = explicitStudentId || (studentSelect ? studentSelect.value : '');
 
@@ -293,38 +352,58 @@ let activeCameraStream = null;
             if (studentSelect) studentSelect.value = studentId;
             currentSelectedStudentId = studentId;
 
-            let stdName = 'นิสิต';
-            let stdCompany = 'สถานประกอบการ';
+            let stdName = explicitStudentName || 'นิสิต';
+            let stdCompany = explicitCompanyName || 'สถานประกอบการ';
             const allStds = getAllSystemStudents();
             const stdObj = allStds.find(s => String(s.id) === String(studentId));
             if (stdObj) {
-                stdName = stdObj.name;
-                stdCompany = stdObj.company && stdObj.company !== '-' ? stdObj.company : 'สถานประกอบการ (พิกัด GPS)';
+                if (!explicitStudentName && stdObj.name) stdName = stdObj.name;
+                if (!explicitCompanyName) {
+                    stdCompany = stdObj.company && stdObj.company !== '-' ? stdObj.company : (stdObj.company_name || 'สถานประกอบการ (พิกัด GPS)');
+                }
             }
 
-            // 1. Retrieve Target Workplace Coordinates set by Student or Admin
-            let targetLat = null;
-            let targetLng = null;
+            // 1. ดึงพิกัดสถานประกอบการตามที่นิสิตตั้งไว้จริง (Target Workplace Coordinates)
+            // ลำดับที่ 1: ใช้พิกัดที่แกะได้จาก QR Code สดๆ (ข้ามอุปกรณ์ได้ 100%)
+            let targetLat = (explicitTargetLat !== undefined && explicitTargetLat !== null && !isNaN(explicitTargetLat)) ? parseFloat(explicitTargetLat) : null;
+            let targetLng = (explicitTargetLng !== undefined && explicitTargetLng !== null && !isNaN(explicitTargetLng)) ? parseFloat(explicitTargetLng) : null;
 
-            try {
-                const customUsers = JSON.parse(localStorage.getItem('customUsers') || '{}');
-                const u = Object.values(customUsers).find(user => 
-                    String(user.student_id || user.id) === String(studentId) || 
-                    (user.email && stdObj && String(user.email).toLowerCase() === String(stdObj.email).toLowerCase())
-                );
-                if (u && u.company_lat && u.company_lng) {
-                    targetLat = parseFloat(u.company_lat);
-                    targetLng = parseFloat(u.company_lng);
-                }
-            } catch (e) {}
+            // ลำดับที่ 2: ดึงจาก customUsers บนอุปกรณ์
+            if (!targetLat || !targetLng) {
+                try {
+                    const customUsers = JSON.parse(localStorage.getItem('customUsers') || '{}');
+                    const u = Object.values(customUsers).find(user => 
+                        String(user.student_id || user.id) === String(studentId) || 
+                        (user.email && stdObj && String(user.email).toLowerCase() === String(stdObj.email).toLowerCase())
+                    );
+                    if (u && u.company_lat && u.company_lng) {
+                        targetLat = parseFloat(u.company_lat);
+                        targetLng = parseFloat(u.company_lng);
+                        if (!explicitCompanyName && (u.company_name || u.company)) {
+                            stdCompany = u.company_name || u.company;
+                        }
+                    }
+                } catch (e) {}
+            }
 
+            // ลำดับที่ 3: ดึงจาก stdObj
             if ((!targetLat || !targetLng) && stdObj && stdObj.company_lat && stdObj.company_lng) {
                 targetLat = parseFloat(stdObj.company_lat);
                 targetLng = parseFloat(stdObj.company_lng);
             }
 
-            // Default fallback workplace coordinate if student hasn't set one yet
-            // (e.g. 13.884500, 100.578600 for CAT Telecom / Laksi)
+            // ลำดับที่ 4: ตรวจสอบจาก companyGpsData (ถ้าแอดมินตั้งไว้)
+            if (!targetLat || !targetLng) {
+                try {
+                    const companyGps = JSON.parse(localStorage.getItem('companyGpsData') || '{}');
+                    if (companyGps[studentId] && companyGps[studentId].lat) {
+                        targetLat = parseFloat(companyGps[studentId].lat);
+                        targetLng = parseFloat(companyGps[studentId].lng);
+                    }
+                } catch (e) {}
+            }
+
+            // Fallback พิกัดเริ่มต้น
             if (!targetLat || !targetLng) {
                 targetLat = 13.884500;
                 targetLng = 100.578600;

@@ -44,6 +44,15 @@ RECENT_OTPS = {
     "123456": time.time()
 }
 
+STUDENT_GPS_FILE = os.path.join(BASE_DIR, "data", "student_gps.json")
+STUDENT_GPS_DATA = {}
+if os.path.isfile(STUDENT_GPS_FILE):
+    try:
+        with open(STUDENT_GPS_FILE, "r", encoding="utf-8") as f:
+            STUDENT_GPS_DATA = json.load(f)
+    except Exception:
+        STUDENT_GPS_DATA = {}
+
 MIME_TYPES = {
     ".html": "text/html; charset=utf-8",
     ".css":  "text/css; charset=utf-8",
@@ -311,6 +320,37 @@ class KUCoopHandler(BaseHTTPRequestHandler):
                 print(f"[SendEmail] SMTP Error: {e}")
                 return self.send_json({"success": False, "error": str(e)}, 500)
 
+        # 6. POST /api/student-gps (ซิงค์พิกัดสถานประกอบการที่นิสิตบันทึก)
+        elif parsed.path == "/api/student-gps":
+            std_id = str(body.get("id") or body.get("student_id") or "").strip()
+            lat = body.get("lat")
+            lng = body.get("lng")
+            company = body.get("company", "")
+            name = body.get("name", "")
+            if std_id and lat and lng:
+                try:
+                    lat_f = float(lat)
+                    lng_f = float(lng)
+                except Exception:
+                    lat_f, lng_f = lat, lng
+                STUDENT_GPS_DATA[std_id] = {
+                    "id": std_id,
+                    "lat": lat_f,
+                    "lng": lng_f,
+                    "company": company,
+                    "name": name,
+                    "updated_at": time.time()
+                }
+                try:
+                    os.makedirs(os.path.dirname(STUDENT_GPS_FILE), exist_ok=True)
+                    with open(STUDENT_GPS_FILE, "w", encoding="utf-8") as f:
+                        json.dump(STUDENT_GPS_DATA, f, ensure_ascii=False, indent=2)
+                except Exception as ex:
+                    print(f"[StudentGPS] Warning: failed to write {STUDENT_GPS_FILE}: {ex}")
+                print(f"[StudentGPS] Saved workplace GPS for student {std_id}: Lat {lat}, Lng {lng} ({company})")
+                return self.send_json({"success": True, "data": STUDENT_GPS_DATA[std_id]})
+            return self.send_json({"success": False, "error": "Missing id, lat or lng"}, 400)
+
         else:
             return self.send_json({"error": "Endpoint not found"}, 404)
 
@@ -337,6 +377,16 @@ class KUCoopHandler(BaseHTTPRequestHandler):
                 "github_pages": "https://100xpiper.github.io/ku-coop-system/"
             }
             return self.send_json(data)
+
+        elif clean_path == "api/student-gps":
+            query_params = urllib.parse.parse_qs(parsed.query)
+            std_id = query_params.get("id", [""])[0]
+            if std_id:
+                res = STUDENT_GPS_DATA.get(std_id)
+                if res:
+                    return self.send_json({"success": True, "data": res})
+                return self.send_json({"success": False, "error": "Not found"}, 404)
+            return self.send_json({"success": True, "data": STUDENT_GPS_DATA})
 
         if not clean_path or clean_path == "/":
             clean_path = "index.html"

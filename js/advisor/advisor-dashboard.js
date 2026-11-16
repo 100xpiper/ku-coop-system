@@ -5,71 +5,71 @@
 // ==========================================================================
 
 function updateAdvisorStats() {
-            loadDynamicStudentsData();
-            const raw700 = ['หมู่ 700', 'หมู่ 701', 'หมู่ 702'].flatMap(sec => studentsData[sec] || []);
-            const raw800 = ['หมู่ 800', 'หมู่ 801', 'หมู่ 802'].flatMap(sec => studentsData[sec] || []);
+    loadDynamicStudentsData();
+    const raw700 = ['หมู่ 700', 'หมู่ 701', 'หมู่ 702'].flatMap(sec => studentsData[sec] || []);
+    const raw800 = ['หมู่ 800', 'หมู่ 801', 'หมู่ 802'].flatMap(sec => studentsData[sec] || []);
 
-            // Admin filtered by semester
-            let adminList700 = raw700;
-            let adminList800 = raw800;
-            if (adminSelectedSemester && adminSelectedSemester !== 'all') {
-                if (adminSelectedSemester === 'all_2569') {
-                    adminList700 = adminList700.filter(s => (s.semester || 'ภาคต้น 2569').includes('2569'));
-                    adminList800 = adminList800.filter(s => (s.semester || 'ภาคต้น 2569').includes('2569'));
-                } else {
-                    adminList700 = adminList700.filter(s => (s.semester || 'ภาคต้น 2569') === adminSelectedSemester);
-                    adminList800 = adminList800.filter(s => (s.semester || 'ภาคต้น 2569') === adminSelectedSemester);
-                }
-            }
-            const adminTotal = adminList700.length + adminList800.length;
+    // Admin filtered by semester
+    let adminList700 = raw700;
+    let adminList800 = raw800;
+    if (adminSelectedSemester && adminSelectedSemester !== 'all') {
+        if (adminSelectedSemester === 'all_2569') {
+            adminList700 = adminList700.filter(s => (s.semester || 'ภาคต้น 2569').includes('2569'));
+            adminList800 = adminList800.filter(s => (s.semester || 'ภาคต้น 2569').includes('2569'));
+        } else {
+            adminList700 = adminList700.filter(s => (s.semester || 'ภาคต้น 2569') === adminSelectedSemester);
+            adminList800 = adminList800.filter(s => (s.semester || 'ภาคต้น 2569') === adminSelectedSemester);
+        }
+    }
+    const adminTotal = adminList700.length + adminList800.length;
 
-            const adminTotalEl = document.getElementById('admin-total-std');
-            if (adminTotalEl) adminTotalEl.textContent = `${adminTotal} คน`;
+    const adminTotalEl = document.getElementById('admin-total-std');
+    if (adminTotalEl) adminTotalEl.textContent = `${adminTotal} คน`;
 
-            if (document.getElementById('admin-total-700')) document.getElementById('admin-total-700').textContent = `${adminList700.length} คน`;
-            if (document.getElementById('admin-total-800')) document.getElementById('admin-total-800').textContent = `${adminList800.length} คน`;
+    if (document.getElementById('admin-total-700')) document.getElementById('admin-total-700').textContent = `${adminList700.length} คน`;
+    if (document.getElementById('admin-total-800')) document.getElementById('admin-total-800').textContent = `${adminList800.length} คน`;
 
-            const overviewSel = document.getElementById('admin-overview-semester-select');
-            if (overviewSel && adminSelectedSemester) {
-                overviewSel.value = adminSelectedSemester;
-            }
+    const overviewSel = document.getElementById('admin-overview-semester-select');
+    if (overviewSel && adminSelectedSemester) {
+        overviewSel.value = adminSelectedSemester;
+    }
 
-            // Identify logged in user & Advisor's specific sections
-            const { mySecNormal, mySecSpecial, loggedInUser } = getAdvisorSections();
+    // Identify logged in user & Advisor's specific sections
+    const { mySecNormal, mySecSpecial, loggedInUser } = getAdvisorSections();
 
-            // Advisor's classroom lists
-            const rawMyNorm = studentsData[mySecNormal] || [];
-            const rawMySpec = studentsData[mySecSpecial] || [];
+    // Advisor's classroom lists
+    const rawMyNorm = studentsData[mySecNormal] || [];
+    const rawMySpec = studentsData[mySecSpecial] || [];
 
-            let listNorm = rawMyNorm;
-            let listSpec = rawMySpec;
-            if (advisorSelectedSemester && advisorSelectedSemester !== 'all') {
-                listNorm = listNorm.filter(s => (s.semester || 'ภาคต้น 2569') === advisorSelectedSemester);
-                listSpec = listSpec.filter(s => (s.semester || 'ภาคต้น 2569') === advisorSelectedSemester);
-            }
+    let listNorm = rawMyNorm;
+    let listSpec = rawMySpec;
+    if (advisorSelectedSemester && advisorSelectedSemester !== 'all') {
+        listNorm = listNorm.filter(s => (s.semester || 'ภาคต้น 2569') === advisorSelectedSemester);
+        listSpec = listSpec.filter(s => (s.semester || 'ภาคต้น 2569') === advisorSelectedSemester);
+    }
 
-            const total = listNorm.length + listSpec.length;
-            const evalNorm = listNorm.filter(s => s.status === 'นิเทศแล้ว').length;
-            const evalSpec = listSpec.filter(s => s.status === 'นิเทศแล้ว').length;
-            const evalCount = evalNorm + evalSpec;
-            const pendingCount = total - evalCount;
+    const total = listNorm.length + listSpec.length;
+    const evalNorm = listNorm.filter(s => s.status === 'นิเทศแล้ว').length;
+    const evalSpec = listSpec.filter(s => s.status === 'นิเทศแล้ว').length;
+    const evalCount = evalNorm + evalSpec;
+    const pendingCount = total - evalCount;
 
-            const statTotal = document.getElementById('stat-total-count');
-            if (statTotal) statTotal.textContent = `${total} คน`;
-            const statEval = document.getElementById('stat-evaluated-count');
-            if (statEval) statEval.textContent = `${evalCount} คน`;
-            const statPending = document.getElementById('stat-pending-count');
-            if (statPending) statPending.textContent = `${pendingCount} คน`;
+    const statTotal = document.getElementById('stat-total-count');
+    if (statTotal) statTotal.textContent = `${total} คน`;
+    const statEval = document.getElementById('stat-evaluated-count');
+    if (statEval) statEval.textContent = `${evalCount} คน`;
+    const statPending = document.getElementById('stat-pending-count');
+    if (statPending) statPending.textContent = `${pendingCount} คน`;
 
-            const normNum = mySecNormal.replace(/[^0-9]/g, '');
-            const specNum = mySecSpecial.replace(/[^0-9]/g, '');
-            const secNormText = `จำนวนนิสิต: ${listNorm.length} คน | นิเทศแล้ว: ${evalNorm} คน`;
-            const secSpecText = `จำนวนนิสิต: ${listSpec.length} คน | นิเทศแล้ว: ${evalSpec} คน`;
+    const normNum = mySecNormal.replace(/[^0-9]/g, '');
+    const specNum = mySecSpecial.replace(/[^0-9]/g, '');
+    const secNormText = `จำนวนนิสิต: ${listNorm.length} คน | นิเทศแล้ว: ${evalNorm} คน`;
+    const secSpecText = `จำนวนนิสิต: ${listSpec.length} คน | นิเทศแล้ว: ${evalSpec} คน`;
 
-            // Dynamically render or update classroom cards
-            const dashClassList = document.getElementById('adv-dash-classroom-list');
-            if (dashClassList) {
-                dashClassList.innerHTML = `
+    // Dynamically render or update classroom cards
+    const dashClassList = document.getElementById('adv-dash-classroom-list');
+    if (dashClassList) {
+        dashClassList.innerHTML = `
                     <div class="classroom-item" onclick="openClassroomDetail('${mySecNormal}')" style="cursor: pointer;">
                         <div>
                             <div style="font-size: 13px; font-weight: 700; color: var(--primary-color);">หมู่เรียน ${normNum}</div>
@@ -85,11 +85,11 @@ function updateAdvisorStats() {
                         <span class="status-badge badge-success">จัดการ ></span>
                     </div>
                 `;
-            }
+    }
 
-            const tabClassList = document.getElementById('adv-tab-classroom-list');
-            if (tabClassList) {
-                tabClassList.innerHTML = `
+    const tabClassList = document.getElementById('adv-tab-classroom-list');
+    if (tabClassList) {
+        tabClassList.innerHTML = `
                     <div class="classroom-item" onclick="openClassroomDetail('${mySecNormal}')" style="cursor: pointer;">
                         <div>
                             <div style="font-size: 13px; font-weight: 700; color: var(--primary-color);">หมู่เรียน ${normNum}</div>
@@ -105,247 +105,247 @@ function updateAdvisorStats() {
                         <span class="status-badge badge-success">เข้าจัดการ ></span>
                     </div>
                 `;
-            }
+    }
 
-            // Sync semester selects
-            const dashSel = document.getElementById('adv-semester-dash-select');
-            if (dashSel) dashSel.value = advisorSelectedSemester;
-            const tabSel = document.getElementById('adv-semester-select-tab');
-            if (tabSel) tabSel.value = advisorSelectedSemester;
-            const classSel = document.getElementById('adv-classroom-semester-select');
-            if (classSel) classSel.value = advisorSelectedSemester;
+    // Sync semester selects
+    const dashSel = document.getElementById('adv-semester-dash-select');
+    if (dashSel) dashSel.value = advisorSelectedSemester;
+    const tabSel = document.getElementById('adv-semester-select-tab');
+    if (tabSel) tabSel.value = advisorSelectedSemester;
+    const classSel = document.getElementById('adv-classroom-semester-select');
+    if (classSel) classSel.value = advisorSelectedSemester;
 
-            // Populate student dropdown in appointment form & QR checkin (Separated & Grouped by Section)
-            populateAdvisorStudentSelects(listNorm, listSpec, mySecNormal, mySecSpecial);
+    // Populate student dropdown in appointment form & QR checkin (Separated & Grouped by Section)
+    populateAdvisorStudentSelects(listNorm, listSpec, mySecNormal, mySecSpecial);
 
-            // Render the advisor's 2-section document overview
-            if (typeof renderAdvisorDocOverview === 'function') {
-                renderAdvisorDocOverview();
-            }
+    // Render the advisor's 2-section document overview
+    if (typeof renderAdvisorDocOverview === 'function') {
+        renderAdvisorDocOverview();
+    }
+}
+
+let currentCalSectionFilter = 'all';
+let currentQrSectionFilter = 'all';
+
+
+
+function switchAdvisorDocOverviewTab(tab) {
+    currentAdvisorDocOverviewTab = tab;
+    const btnSummary = document.getElementById('adv-doc-tab-summary-btn');
+    const btnMatrix = document.getElementById('adv-doc-tab-matrix-btn');
+    const viewSummary = document.getElementById('adv-doc-summary-view');
+    const viewMatrix = document.getElementById('adv-doc-matrix-view');
+
+    if (tab === 'summary') {
+        if (btnSummary) {
+            btnSummary.style.background = '#ffffff';
+            btnSummary.style.color = 'var(--primary-color)';
+            btnSummary.style.fontWeight = '700';
+            btnSummary.style.boxShadow = '0 1px 2px rgba(0,0,0,0.05)';
         }
-
-        let currentCalSectionFilter = 'all';
-        let currentQrSectionFilter = 'all';
-
-
-
-        function switchAdvisorDocOverviewTab(tab) {
-            currentAdvisorDocOverviewTab = tab;
-            const btnSummary = document.getElementById('adv-doc-tab-summary-btn');
-            const btnMatrix = document.getElementById('adv-doc-tab-matrix-btn');
-            const viewSummary = document.getElementById('adv-doc-summary-view');
-            const viewMatrix = document.getElementById('adv-doc-matrix-view');
-
-            if (tab === 'summary') {
-                if (btnSummary) {
-                    btnSummary.style.background = '#ffffff';
-                    btnSummary.style.color = 'var(--primary-color)';
-                    btnSummary.style.fontWeight = '700';
-                    btnSummary.style.boxShadow = '0 1px 2px rgba(0,0,0,0.05)';
-                }
-                if (btnMatrix) {
-                    btnMatrix.style.background = 'transparent';
-                    btnMatrix.style.color = '#64748b';
-                    btnMatrix.style.fontWeight = '600';
-                    btnMatrix.style.boxShadow = 'none';
-                }
-                if (viewSummary) viewSummary.style.display = 'block';
-                if (viewMatrix) viewMatrix.style.display = 'none';
-                renderAdvisorDocOverview();
-            } else {
-                if (btnSummary) {
-                    btnSummary.style.background = 'transparent';
-                    btnSummary.style.color = '#64748b';
-                    btnSummary.style.fontWeight = '600';
-                    btnSummary.style.boxShadow = 'none';
-                }
-                if (btnMatrix) {
-                    btnMatrix.style.background = '#ffffff';
-                    btnMatrix.style.color = 'var(--primary-color)';
-                    btnMatrix.style.fontWeight = '700';
-                    btnMatrix.style.boxShadow = '0 1px 2px rgba(0,0,0,0.05)';
-                }
-                if (viewSummary) viewSummary.style.display = 'none';
-                if (viewMatrix) viewMatrix.style.display = 'block';
-                renderAdvisorDocMatrixTable();
-            }
+        if (btnMatrix) {
+            btnMatrix.style.background = 'transparent';
+            btnMatrix.style.color = '#64748b';
+            btnMatrix.style.fontWeight = '600';
+            btnMatrix.style.boxShadow = 'none';
         }
-
-        function setAdvisorDocSectionFilter(filter) {
-            currentAdvisorDocSectionFilter = filter;
-            const btnAll = document.getElementById('adv-doc-sec-filter-all');
-            const btnNorm = document.getElementById('adv-doc-sec-filter-norm');
-            const btnSpec = document.getElementById('adv-doc-sec-filter-spec');
-
-            [btnAll, btnNorm, btnSpec].forEach(btn => {
-                if (btn) {
-                    btn.style.background = '#ffffff';
-                    btn.style.color = '#475569';
-                    btn.style.borderColor = 'var(--border-color)';
-                }
-            });
-
-            const activeBtn = filter === 'normal' ? btnNorm : (filter === 'special' ? btnSpec : btnAll);
-            if (activeBtn) {
-                activeBtn.style.background = 'var(--primary-color)';
-                activeBtn.style.color = '#ffffff';
-                activeBtn.style.borderColor = 'var(--primary-color)';
-            }
-
-            renderAdvisorDocOverview();
+        if (viewSummary) viewSummary.style.display = 'block';
+        if (viewMatrix) viewMatrix.style.display = 'none';
+        renderAdvisorDocOverview();
+    } else {
+        if (btnSummary) {
+            btnSummary.style.background = 'transparent';
+            btnSummary.style.color = '#64748b';
+            btnSummary.style.fontWeight = '600';
+            btnSummary.style.boxShadow = 'none';
         }
+        if (btnMatrix) {
+            btnMatrix.style.background = '#ffffff';
+            btnMatrix.style.color = 'var(--primary-color)';
+            btnMatrix.style.fontWeight = '700';
+            btnMatrix.style.boxShadow = '0 1px 2px rgba(0,0,0,0.05)';
+        }
+        if (viewSummary) viewSummary.style.display = 'none';
+        if (viewMatrix) viewMatrix.style.display = 'block';
+        renderAdvisorDocMatrixTable();
+    }
+}
 
-        function renderAdvisorDocOverview() {
-            const container = document.getElementById('adv-doc-summary-cards-container');
-            if (!container) return;
+function setAdvisorDocSectionFilter(filter) {
+    currentAdvisorDocSectionFilter = filter;
+    const btnAll = document.getElementById('adv-doc-sec-filter-all');
+    const btnNorm = document.getElementById('adv-doc-sec-filter-norm');
+    const btnSpec = document.getElementById('adv-doc-sec-filter-spec');
 
-            loadDynamicStudentsData();
-            const { mySecNormal, mySecSpecial, loggedInUser } = getAdvisorSections();
-            const allAsgs = getCoopAssignments();
-            const allDocs = getSubmittedDocs();
+    [btnAll, btnNorm, btnSpec].forEach(btn => {
+        if (btn) {
+            btn.style.background = '#ffffff';
+            btn.style.color = '#475569';
+            btn.style.borderColor = 'var(--border-color)';
+        }
+    });
 
-            let normStds = studentsData[mySecNormal] || [];
-            let specStds = studentsData[mySecSpecial] || [];
+    const activeBtn = filter === 'normal' ? btnNorm : (filter === 'special' ? btnSpec : btnAll);
+    if (activeBtn) {
+        activeBtn.style.background = 'var(--primary-color)';
+        activeBtn.style.color = '#ffffff';
+        activeBtn.style.borderColor = 'var(--primary-color)';
+    }
 
-            if (advisorSelectedSemester && advisorSelectedSemester !== 'all') {
-                normStds = normStds.filter(s => (s.semester || 'ภาคต้น 2569') === advisorSelectedSemester);
-                specStds = specStds.filter(s => (s.semester || 'ภาคต้น 2569') === advisorSelectedSemester);
-            }
+    renderAdvisorDocOverview();
+}
 
-            // Update Section Filter Buttons label with section names & counts
-            const btnNorm = document.getElementById('adv-doc-sec-filter-norm');
-            if (btnNorm) btnNorm.textContent = `${mySecNormal} (${normStds.length})`;
-            const btnSpec = document.getElementById('adv-doc-sec-filter-spec');
-            if (btnSpec) btnSpec.textContent = `${mySecSpecial} (${specStds.length})`;
-            const btnAll = document.getElementById('adv-doc-sec-filter-all');
-            if (btnAll) btnAll.textContent = `ทั้ง 2 หมู่เรียน (${normStds.length + specStds.length})`;
+function renderAdvisorDocOverview() {
+    const container = document.getElementById('adv-doc-summary-cards-container');
+    if (!container) return;
 
-            // Active list based on filter
-            let activeStds = [];
-            if (currentAdvisorDocSectionFilter === 'normal') {
-                activeStds = normStds;
-            } else if (currentAdvisorDocSectionFilter === 'special') {
-                activeStds = specStds;
-            } else {
-                activeStds = [...normStds, ...specStds];
-            }
+    loadDynamicStudentsData();
+    const { mySecNormal, mySecSpecial, loggedInUser } = getAdvisorSections();
+    const allAsgs = getCoopAssignments();
+    const allDocs = getSubmittedDocs();
 
-            const totalStudents = activeStds.length;
-            const subtitleEl = document.getElementById('adv-doc-overview-subtitle');
-            if (subtitleEl) {
-                const semText = advisorSelectedSemester === 'all' ? 'ทุกภาคการศึกษา' : (advisorSelectedSemester || 'ภาคต้น 2569');
-                const filterDesc = currentAdvisorDocSectionFilter === 'normal' ? ` (${mySecNormal})` : (currentAdvisorDocSectionFilter === 'special' ? ` (${mySecSpecial})` : '');
-                subtitleEl.textContent = `อาจารย์: ${loggedInUser ? loggedInUser.name : 'อาจารย์'} | ดูแล ${mySecNormal} และ ${mySecSpecial} | ภาคการศึกษา: ${semText} (นิสิต ${totalStudents} คน${filterDesc})`;
-            }
+    let normStds = studentsData[mySecNormal] || [];
+    let specStds = studentsData[mySecSpecial] || [];
 
-            // Calculate total submissions across all assignments
-            const totalRequiredSubmissions = totalStudents * allAsgs.length;
-            let actualSubmissions = 0;
+    if (advisorSelectedSemester && advisorSelectedSemester !== 'all') {
+        normStds = normStds.filter(s => (s.semester || 'ภาคต้น 2569') === advisorSelectedSemester);
+        specStds = specStds.filter(s => (s.semester || 'ภาคต้น 2569') === advisorSelectedSemester);
+    }
 
-            allAsgs.forEach(asg => {
-                activeStds.forEach(std => {
-                    const hasSubmitted = allDocs.some(d => 
-                        (String(d.studentId) === String(std.id) || (std.email && d.email === std.email)) &&
-                        (d.docType === asg.docType || d.docType === asg.title)
-                    );
-                    if (hasSubmitted) actualSubmissions++;
-                });
-            });
+    // Update Section Filter Buttons label with section names & counts
+    const btnNorm = document.getElementById('adv-doc-sec-filter-norm');
+    if (btnNorm) btnNorm.textContent = `${mySecNormal} (${normStds.length})`;
+    const btnSpec = document.getElementById('adv-doc-sec-filter-spec');
+    if (btnSpec) btnSpec.textContent = `${mySecSpecial} (${specStds.length})`;
+    const btnAll = document.getElementById('adv-doc-sec-filter-all');
+    if (btnAll) btnAll.textContent = `ทั้ง 2 หมู่เรียน (${normStds.length + specStds.length})`;
 
-            const overallPercent = totalRequiredSubmissions > 0 ? Math.round((actualSubmissions / totalRequiredSubmissions) * 100) : 0;
-            const overallStatPill = document.getElementById('adv-doc-overall-stat-pill');
-            if (overallStatPill) {
-                overallStatPill.innerHTML = `ภาพรวมการส่งเอกสาร: <strong style="color: #047857;">${actualSubmissions}/${totalRequiredSubmissions} รายการ</strong> (${overallPercent}%)`;
-            }
+    // Active list based on filter
+    let activeStds = [];
+    if (currentAdvisorDocSectionFilter === 'normal') {
+        activeStds = normStds;
+    } else if (currentAdvisorDocSectionFilter === 'special') {
+        activeStds = specStds;
+    } else {
+        activeStds = [...normStds, ...specStds];
+    }
 
-            container.innerHTML = '';
-            if (totalStudents === 0) {
-                container.innerHTML = `
+    const totalStudents = activeStds.length;
+    const subtitleEl = document.getElementById('adv-doc-overview-subtitle');
+    if (subtitleEl) {
+        const semText = advisorSelectedSemester === 'all' ? 'ทุกภาคการศึกษา' : (advisorSelectedSemester || 'ภาคต้น 2569');
+        const filterDesc = currentAdvisorDocSectionFilter === 'normal' ? ` (${mySecNormal})` : (currentAdvisorDocSectionFilter === 'special' ? ` (${mySecSpecial})` : '');
+        subtitleEl.textContent = `อาจารย์: ${loggedInUser ? loggedInUser.name : 'อาจารย์'} | ดูแล ${mySecNormal} และ ${mySecSpecial} | ภาคการศึกษา: ${semText} (นิสิต ${totalStudents} คน${filterDesc})`;
+    }
+
+    // Calculate total submissions across all assignments
+    const totalRequiredSubmissions = totalStudents * allAsgs.length;
+    let actualSubmissions = 0;
+
+    allAsgs.forEach(asg => {
+        activeStds.forEach(std => {
+            const hasSubmitted = allDocs.some(d =>
+                (String(d.studentId) === String(std.id) || (std.email && d.email === std.email)) &&
+                (d.docType === asg.docType || d.docType === asg.title)
+            );
+            if (hasSubmitted) actualSubmissions++;
+        });
+    });
+
+    const overallPercent = totalRequiredSubmissions > 0 ? Math.round((actualSubmissions / totalRequiredSubmissions) * 100) : 0;
+    const overallStatPill = document.getElementById('adv-doc-overall-stat-pill');
+    if (overallStatPill) {
+        overallStatPill.innerHTML = `ภาพรวมการส่งเอกสาร: <strong style="color: #047857;">${actualSubmissions}/${totalRequiredSubmissions} รายการ</strong> (${overallPercent}%)`;
+    }
+
+    container.innerHTML = '';
+    if (totalStudents === 0) {
+        container.innerHTML = `
                     <div style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); font-size: 12px; padding: 32px; background: #f8fafc; border-radius: 8px; border: 1px dashed var(--border-color);">
                         ไม่มีข้อมูลนิสิตใน ${currentAdvisorDocSectionFilter === 'normal' ? mySecNormal : (currentAdvisorDocSectionFilter === 'special' ? mySecSpecial : '2 หมู่เรียนนี้')} สำหรับภาคการศึกษาที่เลือก
                     </div>`;
-                renderAdvisorDocMatrixTable();
-                return;
-            }
+        renderAdvisorDocMatrixTable();
+        return;
+    }
 
-            allAsgs.forEach((asg, index) => {
-                // Count submitted, approved, pending for active students
-                let submittedCount = 0;
-                let approvedCount = 0;
-                let pendingCount = 0;
+    allAsgs.forEach((asg, index) => {
+        // Count submitted, approved, pending for active students
+        let submittedCount = 0;
+        let approvedCount = 0;
+        let pendingCount = 0;
 
-                // Also count by normal and special for breakdown
-                let normSubCount = 0;
-                let specSubCount = 0;
+        // Also count by normal and special for breakdown
+        let normSubCount = 0;
+        let specSubCount = 0;
 
-                normStds.forEach(std => {
-                    const hasSubmitted = allDocs.some(d => 
-                        (String(d.studentId) === String(std.id) || (std.email && d.email === std.email)) &&
-                        (d.docType === asg.docType || d.docType === asg.title)
-                    );
-                    if (hasSubmitted) normSubCount++;
-                });
+        normStds.forEach(std => {
+            const hasSubmitted = allDocs.some(d =>
+                (String(d.studentId) === String(std.id) || (std.email && d.email === std.email)) &&
+                (d.docType === asg.docType || d.docType === asg.title)
+            );
+            if (hasSubmitted) normSubCount++;
+        });
 
-                specStds.forEach(std => {
-                    const hasSubmitted = allDocs.some(d => 
-                        (String(d.studentId) === String(std.id) || (std.email && d.email === std.email)) &&
-                        (d.docType === asg.docType || d.docType === asg.title)
-                    );
-                    if (hasSubmitted) specSubCount++;
-                });
+        specStds.forEach(std => {
+            const hasSubmitted = allDocs.some(d =>
+                (String(d.studentId) === String(std.id) || (std.email && d.email === std.email)) &&
+                (d.docType === asg.docType || d.docType === asg.title)
+            );
+            if (hasSubmitted) specSubCount++;
+        });
 
-                activeStds.forEach(std => {
-                    const matchDocs = allDocs.filter(d => 
-                        (String(d.studentId) === String(std.id) || (std.email && d.email === std.email)) &&
-                        (d.docType === asg.docType || d.docType === asg.title)
-                    );
-                    if (matchDocs.length > 0) {
-                        submittedCount++;
-                        if (matchDocs[0].status === 'ครบถ้วน' || matchDocs[0].status === 'ตรวจรับแล้ว') {
-                            approvedCount++;
-                        } else {
-                            pendingCount++;
-                        }
-                    }
-                });
-
-                const unsubmittedCount = Math.max(0, totalStudents - submittedCount);
-                const percent = totalStudents > 0 ? Math.round((submittedCount / totalStudents) * 100) : 0;
-
-                const badgeBg = percent === 100 ? '#dcfce7' : (percent >= 50 ? '#dbeafe' : '#fef3c7');
-                const badgeColor = percent === 100 ? '#15803d' : (percent >= 50 ? '#1e40af' : '#b45309');
-                const progressBarColor = percent === 100 ? 'linear-gradient(90deg, #10b981, #059669)' : (percent >= 50 ? 'linear-gradient(90deg, #3b82f6, #2563eb)' : 'linear-gradient(90deg, #f59e0b, #d97706)');
-
-                let dueFormatted = asg.dueDate || '-';
-                if (asg.dueDate) {
-                    try {
-                        const d = new Date(asg.dueDate);
-                        dueFormatted = d.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' });
-                    } catch (e) {}
+        activeStds.forEach(std => {
+            const matchDocs = allDocs.filter(d =>
+                (String(d.studentId) === String(std.id) || (std.email && d.email === std.email)) &&
+                (d.docType === asg.docType || d.docType === asg.title)
+            );
+            if (matchDocs.length > 0) {
+                submittedCount++;
+                if (matchDocs[0].status === 'ครบถ้วน' || matchDocs[0].status === 'ตรวจรับแล้ว') {
+                    approvedCount++;
+                } else {
+                    pendingCount++;
                 }
+            }
+        });
 
-                let docCode = `Doc ${index + 1}`;
-                if (asg.title.includes('สัดส่วนการทำงานร่วมกัน')) docCode = 'คู-01 (สัดส่วนงาน)';
-                else if (asg.title.includes('Form 02')) docCode = 'Form 02 (นิเทศ)';
-                else if (asg.title.includes('Form 04')) docCode = 'Form 04 (ที่พัก)';
-                else if (asg.title.includes('Form 05')) docCode = 'Form 05 (ตำแหน่ง/Mentor)';
-                else if (asg.title.includes('Form 06')) docCode = 'Form 06 (Weekly)';
-                else if (asg.title.includes('Form 11')) docCode = 'Form 11 (Final)';
+        const unsubmittedCount = Math.max(0, totalStudents - submittedCount);
+        const percent = totalStudents > 0 ? Math.round((submittedCount / totalStudents) * 100) : 0;
 
-                const card = document.createElement('div');
-                card.style.background = '#ffffff';
-                card.style.border = '1px solid var(--border-color)';
-                card.style.borderRadius = '10px';
-                card.style.padding = '14px 16px';
-                card.style.boxShadow = '0 1px 3px rgba(0,0,0,0.03)';
-                card.style.display = 'flex';
-                card.style.flexDirection = 'column';
-                card.style.justifyContent = 'space-between';
-                card.style.transition = 'transform 0.15s ease, box-shadow 0.15s ease';
-                card.onmouseenter = () => { card.style.transform = 'translateY(-2px)'; card.style.boxShadow = '0 4px 12px rgba(0,0,0,0.06)'; };
-                card.onmouseleave = () => { card.style.transform = 'translateY(0)'; card.style.boxShadow = '0 1px 3px rgba(0,0,0,0.03)'; };
+        const badgeBg = percent === 100 ? '#dcfce7' : (percent >= 50 ? '#dbeafe' : '#fef3c7');
+        const badgeColor = percent === 100 ? '#15803d' : (percent >= 50 ? '#1e40af' : '#b45309');
+        const progressBarColor = percent === 100 ? 'linear-gradient(90deg, #10b981, #059669)' : (percent >= 50 ? 'linear-gradient(90deg, #3b82f6, #2563eb)' : 'linear-gradient(90deg, #f59e0b, #d97706)');
 
-                card.innerHTML = `
+        let dueFormatted = asg.dueDate || '-';
+        if (asg.dueDate) {
+            try {
+                const d = new Date(asg.dueDate);
+                dueFormatted = d.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' });
+            } catch (e) { }
+        }
+
+        let docCode = `Doc ${index + 1}`;
+        if (asg.title.includes('สัดส่วนการทำงานร่วมกัน')) docCode = 'คู-01 (สัดส่วนงาน)';
+        else if (asg.title.includes('Form 02')) docCode = 'Form 02 (นิเทศ)';
+        else if (asg.title.includes('Form 04')) docCode = 'Form 04 (ที่พัก)';
+        else if (asg.title.includes('Form 05')) docCode = 'Form 05 (ตำแหน่ง/Mentor)';
+        else if (asg.title.includes('Form 06')) docCode = 'Form 06 (Weekly)';
+        else if (asg.title.includes('Form 11')) docCode = 'Form 11 (Final)';
+
+        const card = document.createElement('div');
+        card.style.background = '#ffffff';
+        card.style.border = '1px solid var(--border-color)';
+        card.style.borderRadius = '10px';
+        card.style.padding = '14px 16px';
+        card.style.boxShadow = '0 1px 3px rgba(0,0,0,0.03)';
+        card.style.display = 'flex';
+        card.style.flexDirection = 'column';
+        card.style.justifyContent = 'space-between';
+        card.style.transition = 'transform 0.15s ease, box-shadow 0.15s ease';
+        card.onmouseenter = () => { card.style.transform = 'translateY(-2px)'; card.style.boxShadow = '0 4px 12px rgba(0,0,0,0.06)'; };
+        card.onmouseleave = () => { card.style.transform = 'translateY(0)'; card.style.boxShadow = '0 1px 3px rgba(0,0,0,0.03)'; };
+
+        card.innerHTML = `
                     <div>
                         <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 8px;">
                             <span style="font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 4px; background: ${badgeBg}; color: ${badgeColor};">
@@ -413,98 +413,98 @@ function updateAdvisorStats() {
                         <span>ดูรายชื่อนิสิต / ตรวจเอกสาร (${submittedCount}/${totalStudents})</span>
                     </button>
                 `;
-                container.appendChild(card);
-            });
+        container.appendChild(card);
+    });
 
-            // Also refresh matrix table
-            renderAdvisorDocMatrixTable();
-        }
+    // Also refresh matrix table
+    renderAdvisorDocMatrixTable();
+}
 
-        function renderAdvisorDocMatrixTable() {
-            const tbody = document.getElementById('adv-doc-matrix-tbody');
-            if (!tbody) return;
-            tbody.innerHTML = '';
+function renderAdvisorDocMatrixTable() {
+    const tbody = document.getElementById('adv-doc-matrix-tbody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
 
-            loadDynamicStudentsData();
-            const { mySecNormal, mySecSpecial } = getAdvisorSections();
-            const allAsgs = getCoopAssignments();
-            const allDocs = getSubmittedDocs();
+    loadDynamicStudentsData();
+    const { mySecNormal, mySecSpecial } = getAdvisorSections();
+    const allAsgs = getCoopAssignments();
+    const allDocs = getSubmittedDocs();
 
-            let normStds = studentsData[mySecNormal] || [];
-            let specStds = studentsData[mySecSpecial] || [];
+    let normStds = studentsData[mySecNormal] || [];
+    let specStds = studentsData[mySecSpecial] || [];
 
-            if (advisorSelectedSemester && advisorSelectedSemester !== 'all') {
-                normStds = normStds.filter(s => (s.semester || 'ภาคต้น 2569') === advisorSelectedSemester);
-                specStds = specStds.filter(s => (s.semester || 'ภาคต้น 2569') === advisorSelectedSemester);
-            }
+    if (advisorSelectedSemester && advisorSelectedSemester !== 'all') {
+        normStds = normStds.filter(s => (s.semester || 'ภาคต้น 2569') === advisorSelectedSemester);
+        specStds = specStds.filter(s => (s.semester || 'ภาคต้น 2569') === advisorSelectedSemester);
+    }
 
-            let stdList = [];
-            if (currentAdvisorDocSectionFilter === 'normal') {
-                stdList = normStds;
-            } else if (currentAdvisorDocSectionFilter === 'special') {
-                stdList = specStds;
-            } else {
-                stdList = [...normStds, ...specStds];
-            }
+    let stdList = [];
+    if (currentAdvisorDocSectionFilter === 'normal') {
+        stdList = normStds;
+    } else if (currentAdvisorDocSectionFilter === 'special') {
+        stdList = specStds;
+    } else {
+        stdList = [...normStds, ...specStds];
+    }
 
-            // Search filter
-            const searchInput = document.getElementById('adv-doc-matrix-search');
-            const searchVal = searchInput ? searchInput.value.trim().toLowerCase() : '';
-            if (searchVal) {
-                stdList = stdList.filter(s => 
-                    (s.id && s.id.toLowerCase().includes(searchVal)) ||
-                    (s.name && s.name.toLowerCase().includes(searchVal)) ||
-                    (s.company && s.company.toLowerCase().includes(searchVal)) ||
-                    (s.company_name && s.company_name.toLowerCase().includes(searchVal)) ||
-                    (s.section && s.section.toLowerCase().includes(searchVal))
-                );
-            }
+    // Search filter
+    const searchInput = document.getElementById('adv-doc-matrix-search');
+    const searchVal = searchInput ? searchInput.value.trim().toLowerCase() : '';
+    if (searchVal) {
+        stdList = stdList.filter(s =>
+            (s.id && s.id.toLowerCase().includes(searchVal)) ||
+            (s.name && s.name.toLowerCase().includes(searchVal)) ||
+            (s.company && s.company.toLowerCase().includes(searchVal)) ||
+            (s.company_name && s.company_name.toLowerCase().includes(searchVal)) ||
+            (s.section && s.section.toLowerCase().includes(searchVal))
+        );
+    }
 
-            const footer = document.getElementById('adv-doc-matrix-footer');
-            if (footer) {
-                const secDesc = currentAdvisorDocSectionFilter === 'normal' ? mySecNormal : (currentAdvisorDocSectionFilter === 'special' ? mySecSpecial : 'ทั้ง 2 หมู่เรียน');
-                footer.innerHTML = `<span>แสดงนิสิต: <strong>${stdList.length} คน</strong> จาก${secDesc}</span>`;
-            }
+    const footer = document.getElementById('adv-doc-matrix-footer');
+    if (footer) {
+        const secDesc = currentAdvisorDocSectionFilter === 'normal' ? mySecNormal : (currentAdvisorDocSectionFilter === 'special' ? mySecSpecial : 'ทั้ง 2 หมู่เรียน');
+        footer.innerHTML = `<span>แสดงนิสิต: <strong>${stdList.length} คน</strong> จาก${secDesc}</span>`;
+    }
 
-            if (stdList.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="11" style="text-align: center; color: var(--text-muted); padding: 24px; font-size: 11.5px;">ไม่พบนิสิตตรงตามเงื่อนไขการค้นหา</td></tr>`;
-                return;
-            }
+    if (stdList.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="11" style="text-align: center; color: var(--text-muted); padding: 24px; font-size: 11.5px;">ไม่พบนิสิตตรงตามเงื่อนไขการค้นหา</td></tr>`;
+        return;
+    }
 
-            stdList.forEach(std => {
-                let submittedCount = 0;
-                const docStatusCells = allAsgs.map(asg => {
-                    const matchDocs = allDocs.filter(d => 
-                        (String(d.studentId) === String(std.id) || (std.email && d.email === std.email)) &&
-                        (d.docType === asg.docType || d.docType === asg.title)
-                    );
-                    if (matchDocs.length > 0) {
-                        submittedCount++;
-                        const doc = matchDocs[0];
-                        const isApproved = doc.status === 'ครบถ้วน' || doc.status === 'ตรวจรับแล้ว';
-                        if (isApproved) {
-                            return `<td style="padding: 8px; text-align: center;">
+    stdList.forEach(std => {
+        let submittedCount = 0;
+        const docStatusCells = allAsgs.map(asg => {
+            const matchDocs = allDocs.filter(d =>
+                (String(d.studentId) === String(std.id) || (std.email && d.email === std.email)) &&
+                (d.docType === asg.docType || d.docType === asg.title)
+            );
+            if (matchDocs.length > 0) {
+                submittedCount++;
+                const doc = matchDocs[0];
+                const isApproved = doc.status === 'ครบถ้วน' || doc.status === 'ตรวจรับแล้ว';
+                if (isApproved) {
+                    return `<td style="padding: 8px; text-align: center;">
                                 <span title="ตรวจรับแล้ว (${doc.docType})" onclick="openAssignmentSubmittersModal('${asg.id}', 'all_my_sections')" style="display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: #dcfce7; color: #15803d; font-size: 12px; font-weight: bold; cursor: pointer;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
                             </td>`;
-                        } else {
-                            return `<td style="padding: 8px; text-align: center;">
+                } else {
+                    return `<td style="padding: 8px; text-align: center;">
                                 <span title="ส่งแล้ว - รอตรวจ (${doc.docType})" onclick="openAssignmentSubmittersModal('${asg.id}', 'all_my_sections')" style="display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: #fef3c7; color: #b45309; font-size: 11px; font-weight: bold; cursor: pointer;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></span>
                             </td>`;
-                        }
-                    } else {
-                        return `<td style="padding: 8px; text-align: center;">
+                }
+            } else {
+                return `<td style="padding: 8px; text-align: center;">
                             <span title="ยังไม่ส่ง (${asg.title})" style="display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: #f1f5f9; color: #94a3b8; font-size: 12px; font-weight: bold;">—</span>
                         </td>`;
-                    }
-                }).join('');
+            }
+        }).join('');
 
-                const isAll = submittedCount === allAsgs.length;
-                const compName = std.company_name || std.company || '-';
-                const secBadgeColor = (std.section || '').includes('80') ? 'background: #ccfbf1; color: #0f766e;' : 'background: #dbeafe; color: #1e40af;';
+        const isAll = submittedCount === allAsgs.length;
+        const compName = std.company_name || std.company || '-';
+        const secBadgeColor = (std.section || '').includes('80') ? 'background: #ccfbf1; color: #0f766e;' : 'background: #dbeafe; color: #1e40af;';
 
-                const tr = document.createElement('tr');
-                tr.style.borderBottom = '1px solid var(--border-color)';
-                tr.innerHTML = `
+        const tr = document.createElement('tr');
+        tr.style.borderBottom = '1px solid var(--border-color)';
+        tr.innerHTML = `
                     <td style="padding: 10px 12px; font-weight: 700; color: #1e3a8a; white-space: nowrap;">${std.id}</td>
                     <td style="padding: 10px 12px; font-weight: 600; color: var(--text-main); white-space: nowrap;">${std.name}</td>
                     <td style="padding: 10px 12px; white-space: nowrap;">
@@ -520,40 +520,40 @@ function updateAdvisorStats() {
                         </span>
                     </td>
                 `;
-                tbody.appendChild(tr);
-            });
-        }
+        tbody.appendChild(tr);
+    });
+}
 
 
 
-        function openMapForStudent(stdId) {
-            // ค้นหาจาก studentsData ก่อน
-            const allStds = getAllSystemStudents();
-            let std = allStds.find(s => String(s.id) === String(stdId) || String(s.student_id) === String(stdId));
+function openMapForStudent(stdId) {
+    // ค้นหาจาก studentsData ก่อน
+    const allStds = getAllSystemStudents();
+    let std = allStds.find(s => String(s.id) === String(stdId) || String(s.student_id) === String(stdId));
 
-            // Fallback: ค้นหาจาก customUsers (localStorage) ซึ่งนำเข้าจาก Excel
-            if (!std || (!std.company_lat && !std.company_lng)) {
-                const customUsers = JSON.parse(localStorage.getItem('customUsers') || '{}');
-                const userEntry = Object.values(customUsers).find(u =>
-                    String(u.student_id || u.id) === String(stdId)
-                );
-                if (userEntry) std = userEntry;
-            }
+    // Fallback: ค้นหาจาก customUsers (localStorage) ซึ่งนำเข้าจาก Excel
+    if (!std || (!std.company_lat && !std.company_lng)) {
+        const customUsers = JSON.parse(localStorage.getItem('customUsers') || '{}');
+        const userEntry = Object.values(customUsers).find(u =>
+            String(u.student_id || u.id) === String(stdId)
+        );
+        if (userEntry) std = userEntry;
+    }
 
-            if (std && std.company_lat && std.company_lng) {
-                const lat = std.company_lat;
-                const lng = std.company_lng;
-                const name = encodeURIComponent(std.company_name || std.company || 'สถานประกอบการ');
-                const url = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}&query_place_id=${name}`;
-                window.open(url, '_blank');
-            } else if (std && std.company_name) {
-                // ถ้าไม่มีพิกัดแต่มีชื่อสถานประกอบการ ให้ค้นหาด้วยชื่อแทน
-                const name = encodeURIComponent(std.company_name || std.company);
-                const url = `https://www.google.com/maps/search/?api=1&query=${name}`;
-                window.open(url, '_blank');
-            } else {
-                alert('ไม่พบพิกัดสถานประกอบการ กรุณาตรวจสอบว่าไฟล์ Excel มีคอลัมน์ "พิกัด" รูปแบบ "14.076, 100.601" หรือไม่');
-            }
-        }
+    if (std && std.company_lat && std.company_lng) {
+        const lat = std.company_lat;
+        const lng = std.company_lng;
+        const name = encodeURIComponent(std.company_name || std.company || 'สถานประกอบการ');
+        const url = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}&query_place_id=${name}`;
+        window.open(url, '_blank');
+    } else if (std && std.company_name) {
+        // ถ้าไม่มีพิกัดแต่มีชื่อสถานประกอบการ ให้ค้นหาด้วยชื่อแทน
+        const name = encodeURIComponent(std.company_name || std.company);
+        const url = `https://www.google.com/maps/search/?api=1&query=${name}`;
+        window.open(url, '_blank');
+    } else {
+        alert('ไม่พบพิกัดสถานประกอบการ กรุณาตรวจสอบว่าไฟล์ Excel มีคอลัมน์ "พิกัด" รูปแบบ "14.076, 100.601" หรือไม่');
+    }
+}
 
-        // --- Notification & Student Project Tracking Logic ---
+// --- Notification & Student Project Tracking Logic ---

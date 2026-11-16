@@ -204,6 +204,8 @@ let activeCameraStream = null;
             let matchedId = null;
             let scannedTargetLat = null;
             let scannedTargetLng = null;
+            let scannedCompany = null;
+            let scannedName = null;
 
             // 1. ถอดรหัสกรณี QR Code เป็น JSON ที่มีพิกัดสถานประกอบการที่นิสิตตั้งไว้
             try {
@@ -215,17 +217,22 @@ let activeCameraStream = null;
                             scannedTargetLat = parseFloat(parsed.lat);
                             scannedTargetLng = parseFloat(parsed.lng);
                         }
+                        if (parsed.company) scannedCompany = parsed.company;
+                        if (parsed.name) scannedName = parsed.name;
                     }
                 }
             } catch (e) {}
 
-            // 2. ถอดรหัสกรณี QR Code ส่งมาในรูปแบบ Pipe (เช่น 6521655442|13.847621|100.569432)
+            // 2. ถอดรหัสกรณี QR Code ส่งมาในรูปแบบ Pipe (เช่น 6521650123|14.015646|99.990596|มณเฑียรทร์ เทคโนโลยี)
             if (!matchedId && payloadStr.includes('|')) {
                 const parts = payloadStr.split('|');
                 if (parts[0]) matchedId = parts[0].trim();
                 if (parts[1] && parts[2]) {
                     scannedTargetLat = parseFloat(parts[1]);
                     scannedTargetLng = parseFloat(parts[2]);
+                }
+                if (parts[3]) {
+                    scannedCompany = parts[3].trim();
                 }
             }
 
@@ -265,19 +272,29 @@ let activeCameraStream = null;
                 studentSelect.value = matchedId;
             }
 
-            // บันทึกพิกัดที่ดึงได้จาก QR Code เข้าสู่เครื่องอาจารย์ทันที
+            // บันทึกพิกัดและชื่อสถานประกอบการที่ดึงได้จาก QR Code เข้าสู่เครื่องอาจารย์ทันที
             if (matchedId && scannedTargetLat && scannedTargetLng) {
                 const allStds = getAllSystemStudents();
                 const sObj = allStds.find(s => String(s.id) === String(matchedId));
                 if (sObj) {
                     sObj.company_lat = scannedTargetLat;
                     sObj.company_lng = scannedTargetLng;
+                    if (scannedCompany) {
+                        sObj.company = scannedCompany;
+                        sObj.company_name = scannedCompany;
+                    }
+                    if (scannedName) sObj.name = scannedName;
                 }
                 try {
                     const customUsers = JSON.parse(localStorage.getItem('customUsers') || '{}');
                     if (!customUsers[matchedId]) customUsers[matchedId] = {};
                     customUsers[matchedId].company_lat = scannedTargetLat;
                     customUsers[matchedId].company_lng = scannedTargetLng;
+                    if (scannedCompany) {
+                        customUsers[matchedId].company = scannedCompany;
+                        customUsers[matchedId].company_name = scannedCompany;
+                    }
+                    if (scannedName) customUsers[matchedId].name = scannedName;
                     localStorage.setItem('customUsers', JSON.stringify(customUsers));
                 } catch (e) {}
             }
@@ -298,7 +315,7 @@ let activeCameraStream = null;
                 }, 150);
             } catch (e) {}
 
-            processCheckinAndEval(matchedId, scannedTargetLat, scannedTargetLng);
+            processCheckinAndEval(matchedId, scannedTargetLat, scannedTargetLng, scannedCompany, scannedName);
         }
         
         // Haversine Distance Calculation Formula (คำนวณระยะทางบนผิวโลก หน่วยเป็นเมตร)
@@ -317,7 +334,7 @@ let activeCameraStream = null;
             return Math.round(R * c); // ระยะทางจริงเป็นเมตร
         }
 
-        function processCheckinAndEval(explicitStudentId, explicitTargetLat, explicitTargetLng) {
+        function processCheckinAndEval(explicitStudentId, explicitTargetLat, explicitTargetLng, explicitCompanyName, explicitStudentName) {
             const studentSelect = document.getElementById('qr-scan-student-select');
             let studentId = explicitStudentId || (studentSelect ? studentSelect.value : '');
 
@@ -335,18 +352,20 @@ let activeCameraStream = null;
             if (studentSelect) studentSelect.value = studentId;
             currentSelectedStudentId = studentId;
 
-            let stdName = 'นิสิต';
-            let stdCompany = 'สถานประกอบการ';
+            let stdName = explicitStudentName || 'นิสิต';
+            let stdCompany = explicitCompanyName || 'สถานประกอบการ';
             const allStds = getAllSystemStudents();
             const stdObj = allStds.find(s => String(s.id) === String(studentId));
             if (stdObj) {
-                stdName = stdObj.name;
-                stdCompany = stdObj.company && stdObj.company !== '-' ? stdObj.company : (stdObj.company_name || 'สถานประกอบการ (พิกัด GPS)');
+                if (!explicitStudentName && stdObj.name) stdName = stdObj.name;
+                if (!explicitCompanyName) {
+                    stdCompany = stdObj.company && stdObj.company !== '-' ? stdObj.company : (stdObj.company_name || 'สถานประกอบการ (พิกัด GPS)');
+                }
             }
 
             // 1. ดึงพิกัดสถานประกอบการตามที่นิสิตตั้งไว้จริง (Target Workplace Coordinates)
-            let targetLat = explicitTargetLat || null;
-            let targetLng = explicitTargetLng || null;
+            let targetLat = (explicitTargetLat !== undefined && explicitTargetLat !== null && !isNaN(explicitTargetLat)) ? parseFloat(explicitTargetLat) : null;
+            let targetLng = (explicitTargetLng !== undefined && explicitTargetLng !== null && !isNaN(explicitTargetLng)) ? parseFloat(explicitTargetLng) : null;
 
             if (!targetLat || !targetLng) {
                 try {
@@ -358,6 +377,9 @@ let activeCameraStream = null;
                     if (u && u.company_lat && u.company_lng) {
                         targetLat = parseFloat(u.company_lat);
                         targetLng = parseFloat(u.company_lng);
+                        if (!explicitCompanyName && (u.company_name || u.company)) {
+                            stdCompany = u.company_name || u.company;
+                        }
                     }
                 } catch (e) {}
             }
