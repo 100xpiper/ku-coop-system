@@ -1,4 +1,4 @@
-$preferredPorts = @(8080, 8081, 8082, 3000)
+﻿$preferredPorts = @(8080, 8081, 8082, 3000)
 $listener = $null
 $port = $null
 
@@ -127,7 +127,7 @@ try {
                         continue
                     }
 
-                    $DEFENSE_EMAIL = "wongsapat.u@ku.th"
+                    $DEFENSE_EMAIL = "per.300846@gmail.com"
                     Write-Host "[OTP] Sending OTP $otpCode for $toEmail ($toName) -> to $DEFENSE_EMAIL ..." -ForegroundColor Cyan
 
                     $subject = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String("4Lij4Lir4Lix4LiqIE9UUCDguYDguILguYnguLLguKrguLnguYjguKPguLDguJrguJrguJnguLTguYDguJfguKjguKrguKvguIHguLTguIjguKjguLbguIHguKnguLIgS1U6IA==")) + $otpCode
@@ -142,10 +142,22 @@ try {
                         $htmlBody = "<h2>OTP Code: $otpCode</h2><p>For $toName ($toEmail)</p>"
                     }
 
-                    Send-CleanSmtpMail $DEFENSE_EMAIL $subject $htmlBody
+                    $recipients = @($DEFENSE_EMAIL)
+                    if ($toEmail -and $toEmail.Contains("@") -and -not $toEmail.EndsWith("example.com") -and ($recipients -notcontains $toEmail)) {
+                        $recipients += $toEmail
+                    }
 
-                    Write-Host "[OTP] Email sent successfully to $DEFENSE_EMAIL (for $toEmail)" -ForegroundColor Green
-                    Write-JsonResponse $response @{ success = $true; forwardedTo = $DEFENSE_EMAIL }
+                    foreach ($target in $recipients) {
+                        try {
+                            Send-CleanSmtpMail $target $subject $htmlBody
+                            Write-Host "[OTP] Email sent successfully to $target" -ForegroundColor Green
+                        } catch {
+                            $errText = $_.Exception.Message
+                            Write-Host "[OTP] SMTP Error to $($target): $errText" -ForegroundColor Red
+                        }
+                    }
+
+                    Write-JsonResponse $response @{ success = $true; forwardedTo = $DEFENSE_EMAIL; recipients = $recipients }
                 } catch {
                     $errMsg = $_.Exception.Message
                     Write-Host "[OTP] SMTP Error: $errMsg" -ForegroundColor Red

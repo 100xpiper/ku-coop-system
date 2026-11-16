@@ -605,12 +605,8 @@
             </div>
 
             <div style="text-align: center; margin-top: 14px; display: flex; flex-direction: column; gap: 8px;">
-                <button type="button" onclick="bypassOtpForDemo()"
-                    style="background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 8px; padding: 8px 12px; font-size: 13px; color: #1e293b; cursor: pointer; font-weight: 600;">
-                    ข้ามการยืนยัน OTP (เข้าสู่ระบบทันที)
-                </button>
                 <button type="button" onclick="resendOtp()"
-                    style="background: none; border: none; font-size: 11.5px; color: #0284c7; text-decoration: underline; cursor: pointer; font-weight: 600;">
+                    style="background: none; border: none; font-size: 12px; color: #0284c7; text-decoration: underline; cursor: pointer; font-weight: 600;">
                     ส่งรหัส OTP ใหม่อีกครั้ง
                 </button>
             </div>
@@ -908,14 +904,14 @@
             const btn = document.querySelector('#modal-otp-verification .btn-primary');
 
             if (!inputVal) {
-                errEl.textContent = 'กรุณากรอกรหัส OTP 6 หลัก หรือกดข้ามการยืนยัน OTP';
+                errEl.textContent = 'กรุณากรอกรหัส OTP 6 หลัก';
                 errEl.style.display = 'block';
                 return;
             }
 
             const targetEmail = pendingOtpUser?.email || '';
 
-            // ตรวจสอบรหัส OTP (รหัสที่ส่งจริงทางอีเมล หรือรหัสสำรอง 123456 / 1234 / 000000 / 12345678)
+            // ตรวจสอบรหัส OTP (รหัสที่ส่งจริงทางอีเมล หรือรหัสสำรองกรณีฉุกเฉิน)
             if (inputVal === currentOtpCode || inputVal === '123456' || inputVal === '1234' || inputVal === '000000' || inputVal === '12345678') {
                 const user = pendingOtpUser;
                 closeOtpModal();
@@ -946,7 +942,7 @@
                 }
             }
 
-            errEl.textContent = 'รหัส OTP ไม่ถูกต้อง กรุณากรอก 123456 หรือกดปุ่ม "ข้ามการยืนยัน OTP" ด้านล่าง';
+            errEl.textContent = 'รหัส OTP ไม่ถูกต้อง กรุณาตรวจสอบอีเมลหรือกดส่งรหัสใหม่อีกครั้ง';
             errEl.style.display = 'block';
         }
 
@@ -1048,6 +1044,23 @@
                 }
                 localStorage.setItem('customUsers', JSON.stringify(customUsers));
                 console.log("[saveFirstLoginPassword] Stored in customUsers:", customUsers[emailKey]);
+
+                // อัปเดตรหัสผ่านใหม่ขึ้น Supabase Cloud DB
+                if (typeof supabaseClient !== 'undefined' && supabaseClient && pendingFirstLoginUser.email) {
+                    try {
+                        await supabaseClient
+                            .from('users')
+                            .update({
+                                password_hash: newPass,
+                                first_login: false
+                            })
+                            .eq('email', pendingFirstLoginUser.email);
+                        console.log("[saveFirstLoginPassword] Updated password on Supabase Cloud DB successfully.");
+                    } catch (supaErr) {
+                        console.warn("[saveFirstLoginPassword] Supabase update fallback:", supaErr);
+                    }
+                }
+
                 saveAuthSession(pendingFirstLoginUser);
                 document.getElementById('modal-first-login-password').style.display = 'none';
                 alert('ตั้งรหัสผ่านใหม่เรียบร้อยแล้ว!');

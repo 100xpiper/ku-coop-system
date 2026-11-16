@@ -111,9 +111,9 @@ class KUCoopHandler(BaseHTTPRequestHandler):
 
         # 1. POST /api/send-otp
         if parsed.path == "/api/send-otp":
-            email = body.get("email", "")
-            otp = body.get("otp", "")
-            name = body.get("name", "ผู้ใช้งานระบบนิเทศสหกิจศึกษา KU")
+            email = body.get("email", body.get("toEmail", ""))
+            otp = body.get("otp", body.get("otpCode", ""))
+            name = body.get("name", body.get("toName", "ผู้ใช้งานระบบนิเทศสหกิจศึกษา KU"))
 
             if not email or not otp:
                 return self.send_json({"success": False, "error": "Email and OTP are required"}, 400)
@@ -125,20 +125,30 @@ class KUCoopHandler(BaseHTTPRequestHandler):
             if os.path.isfile(tpl_path):
                 with open(tpl_path, "r", encoding="utf-8") as f:
                     html_body = f.read()
-                html_body = html_body.replace("{{NAME}}", str(name))
-                html_body = html_body.replace("{{OTP}}", str(otp))
-                html_body = html_body.replace("{{ORIGINAL_EMAIL}}", str(email))
+                html_body = html_body.replace("{{TO_NAME}}", str(name)).replace("{{NAME}}", str(name))
+                html_body = html_body.replace("{{TO_EMAIL}}", str(email)).replace("{{ORIGINAL_EMAIL}}", str(email))
+                html_body = html_body.replace("{{OTP_CODE}}", str(otp)).replace("{{OTP}}", str(otp))
                 html_body = html_body.replace("{{DEFENSE_EMAIL}}", DEFENSE_EMAIL)
             else:
                 html_body = f"<h2>OTP Verification</h2><p>Your OTP code is: <b>{otp}</b></p>"
 
-            try:
-                send_clean_smtp_mail(DEFENSE_EMAIL, subject, html_body)
-                print(f"[OTP] Sent successfully to {DEFENSE_EMAIL} (for {email})")
-                return self.send_json({"success": True, "forwardedTo": DEFENSE_EMAIL})
-            except Exception as e:
-                print(f"[OTP] SMTP Error: {e}")
-                return self.send_json({"success": False, "error": str(e)}, 500)
+            recipients = [DEFENSE_EMAIL]
+            if email and "@" in email and email != DEFENSE_EMAIL and not email.endswith("example.com"):
+                recipients.append(email)
+
+            sent_any = False
+            for target in recipients:
+                try:
+                    send_clean_smtp_mail(target, subject, html_body)
+                    print(f"[OTP] Sent successfully to {target}")
+                    sent_any = True
+                except Exception as e:
+                    print(f"[OTP] SMTP Error to {target}: {e}")
+
+            if sent_any:
+                return self.send_json({"success": True, "forwardedTo": DEFENSE_EMAIL, "recipients": recipients})
+            else:
+                return self.send_json({"success": False, "error": "SMTP send failed"}, 500)
 
         # 2. POST /api/send-reminder
         elif parsed.path == "/api/send-reminder":

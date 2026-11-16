@@ -419,15 +419,37 @@ async function dbSignIn(email, password) {
 
     if (supabaseClient) {
         try {
+            // ตรวจสอบว่ากรอกอีเมล หรือรหัสประจำตัว (Student ID / Advisor ID)
+            let targetEmail = cleanId;
+            if (!targetEmail.includes('@')) {
+                const { data: stdMatch } = await supabaseClient
+                    .from('students')
+                    .select('email')
+                    .eq('student_id', cleanId)
+                    .maybeSingle();
+                if (stdMatch && stdMatch.email) {
+                    targetEmail = String(stdMatch.email).toLowerCase();
+                } else {
+                    const { data: advMatch } = await supabaseClient
+                        .from('advisors')
+                        .select('email')
+                        .ilike('advisor_id', cleanId)
+                        .maybeSingle();
+                    if (advMatch && advMatch.email) {
+                        targetEmail = String(advMatch.email).toLowerCase();
+                    }
+                }
+            }
+
             // Fast timeout query so local fallback is instant if offline or on file:// protocol
             const fetchUserPromise = supabaseClient
                 .from('users')
                 .select('*')
-                .eq('email', email)
+                .eq('email', targetEmail)
                 .maybeSingle();
 
             const timeoutPromise = new Promise((_, reject) =>
-                setTimeout(() => reject(new Error('Supabase network timeout')), 1200)
+                setTimeout(() => reject(new Error('Supabase network timeout')), 1800)
             );
 
             const { data: userByEmail, error: emailErr } = await Promise.race([fetchUserPromise, timeoutPromise]);
@@ -448,7 +470,7 @@ async function dbSignIn(email, password) {
                     const { data: stdData } = await supabaseClient
                         .from('students')
                         .select('*')
-                        .eq('email', email)
+                        .eq('email', targetEmail)
                         .maybeSingle();
                     if (stdData) {
                         existingUser.id = stdData.student_id;
@@ -459,7 +481,7 @@ async function dbSignIn(email, password) {
                     const { data: advData } = await supabaseClient
                         .from('advisors')
                         .select('*')
-                        .eq('email', email)
+                        .eq('email', targetEmail)
                         .maybeSingle();
                     if (advData) {
                         existingUser.id = advData.advisor_id;
