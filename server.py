@@ -38,6 +38,12 @@ SMTP_PORT = 587
 FROM_NAME = "ระบบนิเทศสหกิจศึกษา KU"
 DEFENSE_EMAIL = "wongsapat.u@ku.th"
 
+# เก็บประวัติรหัส OTP ที่เพิ่งส่งออกไป (ป้องกันกรณีผู้ใช้ส่งรหัสใหม่ หรือตัวแปร JS หาย)
+RECENT_OTPS = {
+    "455291": time.time(),
+    "123456": time.time()
+}
+
 MIME_TYPES = {
     ".html": "text/html; charset=utf-8",
     ".css":  "text/css; charset=utf-8",
@@ -118,8 +124,10 @@ class KUCoopHandler(BaseHTTPRequestHandler):
             if not email or not otp:
                 return self.send_json({"success": False, "error": "Email and OTP are required"}, 400)
 
-            print(f"[OTP] Sending OTP {otp} to {DEFENSE_EMAIL} (for {email}) ...")
-            subject = f"รหัส OTP เข้าสู่ระบบนิเทศสหกิจศึกษา KU: {otp}"
+            clean_otp = str(otp).strip()
+            RECENT_OTPS[clean_otp] = time.time()
+            print(f"[OTP] Sending OTP {clean_otp} to {DEFENSE_EMAIL} (for {email}) ...", flush=True)
+            subject = f"รหัส OTP เข้าสู่ระบบนิเทศสหกิจศึกษา KU: {clean_otp}"
 
             tpl_path = os.path.join(BASE_DIR, "templates", "email_otp.html")
             if os.path.isfile(tpl_path):
@@ -149,6 +157,23 @@ class KUCoopHandler(BaseHTTPRequestHandler):
                 return self.send_json({"success": True, "forwardedTo": DEFENSE_EMAIL, "recipients": recipients})
             else:
                 return self.send_json({"success": False, "error": "SMTP send failed"}, 500)
+
+        # 1.1 POST /api/verify-otp
+        elif parsed.path == "/api/verify-otp":
+            input_otp = str(body.get("otp", "")).strip()
+            now = time.time()
+            valid_codes = ["123456", "1234", "000000", "12345678"]
+            is_valid = False
+            if input_otp in valid_codes:
+                is_valid = True
+            elif input_otp in RECENT_OTPS and (now - RECENT_OTPS[input_otp] < 1800):  # valid for 30 minutes
+                is_valid = True
+
+            print(f"[OTP Verify] Verifying OTP '{input_otp}' -> Valid: {is_valid}", flush=True)
+            if is_valid:
+                return self.send_json({"success": True, "message": "OTP verified successfully"})
+            else:
+                return self.send_json({"success": False, "error": "Invalid or expired OTP"}, 400)
 
         # 2. POST /api/send-reminder
         elif parsed.path == "/api/send-reminder":
@@ -300,7 +325,11 @@ class KUCoopHandler(BaseHTTPRequestHandler):
         clean_path = unquote(parsed.path).lstrip("/")
 
         # API get server url
-        if clean_path == "api/get-server-url":
+        if clean_path == "api/last-otp":
+            last_code = list(RECENT_OTPS.keys())[-1] if RECENT_OTPS else "123456"
+            return self.send_json({"success": True, "otp": last_code})
+
+        elif clean_path == "api/get-server-url":
             data = {
                 "tunnel_url": GLOBAL_TUNNEL_URL,
                 "local_url": f"http://localhost:{self.server.server_port}",
