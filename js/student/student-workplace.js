@@ -183,13 +183,25 @@ function renderStudentGpsSettings(user) {
             // Sync with Supabase if active
             if (typeof supabaseClient !== 'undefined' && supabaseClient) {
                 try {
-                    await supabaseClient.from('users').update({
-                        company_lat: latVal,
-                        company_lng: lngVal
-                    }).eq('id', std.id);
+                    const sid = String(std.id || std.student_id);
+                    await supabaseClient.from('students').update({
+                        company_lat: String(latStr),
+                        company_lng: String(lngStr),
+                        company_name: std.company_name || std.company || 'สถานประกอบการ'
+                    }).eq('student_id', sid);
+                    console.log("Supabase student GPS synced successfully:", sid, latStr, lngStr);
                 } catch (e) {
-                    console.warn("Supabase update error:", e);
+                    console.warn("Supabase students table update error:", e);
                 }
+
+                try {
+                    if (std.email) {
+                        await supabaseClient.from('users').update({
+                            company_lat: latVal,
+                            company_lng: lngVal
+                        }).eq('email', std.email);
+                    }
+                } catch (e) {}
             }
 
             // Update UI elements
