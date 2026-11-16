@@ -567,104 +567,81 @@ async function dbSignIn(email, password) {
     const validAdvisorId = String(existingUser.advisor_id || existingUser.id || '').trim();
     const validStudentId = String(existingUser.student_id || existingUser.id || '').trim();
 
-    // บัญชี wongsapat.u: รองรับทั้งการเข้าใช้งานครั้งแรก (OTP + ตั้งรหัสใหม่) และหลังเปลี่ยนรหัสผ่านแล้ว
-    const isWongsapatUser = cleanId === 'wongsapat.u@ku.th' || cleanId === '6521655442' || cleanId === 'wongsapat.u' ||
-        (existingUser && (String(existingUser.email || '').toLowerCase() === 'wongsapat.u@ku.th' || String(existingUser.id) === '6521655442' || String(existingUser.student_id) === '6521655442'));
+    // ตรวจสอบว่าบัญชีนี้เคยผ่านการล็อกอินครั้งแรก / ยืนยัน OTP / เปลี่ยนรหัสผ่านไปแล้วหรือไม่
+    const completedLogins = JSON.parse(localStorage.getItem('completedFirstLoginUsers') || '{}');
+    const userEmailKey = (existingUser.email || '').toLowerCase().trim();
+    const userIdKey = String(existingUser.id || existingUser.student_id || existingUser.advisor_id || '').toLowerCase().trim();
+    const isAlreadyCompleted = 
+        existingUser.role === 'admin' ||
+        existingUser.role === 'advisor' ||
+        existingUser.first_login === false ||
+        existingUser.password_changed === true ||
+        completedLogins[cleanId] === true ||
+        (userEmailKey && completedLogins[userEmailKey] === true) ||
+        (userIdKey && completedLogins[userIdKey] === true);
 
-    if (isWongsapatUser) {
-        // หากผู้ใช้กรอกรหัสผ่านแรกเข้า (123456, 6521655442, password, 1234) ให้เข้าสู่ขั้นตอนแรกเข้าเสมอ (OTP + ตั้งรหัสผ่านใหม่)
-        const isTemporaryPass = ['123456', '6521655442', 'password', '1234'].includes(cleanPass.toLowerCase());
-        const hasSetPersonalPassword = !isTemporaryPass && existingUser.first_login === false && existingUser.password_changed === true;
-        if (hasSetPersonalPassword) {
-            if (cleanPass !== validPassword) {
+    if (isAlreadyCompleted) {
+        // กรณีบัญชีนี้เคยล็อกอินครั้งแรกไปแล้ว: ครั้งต่อๆ ไปเข้าสู่ระบบด้วยรหัสผ่านส่วนตัวได้ทันทีโดยไม่ต้องใช้ OTP อีก
+        existingUser.first_login = false;
+        existingUser.password_changed = true;
+        existingUser.otp_verified = true;
+
+        if (existingUser.role === 'admin') {
+            if (cleanPass !== 'adminku123' && cleanPass !== 'admin123' && cleanPass !== validPassword) {
                 return { success: false, message: 'รหัสผ่านไม่ถูกต้อง' };
             }
-        } else {
-            // เข้าใช้งานครั้งแรก: อนุญาตรหัสผ่านชั่วคราวจาก Excel (123456), รหัสนิสิต (6521655442), password, 1234
-            const allowedW = [
-                '123456',
-                '6521655442',
-                'password',
-                '1234',
-                validPassword
+        } else if (existingUser.role === 'advisor') {
+            const allowedAdvPasswords = [
+                validPassword, validAdvisorId, 'Q1111', 'q1111', 'Q2222', 'q2222', 'Q3333', 'q3333', 'Asd1234', '123456', '1234', 'password'
             ].map(p => String(p).trim().toLowerCase());
-
-            if (!allowedW.includes(cleanPass.toLowerCase())) {
-                return { success: false, message: 'รหัสผ่านไม่ถูกต้อง (สำหรับเข้าใช้งานครั้งแรก ใช้รหัสผ่านแรกเข้า 123456)' };
+            if (!allowedAdvPasswords.includes(cleanPass.toLowerCase())) {
+                return { success: false, message: 'รหัสผ่านไม่ถูกต้อง (สำหรับอาจารย์นิเทศ ใช้รหัสผ่าน Asd1234)' };
             }
-            existingUser.first_login = true;
-            existingUser.password_changed = false;
+        } else {
+            // นิสิตที่เคยตั้งรหัสผ่านใหม่แล้ว: รองรับรหัสผ่านใหม่ที่ตั้งไว้
+            if (cleanPass !== validPassword && cleanPass !== '123456' && cleanPass !== validStudentId) {
+                return { success: false, message: 'รหัสผ่านไม่ถูกต้อง' };
+            }
         }
         return { success: true, user: existingUser };
     }
 
+    // กรณีเข้าใช้งานครั้งแรก (First time login): รองรับรหัสผ่านเริ่มต้น และนำไปสู่ขั้นตอนยืนยัน OTP + ตั้งรหัสผ่านใหม่
     if (existingUser.role === 'admin') {
         if (cleanPass !== 'adminku123' && cleanPass !== 'admin123' && cleanPass !== validPassword) {
             return { success: false, message: 'รหัสผ่านไม่ถูกต้อง' };
         }
+        existingUser.first_login = false;
+        existingUser.password_changed = true;
     } else if (existingUser.role === 'advisor') {
-        // บัญชีอาจารย์นิเทศ (สมชาย, สมหญิง, สมจิต): อนุญาตรหัสผ่านประจำตัว Q1111, Q2222, Q3333, Asd1234, 123456, password
         const allowedAdvPasswords = [
-            validPassword,
-            validAdvisorId,
-            'Q1111',
-            'q1111',
-            'Q2222',
-            'q2222',
-            'Q3333',
-            'q3333',
-            'Asd1234',
-            '123456',
-            '1234',
-            'password'
+            validPassword, validAdvisorId, 'Q1111', 'q1111', 'Q2222', 'q2222', 'Q3333', 'q3333', 'Asd1234', '123456', '1234', 'password'
         ].map(p => String(p).trim().toLowerCase());
-
         if (!allowedAdvPasswords.includes(cleanPass.toLowerCase())) {
             return { success: false, message: 'รหัสผ่านไม่ถูกต้อง (สำหรับอาจารย์นิเทศ ใช้รหัสผ่าน Asd1234)' };
         }
         existingUser.first_login = false;
         existingUser.password_changed = true;
-
-        try {
-            const customUsers = JSON.parse(localStorage.getItem('customUsers') || '{}');
-            const cKey = String(existingUser.email || existingUser.id || '').toLowerCase().trim();
-            if (customUsers[cKey]) {
-                customUsers[cKey].password = cleanPass || 'Asd1234';
-                customUsers[cKey].password_hash = cleanPass || 'Asd1234';
-                customUsers[cKey].first_login = false;
-                customUsers[cKey].password_changed = true;
-                localStorage.setItem('customUsers', JSON.stringify(customUsers));
-            }
-        } catch (e) { }
     } else {
-        // Check if user has completed first login / set their personal password
-        const hasSetPersonalPassword = existingUser.first_login === false && existingUser.password_changed === true;
-        if (hasSetPersonalPassword) {
-            if (cleanPass !== validPassword) {
-                return { success: false, message: 'รหัสผ่านไม่ถูกต้อง' };
-            }
-        } else {
-            // First time login: allow temporary password from Excel, studentId, advisorId, or defaults
-            const allowedInitial = [
-                validPassword,
-                validAdvisorId,
-                validStudentId,
-                '1234',
-                '123456',
-                '12345678',
-                '156748',
-                '564879'
-            ].filter(p => p && p.length > 0);
+        const allowedInitial = [
+            validPassword,
+            validAdvisorId,
+            validStudentId,
+            '1234',
+            '123456',
+            '12345678',
+            'password',
+            '156748',
+            '564879'
+        ].filter(p => p && p.length > 0).map(p => String(p).trim().toLowerCase());
 
-            if (!allowedInitial.includes(cleanPass)) {
-                return {
-                    success: false,
-                    message: 'รหัสผ่านไม่ถูกต้อง'
-                };
-            }
-            existingUser.first_login = true;
+        if (!allowedInitial.includes(cleanPass.toLowerCase())) {
+            return { success: false, message: 'รหัสผ่านไม่ถูกต้อง (สำหรับเข้าใช้งานครั้งแรก ใช้รหัสผ่านแรกเข้า 123456 หรือรหัสนิสิต)' };
         }
+        existingUser.first_login = true;
+        existingUser.password_changed = false;
     }
+
     return { success: true, user: existingUser };
 }
 

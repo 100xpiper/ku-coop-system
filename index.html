@@ -702,37 +702,67 @@
             }
         } catch (e) { }
 
-        // รีเซ็ตบัญชี wongsapat.u ให้กลับมาเป็นสถานะเข้าสู่ระบบแรกเข้าใหม่ (first_login = true, password_changed = false)
-        try {
-            if (!localStorage.getItem('wongsapat_reset_first_login_v8')) {
+        // ตรวจสอบและบันทึกสถานะการล็อกอินครั้งแรก (เพื่อให้ครั้งต่อไปไม่ต้องใช้ OTP อีก)
+        function isUserFirstLoginCompleted(user) {
+            if (!user) return false;
+            if (user.role === 'admin' || user.role === 'advisor') return true;
+            if (user.first_login === false && user.password_changed === true) return true;
+
+            try {
+                const completed = JSON.parse(localStorage.getItem('completedFirstLoginUsers') || '{}');
+                const emailKey = (user.email || '').toLowerCase().trim();
+                const idKey = String(user.id || user.student_id || user.advisor_id || '').toLowerCase().trim();
+                if (emailKey && completed[emailKey] === true) return true;
+                if (idKey && completed[idKey] === true) return true;
+                if (emailKey.includes('@') && completed[emailKey.split('@')[0]] === true) return true;
+            } catch (e) { }
+            return false;
+        }
+
+        function markUserFirstLoginCompleted(user) {
+            if (!user) return;
+            user.first_login = false;
+            user.password_changed = true;
+            user.otp_verified = true;
+
+            try {
+                const completed = JSON.parse(localStorage.getItem('completedFirstLoginUsers') || '{}');
+                const emailKey = (user.email || '').toLowerCase().trim();
+                const idKey = String(user.id || user.student_id || user.advisor_id || '').toLowerCase().trim();
+                if (emailKey) completed[emailKey] = true;
+                if (idKey) completed[idKey] = true;
+                if (emailKey.includes('@')) {
+                    const prefix = emailKey.split('@')[0];
+                    completed[prefix] = true;
+                }
+                localStorage.setItem('completedFirstLoginUsers', JSON.stringify(completed));
+
+                // ซิงค์ลง customUsers เพื่อให้ระบบจดจำสถานะล่าสุด
                 const customUsers = JSON.parse(localStorage.getItem('customUsers') || '{}');
-                const wUser = {
-                    role: 'student',
-                    name: 'นาย วงศพัทธ์ อุเทน',
-                    id: '6521655442',
-                    student_id: '6521655442',
-                    email: 'wongsapat.u@ku.th',
-                    password: 'password',
-                    password_hash: '123456',
-                    first_login: true,
-                    password_changed: false,
-                    section: 'หมู่ 800 (ภาคพิเศษ)',
-                    company_name: 'สำนักงานพัฒนาวิทยาศาสตร์และเทคโนโลยีแห่งชาติ (สวทช.)',
-                    advisor_name: 'อาจารย์ สมชาย ใจถนอม',
-                    semester: 'ภาคต้น 2569',
-                    status: 'approved'
-                };
-                ['wongsapat.u@ku.th', '6521655442', 'wongsapat.u'].forEach(k => {
-                    customUsers[k] = Object.assign(customUsers[k] || {}, wUser);
-                    customUsers[k].first_login = true;
-                    customUsers[k].password_changed = false;
-                    customUsers[k].password = 'password';
-                    customUsers[k].password_hash = '123456';
+                [emailKey, idKey, (emailKey.includes('@') ? emailKey.split('@')[0] : '')].forEach(k => {
+                    if (k) {
+                        customUsers[k] = Object.assign(customUsers[k] || {}, user, {
+                            first_login: false,
+                            password_changed: true,
+                            otp_verified: true
+                        });
+                    }
                 });
                 localStorage.setItem('customUsers', JSON.stringify(customUsers));
-                localStorage.setItem('wongsapat_reset_first_login_v8', 'true');
+
+                // ซิงค์ขึ้น Supabase Cloud DB
+                if (typeof supabaseClient !== 'undefined' && supabaseClient && user.email) {
+                    supabaseClient
+                        .from('users')
+                        .update({ first_login: false })
+                        .eq('email', user.email)
+                        .then(() => console.log('[Auth] Marked first_login=false on Supabase'))
+                        .catch(e => console.warn('[Auth] Supabase mark completed fallback:', e));
+                }
+            } catch (e) {
+                console.warn('[Auth] markUserFirstLoginCompleted error:', e);
             }
-        } catch (e) {}
+        }
 
         function saveAuthSession(user) {
             try {
@@ -966,6 +996,7 @@
                 if (user && user.role !== 'advisor' && (user.first_login === true || user.password_changed !== true)) {
                     showFirstLoginPasswordResetModal(user);
                 } else {
+                    markUserFirstLoginCompleted(user);
                     saveAuthSession(user);
                     window.location.href = 'dashboard.html';
                 }
@@ -1091,6 +1122,7 @@
                     }
                 }
 
+                markUserFirstLoginCompleted(pendingFirstLoginUser);
                 saveAuthSession(pendingFirstLoginUser);
                 document.getElementById('modal-first-login-password').style.display = 'none';
                 alert('ตั้งรหัสผ่านใหม่เรียบร้อยแล้ว!');
@@ -1173,19 +1205,19 @@
 
                 if (result.success && result.user) {
                     // ผู้ดูแลระบบ (Admin) และอาจารย์นิเทศ (Advisor) เข้าสู่ระบบได้ทันทีโดยไม่ต้องผ่าน OTP
-                    if (result.user.role === 'admin' || result.user.role === 'advisor') {
+                    // และนิสิตที่เคยล็อกอินครั้งแรกไปแล้ว (isUserFirstLoginCompleted) เข้าสู่ระบบได้ทันทีโดยไม่ต้องใช้ OTP อีก
+                    const alreadyCompleted = isUserFirstLoginCompleted(result.user);
+                    if (result.user.role === 'admin' || result.user.role === 'advisor' || alreadyCompleted) {
+                        result.user.first_login = false;
+                        result.user.password_changed = true;
+                        markUserFirstLoginCompleted(result.user);
                         saveAuthSession(result.user);
                         window.location.href = 'dashboard.html';
                         return;
                     }
 
-                    // สำหรับนิสิต (Student) หรือบัญชีที่สร้างขึ้นใหม่:
-                    if (result.user.first_login === true || result.user.password_changed !== true) {
-                        await showOtpModal(result.user);
-                    } else {
-                        saveAuthSession(result.user);
-                        window.location.href = 'dashboard.html';
-                    }
+                    // สำหรับนิสิต (Student) ที่เพิ่งเข้าใช้งานครั้งแรกเท่านั้น:
+                    await showOtpModal(result.user);
                 } else {
                     showAlert(result.message || 'อีเมล/รหัสประจำตัว หรือ รหัสผ่านไม่ถูกต้อง');
                 }
