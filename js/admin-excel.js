@@ -1180,9 +1180,11 @@ function importStudentExcelFile() {
                 curriculum: curriculumVal || (section.includes('800') ? 'ภาคพิเศษ' : 'ภาคปกติ'),
                 section: section,
                 company_name: company,
+                company: company,
                 company_lat: lat || null,
                 company_lng: lng || null,
-                advisor_name: advisorVal || '',
+                advisor_name: advisorVal ? (advisorVal.startsWith('อาจารย์') || advisorVal.startsWith('อ.') ? advisorVal : `อาจารย์ ${advisorVal}`.trim()) : '',
+                advisor: advisorVal ? (advisorVal.startsWith('อาจารย์') || advisorVal.startsWith('อ.') ? advisorVal : `อาจารย์ ${advisorVal}`.trim()) : '',
                 semester: semester,
                 phone: phoneVal || '',
                 status: 'approved',
@@ -1192,6 +1194,8 @@ function importStudentExcelFile() {
             };
 
             customUsers[email] = userObj;
+            if (studentId) customUsers[studentId] = userObj;
+            if (email.includes('@')) customUsers[email.split('@')[0]] = userObj;
                 // ปลดล็อกออกจาก deletedStudentIds เมื่อมีการนำเข้าใหม่
                 try {
                     let dIds = JSON.parse(localStorage.getItem('deletedStudentIds') || '[]');

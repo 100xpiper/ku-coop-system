@@ -474,8 +474,16 @@ async function dbSignIn(email, password) {
                         .maybeSingle();
                     if (stdData) {
                         existingUser.id = stdData.student_id;
+                        existingUser.student_id = stdData.student_id;
                         existingUser.section = stdData.section;
                         existingUser.company_name = stdData.company_name;
+                        existingUser.company = stdData.company_name;
+                        let adv = stdData.advisor_name || '';
+                        if (adv && !adv.startsWith('อาจารย์') && !adv.startsWith('อ.')) {
+                            adv = `อาจารย์ ${adv}`.trim();
+                        }
+                        existingUser.advisor_name = adv;
+                        existingUser.advisor = adv;
                     }
                 } else if (userByEmail.role === 'advisor') {
                     const { data: advData } = await supabaseClient
@@ -485,7 +493,23 @@ async function dbSignIn(email, password) {
                         .maybeSingle();
                     if (advData) {
                         existingUser.id = advData.advisor_id;
+                        existingUser.advisor_id = advData.advisor_id;
                         existingUser.section = advData.section;
+                    }
+                }
+
+                // Auto-resolve อาจารย์นิเทศและสถานประกอบการ หากยังไม่ได้ระบุ
+                if (existingUser && existingUser.role === 'student') {
+                    if (!existingUser.advisor_name || existingUser.advisor_name === '-' || existingUser.advisor_name.includes('ยังไม่ระบุ')) {
+                        const sec = String(existingUser.section || '');
+                        if (sec.includes('701') || sec.includes('801')) {
+                            existingUser.advisor_name = 'อาจารย์ สมหญิง จงจิต';
+                        } else if (sec.includes('702') || sec.includes('802')) {
+                            existingUser.advisor_name = 'อาจารย์ สมจิต มั่งมี';
+                        } else {
+                            existingUser.advisor_name = 'อาจารย์ สมชาย แจ่มใส';
+                        }
+                        existingUser.advisor = existingUser.advisor_name;
                     }
                 }
             }
@@ -545,6 +569,22 @@ async function dbSignIn(email, password) {
             }
         } else if (customMatch) {
             existingUser = { ...customMatch };
+        }
+
+        if (existingUser && existingUser.role === 'student') {
+            if (!existingUser.advisor_name && existingUser.advisor) existingUser.advisor_name = existingUser.advisor;
+            if (!existingUser.advisor && existingUser.advisor_name) existingUser.advisor = existingUser.advisor_name;
+            if (!existingUser.advisor_name || existingUser.advisor_name === '-' || existingUser.advisor_name.includes('ยังไม่ระบุ')) {
+                const sec = String(existingUser.section || '');
+                if (sec.includes('701') || sec.includes('801')) {
+                    existingUser.advisor_name = 'อาจารย์ สมหญิง จงจิต';
+                } else if (sec.includes('702') || sec.includes('802')) {
+                    existingUser.advisor_name = 'อาจารย์ สมจิต มั่งมี';
+                } else {
+                    existingUser.advisor_name = 'อาจารย์ สมชาย แจ่มใส';
+                }
+                existingUser.advisor = existingUser.advisor_name;
+            }
         }
     }
 

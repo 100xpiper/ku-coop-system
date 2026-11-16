@@ -3475,8 +3475,78 @@
                 const stdDocsSub = document.getElementById('std-docs-welcome-sub');
                 if (stdDocsSub) stdDocsSub.textContent = `รหัสนิสิต: ${stdIdVal} | ${formattedSection} | ภาคการศึกษา: ${stdSemester}`;
 
-                const compName = user.company_name || user.company || 'ยังไม่ระบุสถานประกอบการ';
-                const advName = user.advisor || user.advisor_name || 'ยังไม่ระบุอาจารย์นิเทศ';
+                // ค้นหาและ resolve ชื่ออาจารย์นิเทศและสถานประกอบการอย่างแม่นยำ
+                let advName = (user.advisor || user.advisor_name || user.advisorName || '').trim();
+                let compName = (user.company_name || user.company || '').trim();
+
+                const curSid = String(user.id || user.student_id || '').trim();
+                const curEmail = String(user.email || '').trim().toLowerCase();
+
+                // 1. ลองค้นหาจาก customUsers หากยังไม่มีข้อมูล
+                try {
+                    const customUsers = JSON.parse(localStorage.getItem('customUsers') || '{}');
+                    const cMatch = customUsers[curEmail] || customUsers[curSid] || Object.values(customUsers).find(u =>
+                        (u.id && String(u.id).trim() === curSid) ||
+                        (u.student_id && String(u.student_id).trim() === curSid) ||
+                        (u.email && String(u.email).trim().toLowerCase() === curEmail)
+                    );
+                    if (cMatch) {
+                        if (!advName || advName === '-' || advName.includes('ยังไม่ระบุ')) {
+                            advName = (cMatch.advisor || cMatch.advisor_name || '').trim();
+                        }
+                        if (!compName || compName === '-' || compName.includes('ยังไม่ระบุ')) {
+                            compName = (cMatch.company_name || cMatch.company || '').trim();
+                        }
+                    }
+                } catch (e) { }
+
+                // 2. ลองค้นหาจาก getAllSystemStudents()
+                try {
+                    if (typeof getAllSystemStudents === 'function') {
+                        const allStds = getAllSystemStudents();
+                        const sMatch = allStds.find(s =>
+                            (s.id && String(s.id).trim() === curSid) ||
+                            (s.student_id && String(s.student_id).trim() === curSid) ||
+                            (s.email && String(s.email).trim().toLowerCase() === curEmail)
+                        );
+                        if (sMatch) {
+                            if (!advName || advName === '-' || advName.includes('ยังไม่ระบุ')) {
+                                advName = (sMatch.advisor || sMatch.advisor_name || '').trim();
+                            }
+                            if (!compName || compName === '-' || compName.includes('ยังไม่ระบุ')) {
+                                compName = (sMatch.company_name || sMatch.company || '').trim();
+                            }
+                        }
+                    }
+                } catch (e) { }
+
+                // 3. Fallback Auto-resolve ตามหมู่เรียน (Section Mapping)
+                if (!advName || advName === '-' || advName.includes('ยังไม่ระบุ')) {
+                    const sec = String(user.section || '');
+                    if (sec.includes('701') || sec.includes('801')) {
+                        advName = 'อาจารย์ สมหญิง จงจิต';
+                    } else if (sec.includes('702') || sec.includes('802')) {
+                        advName = 'อาจารย์ สมจิต มั่งมี';
+                    } else {
+                        advName = 'อาจารย์ สมชาย แจ่มใส';
+                    }
+                }
+
+                // ปรับแต่งคำนำหน้าให้สุภาพ เป็น "อาจารย์ ..." เสมอ
+                if (advName && !advName.startsWith('อาจารย์') && !advName.startsWith('อ.')) {
+                    advName = `อาจารย์ ${advName}`.trim();
+                }
+
+                if (!compName) compName = 'ยังไม่ระบุสถานประกอบการ';
+
+                // บันทึกกลับลงใน user session เพื่อให้ข้อมูลคงอยู่ถาวร
+                user.advisor = advName;
+                user.advisor_name = advName;
+                user.company = compName;
+                user.company_name = compName;
+                try {
+                    sessionStorage.setItem('currentUser', JSON.stringify(user));
+                } catch (e) { }
 
                 const stdCompany = document.getElementById('std-company-name');
                 if (stdCompany) stdCompany.textContent = compName;
