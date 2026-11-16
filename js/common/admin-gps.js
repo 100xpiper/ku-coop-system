@@ -15,8 +15,7 @@ function renderAdminGpsSection() {
                 if (sList.length > 0) {
                     total += sList.length;
                     const g = document.createElement('optgroup');
-                    const isSpec = sec.includes('800') || sec.includes('801') || sec.includes('802');
-                    g.label = `── ${sec} (${isSpec ? 'ภาคพิเศษ' : 'ภาคปกติ'}) [${sList.length} คน] ──`;
+                    g.label = `── ${sec} [${sList.length} คน] ──`;
                     sList.forEach(s => {
                         const opt = document.createElement('option');
                         opt.value = s.id;
@@ -140,7 +139,7 @@ function renderAdminGpsSection() {
                         select.innerHTML = '<option value="">-- เลือกสถานประกอบการของนิสิต --</option>';
                         if (normStds.length > 0) {
                             const gNorm = document.createElement('optgroup');
-                            gNorm.label = `── ${mySecNormal} (ภาคปกติ) [${normStds.length} คน] ──`;
+                            gNorm.label = `── ${mySecNormal} [${normStds.length} คน] ──`;
                             normStds.forEach(s => {
                                 const opt = document.createElement('option');
                                 opt.value = s.id;
@@ -151,7 +150,7 @@ function renderAdminGpsSection() {
                         }
                         if (specStds.length > 0) {
                             const gSpec = document.createElement('optgroup');
-                            gSpec.label = `── ${mySecSpecial} (ภาคพิเศษ) [${specStds.length} คน] ──`;
+                            gSpec.label = `── ${mySecSpecial} [${specStds.length} คน] ──`;
                             specStds.forEach(s => {
                                 const opt = document.createElement('option');
                                 opt.value = s.id;

@@ -228,9 +228,9 @@ function renderAdvisorPhotosPage() {
     const secSelect = document.getElementById('adv-photo-sec-select');
     if (secSelect) {
         const optNormal = secSelect.querySelector('option[value="normal"]');
-        if (optNormal) optNormal.textContent = `${mySecNormal} (ภาคปกติ)`;
+        if (optNormal) optNormal.textContent = `${mySecNormal}`;
         const optSpecial = secSelect.querySelector('option[value="special"]');
-        if (optSpecial) optSpecial.textContent = `${mySecSpecial} (ภาคพิเศษ)`;
+        if (optSpecial) optSpecial.textContent = `${mySecSpecial}`;
     }
 
     const secChoice = secSelect ? secSelect.value : 'all';
@@ -282,7 +282,7 @@ function renderAdvisorPhotosPage() {
         tr.innerHTML = `
             <td style="padding: 10px 12px; font-weight: 700; color: var(--primary-color); white-space: nowrap;">${std.id}</td>
             <td style="padding: 10px 12px; font-weight: 600; color: var(--text-main);">${std.name}</td>
-            <td style="padding: 10px 12px; white-space: nowrap; color: #475569; font-weight: 600;">${std.section || std._assignedSection}</td>
+            <td style="padding: 10px 12px; white-space: nowrap; color: #475569; font-weight: 600;">${cleanSectionName(std.section || std._assignedSection)}</td>
             <td style="padding: 10px 12px; color: #334155;">${std.company || '-'}</td>
             <td style="padding: 10px 12px; white-space: nowrap;">
                 ${hasPhoto ? 

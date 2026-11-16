@@ -37,6 +37,13 @@ function detectIsAdvisorFile(rows, fileName = '') {
     return false;
 }
 
+function normalizeCleanSection(val, defaultSec = 'หมู่ 700') {
+    if (!val) return defaultSec;
+    let s = String(val).replace(/\s*\(ภาคปกติ\)|\s*\(ภาคพิเศษ\)|\s*\(ปกติ\)|\s*\(พิเศษ\)|ภาคปกติ|ภาคพิเศษ/g, '').trim();
+    if (!s) return defaultSec;
+    return s.includes('หมู่') ? s : `หมู่ ${s}`;
+}
+
 function handleStudentExcelSelected(event) {
     const file = event.target.files && event.target.files[0];
     if (!file) return;
@@ -546,7 +553,7 @@ function renderAdminStudentPreImportPreview(isPostImport = false, postImportList
                 const semCounts = {};
                 rowsToDisplay.forEach(row => {
                     const sectionVal = findRowValue(row, ['หมู่เรียน', 'หมู่เรียนที่รับผิดชอบ', 'หมู่', 'Section', 'section']);
-                    const sec = sectionVal ? (sectionVal.includes('หมู่') ? sectionVal : `หมู่ ${sectionVal}`) : 'หมู่ 700';
+                    const sec = normalizeCleanSection(sectionVal, 'หมู่ 700');
                     secCounts[sec] = (secCounts[sec] || 0) + 1;
 
                     const rowSem = formatCombinedSemester(
@@ -642,7 +649,7 @@ function renderAdminStudentPreImportPreview(isPostImport = false, postImportList
                     const fullName = title ? `${title} ${name}`.trim() : (name || 'นิสิต');
                     const emailVal = findRowEmail(row, ['อีเมลมหาวิทยาลัย', 'อีเมล', 'อีเมล์', 'Email', 'email', 'E-mail', 'KU-Mail']) || `${studentId}@ku.th`;
                     const sectionVal = findRowValue(row, ['หมู่เรียน', 'หมู่เรียนที่รับผิดชอบ', 'หมู่', 'Section', 'section']);
-                    const sec = sectionVal ? (sectionVal.includes('หมู่') ? sectionVal : `หมู่ ${sectionVal}`) : 'หมู่ 700';
+                    const sec = normalizeCleanSection(sectionVal, 'หมู่ 700');
                     const advisorVal = findRowValue(row, ['อาจารย์ที่ปรึกษา', 'อาจารย์ที่ปึกษา', 'อาจารย์นิเทศ', 'อาจารย์', 'Advisor', 'advisor', 'ที่ปรึกษา', 'ที่ปึกษา']) || '-';
                     const company = findRowValue(row, ['ชื่อสถานประกอบการ', 'สถานประกอบการ', 'Company', 'company']) || '-';
 
@@ -1138,7 +1145,7 @@ function importStudentExcelFile() {
             const deptVal = findRowValue(row, ['ภาควิชา', 'สาขาวิชา', 'ภาค', 'Department', 'dept']);
             const curriculumVal = findRowValue(row, ['หลักสูตร', 'Curriculum', 'program']);
             const sectionVal = findRowValue(row, ['หมู่เรียน', 'หมู่เรียนที่รับผิดชอบ', 'หมู่', 'Section', 'section']);
-            const section = sectionVal ? (sectionVal.includes('หมู่') ? sectionVal : `หมู่ ${sectionVal}`) : 'หมู่ 700';
+            const section = normalizeCleanSection(sectionVal, 'หมู่ 700');
             const company = findRowValue(row, ['ชื่อสถานประกอบการ', 'สถานประกอบการ', 'Company', 'company']);
             const advisorVal = findRowValue(row, ['อาจารย์ที่ปรึกษา', 'อาจารย์ที่ปึกษา', 'อาจารย์นิเทศ', 'อาจารย์', 'อาจารย์ผู้ดูแล', 'Advisor', 'advisor', 'ที่ปรึกษา', 'ที่ปึกษา']);
             const semester = formatCombinedSemester(
@@ -1177,7 +1184,7 @@ function importStudentExcelFile() {
                 role: 'student',
                 year: yearVal || '4',
                 department: deptVal || 'วิทยาการคอมพิวเตอร์',
-                curriculum: curriculumVal || (section.includes('800') ? 'ภาคพิเศษ' : 'ภาคปกติ'),
+                curriculum: curriculumVal || '',
                 section: section,
                 company_name: company,
                 company: company,
@@ -1400,7 +1407,7 @@ function downloadStudentExcelTemplate() {
             "ชื่อ - นามสกุล": "วงศพัทธ์ อุเทน",
             "ชั้นปี": "4",
             "ภาควิชา": "วิทยาการคอมพิวเตอร์",
-            "หลักสูตร": "ภาคพิเศษ",
+            "หลักสูตร": "",
             "หมู่เรียน": "800",
             "อาจารย์ที่ปรึกษา": "อ. สมชาย แจ่มใส",
             "ภาคการศึกษา": "ปลาย",
@@ -1417,7 +1424,7 @@ function downloadStudentExcelTemplate() {
             "ชื่อ - นามสกุล": "สมหญิง แจ่มใส",
             "ชั้นปี": "4",
             "ภาควิชา": "วิทยาการคอมพิวเตอร์",
-            "หลักสูตร": "ภาคพิเศษ",
+            "หลักสูตร": "",
             "หมู่เรียน": "800",
             "อาจารย์ที่ปรึกษา": "อ. สมชาย แจ่มใส",
             "ภาคการศึกษา": "ปลาย",
@@ -1434,7 +1441,7 @@ function downloadStudentExcelTemplate() {
             "ชื่อ - นามสกุล": "จิตดี มีเงิน",
             "ชั้นปี": "4",
             "ภาควิชา": "วิทยาการคอมพิวเตอร์",
-            "หลักสูตร": "ภาคปกติ",
+            "หลักสูตร": "",
             "หมู่เรียน": "800",
             "อาจารย์ที่ปรึกษา": "อ. สมชาย แจ่มใส",
             "ภาคการศึกษา": "ปลาย",

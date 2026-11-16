@@ -72,14 +72,14 @@ function updateAdvisorStats() {
                 dashClassList.innerHTML = `
                     <div class="classroom-item" onclick="openClassroomDetail('${mySecNormal}')" style="cursor: pointer;">
                         <div>
-                            <div style="font-size: 13px; font-weight: 700; color: var(--primary-color);">หมู่เรียน ${normNum} (ภาคปกติ)</div>
+                            <div style="font-size: 13px; font-weight: 700; color: var(--primary-color);">หมู่เรียน ${normNum}</div>
                             <div style="font-size: 11px; color: var(--text-muted);">${secNormText}</div>
                         </div>
                         <span class="status-badge badge-success">จัดการ ></span>
                     </div>
                     <div class="classroom-item" onclick="openClassroomDetail('${mySecSpecial}')" style="cursor: pointer;">
                         <div>
-                            <div style="font-size: 13px; font-weight: 700; color: var(--primary-color);">หมู่เรียน ${specNum} (ภาคพิเศษ)</div>
+                            <div style="font-size: 13px; font-weight: 700; color: var(--primary-color);">หมู่เรียน ${specNum}</div>
                             <div style="font-size: 11px; color: var(--text-muted);">${secSpecText}</div>
                         </div>
                         <span class="status-badge badge-success">จัดการ ></span>
@@ -92,14 +92,14 @@ function updateAdvisorStats() {
                 tabClassList.innerHTML = `
                     <div class="classroom-item" onclick="openClassroomDetail('${mySecNormal}')" style="cursor: pointer;">
                         <div>
-                            <div style="font-size: 13px; font-weight: 700; color: var(--primary-color);">หมู่เรียน ${normNum} (ภาคปกติ)</div>
+                            <div style="font-size: 13px; font-weight: 700; color: var(--primary-color);">หมู่เรียน ${normNum}</div>
                             <div style="font-size: 11px; color: var(--text-muted);">${secNormText}</div>
                         </div>
                         <span class="status-badge badge-success">เข้าจัดการ ></span>
                     </div>
                     <div class="classroom-item" onclick="openClassroomDetail('${mySecSpecial}')" style="cursor: pointer;">
                         <div>
-                            <div style="font-size: 13px; font-weight: 700; color: var(--primary-color);">หมู่เรียน ${specNum} (ภาคพิเศษ)</div>
+                            <div style="font-size: 13px; font-weight: 700; color: var(--primary-color);">หมู่เรียน ${specNum}</div>
                             <div style="font-size: 11px; color: var(--text-muted);">${secSpecText}</div>
                         </div>
                         <span class="status-badge badge-success">เข้าจัดการ ></span>
@@ -508,7 +508,7 @@ function updateAdvisorStats() {
                     <td style="padding: 10px 12px; font-weight: 700; color: #1e3a8a; white-space: nowrap;">${std.id}</td>
                     <td style="padding: 10px 12px; font-weight: 600; color: var(--text-main); white-space: nowrap;">${std.name}</td>
                     <td style="padding: 10px 12px; white-space: nowrap;">
-                        <span class="status-badge" style="${secBadgeColor} font-size: 10.5px;">${std.section || '-'}</span>
+                        <span class="status-badge" style="${secBadgeColor} font-size: 10.5px;">${cleanSectionName(std.section) || '-'}</span>
                     </td>
                     <td style="padding: 10px 12px; color: #475569; font-size: 11px; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${compName}">
                         ${compName}

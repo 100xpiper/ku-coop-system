@@ -177,14 +177,14 @@
                         <div class="classroom-list" id="adv-dash-classroom-list">
                             <div class="classroom-item" onclick="openClassroomDetail('หมู่ 700')">
                                 <div>
-                                    <div style="font-size: 13px; font-weight: 700; color: var(--primary-color);">หมู่เรียน 700 (ภาคปกติ)</div>
+                                    <div style="font-size: 13px; font-weight: 700; color: var(--primary-color);">หมู่เรียน 700</div>
                                     <div style="font-size: 11px; color: var(--text-muted);" id="sec-700-desc">จำนวนนิสิต: 0 คน | นิเทศแล้ว: 0 คน</div>
                                 </div>
                                 <span class="status-badge badge-success">จัดการ ></span>
                             </div>
                             <div class="classroom-item" onclick="openClassroomDetail('หมู่ 800')">
                                 <div>
-                                    <div style="font-size: 13px; font-weight: 700; color: var(--primary-color);">หมู่เรียน 800 (ภาคพิเศษ)</div>
+                                    <div style="font-size: 13px; font-weight: 700; color: var(--primary-color);">หมู่เรียน 800</div>
                                     <div style="font-size: 11px; color: var(--text-muted);" id="sec-800-desc">จำนวนนิสิต: 0 คน | นิเทศแล้ว: 0 คน</div>
                                 </div>
                                 <span class="status-badge badge-success">จัดการ ></span>
@@ -230,10 +230,10 @@
                                     ทั้ง 2 หมู่เรียน
                                 </button>
                                 <button type="button" id="adv-doc-sec-filter-norm" class="adv-sec-pill-btn" onclick="setAdvisorDocSectionFilter('normal')" style="padding: 3px 10px; font-size: 11px; border-radius: 20px; border: 1px solid var(--border-color); background: #ffffff; color: #475569; cursor: pointer; font-weight: 600;">
-                                    ภาคปกติ
+                                    หมู่ 700
                                 </button>
                                 <button type="button" id="adv-doc-sec-filter-spec" class="adv-sec-pill-btn" onclick="setAdvisorDocSectionFilter('special')" style="padding: 3px 10px; font-size: 11px; border-radius: 20px; border: 1px solid var(--border-color); background: #ffffff; color: #475569; cursor: pointer; font-weight: 600;">
-                                    ภาคพิเศษ
+                                    หมู่ 800
                                 </button>
                             </div>
 
@@ -324,14 +324,14 @@
                             <div class="classroom-list" id="adv-tab-classroom-list">
                                 <div class="classroom-item" onclick="openClassroomDetail('หมู่ 700')" style="cursor: pointer;">
                                     <div>
-                                        <div style="font-size: 13px; font-weight: 700; color: var(--primary-color);">หมู่เรียน 700 (ภาคปกติ)</div>
+                                        <div style="font-size: 13px; font-weight: 700; color: var(--primary-color);">หมู่เรียน 700</div>
                                         <div style="font-size: 11px; color: var(--text-muted);" id="sec-700-desc-tab">จำนวนนิสิต: 0 คน | นิเทศแล้ว: 0 คน</div>
                                     </div>
                                     <span class="status-badge badge-success">เข้าจัดการ ></span>
                                 </div>
                                 <div class="classroom-item" onclick="openClassroomDetail('หมู่ 800')" style="cursor: pointer;">
                                     <div>
-                                        <div style="font-size: 13px; font-weight: 700; color: var(--primary-color);">หมู่เรียน 800 (ภาคพิเศษ)</div>
+                                        <div style="font-size: 13px; font-weight: 700; color: var(--primary-color);">หมู่เรียน 800</div>
                                         <div style="font-size: 11px; color: var(--text-muted);" id="sec-800-desc-tab">จำนวนนิสิต: 0 คน | นิเทศแล้ว: 0 คน</div>
                                     </div>
                                     <span class="status-badge badge-success">เข้าจัดการ ></span>
@@ -352,7 +352,7 @@
                                     </button>
                                     <div>
                                         <div class="section-title" id="class-detail-title" style="margin: 0; font-size: 15px;">จัดการหมู่เรียน 700</div>
-                                        <div style="font-size: 11px; color: var(--text-muted);" id="class-detail-subtitle">ภาคปกติ</div>
+                                        <div style="font-size: 11px; color: var(--text-muted);" id="class-detail-subtitle">นิสิตสหกิจศึกษาในความดูแล</div>
                                     </div>
                                 </div>
                                 <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
@@ -424,8 +424,8 @@
                                 <span style="font-size: 12px; font-weight: 700; color: var(--primary-color);">หมู่เรียน:</span>
                                 <select id="adv-asg-section-select" onchange="onAdvisorAssignmentSectionChange(this.value)" style="padding: 5px 10px; font-size: 11.5px; border-radius: 6px; border: 1px solid var(--border-color); background: #f8fafc; font-weight: 600; color: #1e293b;">
                                     <option value="all">ทุกหมู่เรียนในความดูแล</option>
-                                    <option value="normal">หมู่เรียนภาคปกติ</option>
-                                    <option value="special">หมู่เรียนภาคพิเศษ</option>
+                                    <option value="normal">หมู่เรียน 700</option>
+                                    <option value="special">หมู่เรียน 800</option>
                                 </select>
                             </div>
                             <!-- เลือกภาคการศึกษา -->
@@ -493,8 +493,8 @@
                                     <span style="font-size: 11px; font-weight: 700; color: #475569;">หมู่เรียน:</span>
                                     <select id="adv-photo-sec-select" onchange="renderAdvisorPhotosPage()" style="padding: 5px 9px; font-size: 11px; border-radius: 6px; border: 1px solid var(--border-color); background: #ffffff; font-weight: 600; color: #1e293b;">
                                         <option value="all">ทุกหมู่เรียนในความดูแล</option>
-                                        <option value="normal">หมู่เรียนภาคปกติ</option>
-                                        <option value="special">หมู่เรียนภาคพิเศษ</option>
+                                        <option value="normal">หมู่เรียน 700</option>
+                                        <option value="special">หมู่เรียน 800</option>
                                     </select>
                                 </div>
 
@@ -580,8 +580,8 @@
                                         <label style="font-size: 11px; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 2px;">แยกตามหมู่เรียน</label>
                                         <select id="cal-section-filter" onchange="onCalSectionFilterChange(this.value)" style="width: 100%; padding: 6px; font-size: 11.5px; border-radius: 6px; border: 1px solid var(--border-color); background: #f8fafc; font-weight: 600; color: #1e293b;">
                                             <option value="all">ทุกหมู่เรียน (แยกกลุ่ม)</option>
-                                            <option value="normal" id="cal-sec-opt-norm">หมู่เรียนภาคปกติ</option>
-                                            <option value="special" id="cal-sec-opt-spec">หมู่เรียนภาคพิเศษ</option>
+                                            <option value="normal" id="cal-sec-opt-norm">หมู่เรียน 700</option>
+                                            <option value="special" id="cal-sec-opt-spec">หมู่เรียน 800</option>
                                         </select>
                                     </div>
                                     <div>
@@ -687,8 +687,8 @@
                                 <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                                     <select id="qr-scan-section-filter" onchange="onQrSectionFilterChange(this.value)" style="width: 170px; padding: 9px 10px; font-size: 11.5px; border-radius: 8px; border: 1px solid var(--border-color); background-color: #f8fafc; font-weight: 600; color: #1e293b;">
                                         <option value="all">ทุกหมู่เรียน (แยกกลุ่ม)</option>
-                                        <option value="normal" id="qr-sec-opt-norm">หมู่เรียนภาคปกติ</option>
-                                        <option value="special" id="qr-sec-opt-spec">หมู่เรียนภาคพิเศษ</option>
+                                        <option value="normal" id="qr-sec-opt-norm">หมู่เรียน 700</option>
+                                        <option value="special" id="qr-sec-opt-spec">หมู่เรียน 800</option>
                                     </select>
                                     <select id="qr-scan-student-select" style="flex: 1; min-width: 220px; padding: 9px 12px; font-size: 12px; border-radius: 8px; border: 1px solid var(--border-color); background-color: #fff; font-weight: 500;">
                                         <option value="">ยังไม่มีข้อมูลนิสิต (รอแอดมินนำเข้าข้อมูล)</option>
@@ -1104,11 +1104,11 @@
                                 <span class="stat-value" id="admin-total-std">0 คน</span>
                             </div>
                             <div class="stat-card" style="border-left: 4px solid #2563eb;">
-                                <h3>ภาคปกติ (หมู่ 700, 701, 702)</h3>
+                                <h3>หมู่ 700, 701, 702</h3>
                                 <span class="stat-value" style="color: #1e40af;" id="admin-total-700">0 คน</span>
                             </div>
                             <div class="stat-card" style="border-left: 4px solid #7c3aed;">
-                                <h3>ภาคพิเศษ (หมู่ 800, 801, 802)</h3>
+                                <h3>หมู่ 800, 801, 802</h3>
                                 <span class="stat-value" style="color: #6d28d9;" id="admin-total-800">0 คน</span>
                             </div>
                         </div>
@@ -1143,12 +1143,12 @@
                                     <span style="font-size: 11px; font-weight: 700; color: #475569;">หมู่เรียน:</span>
                                     <select id="admin-section-select" onchange="onAdminSectionChange(this.value)" style="padding: 6px 10px; font-size: 11px; border-radius: 6px; border: 1px solid var(--border-color); background: white; font-weight: 600; color: #1e293b;">
                                         <option value="all">ทุกหมู่เรียน (700-802)</option>
-                                        <option value="700">หมู่ 700 (ภาคปกติ)</option>
-                                        <option value="701">หมู่ 701 (ภาคปกติ)</option>
-                                        <option value="702">หมู่ 702 (ภาคปกติ)</option>
-                                        <option value="800">หมู่ 800 (ภาคพิเศษ)</option>
-                                        <option value="801">หมู่ 801 (ภาคพิเศษ)</option>
-                                        <option value="802">หมู่ 802 (ภาคพิเศษ)</option>
+                                        <option value="700">หมู่ 700</option>
+                                        <option value="701">หมู่ 701</option>
+                                        <option value="702">หมู่ 702</option>
+                                        <option value="800">หมู่ 800</option>
+                                        <option value="801">หมู่ 801</option>
+                                        <option value="802">หมู่ 802</option>
                                     </select>
                                 </div>
                                 <div style="display: flex; align-items: center; gap: 6px;">
@@ -1836,8 +1836,8 @@
                             <label style="font-size: 11px; font-weight: 700; color: #1e40af;">มอบหมายให้หมู่เรียน:</label>
                             <select id="new-asg-section" style="width: 100%; padding: 7px 10px; font-size: 12px; border-radius: 6px; border: 1px solid var(--border-color); background: #f8fafc;">
                                 <option value="all">ทั้ง 2 หมู่เรียนในความดูแล</option>
-                                <option value="normal">เฉพาะหมู่เรียนภาคปกติ</option>
-                                <option value="special">เฉพาะหมู่เรียนภาคพิเศษ</option>
+                                <option value="normal">เฉพาะหมู่เรียนที่ 1</option>
+                                <option value="special">เฉพาะหมู่เรียนที่ 2</option>
                             </select>
                         </div>
                         <div>
@@ -1938,6 +1938,29 @@
 
 
     <script>
+        function cleanSectionName(sec) {
+            if (!sec) return '';
+            return String(sec).replace(/\s*\(ภาคปกติ\)|\s*\(ภาคพิเศษ\)|\s*\(ปกติ\)|\s*\(พิเศษ\)|ภาคปกติ|ภาคพิเศษ/g, '').trim();
+        }
+        window.cleanSectionName = cleanSectionName;
+
+        (function sanitizeSavedSections() {
+            try {
+                ['currentUser', 'app_user', 'customUsers', 'dynamicStudentsData'].forEach(key => {
+                    const raw = localStorage.getItem(key);
+                    if (raw && (raw.includes('ภาคปกติ') || raw.includes('ภาคพิเศษ'))) {
+                        const cleaned = raw.replace(/\s*\(ภาคปกติ\)|\s*\(ภาคพิเศษ\)|\s*\(ปกติ\)|\s*\(พิเศษ\)|ภาคปกติ|ภาคพิเศษ/g, '');
+                        localStorage.setItem(key, cleaned);
+                    }
+                    const sessRaw = sessionStorage.getItem(key);
+                    if (sessRaw && (sessRaw.includes('ภาคปกติ') || sessRaw.includes('ภาคพิเศษ'))) {
+                        const cleaned = sessRaw.replace(/\s*\(ภาคปกติ\)|\s*\(ภาคพิเศษ\)|\s*\(ปกติ\)|\s*\(พิเศษ\)|ภาคปกติ|ภาคพิเศษ/g, '');
+                        sessionStorage.setItem(key, cleaned);
+                    }
+                });
+            } catch (e) { }
+        })();
+
         var currentRole = 'admin'; // default: admin, advisor, student
         var currentSelectedClassroom = 'หมู่ 700';
         var currentSelectedStudentId = null;
@@ -2010,7 +2033,7 @@
                     }
                 ],
                 students: [
-                    // ===== อาจารย์ สมชาย แจ่มใส (หมู่ 800 ภาคพิเศษ, หมู่ 700 ภาคปกติ) =====
+                    // ===== อาจารย์ สมชาย แจ่มใส (หมู่ 800 , หมู่ 700 ) =====
                     {
                         id: '6521655442',
                         student_id: '6521655442',
@@ -2019,8 +2042,8 @@
                         role: 'student',
                         year: '4',
                         department: 'วิทยาการคอมพิวเตอร์',
-                        curriculum: 'ภาคพิเศษ',
-                        section: 'หมู่ 800 (ภาคพิเศษ)',
+                        curriculum: '',
+                        section: 'หมู่ 800',
                         company_name: 'สำนักงานพัฒนาวิทยาศาสตร์และเทคโนโลยีแห่งชาติ (สวทช.)',
                         company: 'สำนักงานพัฒนาวิทยาศาสตร์และเทคโนโลยีแห่งชาติ (สวทช.)',
                         company_lat: '14.076949',
@@ -2044,8 +2067,8 @@
                         role: 'student',
                         year: '4',
                         department: 'วิทยาการคอมพิวเตอร์',
-                        curriculum: 'ภาคพิเศษ',
-                        section: 'หมู่ 800 (ภาคพิเศษ)',
+                        curriculum: '',
+                        section: 'หมู่ 800',
                         company_name: 'บริษัท ไลน์ คอมพานี (ประเทศไทย) จำกัด (อาคารเกษร ทาวเวอร์)',
                         company: 'บริษัท ไลน์ คอมพานี (ประเทศไทย) จำกัด (อาคารเกษร ทาวเวอร์)',
                         company_lat: '13.744882',
@@ -2069,8 +2092,8 @@
                         role: 'student',
                         year: '4',
                         department: 'วิทยาการคอมพิวเตอร์',
-                        curriculum: 'ภาคพิเศษ',
-                        section: 'หมู่ 800 (ภาคพิเศษ)',
+                        curriculum: '',
+                        section: 'หมู่ 800',
                         company_name: 'ธนาคารกสิกรไทย จำกัด (มหาชน) (KBTG แจ้งวัฒนะ)',
                         company: 'ธนาคารกสิกรไทย จำกัด (มหาชน) (KBTG แจ้งวัฒนะ)',
                         company_lat: '13.910638',
@@ -2094,8 +2117,8 @@
                         role: 'student',
                         year: '4',
                         department: 'วิทยาการคอมพิวเตอร์',
-                        curriculum: 'ภาคปกติ',
-                        section: 'หมู่ 700 (ภาคปกติ)',
+                        curriculum: '',
+                        section: 'หมู่ 700',
                         company_name: 'บริษัท อโกด้า เซอร์วิสเซส จำกัด (เซ็นทรัลเวิลด์)',
                         company: 'บริษัท อโกด้า เซอร์วิสเซส จำกัด (เซ็นทรัลเวิลด์)',
                         company_lat: '13.746884',
@@ -2119,8 +2142,8 @@
                         role: 'student',
                         year: '4',
                         department: 'วิทยาการคอมพิวเตอร์',
-                        curriculum: 'ภาคปกติ',
-                        section: 'หมู่ 700 (ภาคปกติ)',
+                        curriculum: '',
+                        section: 'หมู่ 700',
                         company_name: 'บริษัท ทรู คอร์ปอเรชั่น จำกัด (มหาชน)',
                         company: 'บริษัท ทรู คอร์ปอเรชั่น จำกัด (มหาชน)',
                         company_lat: '13.761924',
@@ -2137,7 +2160,7 @@
                         password_changed: true
                     },
 
-                    // ===== อาจารย์ สมหญิง จงจิต (หมู่ 701 ภาคปกติ, หมู่ 801 ภาคพิเศษ) =====
+                    // ===== อาจารย์ สมหญิง จงจิต (หมู่ 701 , หมู่ 801 ) =====
                     {
                         id: '6521650211',
                         student_id: '6521650211',
@@ -2146,8 +2169,8 @@
                         role: 'student',
                         year: '4',
                         department: 'วิทยาการคอมพิวเตอร์',
-                        curriculum: 'ภาคปกติ',
-                        section: 'หมู่ 701 (ภาคปกติ)',
+                        curriculum: '',
+                        section: 'หมู่ 701',
                         company_name: 'ธนาคารไทยพาณิชย์ จำกัด (มหาชน) สำนักงานใหญ่ รัชโยธิน',
                         company: 'ธนาคารไทยพาณิชย์ จำกัด (มหาชน) สำนักงานใหญ่ รัชโยธิน',
                         company_lat: '13.826629',
@@ -2171,8 +2194,8 @@
                         role: 'student',
                         year: '4',
                         department: 'วิทยาการคอมพิวเตอร์',
-                        curriculum: 'ภาคปกติ',
-                        section: 'หมู่ 701 (ภาคปกติ)',
+                        curriculum: '',
+                        section: 'หมู่ 701',
                         company_name: 'บริษัท ปตท. สำรวจและผลิตปิโตรเลียม จำกัด (มหาชน)',
                         company: 'บริษัท ปตท. สำรวจและผลิตปิโตรเลียม จำกัด (มหาชน)',
                         company_lat: '13.820251',
@@ -2196,8 +2219,8 @@
                         role: 'student',
                         year: '4',
                         department: 'วิทยาการคอมพิวเตอร์',
-                        curriculum: 'ภาคพิเศษ',
-                        section: 'หมู่ 801 (ภาคพิเศษ)',
+                        curriculum: '',
+                        section: 'หมู่ 801',
                         company_name: 'บริษัท เอสซีบี เทคเอกซ์ จำกัด (SCB TechX)',
                         company: 'บริษัท เอสซีบี เทคเอกซ์ จำกัด (SCB TechX)',
                         company_lat: '13.826629',
@@ -2221,8 +2244,8 @@
                         role: 'student',
                         year: '4',
                         department: 'วิทยาการคอมพิวเตอร์',
-                        curriculum: 'ภาคพิเศษ',
-                        section: 'หมู่ 801 (ภาคพิเศษ)',
+                        curriculum: '',
+                        section: 'หมู่ 801',
                         company_name: 'บริษัท สามารถคอร์ปอเรชั่น จำกัด (มหาชน)',
                         company: 'บริษัท สามารถคอร์ปอเรชั่น จำกัด (มหาชน)',
                         company_lat: '13.896742',
@@ -2239,7 +2262,7 @@
                         password_changed: true
                     },
 
-                    // ===== อาจารย์ สมจิต มั่งมี (หมู่ 702 ภาคปกติ, หมู่ 802 ภาคพิเศษ) =====
+                    // ===== อาจารย์ สมจิต มั่งมี (หมู่ 702 , หมู่ 802 ) =====
                     {
                         id: '6521650312',
                         student_id: '6521650312',
@@ -2248,8 +2271,8 @@
                         role: 'student',
                         year: '4',
                         department: 'วิทยาการคอมพิวเตอร์',
-                        curriculum: 'ภาคปกติ',
-                        section: 'หมู่ 702 (ภาคปกติ)',
+                        curriculum: '',
+                        section: 'หมู่ 702',
                         company_name: 'บริษัท โทรคมนาคมแห่งชาติ จำกัด (มหาชน) (NT แจ้งวัฒนะ)',
                         company: 'บริษัท โทรคมนาคมแห่งชาติ จำกัด (มหาชน) (NT แจ้งวัฒนะ)',
                         company_lat: '13.884500',
@@ -2273,8 +2296,8 @@
                         role: 'student',
                         year: '4',
                         department: 'วิทยาการคอมพิวเตอร์',
-                        curriculum: 'ภาคปกติ',
-                        section: 'หมู่ 702 (ภาคปกติ)',
+                        curriculum: '',
+                        section: 'หมู่ 702',
                         company_name: 'การไฟฟ้าฝ่ายผลิตแห่งประเทศไทย (กฟผ.)',
                         company: 'การไฟฟ้าฝ่ายผลิตแห่งประเทศไทย (กฟผ.)',
                         company_lat: '13.807831',
@@ -2298,8 +2321,8 @@
                         role: 'student',
                         year: '4',
                         department: 'วิทยาการคอมพิวเตอร์',
-                        curriculum: 'ภาคพิเศษ',
-                        section: 'หมู่ 802 (ภาคพิเศษ)',
+                        curriculum: '',
+                        section: 'หมู่ 802',
                         company_name: 'สำนักงานพัฒนาธุรกรรมทางอิเล็กทรอนิกส์ (ETDA)',
                         company: 'สำนักงานพัฒนาธุรกรรมทางอิเล็กทรอนิกส์ (ETDA)',
                         company_lat: '13.884120',
@@ -2323,8 +2346,8 @@
                         role: 'student',
                         year: '4',
                         department: 'วิทยาการคอมพิวเตอร์',
-                        curriculum: 'ภาคพิเศษ',
-                        section: 'หมู่ 802 (ภาคพิเศษ)',
+                        curriculum: '',
+                        section: 'หมู่ 802',
                         company_name: 'บริษัท เบทาโกร จำกัด (มหาชน)',
                         company: 'บริษัท เบทาโกร จำกัด (มหาชน)',
                         company_lat: '13.883410',
@@ -2823,7 +2846,7 @@
                         <tr style="border-bottom: 1px solid var(--border-color); font-size: 11.5px;">
                             <td style="padding: 10px 12px; font-weight: 700; color: var(--primary-color); white-space: nowrap;">${s.id}</td>
                             <td style="padding: 10px 12px; font-weight: 600; color: var(--text-main);">${s.name}</td>
-                            <td style="padding: 10px 12px; color: #475569; white-space: nowrap; font-weight: 600;">${s.section}</td>
+                            <td style="padding: 10px 12px; color: #475569; white-space: nowrap; font-weight: 600;">${cleanSectionName(s.section)}</td>
                             <td style="padding: 10px 12px; color: #0284c7; font-weight: 600; white-space: nowrap;">${s.semester || 'ภาคต้น 2569'}</td>
                             <td style="padding: 10px 12px; color: #1e40af; font-weight: 600; white-space: nowrap;">${s.advisor_name || '-'}</td>
                             <td style="padding: 10px 12px; color: #1e293b;">${s.company}</td>
@@ -3044,14 +3067,14 @@
                 dashClassList.innerHTML = `
                     <div class="classroom-item" onclick="openClassroomDetail('${mySecNormal}')" style="cursor: pointer;">
                         <div>
-                            <div style="font-size: 13px; font-weight: 700; color: var(--primary-color);">หมู่เรียน ${normNum} (ภาคปกติ)</div>
+                            <div style="font-size: 13px; font-weight: 700; color: var(--primary-color);">หมู่เรียน ${normNum}</div>
                             <div style="font-size: 11px; color: var(--text-muted);">${secNormText}</div>
                         </div>
                         <span class="status-badge badge-success">จัดการ ></span>
                     </div>
                     <div class="classroom-item" onclick="openClassroomDetail('${mySecSpecial}')" style="cursor: pointer;">
                         <div>
-                            <div style="font-size: 13px; font-weight: 700; color: var(--primary-color);">หมู่เรียน ${specNum} (ภาคพิเศษ)</div>
+                            <div style="font-size: 13px; font-weight: 700; color: var(--primary-color);">หมู่เรียน ${specNum}</div>
                             <div style="font-size: 11px; color: var(--text-muted);">${secSpecText}</div>
                         </div>
                         <span class="status-badge badge-success">จัดการ ></span>
@@ -3064,14 +3087,14 @@
                 tabClassList.innerHTML = `
                     <div class="classroom-item" onclick="openClassroomDetail('${mySecNormal}')" style="cursor: pointer;">
                         <div>
-                            <div style="font-size: 13px; font-weight: 700; color: var(--primary-color);">หมู่เรียน ${normNum} (ภาคปกติ)</div>
+                            <div style="font-size: 13px; font-weight: 700; color: var(--primary-color);">หมู่เรียน ${normNum}</div>
                             <div style="font-size: 11px; color: var(--text-muted);">${secNormText}</div>
                         </div>
                         <span class="status-badge badge-success">เข้าจัดการ ></span>
                     </div>
                     <div class="classroom-item" onclick="openClassroomDetail('${mySecSpecial}')" style="cursor: pointer;">
                         <div>
-                            <div style="font-size: 13px; font-weight: 700; color: var(--primary-color);">หมู่เรียน ${specNum} (ภาคพิเศษ)</div>
+                            <div style="font-size: 13px; font-weight: 700; color: var(--primary-color);">หมู่เรียน ${specNum}</div>
                             <div style="font-size: 11px; color: var(--text-muted);">${secSpecText}</div>
                         </div>
                         <span class="status-badge badge-success">เข้าจัดการ ></span>
@@ -3103,13 +3126,13 @@
             // Update filter dropdown labels in both Calendar and QR forms
             const calNormOpt = document.getElementById('cal-sec-opt-norm');
             const calSpecOpt = document.getElementById('cal-sec-opt-spec');
-            if (calNormOpt) calNormOpt.textContent = `${secNormTitle} (ภาคปกติ) - ${listNorm.length} คน`;
-            if (calSpecOpt) calSpecOpt.textContent = `${secSpecTitle} (ภาคพิเศษ) - ${listSpec.length} คน`;
+            if (calNormOpt) calNormOpt.textContent = `${secNormTitle} - ${listNorm.length} คน`;
+            if (calSpecOpt) calSpecOpt.textContent = `${secSpecTitle} - ${listSpec.length} คน`;
 
             const qrNormOpt = document.getElementById('qr-sec-opt-norm');
             const qrSpecOpt = document.getElementById('qr-sec-opt-spec');
-            if (qrNormOpt) qrNormOpt.textContent = `${secNormTitle} (ภาคปกติ) - ${listNorm.length} คน`;
-            if (qrSpecOpt) qrSpecOpt.textContent = `${secSpecTitle} (ภาคพิเศษ) - ${listSpec.length} คน`;
+            if (qrNormOpt) qrNormOpt.textContent = `${secNormTitle} - ${listNorm.length} คน`;
+            if (qrSpecOpt) qrSpecOpt.textContent = `${secSpecTitle} - ${listSpec.length} คน`;
 
             renderCalStudentSelectOptions(listNorm, listSpec, secNormTitle, secSpecTitle, currentCalSectionFilter);
             renderQrStudentSelectOptions(listNorm, listSpec, secNormTitle, secSpecTitle, currentQrSectionFilter);
@@ -3135,7 +3158,7 @@
             if (filterMode === 'all' || filterMode === 'normal') {
                 if (listNorm.length > 0) {
                     const groupNorm = document.createElement('optgroup');
-                    groupNorm.label = `── ${secNormTitle} (ภาคปกติ) [${listNorm.length} คน] ──`;
+                    groupNorm.label = `── ${secNormTitle} [${listNorm.length} คน] ──`;
                     listNorm.forEach(s => {
                         const opt = document.createElement('option');
                         opt.value = s.id;
@@ -3149,7 +3172,7 @@
             if (filterMode === 'all' || filterMode === 'special') {
                 if (listSpec.length > 0) {
                     const groupSpec = document.createElement('optgroup');
-                    groupSpec.label = `── ${secSpecTitle} (ภาคพิเศษ) [${listSpec.length} คน] ──`;
+                    groupSpec.label = `── ${secSpecTitle} [${listSpec.length} คน] ──`;
                     listSpec.forEach(s => {
                         const opt = document.createElement('option');
                         opt.value = s.id;
@@ -3183,7 +3206,7 @@
             if (filterMode === 'all' || filterMode === 'normal') {
                 if (listNorm.length > 0) {
                     const groupNorm = document.createElement('optgroup');
-                    groupNorm.label = `── ${secNormTitle} (ภาคปกติ) [${listNorm.length} คน] ──`;
+                    groupNorm.label = `── ${secNormTitle} [${listNorm.length} คน] ──`;
                     listNorm.forEach(s => {
                         const opt = document.createElement('option');
                         opt.value = s.id;
@@ -3198,7 +3221,7 @@
             if (filterMode === 'all' || filterMode === 'special') {
                 if (listSpec.length > 0) {
                     const groupSpec = document.createElement('optgroup');
-                    groupSpec.label = `── ${secSpecTitle} (ภาคพิเศษ) [${listSpec.length} คน] ──`;
+                    groupSpec.label = `── ${secSpecTitle} [${listSpec.length} คน] ──`;
                     listSpec.forEach(s => {
                         const opt = document.createElement('option');
                         opt.value = s.id;
@@ -3265,7 +3288,7 @@
                     name: 'นาย กิตติศักดิ์ พลอยประเสริฐ',
                     email: 'kittisak.plo@ku.th',
                     role: 'student',
-                    section: 'หมู่ 700 (ภาคปกติ)',
+                    section: 'หมู่ 700',
                     company_name: 'บริษัท กสท โทรคมนาคม จำกัด (มหาชน)',
                     advisor_name: 'อาจารย์ สมชาย แจ่มใส',
                     docs: 'ครบถ้วน',
@@ -3289,7 +3312,7 @@
                             parsed.name = 'นาย วงศพัทธ์ อุเทน';
                             parsed.id = '6521655442';
                             parsed.student_id = '6521655442';
-                            parsed.section = parsed.section || 'หมู่ 800 (ภาคพิเศษ)';
+                            parsed.section = parsed.section || 'หมู่ 800';
                             parsed.company_name = parsed.company_name || 'สำนักงานพัฒนาวิทยาศาสตร์และเทคโนโลยีแห่งชาติ (สวทช.)';
                             parsed.advisor_name = parsed.advisor_name || 'อาจารย์ สมชาย แจ่มใส';
                             try {
@@ -3372,7 +3395,7 @@
                 user.name = 'นาย วงศพัทธ์ อุเทน';
                 user.id = '6521655442';
                 user.student_id = '6521655442';
-                user.section = user.section || 'หมู่ 800 (ภาคพิเศษ)';
+                user.section = user.section || 'หมู่ 800';
                 user.company_name = user.company_name || 'สำนักงานพัฒนาวิทยาศาสตร์และเทคโนโลยีแห่งชาติ (สวทช.)';
                 user.advisor_name = user.advisor_name || 'อาจารย์ สมชาย แจ่มใส';
             } else if (uName.includes('สมชาย') || uEmail.includes('somchai') || uId === 'Q1111') {
@@ -3468,8 +3491,8 @@
 
                 const stdSub = document.getElementById('std-welcome-sub');
                 const stdIdVal = user.id || user.student_id || '-';
-                const stdSecVal = user.section || 'ไม่ระบุ';
-                const formattedSection = stdSecVal.includes('หมู่') ? stdSecVal : `หมู่ ${stdSecVal}`;
+                const rawSec = String(user.section || 'ไม่ระบุ').replace(/\s*\(ภาคปกติ\)|\s*\(ภาคพิเศษ\)|\s*\(ปกติ\)|\s*\(พิเศษ\)|ภาคปกติ|ภาคพิเศษ/g, '').trim();
+                const formattedSection = rawSec.includes('หมู่') ? rawSec : (rawSec && rawSec !== 'ไม่ระบุ' ? `หมู่ ${rawSec}` : 'ไม่ระบุ');
                 const stdSemester = user.semester || 'ภาคต้น 2569';
                 if (stdSub) stdSub.textContent = `รหัสนิสิต: ${stdIdVal} | ${formattedSection} | ภาคการศึกษา: ${stdSemester}`;
                 const stdDocsSub = document.getElementById('std-docs-welcome-sub');
@@ -3704,7 +3727,7 @@
                         'คำนำหน้านาม': 'นาย',
                         'ชื่อ - นามสกุล': 'พชร ศิริวัฒน์',
                         'อีเมลมหาวิทยาลัย': 'phachara.s@ku.th',
-                        'หมู่เรียน': '800 (ภาคพิเศษ)',
+                        'หมู่เรียน': '800',
                         'อาจารย์ที่ปรึกษา': 'อาจารย์ สมจิต มั่งมี',
                         'ชื่อสถานประกอบการ': 'บริษัท กสท โทรคมนาคม จำกัด (มหาชน)',
                         'พิกัด GPS': '13.8821, 100.5841'
@@ -3714,7 +3737,7 @@
                         'คำนำหน้านาม': 'นางสาว',
                         'ชื่อ - นามสกุล': 'กนกวรรณ รัตนวิชัย',
                         'อีเมลมหาวิทยาลัย': 'kanokwan.r@ku.th',
-                        'หมู่เรียน': '800 (ภาคพิเศษ)',
+                        'หมู่เรียน': '800',
                         'อาจารย์ที่ปรึกษา': 'อาจารย์ สมจิต มั่งมี',
                         'ชื่อสถานประกอบการ': 'บริษัท อโกด้า เซอร์วิสเซส จำกัด',
                         'พิกัด GPS': '13.7462, 100.5348'
@@ -3724,7 +3747,7 @@
                         'คำนำหน้านาม': 'นาย',
                         'ชื่อ - นามสกุล': 'ธนกฤต แสงสว่าง',
                         'อีเมลมหาวิทยาลัย': 'thanakrit.s@ku.th',
-                        'หมู่เรียน': '700 (ภาคปกติ)',
+                        'หมู่เรียน': '700',
                         'อาจารย์ที่ปรึกษา': 'อาจารย์ นิเทศ สหกิจ',
                         'ชื่อสถานประกอบการ': 'บริษัท บลูบิค กรุ๊ป จำกัด (มหาชน)',
                         'พิกัด GPS': '13.7234, 100.5289'
@@ -3734,7 +3757,7 @@
                         'คำนำหน้านาม': 'นางสาว',
                         'ชื่อ - นามสกุล': 'พิมพ์พิชชา วงศ์สุวรรณ',
                         'อีเมลมหาวิทยาลัย': 'pimpitcha.w@ku.th',
-                        'หมู่เรียน': '700 (ภาคปกติ)',
+                        'หมู่เรียน': '700',
                         'อาจารย์ที่ปรึกษา': 'อาจารย์ นิเทศ สหกิจ',
                         'ชื่อสถานประกอบการ': 'ธนาคารไทยพาณิชย์ จำกัด (มหาชน)',
                         'พิกัด GPS': '13.8279, 100.5652'
@@ -3812,7 +3835,7 @@
                         student_id: '6521655305',
                         name: 'นาย พชร ศิริวัฒน์',
                         email: 'phachara.s@ku.th',
-                        section: 'หมู่ 800 (ภาคพิเศษ)',
+                        section: 'หมู่ 800',
                         company: 'บริษัท กสท โทรคมนาคม จำกัด (มหาชน)',
                         company_lat: 13.8821,
                         company_lng: 100.5841,
@@ -3826,7 +3849,7 @@
                         student_id: '6521655313',
                         name: 'นางสาว กนกวรรณ รัตนวิชัย',
                         email: 'kanokwan.r@ku.th',
-                        section: 'หมู่ 800 (ภาคพิเศษ)',
+                        section: 'หมู่ 800',
                         company: 'บริษัท อโกด้า เซอร์วิสเซส จำกัด',
                         company_lat: 13.7462,
                         company_lng: 100.5348,
@@ -3840,7 +3863,7 @@
                         student_id: '6521650012',
                         name: 'นาย ธนกฤต แสงสว่าง',
                         email: 'thanakrit.s@ku.th',
-                        section: 'หมู่ 700 (ภาคปกติ)',
+                        section: 'หมู่ 700',
                         company: 'บริษัท บลูบิค กรุ๊ป จำกัด (มหาชน)',
                         company_lat: 13.7234,
                         company_lng: 100.5289,
@@ -3854,7 +3877,7 @@
                         student_id: '6521650045',
                         name: 'นางสาว พิมพ์พิชชา วงศ์สุวรรณ',
                         email: 'pimpitcha.w@ku.th',
-                        section: 'หมู่ 700 (ภาคปกติ)',
+                        section: 'หมู่ 700',
                         company: 'ธนาคารไทยพาณิชย์ จำกัด (มหาชน)',
                         company_lat: 13.8279,
                         company_lng: 100.5652,
@@ -4193,8 +4216,8 @@
                     const curr = currentSelectedClassroom || mySecNormal;
                     secSelect.innerHTML = `
                         <option value="current" selected>ตามห้องเรียนที่เลือกอยู่ (${curr})</option>
-                        <option value="${mySecNormal}">${mySecNormal} (ภาคปกติ)</option>
-                        <option value="${mySecSpecial}">${mySecSpecial} (ภาคพิเศษ)</option>
+                        <option value="${mySecNormal}">${mySecNormal}</option>
+                        <option value="${mySecSpecial}">${mySecSpecial}</option>
                         <option value="auto_file">ดึงตามคอลัมน์ในไฟล์ Excel (ถ้ามีระบุ)</option>
                     `;
                 }
@@ -4251,7 +4274,7 @@
                     "ชื่อ - นามสกุล": "สมคิด สถิตย์คง",
                     "ชั้นปี": "4",
                     "สาขาวิชา": "วิทยาการคอมพิวเตอร์",
-                    "หลักสูตร": "ภาคปกติ",
+                    "หลักสูตร": "",
                     "หมู่เรียน": mySecNormal,
                     "อาจารย์ที่ปรึกษา": advName,
                     "ภาคการศึกษา": currentSem,
@@ -4267,7 +4290,7 @@
                     "ชื่อ - นามสกุล": "วิภาวรรณ สดใส",
                     "ชั้นปี": "4",
                     "สาขาวิชา": "วิทยาการคอมพิวเตอร์",
-                    "หลักสูตร": "ภาคพิเศษ",
+                    "หลักสูตร": "",
                     "หมู่เรียน": mySecSpecial,
                     "อาจารย์ที่ปรึกษา": advName,
                     "ภาคการศึกษา": currentSem,
@@ -4716,7 +4739,7 @@
                 const company = findRowValue(row, ['ชื่อสถานประกอบการ', 'สถานประกอบการ', 'Company', 'company']) || 'สถานประกอบการสหกิจศึกษา';
                 const yearVal = findRowValue(row, ['ชั้นปี', 'ชั้น', 'Year', 'year']) || '4';
                 const deptVal = findRowValue(row, ['ภาควิชา', 'สาขาวิชา', 'ภาค', 'Department', 'dept']) || 'วิทยาการคอมพิวเตอร์';
-                const curriculumVal = findRowValue(row, ['หลักสูตร', 'Curriculum', 'program']) || (targetSec.includes('800') || targetSec.includes('801') || targetSec.includes('802') ? 'ภาคพิเศษ' : 'ภาคปกติ');
+                const curriculumVal = findRowValue(row, ['หลักสูตร', 'Curriculum', 'program']) || '';
                 const phoneVal = findRowValue(row, ['เบอร์โทรศัพท์', 'เบอร์โทร', 'เบอร์', 'โทร', 'Phone', 'Tel', 'tel']) || '';
 
                 const locationCoord = findRowValue(row, ['พิกัด', 'พิกัด GPS', 'GPS', 'Location', 'พิกัดจีพีเอส']);
@@ -4954,7 +4977,7 @@
                 role: 'student',
                 year: '4',
                 department: 'วิทยาการคอมพิวเตอร์',
-                curriculum: (section.includes('800') || section.includes('801') || section.includes('802') ? 'ภาคพิเศษ' : 'ภาคปกติ'),
+                curriculum: '',
                 section: section,
                 company_name: company,
                 company: company,
@@ -5270,8 +5293,8 @@
             if (secSel) {
                 secSel.innerHTML = `
                     <option value="all" selected>ทั้ง 2 หมู่เรียน (${mySecNormal} และ ${mySecSpecial})</option>
-                    <option value="${mySecNormal}">เฉพาะ ${mySecNormal} (ภาคปกติ)</option>
-                    <option value="${mySecSpecial}">เฉพาะ ${mySecSpecial} (ภาคพิเศษ)</option>
+                    <option value="${mySecNormal}">เฉพาะ ${mySecNormal}</option>
+                    <option value="${mySecSpecial}">เฉพาะ ${mySecSpecial}</option>
                 `;
             }
 
@@ -5323,10 +5346,10 @@
             let targetSecLabel = `${mySecNormal}, ${mySecSpecial}`;
             if (secChoice === 'normal') {
                 savedSection = mySecNormal; // เช่น 'หมู่ 700', 'หมู่ 701', 'หมู่ 702'
-                targetSecLabel = `${mySecNormal} (ภาคปกติ)`;
+                targetSecLabel = mySecNormal;
             } else if (secChoice === 'special') {
                 savedSection = mySecSpecial; // เช่น 'หมู่ 800', 'หมู่ 801', 'หมู่ 802'
-                targetSecLabel = `${mySecSpecial} (ภาคพิเศษ)`;
+                targetSecLabel = mySecSpecial;
             }
 
             const asgs = getCoopAssignments();
@@ -5442,7 +5465,7 @@
 
                     // ส่งอีเมลแจ้งเตือนถึงนิสิต
                     if (typeof dispatchNotificationEmail === 'function') {
-                        const secLabel = secChoice === 'all' ? `${mySecNormal} และ ${mySecSpecial}` : (secChoice === 'normal' ? `${mySecNormal} (ภาคปกติ)` : `${mySecSpecial} (ภาคพิเศษ)`);
+                        const secLabel = secChoice === 'all' ? `${mySecNormal} และ ${mySecSpecial}` : (secChoice === 'normal' ? mySecNormal : mySecSpecial);
                         const detailsHtml = `
                             <p style="margin:0 0 8px 0;"><strong>ชื่องาน / เอกสาร:</strong> ${title}</p>
                             <p style="margin:0 0 8px 0;"><strong>กำหนดส่ง:</strong> <span style="color:#dc2626;font-weight:700;">${formatDueDateText}</span></p>
@@ -5520,9 +5543,9 @@
             const secSelect = document.getElementById('adv-asg-section-select');
             if (secSelect) {
                 const optNormal = secSelect.querySelector('option[value="normal"]');
-                if (optNormal) optNormal.textContent = `${mySecNormal} (ภาคปกติ)`;
+                if (optNormal) optNormal.textContent = `${mySecNormal}`;
                 const optSpecial = secSelect.querySelector('option[value="special"]');
-                if (optSpecial) optSpecial.textContent = `${mySecSpecial} (ภาคพิเศษ)`;
+                if (optSpecial) optSpecial.textContent = `${mySecSpecial}`;
                 secSelect.value = advisorAssignmentSectionFilter;
             }
 
@@ -5805,7 +5828,7 @@
                     const std = item.student;
                     const doc = item.doc;
                     const badgeClass = (doc.status === 'ตรวจรับแล้ว' || doc.status === 'ครบถ้วน') ? 'badge-success' : (doc.status === 'ต้องแก้ไข' ? 'badge-danger' : 'badge-warning');
-                    const secTag = std.section ? `<span class="status-badge" style="font-size: 10px; margin-left: 6px; background: #e0f2fe; color: #0369a1;">${std.section}</span>` : '';
+                    const secTag = std.section ? `<span class="status-badge" style="font-size: 10px; margin-left: 6px; background: #e0f2fe; color: #0369a1;">${cleanSectionName(std.section)}</span>` : '';
 
                     const div = document.createElement('div');
                     div.style.background = '#f8fafc';
@@ -5882,7 +5905,7 @@
                     return;
                 }
                 unsubmittedList.forEach(std => {
-                    const secTag = std.section ? `<span class="status-badge" style="font-size: 10px; margin-left: 6px; background: #fee2e2; color: #991b1b;">${std.section}</span>` : '';
+                    const secTag = std.section ? `<span class="status-badge" style="font-size: 10px; margin-left: 6px; background: #fee2e2; color: #991b1b;">${cleanSectionName(std.section)}</span>` : '';
                     const div = document.createElement('div');
                     div.style.background = '#fef2f2';
                     div.style.border = '1px solid #fecaca';
@@ -6261,8 +6284,8 @@
                 else if (asg.title.includes('สไลด์') || asg.title.includes('Slide')) docCode = 'สไลด์นำเสนอ';
 
                 let targetSecLabel = (!asg.section || asg.section === 'all') ? `${mySecNormal}, ${mySecSpecial}` : asg.section;
-                if (asg.section === 'normal') targetSecLabel = `${mySecNormal} (ภาคปกติ)`;
-                else if (asg.section === 'special') targetSecLabel = `${mySecSpecial} (ภาคพิเศษ)`;
+                if (asg.section === 'normal') targetSecLabel = mySecNormal;
+                else if (asg.section === 'special') targetSecLabel = mySecSpecial;
 
                 const card = document.createElement('div');
                 card.style.background = '#ffffff';
@@ -6456,7 +6479,7 @@
                     <td style="padding: 10px 12px; font-weight: 700; color: #1e3a8a; white-space: nowrap;">${std.id}</td>
                     <td style="padding: 10px 12px; font-weight: 600; color: var(--text-main); white-space: nowrap;">${std.name}</td>
                     <td style="padding: 10px 12px; white-space: nowrap;">
-                        <span class="status-badge" style="${secBadgeColor} font-size: 10.5px;">${std.section || '-'}</span>
+                        <span class="status-badge" style="${secBadgeColor} font-size: 10.5px;">${cleanSectionName(std.section) || '-'}</span>
                     </td>
                     <td style="padding: 10px 12px; color: #475569; font-size: 11px; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${compName}">
                         ${compName}
@@ -6969,8 +6992,7 @@
             document.getElementById('class-detail-title').textContent = `จัดการ${sectionName}`;
             const subTitle = document.getElementById('class-detail-subtitle');
             if (subTitle) {
-                const isSpec = (sectionName.includes('800') || sectionName.includes('801') || sectionName.includes('802') || sectionName.includes('พิเศษ'));
-                subTitle.textContent = isSpec ? 'ภาคพิเศษ' : 'ภาคปกติ';
+                subTitle.textContent = 'นิสิตสหกิจศึกษาในความดูแล';
             }
             switchAdvisorClassroomTab('students');
             renderStudentList();
@@ -7515,9 +7537,9 @@
             const secSelect = document.getElementById('adv-photo-sec-select');
             if (secSelect) {
                 const optNormal = secSelect.querySelector('option[value="normal"]');
-                if (optNormal) optNormal.textContent = `${mySecNormal} (ภาคปกติ)`;
+                if (optNormal) optNormal.textContent = `${mySecNormal}`;
                 const optSpecial = secSelect.querySelector('option[value="special"]');
-                if (optSpecial) optSpecial.textContent = `${mySecSpecial} (ภาคพิเศษ)`;
+                if (optSpecial) optSpecial.textContent = `${mySecSpecial}`;
             }
 
             const secChoice = secSelect ? secSelect.value : 'all';
@@ -7565,7 +7587,7 @@
                 tr.innerHTML = `
                     <td style="padding: 10px 12px; font-weight: 700; color: var(--primary-color); white-space: nowrap;">${std.id}</td>
                     <td style="padding: 10px 12px; font-weight: 600; color: var(--text-main);">${std.name}</td>
-                    <td style="padding: 10px 12px; white-space: nowrap; color: #475569; font-weight: 600;">${std.section || std._assignedSection}</td>
+                    <td style="padding: 10px 12px; white-space: nowrap; color: #475569; font-weight: 600;">${cleanSectionName(std.section || std._assignedSection)}</td>
                     <td style="padding: 10px 12px; color: #334155;">${std.company || '-'}</td>
                     <td style="padding: 10px 12px; white-space: nowrap;">
                         ${hasPhoto ? 
@@ -8156,8 +8178,7 @@
                 if (sList.length > 0) {
                     total += sList.length;
                     const g = document.createElement('optgroup');
-                    const isSpec = sec.includes('800') || sec.includes('801') || sec.includes('802');
-                    g.label = `── ${sec} (${isSpec ? 'ภาคพิเศษ' : 'ภาคปกติ'}) [${sList.length} คน] ──`;
+                    g.label = `── ${sec} [${sList.length} คน] ──`;
                     sList.forEach(s => {
                         const opt = document.createElement('option');
                         opt.value = s.id;
@@ -8264,7 +8285,7 @@
                         select.innerHTML = '<option value="">-- เลือกสถานประกอบการของนิสิต --</option>';
                         if (normStds.length > 0) {
                             const gNorm = document.createElement('optgroup');
-                            gNorm.label = `── ${mySecNormal} (ภาคปกติ) [${normStds.length} คน] ──`;
+                            gNorm.label = `── ${mySecNormal} [${normStds.length} คน] ──`;
                             normStds.forEach(s => {
                                 const opt = document.createElement('option');
                                 opt.value = s.id;
@@ -8275,7 +8296,7 @@
                         }
                         if (specStds.length > 0) {
                             const gSpec = document.createElement('optgroup');
-                            gSpec.label = `── ${mySecSpecial} (ภาคพิเศษ) [${specStds.length} คน] ──`;
+                            gSpec.label = `── ${mySecSpecial} [${specStds.length} คน] ──`;
                             specStds.forEach(s => {
                                 const opt = document.createElement('option');
                                 opt.value = s.id;

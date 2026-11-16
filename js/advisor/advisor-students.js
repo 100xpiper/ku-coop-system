@@ -184,7 +184,7 @@ function switchAdminUserTab(tab) {
                         <tr style="border-bottom: 1px solid var(--border-color); font-size: 11.5px;">
                             <td style="padding: 10px 12px; font-weight: 700; color: var(--primary-color); white-space: nowrap;">${s.id}</td>
                             <td style="padding: 10px 12px; font-weight: 600; color: var(--text-main);">${s.name}</td>
-                            <td style="padding: 10px 12px; color: #475569; white-space: nowrap; font-weight: 600;">${s.section}</td>
+                            <td style="padding: 10px 12px; color: #475569; white-space: nowrap; font-weight: 600;">${cleanSectionName(s.section)}</td>
                             <td style="padding: 10px 12px; color: #0284c7; font-weight: 600; white-space: nowrap;">${s.semester || 'ภาคต้น 2569'}</td>
                             <td style="padding: 10px 12px; color: #1e40af; font-weight: 600; white-space: nowrap;">${s.advisor_name || '-'}</td>
                             <td style="padding: 10px 12px; color: #1e293b;">${s.company}</td>
@@ -354,13 +354,13 @@ function switchAdminUserTab(tab) {
             // Update filter dropdown labels in both Calendar and QR forms
             const calNormOpt = document.getElementById('cal-sec-opt-norm');
             const calSpecOpt = document.getElementById('cal-sec-opt-spec');
-            if (calNormOpt) calNormOpt.textContent = `${secNormTitle} (ภาคปกติ) - ${listNorm.length} คน`;
-            if (calSpecOpt) calSpecOpt.textContent = `${secSpecTitle} (ภาคพิเศษ) - ${listSpec.length} คน`;
+            if (calNormOpt) calNormOpt.textContent = `${secNormTitle} - ${listNorm.length} คน`;
+            if (calSpecOpt) calSpecOpt.textContent = `${secSpecTitle} - ${listSpec.length} คน`;
 
             const qrNormOpt = document.getElementById('qr-sec-opt-norm');
             const qrSpecOpt = document.getElementById('qr-sec-opt-spec');
-            if (qrNormOpt) qrNormOpt.textContent = `${secNormTitle} (ภาคปกติ) - ${listNorm.length} คน`;
-            if (qrSpecOpt) qrSpecOpt.textContent = `${secSpecTitle} (ภาคพิเศษ) - ${listSpec.length} คน`;
+            if (qrNormOpt) qrNormOpt.textContent = `${secNormTitle} - ${listNorm.length} คน`;
+            if (qrSpecOpt) qrSpecOpt.textContent = `${secSpecTitle} - ${listSpec.length} คน`;
 
             renderCalStudentSelectOptions(listNorm, listSpec, secNormTitle, secSpecTitle, currentCalSectionFilter);
             renderQrStudentSelectOptions(listNorm, listSpec, secNormTitle, secSpecTitle, currentQrSectionFilter);
@@ -386,7 +386,7 @@ function switchAdminUserTab(tab) {
             if (filterMode === 'all' || filterMode === 'normal') {
                 if (listNorm.length > 0) {
                     const groupNorm = document.createElement('optgroup');
-                    groupNorm.label = `── ${secNormTitle} (ภาคปกติ) [${listNorm.length} คน] ──`;
+                    groupNorm.label = `── ${secNormTitle} [${listNorm.length} คน] ──`;
                     listNorm.forEach(s => {
                         const opt = document.createElement('option');
                         opt.value = s.id;
@@ -400,7 +400,7 @@ function switchAdminUserTab(tab) {
             if (filterMode === 'all' || filterMode === 'special') {
                 if (listSpec.length > 0) {
                     const groupSpec = document.createElement('optgroup');
-                    groupSpec.label = `── ${secSpecTitle} (ภาคพิเศษ) [${listSpec.length} คน] ──`;
+                    groupSpec.label = `── ${secSpecTitle} [${listSpec.length} คน] ──`;
                     listSpec.forEach(s => {
                         const opt = document.createElement('option');
                         opt.value = s.id;
@@ -434,7 +434,7 @@ function switchAdminUserTab(tab) {
             if (filterMode === 'all' || filterMode === 'normal') {
                 if (listNorm.length > 0) {
                     const groupNorm = document.createElement('optgroup');
-                    groupNorm.label = `── ${secNormTitle} (ภาคปกติ) [${listNorm.length} คน] ──`;
+                    groupNorm.label = `── ${secNormTitle} [${listNorm.length} คน] ──`;
                     listNorm.forEach(s => {
                         const opt = document.createElement('option');
                         opt.value = s.id;
@@ -449,7 +449,7 @@ function switchAdminUserTab(tab) {
             if (filterMode === 'all' || filterMode === 'special') {
                 if (listSpec.length > 0) {
                     const groupSpec = document.createElement('optgroup');
-                    groupSpec.label = `── ${secSpecTitle} (ภาคพิเศษ) [${listSpec.length} คน] ──`;
+                    groupSpec.label = `── ${secSpecTitle} [${listSpec.length} คน] ──`;
                     listSpec.forEach(s => {
                         const opt = document.createElement('option');
                         opt.value = s.id;
@@ -627,8 +627,8 @@ function switchAdminUserTab(tab) {
                     const curr = currentSelectedClassroom || mySecNormal;
                     secSelect.innerHTML = `
                         <option value="current" selected>ตามห้องเรียนที่เลือกอยู่ (${curr})</option>
-                        <option value="${mySecNormal}">${mySecNormal} (ภาคปกติ)</option>
-                        <option value="${mySecSpecial}">${mySecSpecial} (ภาคพิเศษ)</option>
+                        <option value="${mySecNormal}">${mySecNormal}</option>
+                        <option value="${mySecSpecial}">${mySecSpecial}</option>
                         <option value="auto_file">ดึงตามคอลัมน์ในไฟล์ Excel (ถ้ามีระบุ)</option>
                     `;
                 }
@@ -685,7 +685,7 @@ function switchAdminUserTab(tab) {
                     "ชื่อ - นามสกุล": "สมคิด สถิตย์คง",
                     "ชั้นปี": "4",
                     "สาขาวิชา": "วิทยาการคอมพิวเตอร์",
-                    "หลักสูตร": "ภาคปกติ",
+                    "หลักสูตร": "",
                     "หมู่เรียน": mySecNormal,
                     "อาจารย์ที่ปรึกษา": advName,
                     "ภาคการศึกษา": "ปลาย",
@@ -702,7 +702,7 @@ function switchAdminUserTab(tab) {
                     "ชื่อ - นามสกุล": "วิภาวรรณ สดใส",
                     "ชั้นปี": "4",
                     "สาขาวิชา": "วิทยาการคอมพิวเตอร์",
-                    "หลักสูตร": "ภาคพิเศษ",
+                    "หลักสูตร": "",
                     "หมู่เรียน": mySecSpecial,
                     "อาจารย์ที่ปรึกษา": advName,
                     "ภาคการศึกษา": "ปลาย",
@@ -1153,7 +1153,7 @@ function switchAdminUserTab(tab) {
                 const company = findRowValue(row, ['ชื่อสถานประกอบการ', 'สถานประกอบการ', 'Company', 'company']) || 'สถานประกอบการสหกิจศึกษา';
                 const yearVal = findRowValue(row, ['ชั้นปี', 'ชั้น', 'Year', 'year']) || '4';
                 const deptVal = findRowValue(row, ['ภาควิชา', 'สาขาวิชา', 'ภาค', 'Department', 'dept']) || 'วิทยาการคอมพิวเตอร์';
-                const curriculumVal = findRowValue(row, ['หลักสูตร', 'Curriculum', 'program']) || (targetSec.includes('800') || targetSec.includes('801') || targetSec.includes('802') ? 'ภาคพิเศษ' : 'ภาคปกติ');
+                const curriculumVal = findRowValue(row, ['หลักสูตร', 'Curriculum', 'program']) || '';
                 const phoneVal = findRowValue(row, ['เบอร์โทรศัพท์', 'เบอร์โทร', 'เบอร์', 'โทร', 'Phone', 'Tel', 'tel']) || '';
 
                 const locationCoord = findRowValue(row, ['พิกัด', 'พิกัด GPS', 'GPS', 'Location', 'พิกัดจีพีเอส']);
@@ -1397,7 +1397,7 @@ function switchAdminUserTab(tab) {
                 role: 'student',
                 year: '4',
                 department: 'วิทยาการคอมพิวเตอร์',
-                curriculum: (section.includes('800') || section.includes('801') || section.includes('802') ? 'ภาคพิเศษ' : 'ภาคปกติ'),
+                curriculum: '',
                 section: section,
                 company_name: company,
                 company: company,
@@ -1643,8 +1643,8 @@ function switchAdminUserTab(tab) {
                 const { mySecNormal, mySecSpecial } = getAdvisorSections();
                 secSelect.innerHTML = `
                     <option value="all">ทุกหมู่เรียนในความดูแล (${mySecNormal} และ ${mySecSpecial})</option>
-                    <option value="${mySecNormal}">${mySecNormal} (ภาคปกติ)</option>
-                    <option value="${mySecSpecial}">${mySecSpecial} (ภาคพิเศษ)</option>
+                    <option value="${mySecNormal}">${mySecNormal}</option>
+                    <option value="${mySecSpecial}">${mySecSpecial}</option>
                 `;
                 // เลือกค่าเริ่มต้นตามแถบที่กำลังเปิดดูอยู่
                 if (advisorAssignmentSectionFilter === 'normal') {
@@ -1735,9 +1735,9 @@ function switchAdminUserTab(tab) {
             const secSelect = document.getElementById('adv-asg-section-select');
             if (secSelect) {
                 const optNormal = secSelect.querySelector('option[value="normal"]');
-                if (optNormal) optNormal.textContent = `${mySecNormal} (ภาคปกติ)`;
+                if (optNormal) optNormal.textContent = `${mySecNormal}`;
                 const optSpecial = secSelect.querySelector('option[value="special"]');
-                if (optSpecial) optSpecial.textContent = `${mySecSpecial} (ภาคพิเศษ)`;
+                if (optSpecial) optSpecial.textContent = `${mySecSpecial}`;
                 secSelect.value = advisorAssignmentSectionFilter;
             }
 
@@ -2020,7 +2020,7 @@ function switchAdminUserTab(tab) {
                     const std = item.student;
                     const doc = item.doc;
                     const badgeClass = (doc.status === 'ตรวจรับแล้ว' || doc.status === 'ครบถ้วน') ? 'badge-success' : (doc.status === 'ต้องแก้ไข' ? 'badge-danger' : 'badge-warning');
-                    const secTag = std.section ? `<span class="status-badge" style="font-size: 10px; margin-left: 6px; background: #e0f2fe; color: #0369a1;">${std.section}</span>` : '';
+                    const secTag = std.section ? `<span class="status-badge" style="font-size: 10px; margin-left: 6px; background: #e0f2fe; color: #0369a1;">${cleanSectionName(std.section)}</span>` : '';
 
                     const div = document.createElement('div');
                     div.style.background = '#f8fafc';
@@ -2064,7 +2064,7 @@ function switchAdminUserTab(tab) {
                     return;
                 }
                 unsubmittedList.forEach(std => {
-                    const secTag = std.section ? `<span class="status-badge" style="font-size: 10px; margin-left: 6px; background: #fee2e2; color: #991b1b;">${std.section}</span>` : '';
+                    const secTag = std.section ? `<span class="status-badge" style="font-size: 10px; margin-left: 6px; background: #fee2e2; color: #991b1b;">${cleanSectionName(std.section)}</span>` : '';
                     const div = document.createElement('div');
                     div.style.background = '#fef2f2';
                     div.style.border = '1px solid #fecaca';
@@ -2163,8 +2163,7 @@ function switchAdminUserTab(tab) {
             document.getElementById('class-detail-title').textContent = `จัดการ${sectionName}`;
             const subTitle = document.getElementById('class-detail-subtitle');
             if (subTitle) {
-                const isSpec = (sectionName.includes('800') || sectionName.includes('801') || sectionName.includes('802') || sectionName.includes('พิเศษ'));
-                subTitle.textContent = isSpec ? 'ภาคพิเศษ' : 'ภาคปกติ';
+                subTitle.textContent = 'นิสิตสหกิจศึกษาในความดูแล';
             }
             switchAdvisorClassroomTab('students');
             renderStudentList();

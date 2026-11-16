@@ -4,6 +4,29 @@
 // ผู้จัดทำ: นาย วงศพัทธ์ อุเทน (รหัสนิสิต 6521655442)
 // ==========================================================================
 
+function cleanSectionName(sec) {
+    if (!sec) return '';
+    return String(sec).replace(/\s*\(ภาคปกติ\)|\s*\(ภาคพิเศษ\)|\s*\(ปกติ\)|\s*\(พิเศษ\)|ภาคปกติ|ภาคพิเศษ/g, '').trim();
+}
+window.cleanSectionName = cleanSectionName;
+
+(function sanitizeSavedSections() {
+    try {
+        ['currentUser', 'app_user', 'customUsers', 'dynamicStudentsData'].forEach(key => {
+            const raw = localStorage.getItem(key);
+            if (raw && (raw.includes('ภาคปกติ') || raw.includes('ภาคพิเศษ'))) {
+                const cleaned = raw.replace(/\s*\(ภาคปกติ\)|\s*\(ภาคพิเศษ\)|\s*\(ปกติ\)|\s*\(พิเศษ\)|ภาคปกติ|ภาคพิเศษ/g, '');
+                localStorage.setItem(key, cleaned);
+            }
+            const sessRaw = sessionStorage.getItem(key);
+            if (sessRaw && (sessRaw.includes('ภาคปกติ') || sessRaw.includes('ภาคพิเศษ'))) {
+                const cleaned = sessRaw.replace(/\s*\(ภาคปกติ\)|\s*\(ภาคพิเศษ\)|\s*\(ปกติ\)|\s*\(พิเศษ\)|ภาคปกติ|ภาคพิเศษ/g, '');
+                sessionStorage.setItem(key, cleaned);
+            }
+        });
+    } catch (e) { }
+})();
+
 var currentRole = 'admin'; // default: admin, advisor, student
 var currentSelectedClassroom = 'หมู่ 700';
 var currentSelectedStudentId = null;
@@ -189,7 +212,7 @@ let notifications = [];
                     name: 'นาย กิตติศักดิ์ พลอยประเสริฐ',
                     email: 'kittisak.plo@ku.th',
                     role: 'student',
-                    section: 'หมู่ 700 (ภาคปกติ)',
+                    section: 'หมู่ 700',
                     company_name: 'บริษัท กสท โทรคมนาคม จำกัด (มหาชน)',
                     advisor_name: '-',
                     docs: 'ครบถ้วน',
@@ -535,7 +558,7 @@ let notifications = [];
                         'คำนำหน้านาม': 'นาย',
                         'ชื่อ - นามสกุล': 'พชร ศิริวัฒน์',
                         'อีเมลมหาวิทยาลัย': 'phachara.s@ku.th',
-                        'หมู่เรียน': '800 (ภาคพิเศษ)',
+                        'หมู่เรียน': '800',
                         'อาจารย์ที่ปรึกษา': 'อาจารย์ สมจิต มั่งมี',
                         'ชื่อสถานประกอบการ': 'บริษัท กสท โทรคมนาคม จำกัด (มหาชน)',
                         'พิกัด GPS': '13.8821, 100.5841'
@@ -545,7 +568,7 @@ let notifications = [];
                         'คำนำหน้านาม': 'นางสาว',
                         'ชื่อ - นามสกุล': 'กนกวรรณ รัตนวิชัย',
                         'อีเมลมหาวิทยาลัย': 'kanokwan.r@ku.th',
-                        'หมู่เรียน': '800 (ภาคพิเศษ)',
+                        'หมู่เรียน': '800',
                         'อาจารย์ที่ปรึกษา': 'อาจารย์ สมจิต มั่งมี',
                         'ชื่อสถานประกอบการ': 'บริษัท อโกด้า เซอร์วิสเซส จำกัด',
                         'พิกัด GPS': '13.7462, 100.5348'
@@ -555,7 +578,7 @@ let notifications = [];
                         'คำนำหน้านาม': 'นาย',
                         'ชื่อ - นามสกุล': 'ธนกฤต แสงสว่าง',
                         'อีเมลมหาวิทยาลัย': 'thanakrit.s@ku.th',
-                        'หมู่เรียน': '700 (ภาคปกติ)',
+                        'หมู่เรียน': '700',
                         'อาจารย์ที่ปรึกษา': 'อาจารย์ นิเทศ สหกิจ',
                         'ชื่อสถานประกอบการ': 'บริษัท บลูบิค กรุ๊ป จำกัด (มหาชน)',
                         'พิกัด GPS': '13.7234, 100.5289'
@@ -565,7 +588,7 @@ let notifications = [];
                         'คำนำหน้านาม': 'นางสาว',
                         'ชื่อ - นามสกุล': 'พิมพ์พิชชา วงศ์สุวรรณ',
                         'อีเมลมหาวิทยาลัย': 'pimpitcha.w@ku.th',
-                        'หมู่เรียน': '700 (ภาคปกติ)',
+                        'หมู่เรียน': '700',
                         'อาจารย์ที่ปรึกษา': 'อาจารย์ นิเทศ สหกิจ',
                         'ชื่อสถานประกอบการ': 'ธนาคารไทยพาณิชย์ จำกัด (มหาชน)',
                         'พิกัด GPS': '13.8279, 100.5652'
@@ -592,7 +615,7 @@ let notifications = [];
                         student_id: '6521655305',
                         name: 'นาย พชร ศิริวัฒน์',
                         email: 'phachara.s@ku.th',
-                        section: 'หมู่ 800 (ภาคพิเศษ)',
+                        section: 'หมู่ 800',
                         company: 'บริษัท กสท โทรคมนาคม จำกัด (มหาชน)',
                         company_lat: 13.8821,
                         company_lng: 100.5841,
@@ -606,7 +629,7 @@ let notifications = [];
                         student_id: '6521655313',
                         name: 'นางสาว กนกวรรณ รัตนวิชัย',
                         email: 'kanokwan.r@ku.th',
-                        section: 'หมู่ 800 (ภาคพิเศษ)',
+                        section: 'หมู่ 800',
                         company: 'บริษัท อโกด้า เซอร์วิสเซส จำกัด',
                         company_lat: 13.7462,
                         company_lng: 100.5348,
@@ -620,7 +643,7 @@ let notifications = [];
                         student_id: '6521650012',
                         name: 'นาย ธนกฤต แสงสว่าง',
                         email: 'thanakrit.s@ku.th',
-                        section: 'หมู่ 700 (ภาคปกติ)',
+                        section: 'หมู่ 700',
                         company: 'บริษัท บลูบิค กรุ๊ป จำกัด (มหาชน)',
                         company_lat: 13.7234,
                         company_lng: 100.5289,
@@ -634,7 +657,7 @@ let notifications = [];
                         student_id: '6521650045',
                         name: 'นางสาว พิมพ์พิชชา วงศ์สุวรรณ',
                         email: 'pimpitcha.w@ku.th',
-                        section: 'หมู่ 700 (ภาคปกติ)',
+                        section: 'หมู่ 700',
                         company: 'ธนาคารไทยพาณิชย์ จำกัด (มหาชน)',
                         company_lat: 13.8279,
                         company_lng: 100.5652,

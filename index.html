@@ -765,6 +765,9 @@
         }
 
         function saveAuthSession(user) {
+            if (user && user.section) {
+                user.section = String(user.section).replace(/\s*\(ภาคปกติ\)|\s*\(ภาคพิเศษ\)|\s*\(ปกติ\)|\s*\(พิเศษ\)|ภาคปกติ|ภาคพิเศษ/g, '').trim();
+            }
             try {
                 sessionStorage.setItem('currentUser', JSON.stringify(user));
             } catch (e) { }
@@ -922,7 +925,7 @@
                 if (username.includes('somchai') || username.toLowerCase().includes('q1111') || username.includes('somying') || username.includes('somjit')) {
                     user = { role: 'advisor', name: 'อาจารย์ สมชาย แจ่มใส', id: 'Q1111', advisor_id: 'Q1111', email: 'somchai.j@ku.th', section: 'หมู่ 700, 800', responsible_sections: ['700', '800'], status: 'approved' };
                 } else {
-                    user = { role: 'student', name: 'นาย วงศพัทธ์ อุเทน', id: '6521655442', student_id: '6521655442', email: 'wongsapat.u@ku.th', section: 'หมู่ 800 (ภาคพิเศษ)', company_name: 'สำนักงานพัฒนาวิทยาศาสตร์และเทคโนโลยีแห่งชาติ (สวทช.)', status: 'approved' };
+                    user = { role: 'student', name: 'นาย วงศพัทธ์ อุเทน', id: '6521655442', student_id: '6521655442', email: 'wongsapat.u@ku.th', section: 'หมู่ 800', company_name: 'สำนักงานพัฒนาวิทยาศาสตร์และเทคโนโลยีแห่งชาติ (สวทช.)', status: 'approved' };
                 }
             }
             closeOtpModal();
